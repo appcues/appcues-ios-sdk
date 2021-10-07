@@ -1,0 +1,61 @@
+name: Appcues
+attributes:
+  ORGANIZATIONNAME: Appcues
+options:
+  defaultConfig: Release
+  deploymentTarget:
+    iOS: 13.0
+  groupSortPosition: top
+configs:
+  Debug: debug
+  Release: release
+settings:
+  base:
+    CLANG_CXX_LANGUAGE_STANDARD: gnu++17
+schemes:
+  Appcues:
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+    build:
+      targets:
+        Appcues:
+        - analyzing
+        - testing
+        - running
+        - profiling
+        - archiving
+    profile:
+      config: Release
+    run:
+      config: Debug
+    test:
+      config: Debug
+      gatherCoverageData: true
+      targets:
+      - AppcuesTests
+targets:
+  Appcues:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        MARKETING_VERSION: 0.1.0
+        GENERATE_INFOPLIST_FILE: 'YES'
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk
+    sources:
+    - path: Sources/Appcues
+  AppcuesTests:
+    dependencies:
+    - target: Appcues
+    platform: iOS
+    settings:
+      base:
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: '1'
+        GENERATE_INFOPLIST_FILE: 'YES'
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.AppcuesTests
+    sources:
+    - path: Tests/AppcuesTests
+    type: bundle.unit-test
