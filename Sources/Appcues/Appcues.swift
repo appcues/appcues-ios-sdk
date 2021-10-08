@@ -7,11 +7,14 @@
 //
 
 import Foundation
+import UIKit
 
 /// An object that manages Appcues tracking for your app.
 public class Appcues {
 
     internal let config: Config
+
+    private var currentUserID: String = (UIDevice.current.identifierForVendor ?? UUID()).uuidString
 
     lazy var networking = Networking(config: config)
 
@@ -26,10 +29,24 @@ public class Appcues {
 
     /// Identify the user and determine if they should see Appcues content.
     /// - Parameters:
-    ///   - userId: Unique value identifying the user.
-    ///   - traits: Optional properties that provide additional context about the user.
-    public func identify(userId: String, traits: [String: String]) {
-        log.append("Appcues.identify(userId: \(userId))")
+    ///   - userID: Unique value identifying the user.
+    ///   - properties: Optional properties that provide additional context about the user.
+    public func identify(userID: String, properties: [String: String]) {
+        currentUserID = userID
+
+        let activity = Activity(events: nil, profileUpdate: properties)
+        guard let data = try? Networking.encoder.encode(activity) else {
+            return
+        }
+
+        networking.post(
+            to: .activity(accountID: config.accountID, userID: userID),
+            body: data
+        ) { (result: Result<Taco, Error>) in
+            print(result)
+        }
+
+        log.append("Appcues.identify(userId: \(userID))")
     }
 
     /// Track an action taken by a user.
@@ -37,6 +54,18 @@ public class Appcues {
     ///   - event: Name of the event.
     ///   - properties: Optional properties that provide additional context about the event.
     public func track(event: String, properties: [String: String]) {
+        let activity = Activity(events: [Event(name: event, attributes: properties)], profileUpdate: [:])
+        guard let data = try? Networking.encoder.encode(activity) else {
+            return
+        }
+
+        networking.post(
+            to: .activity(accountID: config.accountID, userID: currentUserID),
+            body: data
+        ) { (result: Result<Taco, Error>) in
+            print(result)
+        }
+
         log.append("Appcues.track(event: \(event))")
     }
 
