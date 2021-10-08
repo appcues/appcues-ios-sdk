@@ -45,17 +45,24 @@ We will only accept a merge request for which all tests pass. Make sure the foll
     git checkout -b <branch-name>
     ```
 
-3. Commit your changes in logical chunks following the commit message guidelines.
+3. Contributing to the Appcues SDK requires [Mint](https://github.com/yonaskolb/Mint) to manage build packages such as [XcodeGen](https://github.com/yonaskolb/XcodeGen). Mint is also used to run [SwiftLint](https://github.com/realm/SwiftLint)
 
-4. Always update documentation and unit tests.
+    ```bash
+    $ mint run xcodegen
+    $ open Appcues.xcodeproj
+    ```
 
-5. Make your changes, lint, then push your local branch to the remote:
+4. Commit your changes in logical chunks following the commit message guidelines.
+
+5. Always update documentation and unit tests.
+
+6. Make your changes, lint, then push your local branch to the remote:
 
     ```bash
     git push -u origin <branch-name>
     ```
 
-6. Open a merge request to get your `<branch-name>` merged into `main`
+7. Open a merge request to get your `<branch-name>` merged into `main`
 
 ### Branch structure
 
