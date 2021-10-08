@@ -11,11 +11,17 @@ import Foundation
 /// An object that manages Appcues tracking for your app.
 public class Appcues {
 
+    internal let config: Config
+
+    lazy var networking = Networking(config: config)
+
     /// Temporary internal log of API calls
     var log: [String] = []
 
     /// Creates an instance of Appcues analytics.
-    public init() {
+    /// - Parameter config: `Config` object for this instance.
+    public init(config: Config) {
+        self.config = config
     }
 
     /// Identify the user and determine if they should see Appcues content.
