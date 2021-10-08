@@ -14,14 +14,14 @@ class AppcuesTests: XCTestCase {
     var instance: Appcues!
 
     override func setUpWithError() throws {
-        instance = Appcues()
+        instance = Appcues(config: Config(accountID: "17361").apiHost("api-main.staging.us-west-2.aws.appcues.net"))
     }
 
     override func tearDownWithError() throws {
     }
 
     func testIdentify() throws {
-        instance.identify(userId: "abc", traits: [:])
+        instance.identify(userID: "abc", properties: [:])
         XCTAssertEqual(instance.log.count, 1)
         XCTAssertEqual(instance.log.first, "Appcues.identify(userId: abc)")
     }
