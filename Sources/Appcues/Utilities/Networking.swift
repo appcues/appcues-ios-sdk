@@ -48,7 +48,7 @@ internal class Networking {
                 return
             }
 
-            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+            if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
                 completion(.failure(NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode)))
                 return
             }
