@@ -46,7 +46,7 @@ public class Appcues {
             print(result)
         }
 
-        log.append("Appcues.identify(userId: \(userID))")
+        log.append("Appcues.identify(userID: \(userID))")
     }
 
     /// Track an action taken by a user.
