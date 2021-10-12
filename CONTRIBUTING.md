@@ -90,6 +90,7 @@ Commit messages should follow the pattern `:gitmoji: Imperative commit message`.
 | 💡 | `:bulb:` | Documenting source code |
 | 📝 | `:pencil:` | Writing docs |
 | 🚨 | `:rotating_light:` | Fixing linter warnings |
+| 🔊 | `:loud_sound:` | Updating logging |
 | 💄 | `:lipstick:` | Updating styles |
 | ♿ | `:wheelchair:` | Improving accessibility |
 | 🚚 | `:truck:` | Moving or renaming files |
