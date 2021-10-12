@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import os.log
 
 // Note: `Config` is a class so that it can be initialized inline with the chained setters. E.g:
 // `Config(accountID: "").apiHost("")`. A struct would require initializing as a var first.
@@ -20,10 +21,21 @@ public class Config {
 
     var urlSession: URLSession = Networking.defaultURLSession
 
+    var logger: OSLog = .disabled
+
     /// Create an Appcues SDK configuration
     /// - Parameter accountID: Appcues Account ID
     public init(accountID: String) {
         self.accountID = accountID
+    }
+
+    /// Set the logging status for the configuration.
+    /// - Parameter enabled: Whether logging is enabled.
+    /// - Returns: The `Configuration` object.
+    @discardableResult
+    public func logging(_ enabled: Bool) -> Self {
+        logger = enabled ? OSLog(appcuesCategory: "general") : .disabled
+        return self
     }
 
     /// Set the API host for the configuration.
