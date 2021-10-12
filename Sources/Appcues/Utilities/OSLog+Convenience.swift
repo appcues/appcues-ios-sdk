@@ -50,7 +50,7 @@ extension OSLog {
         // Swift doesn't support splatting so unfortunately `args` needs to be manually enumerated.
         // Limiting it to 5 since that seems reasonable.
         guard args.count <= 5 else {
-            os_log("Too many log args. 5 are supported, %{public}d passed.", log: self, type: type, args.count)
+            assertionFailure("Too many log args. 5 are supported, \(args.count) passed.")
             return
         }
 
