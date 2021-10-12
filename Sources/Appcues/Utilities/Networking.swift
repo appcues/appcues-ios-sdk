@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import UIKit
 
 internal class Networking {
     let config: Config
@@ -42,7 +41,13 @@ internal class Networking {
     }
 
     private func handleRequest<T: Decodable>(_ urlRequest: URLRequest, completion: @escaping (_ result: Result<T, Error>) -> Void) {
-        let dataTask = config.urlSession.dataTask(with: urlRequest) { data, response, error in
+        let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
+            if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
+                let data = String(data: data ?? Data(), encoding: .utf8) ?? ""
+
+                self?.config.logger.debug("RESPONSE: %{public}d %{public}s\n%{private}s", statusCode, url, data)
+            }
+
             if let error = error {
                 completion(.failure(error))
                 return
@@ -63,6 +68,11 @@ internal class Networking {
             } catch {
                 completion(.failure(error))
             }
+        }
+
+        if let method = urlRequest.httpMethod, let url = urlRequest.url?.absoluteString {
+            let data = String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? ""
+            config.logger.debug("REQUEST: %{public}s %{public}s\n%{private}s", method, url, data)
         }
 
         dataTask.resume()
