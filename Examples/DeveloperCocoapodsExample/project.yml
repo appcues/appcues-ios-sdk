@@ -1,0 +1,30 @@
+name: AppcuesCocoapodsExample
+options:
+  defaultConfig: Release
+  bundleIdPrefix: com.appcues
+  deploymentTarget:
+    iOS: 13.0
+  postGenCommand: pod install
+  groupSortPosition: top
+targets:
+  AppcuesExample:
+    type: application
+    platform: iOS
+    sources:
+    - path: CocoapodsExample
+    postbuildScripts:
+    - name: SwiftLint
+      script: 'if which mint >/dev/null; then
+
+            mint run swiftlint
+
+        else
+
+            echo "warning: Mint not installed, install from https://github.com/yonaskolb/Mint"
+
+        fi
+        '
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.cocoapods-example
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor

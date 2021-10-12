@@ -1,0 +1,8 @@
+source 'https://cdn.cocoapods.org/'
+
+platform :ios, '13.0'
+use_frameworks!
+
+target 'AppcuesExample' do
+    pod 'Appcues', :path => '../../Appcues.podspec'
+end
