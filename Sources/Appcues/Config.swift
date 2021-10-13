@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import os.log
 
 // Note: `Config` is a class so that it can be initialized inline with the chained setters. E.g:
@@ -22,6 +23,10 @@ public class Config {
     var urlSession: URLSession = Networking.defaultURLSession
 
     var logger: OSLog = .disabled
+
+    var anonymousIDFactory: () -> String = {
+        (UIDevice.current.identifierForVendor ?? UUID()).uuidString
+    }
 
     /// Create an Appcues SDK configuration
     /// - Parameter accountID: Appcues Account ID
@@ -55,6 +60,15 @@ public class Config {
     @discardableResult
     public func urlSession(_ urlSession: URLSession) -> Self {
         self.urlSession = urlSession
+        return self
+    }
+
+    /// Set the factory responsible for generating anonymous user ID's.
+    /// - Parameter anonymousIDFactory: Closure that returns an ID as a String.
+    /// - Returns: The `Configuration` object.
+    @discardableResult
+    public func anonymousIDFactory(_ anonymousIDFactory: @escaping () -> String) -> Self {
+        self.anonymousIDFactory = anonymousIDFactory
         return self
     }
 }

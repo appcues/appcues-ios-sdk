@@ -7,14 +7,13 @@
 //
 
 import Foundation
-import UIKit
 
 /// An object that manages Appcues tracking for your app.
 public class Appcues {
 
     internal let config: Config
 
-    private var currentUserID: String = (UIDevice.current.identifierForVendor ?? UUID()).uuidString
+    private lazy var currentUserID: String = config.anonymousIDFactory()
 
     lazy var networking = Networking(config: config)
 
