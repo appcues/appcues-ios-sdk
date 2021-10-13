@@ -93,6 +93,7 @@ public class Appcues {
         log.append("Appcues.screen(title: \(title))")
     }
 
+    // Temporary solution to piggyback on the web page views. A proper mobile screen solution is still needed.
     private func generatePseudoURL(screenName: String) -> String? {
         var components = URLComponents()
         components.scheme = "https"
