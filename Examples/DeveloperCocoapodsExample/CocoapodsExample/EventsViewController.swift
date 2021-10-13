@@ -19,14 +19,14 @@ class EventsViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        Appcues.shared.screen(title: "Trigger Events", properties: [:])
+        Appcues.shared.screen(title: "Trigger Events")
     }
 
     @IBAction private func buttonOneTapped(_ sender: UIButton) {
-        Appcues.shared.track(event: "event1", properties: [:])
+        Appcues.shared.track(event: "event1")
     }
 
     @IBAction private func buttonTwoTapped(_ sender: UIButton) {
-        Appcues.shared.track(event: "event2", properties: [:])
+        Appcues.shared.track(event: "event2")
     }
 }

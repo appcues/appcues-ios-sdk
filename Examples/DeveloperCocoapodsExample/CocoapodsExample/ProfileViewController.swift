@@ -22,7 +22,7 @@ class ProfileViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        Appcues.shared.screen(title: "Update Profile", properties: [:])
+        Appcues.shared.screen(title: "Update Profile")
     }
 
     @IBAction private func saveButtonTapped(_ sender: UIButton) {
