@@ -8,16 +8,18 @@
 import UIKit
 import Appcues
 
-class SignInViewController: UIViewController {
+enum User {
+    static var currentID = "default-00000"
+}
 
-    private static let defaultUserID = "default-00000"
+class SignInViewController: UIViewController {
 
     @IBOutlet private var userIDTextField: UITextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        userIDTextField.text = SignInViewController.defaultUserID
+        userIDTextField.text = User.currentID
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -27,8 +29,11 @@ class SignInViewController: UIViewController {
     }
 
     @IBAction private func signInTapped(_ sender: UIButton) {
+        let userID = userIDTextField.text ?? User.currentID
         Appcues.shared.identify(
-            userID: userIDTextField.text ?? SignInViewController.defaultUserID,
+            userID: userID,
             properties: [:])
+
+        User.currentID = userID
     }
 }

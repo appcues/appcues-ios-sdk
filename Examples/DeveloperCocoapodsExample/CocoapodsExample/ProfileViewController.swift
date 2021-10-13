@@ -36,9 +36,7 @@ class ProfileViewController: UIViewController {
             properties["familyName"] = familyName
         }
 
-        // The web SDK doesn't allow setting custom user properties apart from the identify call.
-        // TODO: This doesn't grab the user ID from the sign in page
-        Appcues.shared.identify(userID: "default-00000", properties: properties)
+        Appcues.shared.identify(userID: User.currentID, properties: properties)
 
         givenNameTextField.text = nil
         familyNameTextField.text = nil
