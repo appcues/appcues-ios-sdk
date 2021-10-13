@@ -73,6 +73,31 @@ public class Appcues {
     ///   - title: Name of the screen.
     ///   - properties: Optional properties that provide additional context about the event.
     public func screen(title: String, properties: [String: String]) {
+        guard let urlString = generatePseudoURL(screenName: title) else {
+            config.logger.error("Could not construct url for page %s", title)
+            return
+        }
+
+        let activity = Activity(events: [Event(pageView: urlString)])
+        guard let data = try? Networking.encoder.encode(activity) else {
+            return
+        }
+
+        networking.post(
+            to: .activity(accountID: config.accountID, userID: currentUserID),
+            body: data
+        ) { (result: Result<Taco, Error>) in
+            print(result)
+        }
+
         log.append("Appcues.screen(title: \(title))")
+    }
+
+    private func generatePseudoURL(screenName: String) -> String? {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = Bundle.main.bundleIdentifier
+        components.path = "/" + screenName.asURLSlug
+        return components.string
     }
 }
