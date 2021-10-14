@@ -1,0 +1,38 @@
+name: SegmentDestinationExample
+options:
+  defaultConfig: Release
+  bundleIdPrefix: com.appcues
+  deploymentTarget:
+    iOS: 13.0
+  groupSortPosition: top
+targets:
+  SegmentDestinationExample:
+    type: application
+    platform: iOS
+    sources:
+      - path: SegmentDestinationExample
+    postbuildScripts:
+      - name: SwiftLint
+        script: 'if which mint >/dev/null; then
+
+              mint run swiftlint
+
+          else
+
+              echo "warning: Mint not installed, install from https://github.com/yonaskolb/Mint"
+
+          fi
+          '
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.segment-example
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies:
+      - package: Segment
+      - package: Appcues
+packages:
+  Segment:
+    github: segmentio/analytics-swift
+    from: 1.0.0
+  Appcues:
+    path: ../..
