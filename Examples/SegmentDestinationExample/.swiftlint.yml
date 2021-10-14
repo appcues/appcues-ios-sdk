@@ -2,3 +2,6 @@ parent_config: ../../.swiftlint.yml
 
 disabled_rules:
   - explicit_top_level_acl
+
+excluded:
+ - SegmentDestinationExample/ScreenTracking/UIKitScreenTracking.swift

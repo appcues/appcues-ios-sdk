@@ -10,23 +10,11 @@ import Segment
 
 class EventsViewController: UIViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        Analytics.shared?.screen(title: "Trigger Events")
-    }
-
     @IBAction private func buttonOneTapped(_ sender: UIButton) {
-        Analytics.shared?.track(name: "event1")
+        Analytics.shared.track(name: "event1")
     }
 
     @IBAction private func buttonTwoTapped(_ sender: UIButton) {
-        Analytics.shared?.track(name: "event2")
+        Analytics.shared.track(name: "event2")
     }
 }
