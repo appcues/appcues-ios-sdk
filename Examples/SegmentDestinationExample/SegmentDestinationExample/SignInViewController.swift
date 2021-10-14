@@ -25,12 +25,12 @@ class SignInViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        Analytics.shared.screen(title: "Sign In")
+        Analytics.shared?.screen(title: "Sign In")
     }
 
     @IBAction private func signInTapped(_ sender: UIButton) {
         let userID = userIDTextField.text ?? User.currentID
-        Analytics.shared.identify(userId: userID)
+        Analytics.shared?.identify(userId: userID)
 
         User.currentID = userID
     }

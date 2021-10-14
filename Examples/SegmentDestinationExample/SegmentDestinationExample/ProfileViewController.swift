@@ -22,7 +22,7 @@ class ProfileViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        Analytics.shared.screen(title: "Update Profile")
+        Analytics.shared?.screen(title: "Update Profile")
     }
 
     @IBAction private func saveButtonTapped(_ sender: UIButton) {
@@ -36,7 +36,7 @@ class ProfileViewController: UIViewController {
             properties["familyName"] = familyName
         }
 
-        Analytics.shared.identify(userId: User.currentID, traits: properties)
+        Analytics.shared?.identify(userId: User.currentID, traits: properties)
 
         givenNameTextField.text = nil
         familyNameTextField.text = nil

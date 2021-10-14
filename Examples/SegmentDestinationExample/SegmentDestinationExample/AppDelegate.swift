@@ -15,6 +15,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      didFinishLaunchingWithOptions
                      launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+
+        let configuration = Configuration(writeKey: <#SEGMENT_WRITE_KEY#>)
+            .trackApplicationLifecycleEvents(true)
+            .flushAt(1)
+
+        let analytics = Analytics(configuration: configuration)
+
+        // Add the Appcues destination plugin
+        analytics.add(plugin: AppcuesDestination())
+
+        Analytics.shared = analytics
+
         return true
     }
 
@@ -38,5 +50,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension Analytics {
-    static var shared = Analytics(configuration: Configuration(writeKey: <#SEGMENT_WRITE_KEY#>))
+    static var shared: Analytics?
 }
