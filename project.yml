@@ -61,4 +61,10 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.AppcuesTests
     sources:
     - path: Tests/AppcuesTests
+    dependencies:
+      - package: Mocker
     type: bundle.unit-test
+packages:
+  Mocker:
+    github: WeTransfer/Mocker
+    version: 2.5.4

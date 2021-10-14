@@ -17,9 +17,6 @@ public class Appcues {
 
     lazy var networking = Networking(config: config)
 
-    /// Temporary internal log of API calls
-    var log: [String] = []
-
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
     public init(config: Config) {
@@ -44,8 +41,6 @@ public class Appcues {
         ) { (result: Result<Taco, Error>) in
             print(result)
         }
-
-        log.append("Appcues.identify(userID: \(userID))")
     }
 
     /// Track an action taken by a user.
@@ -64,8 +59,6 @@ public class Appcues {
         ) { (result: Result<Taco, Error>) in
             print(result)
         }
-
-        log.append("Appcues.track(event: \(event))")
     }
 
     /// Track an screen viewed by a user.
@@ -89,8 +82,6 @@ public class Appcues {
         ) { (result: Result<Taco, Error>) in
             print(result)
         }
-
-        log.append("Appcues.screen(title: \(title))")
     }
 
     // Temporary solution to piggyback on the web page views. A proper mobile screen solution is still needed.
