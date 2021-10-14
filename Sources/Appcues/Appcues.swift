@@ -78,7 +78,7 @@ public class Appcues {
             return
         }
 
-        let activity = Activity(events: [Event(pageView: urlString)])
+        let activity = Activity(events: [Event(pageView: urlString, attributes: properties)])
         guard let data = try? Networking.encoder.encode(activity) else {
             return
         }

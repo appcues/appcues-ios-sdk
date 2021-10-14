@@ -20,11 +20,12 @@ internal struct Event: Encodable {
         self.attributes = attributes
     }
 
-    init(pageView url: String) {
+    init(pageView url: String, attributes: [String: String]? = nil) {
         name = "appcues:page_view"
         timestamp = Date()
-        attributes = [
-            "url": url
-        ]
+
+        var extendedAttributes = attributes ?? [:]
+        extendedAttributes["url"] = url
+        self.attributes = extendedAttributes
     }
 }
