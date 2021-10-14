@@ -16,16 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 
-        let configuration = Configuration(writeKey: <#SEGMENT_WRITE_KEY#>)
-            .trackApplicationLifecycleEvents(true)
-            .flushAt(1)
-
-        let analytics = Analytics(configuration: configuration)
-
         // Add the Appcues destination plugin
-        analytics.add(plugin: AppcuesDestination())
+        Analytics.shared.add(plugin: AppcuesDestination())
 
-        Analytics.shared = analytics
+        // Add Segment automatic screen tracking plugin
+        Analytics.shared.add(plugin: UIKitScreenTracking())
 
         return true
     }
@@ -50,5 +45,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension Analytics {
-    static var shared: Analytics?
+    static var shared = Analytics(configuration: Configuration(writeKey: <#SEGMENT_WRITE_KEY#>)
+                                    .flushAt(1)
+                                    .trackApplicationLifecycleEvents(true))
 }

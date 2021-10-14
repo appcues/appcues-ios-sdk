@@ -13,18 +13,6 @@ class ProfileViewController: UIViewController {
     @IBOutlet private var givenNameTextField: UITextField!
     @IBOutlet private var familyNameTextField: UITextField!
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-
-        Analytics.shared?.screen(title: "Update Profile")
-    }
-
     @IBAction private func saveButtonTapped(_ sender: UIButton) {
         var properties: [String: String] = [:]
 
@@ -36,7 +24,7 @@ class ProfileViewController: UIViewController {
             properties["familyName"] = familyName
         }
 
-        Analytics.shared?.identify(userId: User.currentID, traits: properties)
+        Analytics.shared.identify(userId: User.currentID, traits: properties)
 
         givenNameTextField.text = nil
         familyNameTextField.text = nil
