@@ -23,51 +23,44 @@ public class AppcuesDestination: DestinationPlugin {
     public private(set) var appcues: Appcues?
 
     public func update(settings: Settings, type: UpdateType) {
-        // we've already set up this singleton SDK, can't do it again, so skip.
-        guard type == .initial,
-              let appcuesSettings: AppcuesSettings = settings.integrationSettings(forPlugin: self) else {
-                  return
-              }
-
+        guard let appcuesSettings: AppcuesSettings = settings.integrationSettings(forPlugin: self) else { return }
         appcues = Appcues(config: Config(accountID: appcuesSettings.appcuesId))
     }
 
     public func identify(event: IdentifyEvent) -> IdentifyEvent? {
-        guard let appcues = appcues,
-              let userId = event.userId else {
-                  return event
-              }
-
-        appcues.identify(userID: userId, properties: sanitize(properties: event.traits))
+        if let appcues = appcues, let userId = event.userId {
+            appcues.identify(userID: userId, properties: event.traits?.appcuesProperties)
+        }
         return event
     }
 
     public func track(event: TrackEvent) -> TrackEvent? {
-        appcues?.track(event: event.event, properties: sanitize(properties: event.properties))
+        if let appcues = appcues {
+            appcues.track(event: event.event, properties: event.properties?.appcuesProperties)
+        }
         return event
     }
 
     public func screen(event: ScreenEvent) -> ScreenEvent? {
-        guard let appcues = appcues,
-              let title = event.name else {
-                  return event
-              }
-
-        appcues.screen(title: title, properties: sanitize(properties: event.properties))
+        if let appcues = appcues, let title = event.name  {
+            appcues.screen(title: title, properties: event.properties?.appcuesProperties)
+        }
         return event
     }
+}
 
+private extension JSON {
     // We need to build support for [String: Any] properties, converting to strings for now.
     // Also note: https://docs.appcues.com/article/161-javascript-api
     //   Property values can be strings, numbers, or booleans. Beware!
     //   Any identify call with an array or nested object as a property
     //   value will not appear in your Appcues account.
-    private func sanitize(properties: JSON?) -> [String: String]? {
-        guard let properties = properties?.dictionaryValue else { return nil }
-        var sanitized: [String: String] = [:]
+    var appcuesProperties: [String: String]? {
+        guard let properties = dictionaryValue else { return nil }
+        var converted: [String: String] = [:]
         for (key, value) in properties {
-            sanitized[key] = "\(value)"
+            converted[key] = "\(value)"
         }
-        return sanitized
+        return converted
     }
 }
