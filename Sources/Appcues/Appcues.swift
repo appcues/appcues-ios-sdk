@@ -16,6 +16,7 @@ public class Appcues {
     private lazy var currentUserID: String = config.anonymousIDFactory()
 
     lazy var networking = Networking(config: config)
+    lazy var appcuesUI = AppcuesUI(config: config, styleLoader: StyleLoader(networking: self.networking))
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
@@ -79,8 +80,16 @@ public class Appcues {
         networking.post(
             to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: currentUserID),
             body: data
-        ) { (result: Result<Taco, Error>) in
-            print(result)
+        ) { [weak self] (result: Result<Taco, Error>) in
+            switch result {
+            case .success(let taco):
+                // This assumes that the returned flows are ordered by priority.
+                if let flow = taco.contents.first {
+                    self?.appcuesUI.show(flow: flow)
+                }
+            case .failure(let error):
+                print(error)
+            }
         }
     }
 
@@ -92,8 +101,13 @@ public class Appcues {
     public func show(contentID: String) {
         networking.get(
             from: Networking.APIEndpoint.content(accountID: config.accountID, userID: currentUserID, contentID: contentID)
-        ) { (result: Result<Flow, Error>) in
-            print(result)
+        ) { [weak self] (result: Result<Flow, Error>) in
+            switch result {
+            case .success(let flow):
+                self?.appcuesUI.show(flow: flow)
+            case .failure(let error):
+                print(error)
+            }
         }
     }
 
