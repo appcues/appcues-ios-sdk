@@ -34,4 +34,8 @@ class SignInViewController: UIViewController {
 
         User.currentID = userID
     }
+
+    @IBAction private func signOutAction(unwindSegue: UIStoryboardSegue) {
+        // Unwind to Sign In
+    }
 }

@@ -81,13 +81,20 @@
                             <constraint firstItem="DFP-td-vP8" firstAttribute="centerX" secondItem="g2K-xc-Zp2" secondAttribute="centerX" id="tNX-MG-kFm"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Update Profile" id="Hgj-Xj-T4z"/>
+                    <navigationItem key="navigationItem" title="Update Profile" id="Hgj-Xj-T4z">
+                        <barButtonItem key="rightBarButtonItem" title="Sign Out" id="S22-oi-BH8">
+                            <connections>
+                                <segue destination="zm6-am-BJ8" kind="unwind" unwindAction="signOutActionWithUnwindSegue:" id="ct3-5l-hcz"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="familyNameTextField" destination="FMi-kV-XtR" id="zng-AK-kch"/>
                         <outlet property="givenNameTextField" destination="8Tl-gR-eNQ" id="TKk-Ni-Vw7"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CPa-rq-uVz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <exit id="zm6-am-BJ8" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="1629" y="937"/>
         </scene>
