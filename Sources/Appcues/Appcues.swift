@@ -37,7 +37,7 @@ public class Appcues {
         }
 
         networking.post(
-            to: .activity(accountID: config.accountID, userID: userID),
+            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: userID),
             body: data
         ) { (result: Result<Taco, Error>) in
             print(result)
@@ -55,7 +55,7 @@ public class Appcues {
         }
 
         networking.post(
-            to: .activity(accountID: config.accountID, userID: currentUserID),
+            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: currentUserID),
             body: data
         ) { (result: Result<Taco, Error>) in
             print(result)
@@ -78,7 +78,7 @@ public class Appcues {
         }
 
         networking.post(
-            to: .activity(accountID: config.accountID, userID: currentUserID),
+            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: currentUserID),
             body: data
         ) { (result: Result<Taco, Error>) in
             print(result)
@@ -92,7 +92,7 @@ public class Appcues {
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(contentID: String) {
         networking.get(
-            from: .content(accountID: config.accountID, userID: currentUserID, contentID: contentID)
+            from: Networking.APIEndpoint.content(accountID: config.accountID, userID: currentUserID, contentID: contentID)
         ) { (result: Result<Flow, Error>) in
             print(result)
         }

@@ -16,7 +16,7 @@ internal class Networking {
     }
 
     func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void) {
-        guard let requestURL = url(for: endpoint) else {
+        guard let requestURL = endpoint.url(with: config) else {
             completion(.failure(NetworkingError.invalidURL))
             return
         }
@@ -28,7 +28,7 @@ internal class Networking {
     }
 
     func post<T: Decodable>(to endpoint: Endpoint, body: Data, completion: @escaping (_ result: Result<T, Error>) -> Void) {
-        guard let requestURL = url(for: endpoint) else {
+        guard let requestURL = endpoint.url(with: config) else {
             completion(.failure(NetworkingError.invalidURL))
             return
         }
@@ -76,10 +76,6 @@ internal class Networking {
         }
 
         dataTask.resume()
-    }
-
-    private func url(for endpoint: Endpoint) -> URL? {
-        URL(string: "https://\(config.apiHost)\(endpoint.path)")
     }
 }
 
