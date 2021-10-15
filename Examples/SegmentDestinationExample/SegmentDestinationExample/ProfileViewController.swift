@@ -14,6 +14,8 @@ class ProfileViewController: UIViewController {
     @IBOutlet private var familyNameTextField: UITextField!
 
     @IBAction private func saveButtonTapped(_ sender: UIButton) {
+        view.endEditing(true)
+
         var properties: [String: String] = [:]
 
         if let givenName = givenNameTextField.text, !givenName.isEmpty {
