@@ -48,7 +48,7 @@ targets:
     - path: Sources/Appcues
     postbuildScripts:
     - name: SwiftLint
-      script: 'xcrun --sdk macos mint run swiftlint --path ./Sources'
+      script: 'xcrun --sdk macosx mint run swiftlint --path ./Sources'
   AppcuesTests:
     dependencies:
     - target: Appcues
