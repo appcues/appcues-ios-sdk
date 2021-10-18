@@ -1,8 +1,15 @@
 default_platform(:ios)
 
+before_all do |lane|
+  sh("brew install mint")
+end
+
 platform :ios do
   lane :test do
-    run_tests(scheme: "AppcuesTests",
+    Dir.chdir("..") do
+      sh("mint run xcodegen")
+    end
+    run_tests(scheme: "Appcues",
               devices: ["iPhone 13"])
   end
 end
