@@ -46,9 +46,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk
     sources:
     - path: Sources/Appcues
-    postbuildScripts:
-    - name: SwiftLint
-      script: 'mint run swiftlint --path ./Sources'
+    # postbuildScripts:
+    # - name: SwiftLint
+    #   script: 'mint run swiftlint --path ./Sources'
   AppcuesTests:
     dependencies:
     - target: Appcues
