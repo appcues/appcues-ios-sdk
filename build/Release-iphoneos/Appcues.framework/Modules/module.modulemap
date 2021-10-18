@@ -1,0 +1,4 @@
+framework module Appcues {
+  header "Appcues-Swift.h"
+  requires objc
+}

@@ -1,0 +1,13 @@
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Models/Activity.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Appcues.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Config.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Models/Event.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Models/Flow.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/HTTPURLResponse+Custom.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/JSONCodingKeys.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/Networking+Endpoint.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/Networking.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/NetworkingError.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/OSLog+Convenience.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/String+Format.swift
+/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Models/Taco.swift

@@ -1,0 +1,18 @@
+version: "Apple Swift version 5.5 (swiftlang-1300.0.31.1 clang-1300.0.29.1)"
+options: "f859979b243f1c80915a415b22e18b6a0c7ee166a8cfa40d864fcf12efa17ae5"
+build_start_time: [1634590917, 533470153]
+build_end_time: [1634590921, 141412019]
+inputs:
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Appcues.swift": [1634238429, 14813423]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Config.swift": [1634160051, 546171665]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Models/Activity.swift": [1634060062, 959000110]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Models/Event.swift": [1634238429, 15372276]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Models/Flow.swift": [1634060062, 959139823]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Models/Taco.swift": [1634060062, 959197521]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/HTTPURLResponse+Custom.swift": [1634060062, 959508419]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/JSONCodingKeys.swift": [1634060062, 959590911]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/Networking+Endpoint.swift": [1634241093, 91272354]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/Networking.swift": [1634070589, 235287666]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/NetworkingError.swift": [1634060062, 959991931]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/OSLog+Convenience.swift": [1634158957, 244484901]
+  "/Users/james/Dev/github/appcues-ios-sdk/Sources/Appcues/Utilities/String+Format.swift": [1634160051, 546387672]
