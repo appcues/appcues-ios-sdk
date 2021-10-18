@@ -20,7 +20,7 @@ extension Networking {
         case content(accountID: String, userID: String, contentID: String)
         case custom(path: String)
 
-        /// URL fragments that that are appended to the `Config.apiHost` to mkae the URL for a network request.
+        /// URL fragments that that are appended to the `Config.apiHost` to make the URL for a network request.
         func url(with config: Config) -> URL? {
             var components = URLComponents()
             components.scheme = "https"
