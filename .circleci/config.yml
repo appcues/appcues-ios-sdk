@@ -22,8 +22,8 @@ workflows:
   version: 2
   pr_validation:
     jobs:
-      - run_tests
-        filters:
+      - run_tests:
+          filters:
             branches:
               ignore:
                 - main
