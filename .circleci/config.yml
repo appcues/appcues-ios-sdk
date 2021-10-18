@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  build:
+  test:
     macos:
       xcode: 13.0.0
     shell: /bin/bash --login -o pipefail
@@ -8,6 +8,7 @@ jobs:
       - checkout
       - run: brew install mint
       - run: mint run xcodegen
+      - run: mint run swiftlint
       - restore_cache:
           key: 1-gems-{{ checksum "Gemfile.lock" }}
       - run: bundle check || bundle install --path vendor/bundle
@@ -20,3 +21,12 @@ jobs:
           path: output
       - store_test_results:
           path: output/scan
+workflows:
+  version: 2
+  pr_validation:
+    jobs:
+      - test
+        filters:
+            branches:
+              ignore:
+                - main
