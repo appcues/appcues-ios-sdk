@@ -1,0 +1,17 @@
+default_platform(:ios)
+
+platform :ios do
+
+  before_all do
+    setup_circle_ci
+    sh("brew install mint")
+  end
+
+  lane :run_tests do
+    Dir.chdir("..") do
+      sh("mint run xcodegen")
+    end
+    run_tests(scheme: "Appcues",
+              devices: ["iPhone 13"])
+  end
+end
