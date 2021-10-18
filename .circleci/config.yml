@@ -3,6 +3,7 @@ jobs:
   run_tests:
     macos:
       xcode: 13.0.0
+    working_directory: /Users/distiller/project
     shell: /bin/bash --login -o pipefail
     steps:
       - checkout
@@ -13,7 +14,7 @@ jobs:
           key: 1-gems-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
-      - run: bundle exec fastlane run_tests
+      - run: bundle exec fastlane sdktests
       - store_artifacts:
           path: output
       - store_test_results:

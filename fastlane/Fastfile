@@ -7,7 +7,7 @@ platform :ios do
     sh("brew install mint")
   end
 
-  lane :run_tests do
+  lane :sdktests do
     Dir.chdir("..") do
       sh("mint run xcodegen")
     end
