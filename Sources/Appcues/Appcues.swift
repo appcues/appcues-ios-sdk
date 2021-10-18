@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import UIKit
 
 /// An object that manages Appcues tracking for your app.
 public class Appcues {
@@ -87,7 +86,7 @@ public class Appcues {
 
     /// Forces specific Appcues content to appear for the current user by passing in the ID.
     /// - Parameters:
-    ///   - contentID: Name of the screen.
+    ///   - contentID: ID of the flow.
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(contentID: String) {
