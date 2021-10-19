@@ -7,7 +7,7 @@ options:
   postGenCommand: pod install
   groupSortPosition: top
 targets:
-  AppcuesExample:
+  AppcuesCocoapodsExample:
     type: application
     platform: iOS
     sources:
@@ -26,5 +26,5 @@ targets:
         '
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.cocoapods-example
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk-example-cocoapods
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor

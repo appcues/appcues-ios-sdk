@@ -3,6 +3,6 @@ source 'https://cdn.cocoapods.org/'
 platform :ios, '13.0'
 use_frameworks!
 
-target 'AppcuesExample' do
+target 'AppcuesCocoapodsExample' do
     pod 'Appcues', :path => '../../Appcues.podspec'
 end
