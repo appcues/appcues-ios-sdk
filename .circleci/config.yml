@@ -18,21 +18,33 @@ jobs:
           device: "iPhone 13"
       - checkout
       - restore_cache:
+          name: Restore gem cache
           key: 1-gems-{{ checksum "Gemfile.lock" }}
-      - run: bundle check || bundle install --path vendor/bundle
+      - run:
+          name: Install gem dependencies
+          command: bundle check || bundle install --path vendor/bundle
       - save_cache:
+          name: Save gem cache
           key: 1-gems-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
-      - run: brew install mint
+      - run:
+          name: Install mint (Swift dependency manager)
+          command: brew install mint
       - restore_cache:
+          name: Restore swift build package cache
           key: 1-mint-{{ checksum "Mintfile" }}
-      - run: mint bootstrap
+      - run:
+          name: Install swift build packages
+          command: mint bootstrap
       - save_cache:
+          name: Save swift build package cache
           key: 1-mint-{{ checksum "Mintfile" }}
           paths:
             - .mint
-      - run: bundle exec fastlane sdktests
+      - run:
+          name: Run fastlane tests
+          command: bundle exec fastlane sdktests
       - store_artifacts:
           path: output
       - store_test_results:
