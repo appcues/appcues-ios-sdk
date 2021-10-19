@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  macos: circleci/macos@2
 jobs:
   run_tests:
     macos:
@@ -10,6 +12,10 @@ jobs:
       MINT_LINK_PATH: "$MINT_PATH/bin"
       HOMEBREW_NO_AUTO_UPDATE: 1
     steps:
+      - macos/preboot-simulator:
+          version: "15.0"
+          platform: "iOS"
+          device: "iPhone 13"
       - checkout
       - restore_cache:
           key: 1-gems-{{ checksum "Gemfile.lock" }}
