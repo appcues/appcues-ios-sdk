@@ -5,6 +5,9 @@ jobs:
       xcode: 13.0.0
     working_directory: /Users/distiller/project
     shell: /bin/bash --login -o pipefail
+    environment:
+      MINT_PATH: ".mint"
+      MINT_LINK_PATH: "$MINT_PATH/bin"
     steps:
       - checkout
       - restore_cache:
@@ -14,6 +17,14 @@ jobs:
           key: 1-gems-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
+      - run: brew install mint
+      - restore_cache:
+          key: 1-mint-{{ checksum "Mintfile" }}
+      - run: mint bootstrap
+      - save_cache:
+          key: 1-mint-{{ checksum "Mintfile" }}
+          paths:
+            - .mint
       - run: bundle exec fastlane sdktests
       - store_artifacts:
           path: output
