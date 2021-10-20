@@ -1,4 +1,6 @@
 version: 2.1
+orbs:
+  slack: circleci/slack@4.4.4
 jobs:
   validate_code:
     macos:
@@ -41,6 +43,10 @@ jobs:
           path: output
       - store_test_results:
           path: output/scan
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+          channel: team-mobile-bots
 workflows:
   version: 2
   pr_validation:
@@ -50,3 +56,5 @@ workflows:
             branches:
               ignore:
                 - main
+          context:
+            - Appcues
