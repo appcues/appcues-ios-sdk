@@ -27,7 +27,6 @@ platform :ios do
     sh("sh", "./replace-placeholders.sh", "00000")
     build_app(
       workspace: "Examples/DeveloperCocoapodsExample/AppcuesCocoapodsExample.xcworkspace",
-      clean: true,
       skip_archive: true,
       skip_codesigning: true)
   end
