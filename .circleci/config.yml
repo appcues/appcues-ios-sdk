@@ -8,8 +8,6 @@ jobs:
     working_directory: /Users/distiller/project
     shell: /bin/bash --login -o pipefail
     environment:
-      MINT_PATH: ".mint"
-      MINT_LINK_PATH: "$MINT_PATH/bin"
       HOMEBREW_NO_AUTO_UPDATE: 1
     steps:
       - macos/preboot-simulator:
@@ -33,15 +31,16 @@ jobs:
           command: brew install mint
       - restore_cache:
           name: Restore swift build package cache
-          key: 1-mint-{{ checksum "Mintfile" }}
+          key: 3-mint-{{ checksum "Mintfile" }}
       - run:
           name: Install swift build packages
           command: mint bootstrap
+      - run: mint which swiftlint
       - save_cache:
           name: Save swift build package cache
-          key: 1-mint-{{ checksum "Mintfile" }}
+          key: 3-mint-{{ checksum "Mintfile" }}
           paths:
-            - .mint
+            - /usr/local/lib/mint
       - run:
           name: Run fastlane tests
           command: bundle exec fastlane validate_code
