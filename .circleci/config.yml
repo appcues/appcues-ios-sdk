@@ -44,7 +44,7 @@ jobs:
             - .mint
       - run:
           name: Run fastlane tests
-          command: bundle exec fastlane sdktests
+          command: bundle exec fastlane validate_code
       - store_artifacts:
           path: output
       - store_test_results:
