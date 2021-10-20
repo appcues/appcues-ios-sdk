@@ -6,11 +6,29 @@ platform :ios do
     setup_circle_ci
   end
 
-  lane :sdktests do
+  desc "Validate the code in the SDK repo works properly"
+  lane :validate_code do
+    sdk_tests
+    compile_example
+  end
+
+  desc "Run SDK unit tests"
+  lane :sdk_tests do
     Dir.chdir("..") do
       sh("mint run xcodegen")
     end
     run_tests(scheme: "Appcues",
               devices: ["iPhone 13"])
+  end
+
+  desc "Sanity check to make sure the example app compiles"
+  lane :compile_example do
+    cocoapods(podfile: "Examples/DeveloperCocoapodsExample/Podfile")
+    sh("sh", "./replace-placeholders.sh", "00000")
+    build_app(
+      workspace: "Examples/DeveloperCocoapodsExample/AppcuesCocoapodsExample.xcworkspace",
+      clean: true,
+      skip_archive: true,
+      skip_codesigning: true)
   end
 end

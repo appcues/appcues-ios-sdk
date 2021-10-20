@@ -16,11 +16,21 @@ or alternatively using `brew install fastlane`
 
 # Available Actions
 ## iOS
-### ios test
+### ios validate_code
 ```
-fastlane ios test
+fastlane ios validate_code
 ```
-
+Validate the code in the SDK repo works properly
+### ios sdk_tests
+```
+fastlane ios sdk_tests
+```
+Run SDK unit tests
+### ios compile_example
+```
+fastlane ios compile_example
+```
+Sanity check to make sure the example app compiles
 
 ----
 
