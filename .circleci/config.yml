@@ -1,8 +1,6 @@
 version: 2.1
-orbs:
-  macos: circleci/macos@2
 jobs:
-  run_tests:
+  validate_code:
     macos:
       xcode: 13.0.0
     working_directory: /Users/distiller/project
@@ -10,10 +8,6 @@ jobs:
     environment:
       HOMEBREW_NO_AUTO_UPDATE: 1
     steps:
-      - macos/preboot-simulator:
-          version: "15.0"
-          platform: "iOS"
-          device: "iPhone 13"
       - checkout
       - restore_cache:
           name: Restore gem cache
@@ -35,7 +29,6 @@ jobs:
       - run:
           name: Install swift build packages
           command: mint bootstrap
-      - run: mint which swiftlint
       - save_cache:
           name: Save swift build package cache
           key: 3-mint-{{ checksum "Mintfile" }}
@@ -52,7 +45,7 @@ workflows:
   version: 2
   pr_validation:
     jobs:
-      - run_tests:
+      - validate_code:
           filters:
             branches:
               ignore:
