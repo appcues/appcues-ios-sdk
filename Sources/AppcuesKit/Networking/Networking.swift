@@ -9,9 +9,9 @@
 import Foundation
 
 internal class Networking {
-    let config: Config
+    let config: Appcues.Config
 
-    init(config: Config) {
+    init(config: Appcues.Config) {
         self.config = config
     }
 
