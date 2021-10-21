@@ -20,7 +20,7 @@ schemes:
       config: Release
     build:
       targets:
-        Appcues:
+        AppcuesKit:
         - analyzing
         - testing
         - running
@@ -34,9 +34,9 @@ schemes:
       config: Debug
       gatherCoverageData: true
       targets:
-      - AppcuesTests
+      - AppcuesKitTests
 targets:
-  Appcues:
+  AppcuesKit:
     type: framework
     platform: iOS
     settings:
@@ -45,22 +45,22 @@ targets:
         GENERATE_INFOPLIST_FILE: 'YES'
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk
     sources:
-    - path: Sources/Appcues
+    - path: Sources/AppcuesKit
     postbuildScripts:
     - name: SwiftLint
       script: 'xcrun --sdk macosx mint run swiftlint --path ./Sources'
-  AppcuesTests:
+  AppcuesKitTests:
     dependencies:
-    - target: Appcues
+    - target: AppcuesKit
     platform: iOS
     settings:
       base:
         MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: '1'
         GENERATE_INFOPLIST_FILE: 'YES'
-        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.AppcuesTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.AppcuesKitTests
     sources:
-    - path: Tests/AppcuesTests
+    - path: Tests/AppcuesKitTests
     dependencies:
       - package: Mocker
     type: bundle.unit-test
