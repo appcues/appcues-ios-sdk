@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../../Appcues.podspec"
 
 SPEC CHECKSUMS:
-  Appcues: 3e5c91309e5c6a3b63a4621db7867f2f36d775c6
+  Appcues: cda87b846517e454522a60b11dfb86af857d43e3
 
 PODFILE CHECKSUM: d073e1e0b242bcec57ace36973467c46cd0f6c03
 
