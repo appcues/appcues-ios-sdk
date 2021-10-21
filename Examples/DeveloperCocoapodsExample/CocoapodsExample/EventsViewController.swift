@@ -23,10 +23,10 @@ class EventsViewController: UIViewController {
     }
 
     @IBAction private func buttonOneTapped(_ sender: UIButton) {
-        Appcues.shared.track(event: "event1")
+        Appcues.shared.track(name: "event1")
     }
 
     @IBAction private func buttonTwoTapped(_ sender: UIButton) {
-        Appcues.shared.track(event: "event2")
+        Appcues.shared.track(name: "event2")
     }
 }
