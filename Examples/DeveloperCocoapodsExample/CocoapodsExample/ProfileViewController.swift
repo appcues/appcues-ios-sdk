@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Appcues
+import AppcuesKit
 
 class ProfileViewController: UIViewController {
 
