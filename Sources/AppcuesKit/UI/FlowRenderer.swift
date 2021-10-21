@@ -10,10 +10,10 @@ import UIKit
 
 internal class FlowRenderer {
 
-    let config: Config
+    let config: Appcues.Config
     let styleLoader: StyleLoader
 
-    init(config: Config, styleLoader: StyleLoader) {
+    init(config: Appcues.Config, styleLoader: StyleLoader) {
         self.config = config
         self.styleLoader = styleLoader
     }

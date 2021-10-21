@@ -10,65 +10,68 @@ import Foundation
 import UIKit
 import os.log
 
-// Note: `Config` is a class so that it can be initialized inline with the chained setters. E.g:
-// `Config(accountID: "").apiHost("")`. A struct would require initializing as a var first.
+public extension Appcues {
 
-/// A configuration object that defines behavior and policies for Appcues.
-public class Config {
+    // Note: `Config` is a class so that it can be initialized inline with the chained setters. E.g:
+    // `Config(accountID: "").apiHost("")`. A struct would require initializing as a var first.
 
-    let accountID: String
+    /// A configuration object that defines behavior and policies for Appcues.
+    class Config {
 
-    var apiHost: String = Networking.defaultAPIHost
+        let accountID: String
 
-    var urlSession: URLSession = Networking.defaultURLSession
+        var apiHost: String = Networking.defaultAPIHost
 
-    var logger: OSLog = .disabled
+        var urlSession: URLSession = Networking.defaultURLSession
 
-    var anonymousIDFactory: () -> String = {
-        (UIDevice.current.identifierForVendor ?? UUID()).uuidString
-    }
+        var logger: OSLog = .disabled
 
-    /// Create an Appcues SDK configuration
-    /// - Parameter accountID: Appcues Account ID
-    public init(accountID: String) {
-        self.accountID = accountID
-    }
+        var anonymousIDFactory: () -> String = {
+            (UIDevice.current.identifierForVendor ?? UUID()).uuidString
+        }
 
-    /// Set the logging status for the configuration.
-    /// - Parameter enabled: Whether logging is enabled.
-    /// - Returns: The `Configuration` object.
-    @discardableResult
-    public func logging(_ enabled: Bool) -> Self {
-        logger = enabled ? OSLog(appcuesCategory: "general") : .disabled
-        return self
-    }
+        /// Create an Appcues SDK configuration
+        /// - Parameter accountID: Appcues Account ID
+        public init(accountID: String) {
+            self.accountID = accountID
+        }
 
-    /// Set the API host for the configuration.
-    /// - Parameter apiHost: Domain of the API host.
-    /// - Returns: The `Configuration` object.
-    @discardableResult
-    public func apiHost(_ apiHost: String) -> Self {
-        self.apiHost = apiHost
-        return self
-    }
+        /// Set the logging status for the configuration.
+        /// - Parameter enabled: Whether logging is enabled.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        public func logging(_ enabled: Bool) -> Self {
+            logger = enabled ? OSLog(appcuesCategory: "general") : .disabled
+            return self
+        }
 
-    /// Set the `URLSession` instance used by the configuration.
-    /// - Parameter apiHost: Domain of the API host.
-    /// - Returns: The `Configuration` object.
-    ///
-    /// Injecting a custom `URLSession` may be useful for testing in combination with `URLSessionConfiguration.protocolClasses`.
-    @discardableResult
-    public func urlSession(_ urlSession: URLSession) -> Self {
-        self.urlSession = urlSession
-        return self
-    }
+        /// Set the API host for the configuration.
+        /// - Parameter apiHost: Domain of the API host.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        public func apiHost(_ apiHost: String) -> Self {
+            self.apiHost = apiHost
+            return self
+        }
 
-    /// Set the factory responsible for generating anonymous user ID's.
-    /// - Parameter anonymousIDFactory: Closure that returns an ID as a String.
-    /// - Returns: The `Configuration` object.
-    @discardableResult
-    public func anonymousIDFactory(_ anonymousIDFactory: @escaping () -> String) -> Self {
-        self.anonymousIDFactory = anonymousIDFactory
-        return self
+        /// Set the `URLSession` instance used by the configuration.
+        /// - Parameter apiHost: Domain of the API host.
+        /// - Returns: The `Configuration` object.
+        ///
+        /// Injecting a custom `URLSession` may be useful for testing in combination with `URLSessionConfiguration.protocolClasses`.
+        @discardableResult
+        public func urlSession(_ urlSession: URLSession) -> Self {
+            self.urlSession = urlSession
+            return self
+        }
+
+        /// Set the factory responsible for generating anonymous user ID's.
+        /// - Parameter anonymousIDFactory: Closure that returns an ID as a String.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        public func anonymousIDFactory(_ anonymousIDFactory: @escaping () -> String) -> Self {
+            self.anonymousIDFactory = anonymousIDFactory
+            return self
+        }
     }
 }

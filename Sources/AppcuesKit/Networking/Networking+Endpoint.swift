@@ -9,7 +9,7 @@
 import Foundation
 
 internal protocol Endpoint {
-    func url(with config: Config) -> URL?
+    func url(with config: Appcues.Config) -> URL?
 }
 
 extension Networking {
@@ -21,7 +21,7 @@ extension Networking {
         case custom(path: String)
 
         /// URL fragments that that are appended to the `Config.apiHost` to make the URL for a network request.
-        func url(with config: Config) -> URL? {
+        func url(with config: Appcues.Config) -> URL? {
             var components = URLComponents()
             components.scheme = "https"
             components.host = config.apiHost
@@ -44,7 +44,7 @@ extension Networking {
     enum CDNEndpoint: Endpoint {
         case styles(accountID: String, styleID: String)
 
-        func url(with config: Config) -> URL? {
+        func url(with config: Appcues.Config) -> URL? {
             var components = URLComponents()
             components.scheme = "https"
             components.host = "fast.appcues.com"
