@@ -16,7 +16,7 @@ public class Appcues {
     private lazy var currentUserID: String = config.anonymousIDFactory()
 
     lazy var networking = Networking(config: config)
-    lazy var appcuesUI = AppcuesUI(config: config, styleLoader: StyleLoader(networking: self.networking))
+    lazy var flowRenderer = FlowRenderer(config: config, styleLoader: StyleLoader(networking: self.networking))
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
@@ -85,7 +85,7 @@ public class Appcues {
             case .success(let taco):
                 // This assumes that the returned flows are ordered by priority.
                 if let flow = taco.contents.first {
-                    self?.appcuesUI.show(flow: flow)
+                    self?.flowRenderer.show(flow: flow)
                 }
             case .failure(let error):
                 print(error)
@@ -104,7 +104,7 @@ public class Appcues {
         ) { [weak self] (result: Result<Flow, Error>) in
             switch result {
             case .success(let flow):
-                self?.appcuesUI.show(flow: flow)
+                self?.flowRenderer.show(flow: flow)
             case .failure(let error):
                 print(error)
             }

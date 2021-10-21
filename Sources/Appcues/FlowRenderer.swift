@@ -1,5 +1,5 @@
 //
-//  AppcuesUI.swift
+//  FlowRenderer.swift
 //  Appcues
 //
 //  Created by Matt on 2021-10-20.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class AppcuesUI {
+internal class FlowRenderer {
 
     let config: Config
     let styleLoader: StyleLoader
