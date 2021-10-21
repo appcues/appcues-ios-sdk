@@ -72,7 +72,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        instance.track(event: "eventName", properties: ["my_key":"my_value"])
+        instance.track(name: "eventName", properties: ["my_key":"my_value"])
 
         // Assert
         waitForExpectations(timeout: 1)
