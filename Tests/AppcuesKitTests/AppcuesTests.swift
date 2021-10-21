@@ -8,7 +8,7 @@
 
 import XCTest
 import Mocker
-@testable import Appcues
+@testable import AppcuesKit
 
 class AppcuesTests: XCTestCase {
     var instance: Appcues!
