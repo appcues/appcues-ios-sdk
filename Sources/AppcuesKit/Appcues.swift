@@ -28,7 +28,7 @@ public class Appcues {
     /// - Parameters:
     ///   - userID: Unique value identifying the user.
     ///   - properties: Optional properties that provide additional context about the user.
-    public func identify(userID: String, properties: [String: String]? = nil) {
+    public func identify(userID: String, properties: [String: Any]? = nil) {
         currentUserID = userID
 
         let activity = Activity(events: nil, profileUpdate: properties)
@@ -48,7 +48,7 @@ public class Appcues {
     /// - Parameters:
     ///   - name: Name of the event.
     ///   - properties: Optional properties that provide additional context about the event.
-    public func track(name: String, properties: [String: String]? = nil) {
+    public func track(name: String, properties: [String: Any]? = nil) {
         let activity = Activity(events: [Event(name: name, attributes: properties)], profileUpdate: nil)
         guard let data = try? Networking.encoder.encode(activity) else {
             return
@@ -66,7 +66,7 @@ public class Appcues {
     /// - Parameters:
     ///   - title: Name of the screen.
     ///   - properties: Optional properties that provide additional context about the event.
-    public func screen(title: String, properties: [String: String]? = nil) {
+    public func screen(title: String, properties: [String: Any]? = nil) {
         guard let urlString = generatePseudoURL(screenName: title) else {
             config.logger.error("Could not construct url for page %s", title)
             return
