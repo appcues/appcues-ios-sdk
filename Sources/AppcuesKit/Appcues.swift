@@ -46,10 +46,10 @@ public class Appcues {
 
     /// Track an action taken by a user.
     /// - Parameters:
-    ///   - event: Name of the event.
+    ///   - name: Name of the event.
     ///   - properties: Optional properties that provide additional context about the event.
-    public func track(event: String, properties: [String: String]? = nil) {
-        let activity = Activity(events: [Event(name: event, attributes: properties)], profileUpdate: nil)
+    public func track(name: String, properties: [String: String]? = nil) {
+        let activity = Activity(events: [Event(name: name, attributes: properties)], profileUpdate: nil)
         guard let data = try? Networking.encoder.encode(activity) else {
             return
         }
