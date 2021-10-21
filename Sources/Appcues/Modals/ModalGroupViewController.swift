@@ -17,8 +17,6 @@ internal class ModalGroupViewController: UIViewController {
 
     private lazy var modalGroupView = ModalGroupView()
 
-    private lazy var dataSource = setupDataSource()
-
     init(modalStepGroup: ModalGroup, styleLoader: StyleLoader) {
         self.modalStepGroup = modalStepGroup
         self.styleLoader = styleLoader
@@ -52,40 +50,38 @@ internal class ModalGroupViewController: UIViewController {
         }
 
         modalGroupView.collectionView.register(WebWrapperCell.self, forCellWithReuseIdentifier: WebWrapperCell.reuseID)
-
+        modalGroupView.collectionView.dataSource = self
         setupFlow()
     }
 
     private func setupFlow() {
-        var snapshot = NSDiffableDataSourceSnapshot<String, ModalGroup.Step>()
-        snapshot.appendSections(["Steps"])
-        snapshot.appendItems(modalStepGroup.steps)
-
-        dataSource.apply(snapshot, animatingDifferences: false)
-
         if modalStepGroup.skippable {
             let button = modalGroupView.addDismissButton()
             button.addTarget(self, action: #selector(dismissButtonTapped(_:)), for: .touchUpInside)
         }
     }
 
-    private func setupDataSource() -> UICollectionViewDiffableDataSource<String, ModalGroup.Step> {
-        return UICollectionViewDiffableDataSource<String, ModalGroup.Step>(
-            collectionView: modalGroupView.collectionView
-        ) { (collectionView: UICollectionView, indexPath: IndexPath, identifier: ModalGroup.Step) -> UICollectionViewCell? in
-            guard let cell = collectionView.dequeueReusableCell(
-                withReuseIdentifier: WebWrapperCell.reuseID,
-                for: indexPath) as? WebWrapperCell else { return nil }
-
-            cell.render(
-                html: identifier.html,
-                css: self.styleLoader.cachedStyles[self.modalStepGroup.styleID]?.globalStyling)
-            return cell
-        }
-    }
-
     @objc
     private func dismissButtonTapped(_ sender: UIButton) {
         dismiss(animated: true)
+    }
+}
+
+extension ModalGroupViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        modalStepGroup.steps.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: WebWrapperCell.reuseID,
+            for: indexPath) as? WebWrapperCell else { return UICollectionViewCell() }
+
+        let modalStep = modalStepGroup.steps[indexPath.row]
+
+        cell.render(
+            html: modalStep.html,
+            css: self.styleLoader.cachedStyles[self.modalStepGroup.styleID]?.globalStyling)
+        return cell
     }
 }
