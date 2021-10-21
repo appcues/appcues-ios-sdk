@@ -8,6 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'Appcues'
+  s.module_name      = 'AppcuesKit'
   s.version          = '0.1.0'
   s.summary          = 'SDK for integrating with Appcues'
 
@@ -30,7 +31,7 @@ TODO: Add long description of the pod here.
   s.swift_version = '5.0'
   s.ios.deployment_target = '13.0'
 
-  s.source_files = 'Sources/Appcues/**/*'
+  s.source_files = 'Sources/AppcuesKit/**/*'
   
   # s.resource_bundles = {
   #   'Appcues' => ['Appcues/Assets/*.png']
