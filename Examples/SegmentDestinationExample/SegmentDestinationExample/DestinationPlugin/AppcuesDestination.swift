@@ -7,7 +7,7 @@
 
 import Foundation
 import Segment
-import Appcues
+import AppcuesKit
 
 private struct AppcuesSettings: Codable {
     let appcuesId: String

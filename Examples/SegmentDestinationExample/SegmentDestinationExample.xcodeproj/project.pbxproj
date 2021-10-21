@@ -3,17 +3,17 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		096A5BFCCD5B686A0D5876A7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6DA379EDC987E2F2133F1BA6 /* Assets.xcassets */; };
-		0B73408AD35A4D0B7CF9C496 /* Appcues in Frameworks */ = {isa = PBXBuildFile; productRef = E1384FC6F48CF89CB7692D91 /* Appcues */; };
+		0B73408AD35A4D0B7CF9C496 /* AppcuesKit in Frameworks */ = {isa = PBXBuildFile; productRef = C4D709F730CC950927A3BF51 /* AppcuesKit */; };
 		0F5A613ADDE782008347CFE2 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF1CF95581420B9D19A3B17 /* SignInViewController.swift */; };
 		15B4CFDDD09DA62CDA6F6B3C /* AppcuesDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69A5A994DFCE5A744D7703A7 /* AppcuesDestination.swift */; };
 		16C0C3F96C13FB79F33FC85C /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3DCEDF8AA853DFF8CA9E601 /* ProfileViewController.swift */; };
-		1A43476B2718C9B300F693AA /* UIKitScreenTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A43476A2718C9B300F693AA /* UIKitScreenTracking.swift */; };
 		20374C2D510399894ADCC44E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFB622FAEF94DD34049FCABA /* SceneDelegate.swift */; };
+		437E8F730214F159A0764FD3 /* UIKitScreenTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8718AA5A3C5275EA89C1FBDC /* UIKitScreenTracking.swift */; };
 		56703BA6135C5006C0E27438 /* Segment in Frameworks */ = {isa = PBXBuildFile; productRef = 94F64F73E18BAC132F477D4C /* Segment */; };
 		583B9F8303592EF95B3E9FDE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D9562F1AE2D3AD86356B00C9 /* LaunchScreen.storyboard */; };
 		A3A39CBC383CDCB372F89ABE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 61A2FA82500D4BD79D66E534 /* Main.storyboard */; };
@@ -22,11 +22,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1A43476A2718C9B300F693AA /* UIKitScreenTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitScreenTracking.swift; sourceTree = "<group>"; };
 		69A5A994DFCE5A744D7703A7 /* AppcuesDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppcuesDestination.swift; sourceTree = "<group>"; };
 		6DA379EDC987E2F2133F1BA6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		719F42221967743984476BE8 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7FF4D700743515AD753C03AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		8718AA5A3C5275EA89C1FBDC /* UIKitScreenTracking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIKitScreenTracking.swift; sourceTree = "<group>"; };
 		A4857A1E1E930E154F941E32 /* EventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsViewController.swift; sourceTree = "<group>"; };
 		A4DDC1D3BCA0C61E5DCBC47F /* SegmentDestinationExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SegmentDestinationExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BBD939763EFD0A85A7E22ACC /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -43,26 +43,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				56703BA6135C5006C0E27438 /* Segment in Frameworks */,
-				0B73408AD35A4D0B7CF9C496 /* Appcues in Frameworks */,
+				0B73408AD35A4D0B7CF9C496 /* AppcuesKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1A4347692718C98B00F693AA /* ScreenTracking */ = {
-			isa = PBXGroup;
-			children = (
-				1A43476A2718C9B300F693AA /* UIKitScreenTracking.swift */,
-			);
-			path = ScreenTracking;
-			sourceTree = "<group>";
-		};
 		576B58207C8CF70A9F5639D2 /* SegmentDestinationExample */ = {
 			isa = PBXGroup;
 			children = (
-				1A4347692718C98B00F693AA /* ScreenTracking */,
 				76E9E95BF8D1D0A210B63BB1 /* DestinationPlugin */,
+				9741C87977459044DB073E8F /* ScreenTracking */,
 				BBD939763EFD0A85A7E22ACC /* AppDelegate.swift */,
 				6DA379EDC987E2F2133F1BA6 /* Assets.xcassets */,
 				A4857A1E1E930E154F941E32 /* EventsViewController.swift */,
@@ -91,6 +83,14 @@
 			);
 			name = Packages;
 			sourceTree = SOURCE_ROOT;
+		};
+		9741C87977459044DB073E8F /* ScreenTracking */ = {
+			isa = PBXGroup;
+			children = (
+				8718AA5A3C5275EA89C1FBDC /* UIKitScreenTracking.swift */,
+			);
+			path = ScreenTracking;
+			sourceTree = "<group>";
 		};
 		E1AF2AF96311B3929AFCAAA7 = {
 			isa = PBXGroup;
@@ -128,7 +128,7 @@
 			name = SegmentDestinationExample;
 			packageProductDependencies = (
 				94F64F73E18BAC132F477D4C /* Segment */,
-				E1384FC6F48CF89CB7692D91 /* Appcues */,
+				C4D709F730CC950927A3BF51 /* AppcuesKit */,
 			);
 			productName = SegmentDestinationExample;
 			productReference = A4DDC1D3BCA0C61E5DCBC47F /* SegmentDestinationExample.app */;
@@ -141,6 +141,8 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1200;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = A6FC403C49432CB9A9956BE1 /* Build configuration list for PBXProject "SegmentDestinationExample" */;
 			compatibilityVersion = "Xcode 10.0";
@@ -192,7 +194,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which mint >/dev/null; then\nmint run swiftlint\nelse\necho \"warning: Mint not installed, install from https://github.com/yonaskolb/Mint\"\nfi ";
+			shellScript = "if which mint >/dev/null; then\nxcrun --sdk macosx mint run swiftlint\nelse\necho \"warning: Mint not installed, install from https://github.com/yonaskolb/Mint\"\nfi ";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -207,7 +209,7 @@
 				16C0C3F96C13FB79F33FC85C /* ProfileViewController.swift in Sources */,
 				20374C2D510399894ADCC44E /* SceneDelegate.swift in Sources */,
 				0F5A613ADDE782008347CFE2 /* SignInViewController.swift in Sources */,
-				1A43476B2718C9B300F693AA /* UIKitScreenTracking.swift in Sources */,
+				437E8F730214F159A0764FD3 /* UIKitScreenTracking.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -426,9 +428,9 @@
 			package = 84ED075FD9E3805A03E6DFD7 /* XCRemoteSwiftPackageReference "analytics-swift" */;
 			productName = Segment;
 		};
-		E1384FC6F48CF89CB7692D91 /* Appcues */ = {
+		C4D709F730CC950927A3BF51 /* AppcuesKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = Appcues;
+			productName = AppcuesKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

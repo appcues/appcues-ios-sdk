@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Appcues
+import AppcuesKit
 
 enum User {
     static var currentID = "default-00000"
