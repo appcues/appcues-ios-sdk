@@ -38,7 +38,7 @@ class AppcuesTests: XCTestCase {
             do {
                 let requestBody = try XCTUnwrap(postBodyArguments)
                 try requestBody.verifyRequestID()
-                try requestBody.verifyMatchingProfile(["my_key": "my_value"])
+                try requestBody.verifyMatchingProfile(["my_key": "my_value", "another_key": 33])
                 onRequestExpectation.fulfill()
             } catch {
                 XCTFail(error.localizedDescription)
@@ -47,7 +47,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        instance.identify(userID: "specific-user-id", properties: ["my_key":"my_value"])
+        instance.identify(userID: "specific-user-id", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -63,7 +63,7 @@ class AppcuesTests: XCTestCase {
             do {
                 let body = try XCTUnwrap(postBodyArguments)
                 try body.verifyRequestID()
-                try body.verifyMatchingEvents([Event(name: "eventName", attributes: ["my_key": "my_value"])])
+                try body.verifyMatchingEvents([Event(name: "eventName", attributes: ["my_key": "my_value", "another_key": 33])])
                 onRequestExpectation.fulfill()
             } catch {
                 XCTFail(error.localizedDescription)
@@ -72,7 +72,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        instance.track(name: "eventName", properties: ["my_key":"my_value"])
+        instance.track(name: "eventName", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -88,7 +88,7 @@ class AppcuesTests: XCTestCase {
             do {
                 let body = try XCTUnwrap(postBodyArguments)
                 try body.verifyRequestID()
-                try body.verifyMatchingEvents([Event(pageView: "https://com.apple.dt.xctest.tool/my-test-page", attributes: ["my_key":"my_value"])])
+                try body.verifyMatchingEvents([Event(pageView: "https://com.apple.dt.xctest.tool/my-test-page", attributes: ["my_key":"my_value", "another_key": 33])])
                 onRequestExpectation.fulfill()
             } catch {
                 XCTFail(error.localizedDescription)
@@ -97,7 +97,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        instance.screen(title: "My test page", properties: ["my_key":"my_value"])
+        instance.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -126,8 +126,9 @@ private extension Dictionary where Key == String, Value == Any {
         XCTAssertNotNil(UUID(uuidString: requestID), "request ID is a valid UUID")
     }
 
-    func verifyMatchingProfile(_ profile: [String: String]) throws {
-        XCTAssertEqual(self["profile_update"] as? [String: String], profile)
+    func verifyMatchingProfile(_ profile: [String: Any]) throws {
+        let bodyDict = try XCTUnwrap(self["profile_update"] as? [String: Any])
+        try verifyPropertiesMatch(dict1: bodyDict, dict2: profile)
     }
 
     func verifyMatchingEvents(_ expectEvents: [Event]) throws {
@@ -137,9 +138,32 @@ private extension Dictionary where Key == String, Value == Any {
         // Compare each event in order
         Array(zip(requestEvents, expectEvents)).forEach { requestEvent, expectEvent in
             XCTAssertEqual(requestEvent["name"] as? String, expectEvent.name)
-            XCTAssertEqual(requestEvent["attributes"] as? [String: String], expectEvent.attributes)
+            do {
+                let bodyDict = try XCTUnwrap(requestEvent["attributes"] as? [String: Any])
+                try verifyPropertiesMatch(dict1: bodyDict, dict2: expectEvent.attributes ?? [:])
+            } catch {
+                XCTFail(error.localizedDescription)
+            }
             // Not comparing to expectEvent.date because it's fine if they're not identical
             XCTAssertNotNil(requestEvent["timestamp"] as? String)
+        }
+    }
+
+    private func verifyPropertiesMatch(dict1: [String: Any], dict2: [String: Any]) throws {
+        XCTAssertEqual(Set(dict1.keys), Set(dict2.keys))
+        dict1.keys.forEach { key in
+            switch(dict1[key], dict2[key]) {
+            case let (val1 as String, val2 as String):
+                XCTAssertEqual(val1, val2)
+            case let (val1 as Int, val2 as Int):
+                XCTAssertEqual(val1, val2)
+            case let (val1 as Double, val2 as Double):
+                XCTAssertEqual(val1, val2)
+            case let (val1 as Bool, val2 as Bool):
+                XCTAssertEqual(val1, val2)
+            default:
+                XCTFail("\(dict1[key] ?? "nil") does not match \(dict2[key] ?? "nil").")
+            }
         }
     }
 }
