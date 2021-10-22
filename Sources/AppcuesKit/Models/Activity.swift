@@ -30,16 +30,13 @@ extension Activity: Encodable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(requestID, forKey: .requestID)
-        try container.encode(events, forKey: .events)
+        if let events = events {
+            try container.encode(events, forKey: .events)
+        }
 
-        var profileInfoContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .profileUpdate)
-        // Swallow any invalid types, but assertionFailure in DEBUG to catch invalid types being passed
-        do {
-            try profileInfoContainer.encode(profileUpdate)
-        } catch EncodingError.invalidValue(_, let context) {
-            if case .unsupportedType = (context.underlyingError as? AppcuesEncodingError) {
-                assertionFailure(context.debugDescription)
-            }
+        if let profileUpdate = profileUpdate {
+            var profileInfoContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .profileUpdate)
+            try profileInfoContainer.encodeSkippingInvalid(profileUpdate)
         }
     }
 }

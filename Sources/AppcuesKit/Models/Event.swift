@@ -42,14 +42,9 @@ extension Event: Encodable {
         try container.encode(name, forKey: .name)
         try container.encode(timestamp, forKey: .timestamp)
 
-        var attributesContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .attributes)
-        // Swallow any invalid types, but assertionFailure in DEBUG to catch invalid types being passed
-        do {
-            try attributesContainer.encode(attributes)
-        } catch EncodingError.invalidValue(_, let context) {
-            if case .unsupportedType = (context.underlyingError as? AppcuesEncodingError) {
-                assertionFailure(context.debugDescription)
-            }
+        if let attributes = attributes {
+            var attributesContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .attributes)
+            try attributesContainer.encodeSkippingInvalid(attributes)
         }
     }
 }
