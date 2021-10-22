@@ -1,5 +1,5 @@
 //
-//  Config.swift
+//  Appcues+Config.swift
 //  Appcues
 //
 //  Created by Matt on 2021-10-08.
