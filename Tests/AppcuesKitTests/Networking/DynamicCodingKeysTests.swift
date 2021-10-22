@@ -29,21 +29,17 @@ class DynamicCodingKeysTests: XCTestCase {
         XCTAssertEqual(asString, #"{"dict":{"bool":true,"double":3.14,"int":42,"string":"value"}}"#)
     }
 
-    func testEncodeDictAnyFailure() throws {
+    func testEncodeDictAnyInvalid() throws {
         // Arrange
         let invalidValue = Date()
-        let testData = TestData(dict: ["invalid": invalidValue])
+        let testData = TestData(dict: ["before": 1, "invalid": invalidValue, "valid": "Valid value", "anotherInvalid": ["arr", "ay"]])
 
-        // Act/Assert
-        XCTAssertThrowsError(try encoder.encode(testData)) { error in
-            switch error as? EncodingError {
-            case let .invalidValue(value, context):
-                XCTAssertEqual(value as? Date, invalidValue)
-                XCTAssertEqual(context.debugDescription, "Only String, Number and Bool types allowed.")
-            default:
-                XCTFail("Unexpected encoder error.")
-            }
-        }
+        // Act
+        let data = try XCTUnwrap(try encoder.encode(testData))
+
+        // Assert
+        let asString = try XCTUnwrap(String(data: data, encoding: .utf8))
+        XCTAssertEqual(asString, #"{"dict":{"before":1,"valid":"Valid value"}}"#)
     }
 }
 
@@ -58,8 +54,7 @@ extension DynamicCodingKeysTests {
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             var dictContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .dict)
-            try dictContainer.encode(dict)
+            try dictContainer.encodeSkippingInvalid(dict)
         }
-
     }
 }

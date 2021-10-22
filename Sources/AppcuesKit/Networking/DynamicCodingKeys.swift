@@ -29,10 +29,10 @@ internal struct DynamicCodingKeys: CodingKey {
 
 extension KeyedEncodingContainer where K == DynamicCodingKeys {
 
-    /// Encodes the given dictionary to primitive types permitted by the Appcues API.
-    ///
-    /// An `EncodingError` will be thrown for non-permitted types, and that specific error should be caught and ignored by the caller of this func.
-    mutating func encode(_ dict: [String: Any]?) throws {
+    /// Encodes the given dictionary to primitive types permitted by the Appcues API, skipping invalid types.
+    mutating func encodeSkippingInvalid(_ dict: [String: Any]?) throws {
+        var encodingErrorKeys: [String] = []
+
         try dict?.forEach { key, value in
             let codingKey = DynamicCodingKeys(key: key)
 
@@ -45,13 +45,17 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
             case let number as NSNumber:
                 try self.encode(number.decimalValue, forKey: codingKey)
             default:
-                // Throw here instead of assertionFailure directly so we can test this case
-                let context = EncodingError.Context(
-                    codingPath: [codingKey],
-                    debugDescription: "Only String, Number and Bool types allowed.",
-                    underlyingError: AppcuesEncodingError.unsupportedType)
-                throw EncodingError.invalidValue(value, context)
+                encodingErrorKeys.append(codingKey.stringValue)
             }
+        }
+
+        if !encodingErrorKeys.isEmpty && ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil {
+            assertionFailure(
+            """
+            Unsupported value(s) included in \(self.codingPath) for key(s): \(encodingErrorKeys).
+            Only String, Number, and Bool types allowed.
+            """
+            )
         }
     }
 }
