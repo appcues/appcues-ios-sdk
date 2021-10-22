@@ -39,12 +39,11 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
             switch value {
             case let string as String:
                 try self.encode(string, forKey: codingKey)
-            case let int as Int:
-                try self.encode(int, forKey: codingKey)
-            case let double as Double:
-                try self.encode(double, forKey: codingKey)
             case let bool as Bool:
                 try self.encode(bool, forKey: codingKey)
+            // swiftlint:disable:next legacy_objc_type
+            case let number as NSNumber:
+                try self.encode(number.decimalValue, forKey: codingKey)
             default:
                 // Throw here instead of assertionFailure directly so we can test this case
                 let context = EncodingError.Context(

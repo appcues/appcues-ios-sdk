@@ -26,7 +26,7 @@ class DynamicCodingKeysTests: XCTestCase {
 
         // Assert
         let asString = try XCTUnwrap(String(data: data, encoding: .utf8))
-        XCTAssertEqual(asString, #"{"dict":{"bool":true,"double":3.1400000000000001,"int":42,"string":"value"}}"#)
+        XCTAssertEqual(asString, #"{"dict":{"bool":true,"double":3.14,"int":42,"string":"value"}}"#)
     }
 
     func testEncodeDictAnyFailure() throws {
