@@ -11,7 +11,7 @@ import UIKit
 internal enum LaunchType {
     case install
     case open
-    case upgrade
+    case update
 }
 
 internal class Storage {
@@ -45,7 +45,7 @@ internal class Storage {
         if previousBuild.isEmpty {
             launchType = .install
         } else if previousBuild != currentBuild {
-            launchType = .upgrade
+            launchType = .update
         }
     }
 }

@@ -11,11 +11,20 @@ import UIKit
 
 internal class AnalyticsTracker {
 
+    enum LifecycleEvents: String {
+        case applicationInstalled = "Application Installed"
+        case applicationOpened = "Application Opened"
+        case applicationUpdated = "Application Updated"
+        case applicationBackgrounded = "Application Backgrounded"
+    }
+
     private let config: Appcues.Config
     private let storage: Storage
     private let networking: Networking
 
     private var lastTrackedScreen: String?
+
+    private var wasBackgrounded = false
 
     var flowQualified: ((Flow) -> Void)?
 
@@ -140,11 +149,8 @@ internal class AnalyticsTracker {
     @objc
     func didFinishLaunching(notification: Notification) {
         let launchOptions = notification.userInfo as? [UIApplication.LaunchOptionsKey: Any]
-
-        track(name: "Application Opened", properties: [
+        track(name: storage.launchType.lifecycleEvent.rawValue, properties: [
             "from_background": false,
-            "version": Bundle.main.version,
-            "build": Bundle.main.build,
             "referring_application": launchOptions?[UIApplication.LaunchOptionsKey.sourceApplication] ?? "",
             "url": launchOptions?[UIApplication.LaunchOptionsKey.url] ?? ""
         ])
@@ -152,16 +158,30 @@ internal class AnalyticsTracker {
 
     @objc
     func applicationWillEnterForeground(notification: Notification) {
-        track(name: "Application Opened",
+        guard wasBackgrounded else { return }
+        wasBackgrounded = false
+        track(name: LifecycleEvents.applicationOpened.rawValue,
               properties: [
-                "from_background": true,
-                "version": Bundle.main.version,
-                "build": Bundle.main.build
+                "from_background": true
               ])
     }
 
     @objc
     func didEnterBackground(notification: Notification) {
-        track(name: "Application Backgrounded")
+        wasBackgrounded = true
+        track(name: LifecycleEvents.applicationBackgrounded.rawValue)
+    }
+}
+
+private extension LaunchType {
+    var lifecycleEvent: AnalyticsTracker.LifecycleEvents {
+        switch self {
+        case .install:
+            return .applicationInstalled
+        case .open:
+            return .applicationOpened
+        case .update:
+            return .applicationUpdated
+        }
     }
 }
