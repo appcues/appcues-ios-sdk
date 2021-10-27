@@ -10,12 +10,17 @@ import UIKit
 
 extension UIApplication {
 
+    var activeWindowScenes: [UIWindowScene] {
+        self.connectedScenes
+            .filter { $0.activationState == .foregroundActive }
+            .compactMap { $0 as? UIWindowScene }
+    }
+
     // Note: multitasking with two instances of the same app side by side will have both designated as `.foregroundActive`,
     // and as a result the returned window may not be the one expected.
     private var activeKeyWindow: UIWindow? {
-        self.connectedScenes
-            .filter { $0.activationState == .foregroundActive }
-            .flatMap { ($0 as? UIWindowScene)?.windows ?? [] }
+        self.activeWindowScenes
+            .flatMap { $0.windows }
             .first { $0.isKeyWindow }
     }
 

@@ -17,6 +17,7 @@ public class Appcues {
 
     lazy var networking = Networking(config: config)
     lazy var flowRenderer = FlowRenderer(config: config, styleLoader: StyleLoader(networking: self.networking))
+    lazy var uiDebugger = UIDebugger(config: config)
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
@@ -118,5 +119,10 @@ public class Appcues {
         components.host = Bundle.main.bundleIdentifier
         components.path = "/" + screenName.asURLSlug
         return components.string
+    }
+
+    /// Launches the Appcues debugger over your app's UI.
+    public func debug() {
+        uiDebugger.show()
     }
 }
