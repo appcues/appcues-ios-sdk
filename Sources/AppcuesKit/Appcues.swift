@@ -23,19 +23,33 @@ public class Appcues {
     /// - Parameter config: `Config` object for this instance.
     public init(config: Config) {
         self.config = config
-        self.storage = Storage(config: config)
+        self.storage = Storage()
         self.networking = Networking(config: config)
         self.uiDebugger = UIDebugger(config: config)
         self.styleLoader = StyleLoader(networking: networking)
-        self.flowRenderer = FlowRenderer(config: config, networking: networking, storage: storage, styleLoader: styleLoader)
+        self.flowRenderer = FlowRenderer(config: config, styleLoader: styleLoader)
         self.analyticsTracker = AnalyticsTracker(config: config, storage: storage, networking: networking)
 
-        self.analyticsTracker.flowQualified = { self.flowRenderer.show(flow: $0) }
+        let previousBuild = storage.applicationBuild
+        let currentBuild = Bundle.main.build
 
-        if storage.launchType == .install {
+        storage.applicationBuild = currentBuild
+        storage.applicationVersion = Bundle.main.version
+
+        var launchType = LaunchType.open
+        if previousBuild.isEmpty {
+            launchType = .install
+        } else if previousBuild != currentBuild {
+            launchType = .update
+        }
+
+        if launchType == .install {
             // perform any fresh install activities here
             storage.userID = config.anonymousIDFactory()
         }
+
+        self.analyticsTracker.flowQualified = { self.flowRenderer.show(flow: $0) }
+        self.analyticsTracker.launchType = launchType
     }
 
     /// Identify the user and determine if they should see Appcues content.
@@ -69,7 +83,16 @@ public class Appcues {
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(contentID: String) {
-        flowRenderer.show(contentID: contentID)
+        networking.get(
+            from: Networking.APIEndpoint.content(accountID: config.accountID, userID: storage.userID, contentID: contentID)
+        ) { [weak self] (result: Result<Flow, Error>) in
+            switch result {
+            case .success(let flow):
+                self?.flowRenderer.show(flow: flow)
+            case .failure(let error):
+                print(error)
+            }
+        }
     }
 
     /// Launches the Appcues debugger over your app's UI.

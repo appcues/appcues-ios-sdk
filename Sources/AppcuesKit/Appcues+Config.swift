@@ -78,8 +78,8 @@ public extension Appcues {
             return self
         }
 
-        /// Set the automatic screen tracking status for the configuration
-        /// - Parameter enabled: Whether automatic screen tracking is enabled
+        /// Set the automatic screen tracking status for the configuration.
+        /// - Parameter enabled: Whether automatic screen tracking is enabled.
         /// - Returns: The `Configuration` object.
         @discardableResult
         public func trackScreens(_ enabled: Bool) -> Self {
@@ -87,8 +87,8 @@ public extension Appcues {
             return self
         }
 
-        /// Set the automatic lifecycle tracking status for the configuration
-        /// - Parameter enabled: Whether automatic lifecycle tracking is enabled
+        /// Set the automatic lifecycle tracking status for the configuration.
+        /// - Parameter enabled: Whether automatic lifecycle tracking is enabled.
         /// - Returns: The `Configuration` object.
         @discardableResult
         public func trackLifecycle(_ enabled: Bool) -> Self {

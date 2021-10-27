@@ -12,13 +12,9 @@ internal class FlowRenderer {
 
     private let config: Appcues.Config
     private let styleLoader: StyleLoader
-    private let networking: Networking
-    private let storage: Storage
 
-    init(config: Appcues.Config, networking: Networking, storage: Storage, styleLoader: StyleLoader) {
+    init(config: Appcues.Config, styleLoader: StyleLoader) {
         self.config = config
-        self.networking = networking
-        self.storage = storage
         self.styleLoader = styleLoader
     }
 
@@ -38,19 +34,6 @@ internal class FlowRenderer {
 
             let viewController = ModalGroupViewController(modalStepGroup: modalStepGroup, styleLoader: self.styleLoader)
             topController.present(viewController, animated: true)
-        }
-    }
-
-    func show(contentID: String) {
-        networking.get(
-            from: Networking.APIEndpoint.content(accountID: config.accountID, userID: storage.userID, contentID: contentID)
-        ) { [weak self] (result: Result<Flow, Error>) in
-            switch result {
-            case .success(let flow):
-                self?.show(flow: flow)
-            case .failure(let error):
-                print(error)
-            }
         }
     }
 }
