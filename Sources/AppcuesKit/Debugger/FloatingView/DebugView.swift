@@ -1,0 +1,380 @@
+//
+//  DebugView.swift
+//  AppcuesKit
+//
+//  Created by Matt on 2021-10-25.
+//  Copyright © 2021 Appcues. All rights reserved.
+//
+
+import UIKit
+
+internal class DebugView: UIView {
+
+    private let gestureCalculator = GestureCalculator()
+
+    var didDismiss: (() -> Void)?
+
+    private let floatingViewPanRecognizer = UIPanGestureRecognizer()
+    private let backgroundTapRecognizer = UITapGestureRecognizer()
+
+    private var initialTouchOffsetFromCenter: CGPoint = .zero
+
+    private var dismissViewTimer: Timer?
+    private var canDismiss: Bool { dismissViewTimer?.isValid == false }
+    private var isSnappedToDismissZone = false
+
+    private var panelViewHideAnimator: UIViewPropertyAnimator?
+
+    var floatingView = FloatingView(frame: CGRect(origin: .zero, size: CGSize(width: 64, height: 64)))
+
+    private var dismissView: DismissDropZoneView = {
+        let view = DismissDropZoneView()
+        view.alpha = 0
+        return view
+    }()
+
+    private var backgroundView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = UIColor.label.withAlphaComponent(0.3)
+        view.alpha = 0
+        return view
+    }()
+
+    var panelWrapperView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.alpha = 0
+        return view
+    }()
+
+    // MARK: Layout Calculators
+
+    var baseFrame: CGRect = .zero
+
+    private var relativeDockedPosition: CGPoint?
+    var floatingViewDockedCenter: CGPoint {
+        get {
+            guard let relativeDockedPosition = relativeDockedPosition else {
+                return floatingViewDefaultCenter
+            }
+
+            let newBoundingRect = floatingViewBoundingRect
+
+            return CGPoint(
+                x: relativeDockedPosition.x < 0.5 ? newBoundingRect.minX : newBoundingRect.maxX,
+                y: newBoundingRect.height * relativeDockedPosition.y)
+        }
+        set {
+            let boundingRect = floatingViewBoundingRect
+            relativeDockedPosition = CGPoint(
+                x: newValue.x / boundingRect.width,
+                y: newValue.y / boundingRect.height)
+        }
+    }
+
+    var floatingViewSize: CGSize { floatingView.frame.size }
+    private let floatingViewEdgeInset: CGFloat = 0
+
+    var floatingViewBoundingRect: CGRect {
+        CGRect(origin: .zero, size: baseFrame.size).insetBy(
+            dx: floatingViewSize.width / 2 - floatingViewEdgeInset,
+            dy: floatingViewSize.height / 2 - floatingViewEdgeInset + 50
+        )
+    }
+
+    var floatingViewOpenCenter: CGPoint {
+        CGPoint(
+            x: baseFrame.size.width * 0.5,
+            y: 10 + safeAreaInsets.top + floatingViewSize.height / 2
+        )
+    }
+
+    private var floatingViewDefaultCenter: CGPoint {
+        CGPoint(
+            x: baseFrame.size.width - floatingViewSize.width / 2 + floatingViewEdgeInset,
+            y: baseFrame.size.height - 40 - safeAreaInsets.bottom - floatingViewSize.height / 2
+        )
+    }
+
+    // MARK: Overrides
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        addSubview(backgroundView)
+        addSubview(panelWrapperView)
+        addSubview(dismissView)
+        addSubview(floatingView)
+
+        backgroundView.pin(to: self)
+        NSLayoutConstraint.activate([
+            panelWrapperView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor, constant: 10 + floatingViewSize.height / 2),
+            panelWrapperView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            panelWrapperView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            panelWrapperView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            dismissView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            dismissView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            dismissView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
+
+        floatingView.onViewActivated = floatingViewActivated
+
+        floatingViewPanRecognizer.addTarget(self, action: #selector(floatingViewPanned))
+        floatingView.addGestureRecognizer(floatingViewPanRecognizer)
+
+        backgroundView.addGestureRecognizer(backgroundTapRecognizer)
+        backgroundTapRecognizer.addTarget(self, action: #selector(backgroundTapped))
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        // Update floatingView position on frame changes
+        if baseFrame != frame {
+            baseFrame = frame
+            floatingView.center = panelWrapperView.alpha > 0 ? floatingViewOpenCenter : floatingViewDockedCenter
+        }
+    }
+
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        for view in subviews.reversed() {
+            // Convert to the subview's local coordinate system
+            let convertedPoint = convert(point, to: view)
+            if !view.point(inside: convertedPoint, with: event) {
+                // Not inside the subview, keep looking
+                continue
+            }
+
+            // If the subview can find a hit target, return that
+            if let target = view.hitTest(convertedPoint, with: event) {
+                return target
+            }
+        }
+
+        return nil
+    }
+
+    // MARK: API
+
+    func setFloatingView(visible isVisible: Bool, animated: Bool, programmatically: Bool) {
+        let completion = isVisible ? nil : didDismiss
+        floatingView.animateVisibility(visible: isVisible, animated: animated, haptics: !programmatically, completion: completion)
+    }
+
+    func setPanelInterface(open isOpen: Bool, animated: Bool, programatically: Bool) {
+        let center = isOpen ? floatingViewOpenCenter : floatingViewDockedCenter
+        floatingView.animatePosition(to: center, animated: animated, haptics: !programatically)
+        animatePanel(visible: isOpen, animated: animated, haptics: !programatically)
+    }
+
+    // MARK: Gesture Recognizers
+
+    @objc
+    private func floatingViewPanned(recognizer: UIPanGestureRecognizer) {
+        let shouldDock = handlePanWhileOpen(recognizer)
+
+        // If the floating view is snapped to the dismiss zone, no need to proceed
+        let shouldDismiss: Bool = handlePanToDismiss(recognizer)
+        guard !shouldDismiss else { return }
+
+        switch recognizer.state {
+        case .began:
+            panBegan(recognizer)
+        case .changed:
+            panChanged(recognizer)
+        case .ended, .cancelled:
+            panEnded(recognizer, shouldDock: shouldDock)
+        default:
+            break
+        }
+    }
+
+    private func floatingViewActivated() {
+        let isCurrentlyOpen = floatingView.center == floatingViewOpenCenter
+        setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
+    }
+
+    @objc
+    private func backgroundTapped(recognizer: UITapGestureRecognizer) {
+        setPanelInterface(open: false, animated: true, programatically: true)
+    }
+
+    // MARK: Pan Gesture
+
+    private func panBegan(_ recognizer: UIPanGestureRecognizer) {
+        let touchPoint = recognizer.location(in: self)
+
+        initialTouchOffsetFromCenter = CGPoint(
+            x: touchPoint.x - floatingView.center.x,
+            y: touchPoint.y - floatingView.center.y
+        )
+
+        let generator = UIImpactFeedbackGenerator(style: .light)
+        generator.impactOccurred()
+    }
+
+    private func panChanged(_ recognizer: UIPanGestureRecognizer) {
+        let touchPoint = recognizer.location(in: self)
+
+        floatingView.center = CGPoint(
+            x: touchPoint.x - initialTouchOffsetFromCenter.x,
+            y: touchPoint.y - initialTouchOffsetFromCenter.y
+        )
+    }
+
+    private func panEnded(_ recognizer: UIPanGestureRecognizer, shouldDock: Bool) {
+        let velocity = recognizer.velocity(in: self)
+        let projectedPosition = CGPoint(
+            x: floatingView.center.x + gestureCalculator.project(initialVelocity: velocity.x),
+            y: floatingView.center.y + gestureCalculator.project(initialVelocity: velocity.y)
+        )
+
+        let destinationPoint: CGPoint
+        let damping: CGFloat
+
+        if shouldDock {
+            destinationPoint = gestureCalculator.restingPoint(
+                from: floatingView.center,
+                to: projectedPosition,
+                within: floatingViewBoundingRect)
+            damping = gestureCalculator.dynamicDamping(magnitude: destinationPoint.distance(from: projectedPosition))
+        } else {
+            // Snap back to open state & position
+            destinationPoint = floatingViewOpenCenter
+            damping = 0.6
+        }
+
+        let relativeInitialVelocity = CGVector(
+            dx: gestureCalculator.relativeVelocity(forVelocity: velocity.x, from: floatingView.center.x, to: destinationPoint.x),
+            dy: gestureCalculator.relativeVelocity(forVelocity: velocity.y, from: floatingView.center.y, to: destinationPoint.y)
+        )
+
+        let timing = UISpringTimingParameters(
+            damping: damping,
+            response: 0.4,
+            initialVelocity: relativeInitialVelocity
+        )
+        let animator = UIViewPropertyAnimator(duration: 0, timingParameters: timing)
+        animator.addAnimations {
+            self.floatingViewDockedCenter = destinationPoint
+            self.floatingView.center = destinationPoint
+        }
+        animator.startAnimation()
+    }
+
+    private func handlePanWhileOpen(_ recognizer: UIPanGestureRecognizer) -> Bool {
+        // `panelWrapperView.alpha > 0` for the began case, `panelViewHideAnimator != nil` for the others.
+        guard self.panelWrapperView.alpha > 0 || panelViewHideAnimator != nil else { return true }
+
+        switch recognizer.state {
+        case .began:
+            let animator = UIViewPropertyAnimator(duration: 0, curve: .linear, animations: {
+                self.panelWrapperView.alpha = 0
+                self.backgroundView.alpha = 0
+            })
+            animator.startAnimation()
+            animator.pauseAnimation()
+            panelViewHideAnimator = animator
+        case .changed:
+            panelViewHideAnimator?.fractionComplete = recognizer.translation(in: self).distance(from: CGPoint.zero) / 50
+        case .ended:
+            panelViewHideAnimator?.stopAnimation(true)
+            panelViewHideAnimator?.finishAnimation(at: .start)
+            panelViewHideAnimator = nil
+
+            if recognizer.translation(in: self).distance(from: CGPoint.zero) < 50 {
+                // reset the panel view back to its open state
+                UIView.animate(
+                    withDuration: 0.2,
+                    animations: {
+                        self.panelWrapperView.alpha = 1
+                        self.backgroundView.alpha = 1
+                    },
+                    completion: nil
+                )
+                return false
+            }
+        default:
+            break
+        }
+
+        return true
+    }
+
+    private func handlePanToDismiss(_ recognizer: UIPanGestureRecognizer) -> Bool {
+        let distanceFromSnapPoint = recognizer.location(in: self).distance(from: dismissView.snapPoint)
+        let isInDismissRange: Bool = canDismiss && distanceFromSnapPoint < dismissView.snapRange
+
+        switch recognizer.state {
+        case .began:
+            dismissViewTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
+                self.dismissView.animateVisibility(visible: true, animated: true)
+            }
+        case .changed:
+            if isInDismissRange {
+                // Only snap once while we're in the dismiss range
+                if !isSnappedToDismissZone {
+                    floatingView.animateSnap(to: dismissView.snapPoint)
+                }
+            } else {
+                if isSnappedToDismissZone {
+                    // Unsnap
+                    let touchPoint = recognizer.location(in: self)
+                    let centerPoint = CGPoint(
+                        x: touchPoint.x - initialTouchOffsetFromCenter.x,
+                        y: touchPoint.y - initialTouchOffsetFromCenter.y
+                    )
+                    floatingView.animateSnap(to: centerPoint)
+                }
+            }
+
+            isSnappedToDismissZone = isInDismissRange
+        case .ended:
+            dismissViewTimer?.invalidate()
+            dismissViewTimer = nil
+
+            dismissView.animateVisibility(visible: false, animated: true)
+
+            if isSnappedToDismissZone {
+                setFloatingView(visible: false, animated: true, programmatically: false)
+            }
+        default:
+            break
+        }
+
+        return isInDismissRange
+    }
+
+    // MARK: Animations
+
+    func animatePanel(visible isVisible: Bool, animated: Bool, haptics: Bool) {
+
+        let animations: () -> Void = {
+            self.panelWrapperView.alpha = isVisible ? 1 : 0
+            self.backgroundView.alpha = isVisible ? 1 : 0
+        }
+
+        let completion: (Bool) -> Void = { _ in
+            // Capture/reset accessibility focus to the debug panel.
+            self.window?.accessibilityViewIsModal = isVisible
+        }
+
+        if animated {
+            UIView.animate(
+                withDuration: 0.6,
+                animations: animations,
+                completion: completion
+            )
+        } else {
+            animations()
+            completion(true)
+        }
+    }
+}
