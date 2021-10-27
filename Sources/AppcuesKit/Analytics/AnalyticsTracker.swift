@@ -23,10 +23,10 @@ internal class AnalyticsTracker {
     private let networking: Networking
 
     private var lastTrackedScreen: String?
-
     private var wasBackgrounded = false
 
     var flowQualified: ((Flow) -> Void)?
+    var launchType: LaunchType = .open
 
     init(config: Appcues.Config, storage: Storage, networking: Networking) {
         self.config = config
@@ -149,7 +149,7 @@ internal class AnalyticsTracker {
     @objc
     func didFinishLaunching(notification: Notification) {
         let launchOptions = notification.userInfo as? [UIApplication.LaunchOptionsKey: Any]
-        track(name: storage.launchType.lifecycleEvent.rawValue, properties: [
+        track(name: launchType.lifecycleEvent.rawValue, properties: [
             "from_background": false,
             "referring_application": launchOptions?[UIApplication.LaunchOptionsKey.sourceApplication] ?? "",
             "url": launchOptions?[UIApplication.LaunchOptionsKey.url] ?? ""
