@@ -11,18 +11,31 @@ import Foundation
 /// An object that manages Appcues tracking for your app.
 public class Appcues {
 
-    internal let config: Config
-
-    private lazy var currentUserID: String = config.anonymousIDFactory()
-
-    lazy var networking = Networking(config: config)
-    lazy var flowRenderer = FlowRenderer(config: config, styleLoader: StyleLoader(networking: self.networking))
-    lazy var uiDebugger = UIDebugger(config: config)
+    let config: Config
+    let storage: Storage
+    let networking: Networking
+    let flowRenderer: FlowRenderer
+    let analyticsTracker: AnalyticsTracker
+    let styleLoader: StyleLoader
+    let uiDebugger: UIDebugger
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
     public init(config: Config) {
         self.config = config
+        self.storage = Storage(config: config)
+        self.networking = Networking(config: config)
+        self.uiDebugger = UIDebugger(config: config)
+        self.styleLoader = StyleLoader(networking: networking)
+        self.flowRenderer = FlowRenderer(config: config, networking: networking, storage: storage, styleLoader: styleLoader)
+        self.analyticsTracker = AnalyticsTracker(config: config, storage: storage, networking: networking)
+
+        self.analyticsTracker.flowQualified = { self.flowRenderer.show(flow: $0) }
+
+        if storage.launchType == .install {
+            // perform any fresh install activities here
+            storage.userID = config.anonymousIDFactory()
+        }
     }
 
     /// Identify the user and determine if they should see Appcues content.
@@ -30,19 +43,8 @@ public class Appcues {
     ///   - userID: Unique value identifying the user.
     ///   - properties: Optional properties that provide additional context about the user.
     public func identify(userID: String, properties: [String: Any]? = nil) {
-        currentUserID = userID
-
-        let activity = Activity(events: nil, profileUpdate: properties)
-        guard let data = try? Networking.encoder.encode(activity) else {
-            return
-        }
-
-        networking.post(
-            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: userID),
-            body: data
-        ) { (result: Result<Taco, Error>) in
-            print(result)
-        }
+        storage.userID = userID
+        analyticsTracker.identify(properties: properties)
     }
 
     /// Track an action taken by a user.
@@ -50,17 +52,7 @@ public class Appcues {
     ///   - name: Name of the event.
     ///   - properties: Optional properties that provide additional context about the event.
     public func track(name: String, properties: [String: Any]? = nil) {
-        let activity = Activity(events: [Event(name: name, attributes: properties)], profileUpdate: nil)
-        guard let data = try? Networking.encoder.encode(activity) else {
-            return
-        }
-
-        networking.post(
-            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: currentUserID),
-            body: data
-        ) { (result: Result<Taco, Error>) in
-            print(result)
-        }
+        analyticsTracker.track(name: name, properties: properties)
     }
 
     /// Track an screen viewed by a user.
@@ -68,30 +60,7 @@ public class Appcues {
     ///   - title: Name of the screen.
     ///   - properties: Optional properties that provide additional context about the event.
     public func screen(title: String, properties: [String: Any]? = nil) {
-        guard let urlString = generatePseudoURL(screenName: title) else {
-            config.logger.error("Could not construct url for page %s", title)
-            return
-        }
-
-        let activity = Activity(events: [Event(pageView: urlString, attributes: properties)])
-        guard let data = try? Networking.encoder.encode(activity) else {
-            return
-        }
-
-        networking.post(
-            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: currentUserID),
-            body: data
-        ) { [weak self] (result: Result<Taco, Error>) in
-            switch result {
-            case .success(let taco):
-                // This assumes that the returned flows are ordered by priority.
-                if let flow = taco.contents.first {
-                    self?.flowRenderer.show(flow: flow)
-                }
-            case .failure(let error):
-                print(error)
-            }
-        }
+        analyticsTracker.screen(title: title, properties: properties)
     }
 
     /// Forces specific Appcues content to appear for the current user by passing in the ID.
@@ -100,25 +69,7 @@ public class Appcues {
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(contentID: String) {
-        networking.get(
-            from: Networking.APIEndpoint.content(accountID: config.accountID, userID: currentUserID, contentID: contentID)
-        ) { [weak self] (result: Result<Flow, Error>) in
-            switch result {
-            case .success(let flow):
-                self?.flowRenderer.show(flow: flow)
-            case .failure(let error):
-                print(error)
-            }
-        }
-    }
-
-    // Temporary solution to piggyback on the web page views. A proper mobile screen solution is still needed.
-    private func generatePseudoURL(screenName: String) -> String? {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = Bundle.main.bundleIdentifier
-        components.path = "/" + screenName.asURLSlug
-        return components.string
+        flowRenderer.show(contentID: contentID)
     }
 
     /// Launches the Appcues debugger over your app's UI.
