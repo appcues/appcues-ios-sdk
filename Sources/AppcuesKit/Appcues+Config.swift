@@ -26,6 +26,10 @@ public extension Appcues {
 
         var logger: OSLog = .disabled
 
+        var trackScreens = false
+
+        var trackLifecycle = false
+
         var anonymousIDFactory: () -> String = {
             (UIDevice.current.identifierForVendor ?? UUID()).uuidString
         }
@@ -71,6 +75,24 @@ public extension Appcues {
         @discardableResult
         public func anonymousIDFactory(_ anonymousIDFactory: @escaping () -> String) -> Self {
             self.anonymousIDFactory = anonymousIDFactory
+            return self
+        }
+
+        /// Set the automatic screen tracking status for the configuration
+        /// - Parameter enabled: Whether automatic screen tracking is enabled
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        public func trackScreens(_ enabled: Bool) -> Self {
+            self.trackScreens = enabled
+            return self
+        }
+
+        /// Set the automatic lifecycle tracking status for the configuration
+        /// - Parameter enabled: Whether automatic lifecycle tracking is enabled
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        public func trackLifecycle(_ enabled: Bool) -> Self {
+            self.trackLifecycle = enabled
             return self
         }
     }
