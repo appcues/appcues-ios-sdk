@@ -65,6 +65,20 @@ public class Appcues {
         uiDebugger.show()
     }
 
+    /// Verifies if an incoming URL is intended for the Appcues SDK.
+    /// - Parameter url: The URL being opened.
+    /// - Returns: `true` if the URL matches the Appcues URL Scheme or `false` if the URL is not known by the Appcues SDK.
+    ///
+    /// If the `url` is an Appcues URL, this function may launch a flow preview or otherwise alter the UI state.
+    ///
+    /// This function is intended to be called added at the top of your `UIApplicationDelegate`'s `application(_:open:options:)` function:
+    /// ```swift
+    /// guard !<#appcuesInstance#>.didHandleURL(url) else { return true }
+    /// ```
+    func didHandleURL(_ url: URL) -> Bool {
+        return DeeplinkHandler(container: container).didHandleURL(url)
+    }
+
     private func initializeContainer(_ config: Config) {
         container.register(Config.self, value: config)
         container.register(AnalyticsPublisher.self, value: self)
