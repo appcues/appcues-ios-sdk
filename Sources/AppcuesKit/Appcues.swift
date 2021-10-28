@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 /// An object that manages Appcues tracking for your app.
 public class Appcues {
@@ -18,6 +19,8 @@ public class Appcues {
     let analyticsTracker: AnalyticsTracker
     let styleLoader: StyleLoader
     let uiDebugger: UIDebugger
+
+    private var subscriptions = Set<AnyCancellable>()
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
@@ -83,16 +86,13 @@ public class Appcues {
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(contentID: String) {
-        networking.get(
-            from: Networking.APIEndpoint.content(accountID: config.accountID, userID: storage.userID, contentID: contentID)
-        ) { [weak self] (result: Result<Flow, Error>) in
-            switch result {
-            case .success(let flow):
+        networking.get(from: Networking.APIEndpoint.content(accountID: config.accountID, userID: storage.userID, contentID: contentID))
+            .sink { completion in
+                completion.printIfError()
+            } receiveValue: { [weak self] (flow: Flow) in
                 self?.flowRenderer.show(flow: flow)
-            case .failure(let error):
-                print(error)
             }
-        }
+            .store(in: &subscriptions)
     }
 
     /// Launches the Appcues debugger over your app's UI.

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 internal class Networking {
     let config: Appcues.Config
@@ -15,67 +16,54 @@ internal class Networking {
         self.config = config
     }
 
-    func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void) {
+    func get<T: Decodable>(from endpoint: Endpoint) -> AnyPublisher<T, Error> {
         guard let requestURL = endpoint.url(with: config) else {
-            completion(.failure(NetworkingError.invalidURL))
-            return
+            return Fail<T, Error>(error: NetworkingError.invalidURL).eraseToAnyPublisher()
         }
 
         var request = URLRequest(url: requestURL)
         request.httpMethod = "GET"
 
-        handleRequest(request, completion: completion)
+        return handleRequest(request)
     }
 
-    func post<T: Decodable>(to endpoint: Endpoint, body: Data, completion: @escaping (_ result: Result<T, Error>) -> Void) {
+    func post<T: Decodable>(to endpoint: Endpoint, body: Data) -> AnyPublisher<T, Error> {
         guard let requestURL = endpoint.url(with: config) else {
-            completion(.failure(NetworkingError.invalidURL))
-            return
+            return Fail<T, Error>(error: NetworkingError.invalidURL).eraseToAnyPublisher()
         }
 
         var request = URLRequest(url: requestURL)
         request.httpMethod = "POST"
         request.httpBody = body
 
-        handleRequest(request, completion: completion)
+        return handleRequest(request)
     }
 
-    private func handleRequest<T: Decodable>(_ urlRequest: URLRequest, completion: @escaping (_ result: Result<T, Error>) -> Void) {
-        let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
-            if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
-                let data = String(data: data ?? Data(), encoding: .utf8) ?? ""
-
-                self?.config.logger.debug("RESPONSE: %{public}d %{public}s\n%{private}s", statusCode, url, data)
-            }
-
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-
-            if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
-                completion(.failure(NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode)))
-                return
-            }
-
-            guard let data = data else {
-                return
-            }
-
-            do {
-                let responseObject = try Self.decoder.decode(T.self, from: data)
-                completion(.success(responseObject))
-            } catch {
-                completion(.failure(error))
-            }
-        }
+    private func handleRequest<T: Decodable>(_ urlRequest: URLRequest) -> AnyPublisher<T, Error> {
 
         if let method = urlRequest.httpMethod, let url = urlRequest.url?.absoluteString {
             let data = String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? ""
             config.logger.debug("REQUEST: %{public}s %{public}s\n%{private}s", method, url, data)
         }
 
-        dataTask.resume()
+        // TODO: re-add response logging
+//        if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
+//            let data = String(data: data ?? Data(), encoding: .utf8) ?? ""
+//
+//            self?.config.logger.debug("RESPONSE: %{public}d %{public}s\n%{private}s", statusCode, url, data)
+//        }
+
+        return config.urlSession
+            .dataTaskPublisher(for: urlRequest)
+            .tryMap { data, response in
+                if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
+                    throw NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode)
+                }
+
+                return data
+            }
+            .decode(type: T.self, decoder: Self.decoder)
+            .eraseToAnyPublisher()
     }
 }
 
@@ -106,5 +94,13 @@ extension Networking {
         decoder.dateDecodingStrategy = .millisecondsSince1970
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
+    }
+}
+
+extension Subscribers.Completion {
+    func printIfError() {
+        if case let .failure(error) = self {
+            print(error)
+        }
     }
 }

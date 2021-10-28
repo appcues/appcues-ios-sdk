@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 
 /// Manage styles associated with flows.
 ///
@@ -24,30 +25,31 @@ internal class StyleLoader {
     // MARK: Data
     var cachedStyles: [String: Style] = [:]
 
+    var subscriptions = Set<AnyCancellable>()
+
     init(networking: Networking) {
         self.networking = networking
     }
 
-    func fetch(styleID: String, _ completion: @escaping (Result<Style, Error>) -> Void) {
+    func fetch(styleID: String) -> AnyPublisher<Style, Error> {
         if let cachedStyle = cachedStyles[styleID] {
-            completion(.success(cachedStyle))
-            return
+            return Result.Publisher(cachedStyle).eraseToAnyPublisher()
         }
 
-        networking.get(
+        let publisher: AnyPublisher<Style, Error> = networking.get(
             from: Networking.CDNEndpoint.styles(accountID: networking.config.accountID, styleID: styleID)
-        ) { [weak self] (result: Result<Style, Error>) in
-            switch result {
-            case .success(let style):
-                self?.cachedStyles[styleID] = style
-            case .failure:
-                break
-            }
+        )
 
-            // Call completion from main thread to ensure consistency with returning cached data.
-            DispatchQueue.main.async {
-                completion(result)
-            }
+        publisher.sink { completion in
+            completion.printIfError()
+        } receiveValue: { [weak self] style in
+            self?.cachedStyles[styleID] = style
         }
+        .store(in: &subscriptions)
+
+        // Return publisher on main thread to ensure consistency with returning cached data.
+        return publisher
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 }

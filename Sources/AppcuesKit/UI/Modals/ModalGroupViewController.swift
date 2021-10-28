@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Combine
 
 /// Display a carousel of `ModalGroup.Step`'s.
 internal class ModalGroupViewController: UIViewController {
@@ -16,6 +17,8 @@ internal class ModalGroupViewController: UIViewController {
     private let styleLoader: StyleLoader
 
     private lazy var modalGroupView = ModalGroupView()
+
+    var subscriptions = Set<AnyCancellable>()
 
     init(modalStepGroup: ModalGroup, styleLoader: StyleLoader) {
         self.modalStepGroup = modalStepGroup
@@ -42,12 +45,14 @@ internal class ModalGroupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        styleLoader.fetch(styleID: modalStepGroup.styleID) { [weak self] result in
-            // Reload the whole collection so the successfully fetched CSS is applied
-            if case .success = result {
+        styleLoader.fetch(styleID: modalStepGroup.styleID)
+            .sink { completion in
+                completion.printIfError()
+            } receiveValue: { [weak self] _ in
+                // Reload the whole collection so the successfully fetched CSS is applied
                 self?.modalGroupView.collectionView.reloadData()
             }
-        }
+            .store(in: &subscriptions)
 
         modalGroupView.collectionView.register(WebWrapperCell.self, forCellWithReuseIdentifier: WebWrapperCell.reuseID)
         modalGroupView.collectionView.dataSource = self

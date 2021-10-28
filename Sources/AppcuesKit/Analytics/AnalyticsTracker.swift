@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Combine
 import UIKit
 
 internal class AnalyticsTracker {
@@ -28,6 +29,8 @@ internal class AnalyticsTracker {
     var flowQualified: ((Flow) -> Void)?
     var launchType: LaunchType = .open
 
+    private var subscriptions = Set<AnyCancellable>()
+
     init(config: Appcues.Config, storage: Storage, networking: Networking) {
         self.config = config
         self.storage = storage
@@ -48,12 +51,13 @@ internal class AnalyticsTracker {
             return
         }
 
-        networking.post(
-            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: storage.userID),
-            body: data
-        ) { (result: Result<Taco, Error>) in
-            print(result)
-        }
+        networking.post(to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: storage.userID), body: data)
+            .sink { completion in
+                completion.printIfError()
+            } receiveValue: { (taco: Taco) in
+                print(taco)
+            }
+            .store(in: &subscriptions)
     }
 
     func track(name: String, properties: [String: Any]? = nil) {
@@ -62,12 +66,13 @@ internal class AnalyticsTracker {
             return
         }
 
-        networking.post(
-            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: storage.userID),
-            body: data
-        ) { (result: Result<Taco, Error>) in
-            print(result)
-        }
+        networking.post(to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: storage.userID), body: data)
+            .sink { completion in
+                completion.printIfError()
+            } receiveValue: { (taco: Taco) in
+                print(taco)
+            }
+            .store(in: &subscriptions)
     }
 
     func screen(title: String, properties: [String: Any]? = nil) {
@@ -83,20 +88,16 @@ internal class AnalyticsTracker {
 
         lastTrackedScreen = title
 
-        networking.post(
-            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: storage.userID),
-            body: data
-        ) { [weak self] (result: Result<Taco, Error>) in
-            switch result {
-            case .success(let taco):
+        networking.post(to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: storage.userID), body: data)
+            .sink { completion in
+                completion.printIfError()
+            } receiveValue: { [weak self] (taco: Taco) in
                 // This assumes that the returned flows are ordered by priority.
                 if let flow = taco.contents.first {
                     self?.flowQualified?(flow)
                 }
-            case .failure(let error):
-                print(error)
             }
-        }
+            .store(in: &subscriptions)
     }
 
     // Temporary solution to piggyback on the web page views. A proper mobile screen solution is still needed.

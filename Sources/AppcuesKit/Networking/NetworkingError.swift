@@ -11,4 +11,5 @@ import Foundation
 internal enum NetworkingError: Error {
     case invalidURL
     case nonSuccessfulStatusCode(Int)
+    case noData
 }
