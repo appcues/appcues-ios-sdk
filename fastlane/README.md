@@ -26,11 +26,16 @@ Validate the code in the SDK repo works properly
 fastlane ios sdk_tests
 ```
 Run SDK unit tests
-### ios compile_example
+### ios compile_cocoapods_example
 ```
-fastlane ios compile_example
+fastlane ios compile_cocoapods_example
 ```
-Sanity check to make sure the example app compiles
+Sanity check to make sure the cocoapods example app compiles
+### ios compile_spm_example
+```
+fastlane ios compile_spm_example
+```
+Sanity check to make sure the spm example app compiles
 
 ----
 
