@@ -13,9 +13,9 @@ internal class FlowRenderer {
     private let config: Appcues.Config
     private let styleLoader: StyleLoader
 
-    init(config: Appcues.Config, styleLoader: StyleLoader) {
-        self.config = config
-        self.styleLoader = styleLoader
+    init(container: DIContainer) {
+        self.config = container.resolve(Appcues.Config.self)
+        self.styleLoader = container.resolve(StyleLoader.self)
     }
 
     // Show a specified flow model on top of the current application.

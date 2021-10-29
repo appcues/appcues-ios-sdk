@@ -18,20 +18,20 @@ internal class AnalyticsTracker {
         case applicationBackgrounded = "Application Backgrounded"
     }
 
-    private let config: Appcues.Config
-    private let storage: Storage
-    private let networking: Networking
+    private let container: DIContainer
+
+    private lazy var config = container.resolve(Appcues.Config.self)
+    private lazy var storage = container.resolve(Storage.self)
+    private lazy var networking = container.resolve(Networking.self)
+    private lazy var flowRenderer = container.resolve(FlowRenderer.self)
 
     private var lastTrackedScreen: String?
     private var wasBackgrounded = false
 
-    var flowQualified: ((Flow) -> Void)?
     var launchType: LaunchType = .open
 
-    init(config: Appcues.Config, storage: Storage, networking: Networking) {
-        self.config = config
-        self.storage = storage
-        self.networking = networking
+    init(container: DIContainer) {
+        self.container = container
 
         if config.trackScreens {
             configureScreenTracking()
@@ -40,9 +40,11 @@ internal class AnalyticsTracker {
         if config.trackLifecycle {
             configureLifecycleTracking()
         }
+
+        registerForAnalyticsUpdates(container)
     }
 
-    func identify(properties: [String: Any]? = nil) {
+    private func identify(properties: [String: Any]? = nil) {
         let activity = Activity(events: nil, profileUpdate: properties)
         guard let data = try? Networking.encoder.encode(activity) else {
             return
@@ -56,7 +58,7 @@ internal class AnalyticsTracker {
         }
     }
 
-    func track(name: String, properties: [String: Any]? = nil) {
+    private func track(name: String, properties: [String: Any]? = nil) {
         let activity = Activity(events: [Event(name: name, attributes: properties)], profileUpdate: nil)
         guard let data = try? Networking.encoder.encode(activity) else {
             return
@@ -70,7 +72,7 @@ internal class AnalyticsTracker {
         }
     }
 
-    func screen(title: String, properties: [String: Any]? = nil) {
+    private func screen(title: String, properties: [String: Any]? = nil) {
         guard let urlString = generatePseudoURL(screenName: title) else {
             config.logger.error("Could not construct url for page %s", title)
             return
@@ -91,7 +93,7 @@ internal class AnalyticsTracker {
             case .success(let taco):
                 // This assumes that the returned flows are ordered by priority.
                 if let flow = taco.contents.first {
-                    self?.flowQualified?(flow)
+                    self?.flowRenderer.show(flow: flow)
                 }
             case .failure(let error):
                 print(error)
@@ -170,6 +172,21 @@ internal class AnalyticsTracker {
     func didEnterBackground(notification: Notification) {
         wasBackgrounded = true
         track(name: LifecycleEvents.applicationBackgrounded.rawValue)
+    }
+}
+
+extension AnalyticsTracker: AnalyticsSubscriber {
+    func track(update: TrackingUpdate) {
+        switch update.type {
+        case let .event(name):
+            track(name: name, properties: update.properties)
+
+        case let .screen(title):
+            screen(title: title, properties: update.properties)
+
+        case .profile:
+            identify(properties: update.properties)
+        }
     }
 }
 

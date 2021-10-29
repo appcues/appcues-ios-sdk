@@ -28,6 +28,7 @@ internal struct UserDefault<T> {
     }
 }
 
+// TODO: this is not safe across mutliple Appcues instances / DIContainers
 extension UserDefaults {
     // swiftlint:disable:next force_unwrapping
     static var appcues = UserDefaults(suiteName: "com.appcues.storage")!
