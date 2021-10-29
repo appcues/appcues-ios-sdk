@@ -1,2 +1,2 @@
 # replace placeholders
-sed -i '' -e "s/<#APPCUES_ACCOUNT_ID#>/\"$1\"/g" ../Examples/DeveloperCocoapodsExample/CocoapodsExample/AppDelegate.swift
+sed -i '' -e "s/<#APPCUES_ACCOUNT_ID#>/\"$2\"/g" ../Examples/${1}/AppDelegate.swift

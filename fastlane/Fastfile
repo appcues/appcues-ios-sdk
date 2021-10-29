@@ -9,7 +9,8 @@ platform :ios do
   desc "Validate the code in the SDK repo works properly"
   lane :validate_code do
     sdk_tests
-    compile_example
+    compile_cocoapods_example
+    compile_spm_example
   end
 
   desc "Run SDK unit tests"
@@ -21,12 +22,21 @@ platform :ios do
               devices: ["iPhone 13"])
   end
 
-  desc "Sanity check to make sure the example app compiles"
-  lane :compile_example do
+  desc "Sanity check to make sure the cocoapods example app compiles"
+  lane :compile_cocoapods_example do
     cocoapods(podfile: "Examples/DeveloperCocoapodsExample/Podfile")
-    sh("sh", "./replace-placeholders.sh", "00000")
+    sh("sh", "./replace-placeholders.sh", "DeveloperCocoapodsExample/CocoapodsExample", "00000")
     build_app(
       workspace: "Examples/DeveloperCocoapodsExample/AppcuesCocoapodsExample.xcworkspace",
+      skip_archive: true,
+      skip_codesigning: true)
+  end
+
+  desc "Sanity check to make sure the spm example app compiles"
+  lane :compile_spm_example do
+    sh("sh", "./replace-placeholders.sh", "DeveloperSPMExample/SPMExample", "00000")
+    build_app(
+      project: "Examples/DeveloperSPMExample/AppcuesSPMExample.xcodeproj",
       skip_archive: true,
       skip_codesigning: true)
   end
