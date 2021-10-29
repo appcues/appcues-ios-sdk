@@ -1,9 +1,3 @@
-# Appcues Cocoapods Example App
+# Appcues SPM Example App
 
-This is a simple iOS app that integrates with Appcues using Cocoapods.
-
-## Setup
-
-```sh
-$ pod install
-```
+This is a simple iOS app that integrates with Appcues using Swift Package Manager.
