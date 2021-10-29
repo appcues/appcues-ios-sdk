@@ -34,6 +34,11 @@ internal class FloatingView: UIView {
 
         addGestureRecognizer(tapRecognizer)
         tapRecognizer.addTarget(self, action: #selector(viewTapped))
+
+        layer.shadowColor = UIColor.black.cgColor
+        layer.shadowOpacity = 0.5
+        layer.shadowOffset = CGSize(width: 0, height: 4)
+        layer.shadowRadius = 16
     }
 
     @available(*, unavailable)
