@@ -11,10 +11,10 @@ import UIKit
 internal class UIDebugger {
     private var debugWindow: UIWindow?
 
-    let config: Appcues.Config
+    private let config: Appcues.Config
 
-    init(config: Appcues.Config) {
-        self.config = config
+    init(container: DIContainer) {
+        self.config = container.resolve(Appcues.Config.self)
     }
 
     func show() {

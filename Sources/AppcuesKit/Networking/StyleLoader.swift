@@ -24,8 +24,8 @@ internal class StyleLoader {
     // MARK: Data
     var cachedStyles: [String: Style] = [:]
 
-    init(networking: Networking) {
-        self.networking = networking
+    init(container: DIContainer) {
+        self.networking = container.resolve(Networking.self)
     }
 
     func fetch(styleID: String, _ completion: @escaping (Result<Style, Error>) -> Void) {

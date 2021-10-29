@@ -11,8 +11,8 @@ import Foundation
 internal class Networking {
     let config: Appcues.Config
 
-    init(config: Appcues.Config) {
-        self.config = config
+    init(container: DIContainer) {
+        self.config = container.resolve(Appcues.Config.self)
     }
 
     func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void) {
