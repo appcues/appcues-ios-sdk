@@ -46,6 +46,9 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk
     sources:
     - path: Sources/AppcuesKit
+    preBuildScripts:
+    - name: SwiftGen
+      script: xcrun --sdk macosx mint run swiftgen config run
     postbuildScripts:
     - name: SwiftLint
       script: 'xcrun --sdk macosx mint run swiftlint --path ./Sources'
