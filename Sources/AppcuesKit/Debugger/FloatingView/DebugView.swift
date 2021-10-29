@@ -45,6 +45,12 @@ internal class DebugView: UIView {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.alpha = 0
+
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.4
+        view.layer.shadowOffset = CGSize(width: 0, height: 4)
+        view.layer.shadowRadius = 8
+
         return view
     }()
 
@@ -126,6 +132,10 @@ internal class DebugView: UIView {
 
         backgroundView.addGestureRecognizer(backgroundTapRecognizer)
         backgroundTapRecognizer.addTarget(self, action: #selector(backgroundTapped))
+
+        // Set initial position and then animate in
+        setFloatingView(visible: false, animated: false, programmatically: true)
+        setFloatingView(visible: true, animated: true, programmatically: true)
     }
 
     @available(*, unavailable)
