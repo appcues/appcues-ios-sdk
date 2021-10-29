@@ -1,0 +1,34 @@
+name: AppcuesSPMExample
+options:
+  defaultConfig: Release
+  bundleIdPrefix: com.appcues
+  deploymentTarget:
+    iOS: 13.0
+  groupSortPosition: top
+targets:
+  AppcuesSPMExample:
+    type: application
+    platform: iOS
+    sources:
+    - path: SPMExample
+    postbuildScripts:
+    - name: SwiftLint
+      script: 'if which mint >/dev/null; then
+
+            xcrun --sdk macosx mint run swiftlint
+
+        else
+
+            echo "warning: Mint not installed, install from https://github.com/yonaskolb/Mint"
+
+        fi
+        '
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk-example-spm
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    dependencies:
+      - package: AppcuesKit
+packages:
+  AppcuesKit:
+    path: ../..
