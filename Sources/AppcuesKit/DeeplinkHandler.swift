@@ -31,9 +31,6 @@ internal class DeeplinkHandler {
 
     private var action: Action?
 
-    /// Closure to allow this class to manage it's own lifecycle.
-    private var retainClosure: (() -> Void)?
-
     init(container: DIContainer) {
         self.container = container
     }
@@ -53,10 +50,6 @@ internal class DeeplinkHandler {
                 selector: #selector(sceneDidActivate),
                 name: UIScene.didActivateNotification,
                 object: nil)
-
-            // A useless block that creates a memory retain cycle by capturing `self`.
-            // This must be cleared after the notification is handled once.
-            retainClosure = { _ = self.action == nil }
         }
 
         return action != nil
@@ -64,9 +57,6 @@ internal class DeeplinkHandler {
 
     @objc
     private func sceneDidActivate() {
-        // Remove the retain cycle to allow this instance of `DeeplinkHandler` to deinit.
-        self.retainClosure = nil
-
         guard let action = action else { return }
 
         switch action {
@@ -75,6 +65,10 @@ internal class DeeplinkHandler {
         case .debugger:
             container.resolve(UIDebugger.self).show()
         }
+
+        // Reset after handling to avoid handling notifications multiple times.
+        self.action = nil
+        NotificationCenter.default.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
     }
 }
 
