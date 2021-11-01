@@ -11,9 +11,9 @@ import UIKit
 internal class Storage {
 
     private enum Key: String {
-        case userID = "userID"
-        case applicationVersion = "applicationVersion"
-        case applicationBuild = "applicationBuild"
+        case userID
+        case applicationVersion
+        case applicationBuild
     }
 
     private let config: Appcues.Config
@@ -21,10 +21,6 @@ internal class Storage {
     // Note: not using a property wrapper for UserDefaults, since we want to include the account ID
     //      as part of the suite name
     private lazy var defaults = UserDefaults(suiteName: "com.appcues.storage.\(config.accountID)")
-
-    init(container: DIContainer) {
-        self.config = container.resolve(Appcues.Config.self)
-    }
 
     /// The current  user ID.  Can be a generated anonymous value, or authenticated value provided by application
     internal var userID: String {
@@ -54,6 +50,10 @@ internal class Storage {
         set {
             write(.applicationBuild, newValue: newValue)
         }
+    }
+
+    init(container: DIContainer) {
+        self.config = container.resolve(Appcues.Config.self)
     }
 
     private func read<T>(_ key: Key, defaultValue: T) -> T {
