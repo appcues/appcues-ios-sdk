@@ -159,6 +159,16 @@ extension Appcues: AnalyticsPublisher {
         decorators.removeAll { $0 === decorator }
     }
 
+    // for unit testing
+    func clearDecorators() {
+        decorators.removeAll()
+    }
+
+    // for unit testing
+    func clearSubscribers() {
+        subscribers.removeAll()
+    }
+
     private func publish(_ update: TrackingUpdate) {
         var update = update
 

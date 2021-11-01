@@ -48,6 +48,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
+        instance.clearDecorators()
         instance.identify(userID: "specific-user-id", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
@@ -73,6 +74,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
+        instance.clearDecorators()
         instance.track(name: "eventName", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
@@ -98,6 +100,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
+        instance.clearDecorators()
         instance.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
