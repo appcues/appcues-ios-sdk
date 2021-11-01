@@ -98,7 +98,6 @@ extension Networking {
     static var encoder: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .iso8601
-        encoder.keyEncodingStrategy = .convertToSnakeCase
         encoder.outputFormatting = .prettyPrinted
         return encoder
     }
@@ -106,7 +105,6 @@ extension Networking {
     static var decoder: JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .millisecondsSince1970
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }
 }

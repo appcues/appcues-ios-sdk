@@ -18,12 +18,25 @@ public class Appcues {
     private lazy var experienceLoader = container.resolve(ExperienceLoader.self)
 
     private var subscribers: [AnalyticsSubscriber] = []
+    private var decorators: [TrackingDecorator] = []
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
     public init(config: Config) {
         initializeContainer(config)
         initializeSession(config)
+    }
+
+    /// Get the current version of the Appcues SDK.
+    /// - Returns: Current version of the Appcues SDK.
+    public static func version() -> String {
+        return __appcues_version
+    }
+
+    /// Get the current version of the Appcues SDK.
+    /// - Returns: Current version of the Appcues SDK.
+    public func version() -> String {
+        return Appcues.version()
     }
 
     /// Identify the user and determine if they should see Appcues content.
@@ -93,6 +106,7 @@ public class Appcues {
         container.registerLazy(AnalyticsTracker.self, initializer: AnalyticsTracker.init)
         container.registerLazy(LifecycleTracking.self, initializer: LifecycleTracking.init)
         container.registerLazy(UIKitScreenTracking.self, initializer: UIKitScreenTracking.init)
+        container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
     }
 
     private func initializeSession(_ config: Config) {
@@ -116,6 +130,7 @@ public class Appcues {
 
         // anything that should be eager init at launch is handled here
         _ = container.resolve(AnalyticsTracker.self)
+        _ = container.resolve(AutoPropertyDecorator.self)
 
         if config.trackLifecycle {
             container.resolve(LifecycleTracking.self).launchType = launchType
@@ -136,7 +151,21 @@ extension Appcues: AnalyticsPublisher {
         subscribers.removeAll { $0 === subscriber }
     }
 
+    func register(decorator: TrackingDecorator) {
+        decorators.append(decorator)
+    }
+
+    func remove(decorator: TrackingDecorator) {
+        decorators.removeAll { $0 === decorator }
+    }
+
     private func publish(_ update: TrackingUpdate) {
+        var update = update
+
+        for decorator in decorators {
+            update = decorator.decorate(update)
+        }
+
         for subscriber in subscribers {
             subscriber.track(update: update)
         }

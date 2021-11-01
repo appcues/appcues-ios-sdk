@@ -13,22 +13,33 @@ internal struct Activity {
     let requestID = UUID()
     let events: [Event]?
     let profileUpdate: [String: Any]?
+    let userID: String
+    let accountID: String
 
-    internal init(events: [Event]?, profileUpdate: [String: Any]? = nil) {
+    internal init(accountID: String,
+                  userID: String,
+                  events: [Event]?,
+                  profileUpdate: [String: Any]? = nil) {
+        self.accountID = accountID
+        self.userID = userID
         self.events = events
         self.profileUpdate = profileUpdate
     }
 }
 
 extension Activity: Encodable {
-    enum CodingKeys: CodingKey {
-        case requestID
+    enum CodingKeys: String, CodingKey {
+        case requestID = "request_id"
         case events
-        case profileUpdate
+        case profileUpdate = "profile_update"
+        case userID = "user_id"
+        case accountID = "account_id"
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(accountID, forKey: .accountID)
+        try container.encode(userID, forKey: .userID)
         try container.encode(requestID, forKey: .requestID)
         if let events = events {
             try container.encode(events, forKey: .events)

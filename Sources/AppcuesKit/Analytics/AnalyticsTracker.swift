@@ -22,8 +22,8 @@ internal class AnalyticsTracker {
         registerForAnalyticsUpdates(container)
     }
 
-    private func identify(properties: [String: Any]? = nil) {
-        let activity = Activity(events: nil, profileUpdate: properties)
+    private func identify(userID: String, properties: [String: Any]? = nil) {
+        let activity = Activity(accountID: config.accountID, userID: userID, events: nil, profileUpdate: properties)
         guard let data = try? Networking.encoder.encode(activity) else {
             return
         }
@@ -36,8 +36,8 @@ internal class AnalyticsTracker {
         }
     }
 
-    private func track(name: String, properties: [String: Any]? = nil) {
-        let activity = Activity(events: [Event(name: name, attributes: properties)], profileUpdate: nil)
+    private func track(userID: String, name: String, properties: [String: Any]? = nil) {
+        let activity = Activity(accountID: config.accountID, userID: userID,events: [Event(name: name, attributes: properties)], profileUpdate: nil)
         guard let data = try? Networking.encoder.encode(activity) else {
             return
         }
@@ -50,13 +50,13 @@ internal class AnalyticsTracker {
         }
     }
 
-    private func screen(title: String, properties: [String: Any]? = nil) {
+    private func screen(userID: String, title: String, properties: [String: Any]? = nil) {
         guard let urlString = generatePseudoURL(screenName: title) else {
             config.logger.error("Could not construct url for page %s", title)
             return
         }
 
-        let activity = Activity(events: [Event(pageView: urlString, attributes: properties)])
+        let activity = Activity(accountID: config.accountID, userID: userID,events: [Event(pageView: urlString, attributes: properties)])
         guard let data = try? Networking.encoder.encode(activity) else {
             return
         }
@@ -91,13 +91,13 @@ extension AnalyticsTracker: AnalyticsSubscriber {
     func track(update: TrackingUpdate) {
         switch update.type {
         case let .event(name):
-            track(name: name, properties: update.properties)
+            track(userID: update.userID, name: name, properties: update.properties)
 
         case let .screen(title):
-            screen(title: title, properties: update.properties)
+            screen(userID: update.userID, title: title, properties: update.properties)
 
         case .profile:
-            identify(properties: update.properties)
+            identify(userID: update.userID, properties: update.properties)
         }
     }
 }
