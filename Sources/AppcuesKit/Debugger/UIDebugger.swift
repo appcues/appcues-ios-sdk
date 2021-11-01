@@ -7,14 +7,23 @@
 //
 
 import UIKit
+import SwiftUI
 
 internal class UIDebugger {
     private var debugWindow: UIWindow?
+
+    private var viewModel: DebugViewModel
 
     private let config: Appcues.Config
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
+
+        self.viewModel = DebugViewModel(
+            accountID: config.accountID,
+            currentUserID: container.resolve(Storage.self).userID)
+
+        registerForAnalyticsUpdates(container)
     }
 
     func show() {
@@ -24,8 +33,7 @@ internal class UIDebugger {
             return
         }
 
-        let panelViewController = UIViewController()
-        panelViewController.view.backgroundColor = .secondarySystemBackground
+        let panelViewController = UIHostingController(rootView: DebugUI.MainPanelView(viewModel: viewModel))
 
         let rootViewController = DebugViewController(wrapping: panelViewController, dismissHandler: hide)
         debugWindow = DebugUIWindow(windowScene: windowScene, rootViewController: rootViewController)
@@ -34,5 +42,15 @@ internal class UIDebugger {
     func hide() {
         debugWindow?.isHidden = true
         debugWindow = nil
+    }
+}
+
+extension UIDebugger: AnalyticsSubscriber {
+    func track(update: TrackingUpdate) {
+        // Publishing changes must from the main thread.
+        DispatchQueue.main.async {
+            self.viewModel.currentUserID = update.userID
+            self.viewModel.addEvent(DebugViewModel.LoggedEvent(from: update))
+        }
     }
 }
