@@ -77,7 +77,7 @@ public class Appcues {
     /// ```
     @discardableResult
     func didHandleURL(_ url: URL) -> Bool {
-        return DeeplinkHandler(container: container).didHandleURL(url)
+        return container.resolve(DeeplinkHandler.self).didHandleURL(url)
     }
 
     private func initializeContainer(_ config: Config) {
@@ -89,6 +89,7 @@ public class Appcues {
         container.registerLazy(ExperienceLoader.self, initializer: ExperienceLoader.init)
         container.registerLazy(ExperienceRenderer.self, initializer: ExperienceRenderer.init)
         container.registerLazy(UIDebugger.self, initializer: UIDebugger.init)
+        container.registerLazy(DeeplinkHandler.self, initializer: DeeplinkHandler.init)
         container.registerLazy(AnalyticsTracker.self, initializer: AnalyticsTracker.init)
         container.registerLazy(LifecycleTracking.self, initializer: LifecycleTracking.init)
         container.registerLazy(UIKitScreenTracking.self, initializer: UIKitScreenTracking.init)
