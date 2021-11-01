@@ -53,7 +53,13 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
         let merged = applicationProperties.merging(sessionProperties.compactMapValues { $0 }) { _, new in new }
 
-        properties["_identity"] = merged
+        if case .profile = tracking.type {
+            // profile updates have auto props merged in at root level
+            properties = properties.merging(merged) { _, new in new }
+        } else {
+            // events have auto props nested inside an _identity object
+            properties["_identity"] = merged
+        }
         decorated.properties = properties
 
         return decorated
