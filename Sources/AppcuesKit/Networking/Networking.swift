@@ -105,6 +105,7 @@ extension Networking {
     static var decoder: JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .millisecondsSince1970
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
     }
 }
