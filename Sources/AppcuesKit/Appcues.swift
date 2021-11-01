@@ -75,6 +75,7 @@ public class Appcues {
     /// ```swift
     /// guard !<#appcuesInstance#>.didHandleURL(url) else { return true }
     /// ```
+    @discardableResult
     func didHandleURL(_ url: URL) -> Bool {
         return DeeplinkHandler(container: container).didHandleURL(url)
     }
