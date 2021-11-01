@@ -35,6 +35,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 
+    // This example app uses UIScene's, so the SceneDelegate has the necessary implementation to handle URL Scheme links.
+    /*
+    func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
+        // Handle the Appcues flow preview deeplinks
+        guard !Appcues.shared.didHandleURL(url) else { return true }
+        return false
+    }
+    */
 }
 
 extension Appcues {

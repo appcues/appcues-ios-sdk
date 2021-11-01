@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AppcuesKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -46,4 +47,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        // Handle the Appcues flow preview deeplinks
+        guard !Appcues.shared.didHandleURL(URLContexts) else { return }
+    }
 }
