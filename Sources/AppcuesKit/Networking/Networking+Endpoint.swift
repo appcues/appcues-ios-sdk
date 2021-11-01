@@ -28,10 +28,10 @@ extension Networking {
 
             switch self {
             case .activity:
-                components.path = "/v1/accounts/\(storage.accountID)/users/\(storage.userID)/activity"
+                components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/activity"
                 components.queryItems = [URLQueryItem(name: "sync", value: "1")]
             case let .content(contentID):
-                components.path = "/v1/accounts/\(storage.accountID)/users/\(storage.userID)/content/\(contentID)"
+                components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/content/\(contentID)"
             case let .custom(path):
                 components.path = path
             }
@@ -51,7 +51,7 @@ extension Networking {
 
             switch self {
             case let .styles(styleID):
-                components.path = "/v1/accounts/\(storage.accountID)/styles/\(styleID)"
+                components.path = "/v1/accounts/\(config.accountID)/styles/\(styleID)"
             }
 
             return components.url

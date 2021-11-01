@@ -80,8 +80,6 @@ public class Appcues {
     }
 
     private func initializeSession(_ config: Config) {
-        storage.accountID = config.accountID
-
         let previousBuild = storage.applicationBuild
         let currentBuild = Bundle.main.build
 

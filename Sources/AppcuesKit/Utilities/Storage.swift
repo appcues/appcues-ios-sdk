@@ -9,10 +9,6 @@
 import UIKit
 
 internal class Storage {
-    /// The Appcues account ID.
-    @UserDefault("accountID", defaultValue: "")
-    internal var accountID: String
-
     /// The current  user ID.  Can be a generated anonymous value, or authenticated value provided by application
     @UserDefault("userID", defaultValue: "")
     internal var userID: String
