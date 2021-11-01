@@ -41,6 +41,12 @@ internal class DeeplinkHandler {
     func didHandleURL(_ url: URL) -> Bool {
         action = Action(url: url)
 
+        guard UIApplication.shared.topViewController() == nil else {
+            // UIScene is already active and we can handle the action immediately.
+            sceneDidActivate()
+            return action != nil
+        }
+
         if action != nil {
             NotificationCenter.default.addObserver(
                 self,
@@ -57,11 +63,13 @@ internal class DeeplinkHandler {
     }
 
     @objc
-    private func sceneDidActivate(notification: Notification) {
+    private func sceneDidActivate() {
         // Remove the retain cycle to allow this instance of `DeeplinkHandler` to deinit.
         self.retainClosure = nil
 
-        switch action! {
+        guard let action = action else { return }
+
+        switch action {
         case .preview(let contentID):
             container.resolve(ExperienceLoader.self).load(contentID: contentID)
         case .debugger:
@@ -84,8 +92,9 @@ public extension Appcues {
     /// ```swift
     /// guard !<#appcuesInstance#>.didHandleURL(URLContexts) else { return }
     /// ```
+    @discardableResult
     func didHandleURL(_ URLContexts: Set<UIOpenURLContext>) -> Bool {
-        guard let url = URLContexts.first?.url else { return false }
+        guard let url = URLContexts.first(where: { $0.url.absoluteString.starts(with: "appcues") })?.url else { return false }
         return didHandleURL(url)
     }
 }
