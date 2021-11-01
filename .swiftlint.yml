@@ -102,6 +102,7 @@ opt_in_rules:
 
 excluded:
   - Pods
+  - Sources/AppcuesKit/Version.swift
 
 # listing the SL default values 
 cyclomatic_complexity:

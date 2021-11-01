@@ -15,6 +15,9 @@ internal protocol AnalyticsPublisher: AnyObject {
 
     func register(subscriber: AnalyticsSubscriber)
     func remove(subscriber: AnalyticsSubscriber)
+
+    func register(decorator: TrackingDecorator)
+    func remove(decorator: TrackingDecorator)
 }
 
 extension AnalyticsPublisher {

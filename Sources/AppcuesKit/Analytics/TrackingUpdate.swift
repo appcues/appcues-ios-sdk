@@ -17,7 +17,7 @@ internal struct TrackingUpdate {
     }
 
     let type: TrackingType
-    let properties: [String: Any]?
+    var properties: [String: Any]?
     let timestamp = Date()
     let userID: String
 }

@@ -36,16 +36,22 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
         try dict?.forEach { key, value in
             let codingKey = DynamicCodingKeys(key: key)
 
-            switch value {
-            case let string as String:
-                try self.encode(string, forKey: codingKey)
-            case let bool as Bool:
-                try self.encode(bool, forKey: codingKey)
-            // swiftlint:disable:next legacy_objc_type
-            case let number as NSNumber:
-                try self.encode(number.decimalValue, forKey: codingKey)
-            default:
-                encodingErrorKeys.append(codingKey.stringValue)
+            if key == "_identity", let autoprops = value as? Dictionary<String, Any> {
+                // "_identity" is a special case - the Appcues auto-properties that supply app/user/session data
+                var autopropContainer = self.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: codingKey)
+                try autopropContainer.encodeSkippingInvalid(autoprops)
+            } else {
+                switch value {
+                case let string as String:
+                    try self.encode(string, forKey: codingKey)
+                case let bool as Bool:
+                    try self.encode(bool, forKey: codingKey)
+                // swiftlint:disable:next legacy_objc_type
+                case let number as NSNumber:
+                    try self.encode(number.decimalValue, forKey: codingKey)
+                default:
+                    encodingErrorKeys.append(codingKey.stringValue)
+                }
             }
         }
 

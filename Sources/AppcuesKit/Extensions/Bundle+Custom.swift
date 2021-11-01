@@ -10,8 +10,12 @@ import Foundation
 
 extension Bundle {
 
-    var id: String {
+    var identifier: String {
         return Bundle.main.object(forInfoDictionaryKey: "CFBundleIdentifier") as? String ?? ""
+    }
+
+    var displayName: String {
+        return Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? ""
     }
 
     var version: String {
