@@ -26,7 +26,7 @@ class AppcuesTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        UserDefaults.standard.removePersistentDomain(forName: "com.appcues.storage")
+        UserDefaults.standard.removePersistentDomain(forName: "com.appcues.storage.00000")
     }
 
     func testIdentifyRequestBody() throws {
