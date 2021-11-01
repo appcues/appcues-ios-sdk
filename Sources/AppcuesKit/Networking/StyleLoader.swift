@@ -35,7 +35,7 @@ internal class StyleLoader {
         }
 
         networking.get(
-            from: Networking.CDNEndpoint.styles(accountID: networking.config.accountID, styleID: styleID)
+            from: Networking.CDNEndpoint.styles(styleID: styleID)
         ) { [weak self] (result: Result<Style, Error>) in
             switch result {
             case .success(let style):

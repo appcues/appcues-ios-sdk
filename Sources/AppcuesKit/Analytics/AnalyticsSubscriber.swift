@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal protocol AnalyticsSubscriber {
+internal protocol AnalyticsSubscriber: AnyObject {
     func track(update: TrackingUpdate)
 }
 

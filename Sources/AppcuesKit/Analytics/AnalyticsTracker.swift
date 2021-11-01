@@ -11,36 +11,14 @@ import UIKit
 
 internal class AnalyticsTracker {
 
-    enum LifecycleEvents: String {
-        case applicationInstalled = "Application Installed"
-        case applicationOpened = "Application Opened"
-        case applicationUpdated = "Application Updated"
-        case applicationBackgrounded = "Application Backgrounded"
-    }
-
     private let container: DIContainer
 
     private lazy var config = container.resolve(Appcues.Config.self)
-    private lazy var storage = container.resolve(Storage.self)
     private lazy var networking = container.resolve(Networking.self)
-    private lazy var flowRenderer = container.resolve(FlowRenderer.self)
-
-    private var lastTrackedScreen: String?
-    private var wasBackgrounded = false
-
-    var launchType: LaunchType = .open
+    private lazy var experienceRenderer = container.resolve(ExperienceRenderer.self)
 
     init(container: DIContainer) {
         self.container = container
-
-        if config.trackScreens {
-            configureScreenTracking()
-        }
-
-        if config.trackLifecycle {
-            configureLifecycleTracking()
-        }
-
         registerForAnalyticsUpdates(container)
     }
 
@@ -51,7 +29,7 @@ internal class AnalyticsTracker {
         }
 
         networking.post(
-            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: storage.userID),
+            to: Networking.APIEndpoint.activity,
             body: data
         ) { (result: Result<Taco, Error>) in
             print(result)
@@ -65,7 +43,7 @@ internal class AnalyticsTracker {
         }
 
         networking.post(
-            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: storage.userID),
+            to: Networking.APIEndpoint.activity,
             body: data
         ) { (result: Result<Taco, Error>) in
             print(result)
@@ -83,17 +61,15 @@ internal class AnalyticsTracker {
             return
         }
 
-        lastTrackedScreen = title
-
         networking.post(
-            to: Networking.APIEndpoint.activity(accountID: config.accountID, userID: storage.userID),
+            to: Networking.APIEndpoint.activity,
             body: data
         ) { [weak self] (result: Result<Taco, Error>) in
             switch result {
             case .success(let taco):
                 // This assumes that the returned flows are ordered by priority.
                 if let flow = taco.contents.first {
-                    self?.flowRenderer.show(flow: flow)
+                    self?.experienceRenderer.show(flow: flow)
                 }
             case .failure(let error):
                 print(error)
@@ -109,70 +85,6 @@ internal class AnalyticsTracker {
         components.path = "/" + screenName.asURLSlug
         return components.string
     }
-
-    private func configureScreenTracking() {
-
-        func swizzle(forClass: AnyClass, original: Selector, new: Selector) {
-            guard let originalMethod = class_getInstanceMethod(forClass, original) else { return }
-            guard let swizzledMethod = class_getInstanceMethod(forClass, new) else { return }
-            method_exchangeImplementations(originalMethod, swizzledMethod)
-        }
-
-        swizzle(forClass: UIViewController.self,
-                original: #selector(UIViewController.viewDidAppear(_:)),
-                new: #selector(UIViewController.appcues__viewDidAppear)
-        )
-
-        NotificationCenter.default.addObserver(self, selector: #selector(screenTracked), name: .appcuesTrackedScreen, object: nil)
-    }
-
-    @objc
-    private func screenTracked(notification: Notification) {
-        let name: String? = notification.value()
-        guard let name = name, lastTrackedScreen != name else { return }
-        screen(title: name)
-    }
-
-    private func configureLifecycleTracking() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(didFinishLaunching),
-                                               name: UIApplication.didFinishLaunchingNotification,
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(applicationWillEnterForeground),
-                                               name: UIApplication.willEnterForegroundNotification,
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(didEnterBackground),
-                                               name: UIApplication.didEnterBackgroundNotification,
-                                               object: nil)
-    }
-
-    @objc
-    func didFinishLaunching(notification: Notification) {
-        let launchOptions = notification.userInfo as? [UIApplication.LaunchOptionsKey: Any]
-        track(name: launchType.lifecycleEvent.rawValue, properties: [
-            "from_background": false,
-            "referring_application": launchOptions?[UIApplication.LaunchOptionsKey.sourceApplication] ?? "",
-            "url": launchOptions?[UIApplication.LaunchOptionsKey.url] ?? ""
-        ])
-    }
-
-    @objc
-    func applicationWillEnterForeground(notification: Notification) {
-        guard wasBackgrounded else { return }
-        wasBackgrounded = false
-        track(name: LifecycleEvents.applicationOpened.rawValue,
-              properties: [
-                "from_background": true
-              ])
-    }
-
-    @objc
-    func didEnterBackground(notification: Notification) {
-        wasBackgrounded = true
-        track(name: LifecycleEvents.applicationBackgrounded.rawValue)
-    }
 }
 
 extension AnalyticsTracker: AnalyticsSubscriber {
@@ -186,19 +98,6 @@ extension AnalyticsTracker: AnalyticsSubscriber {
 
         case .profile:
             identify(properties: update.properties)
-        }
-    }
-}
-
-private extension LaunchType {
-    var lifecycleEvent: AnalyticsTracker.LifecycleEvents {
-        switch self {
-        case .install:
-            return .applicationInstalled
-        case .open:
-            return .applicationOpened
-        case .update:
-            return .applicationUpdated
         }
     }
 }
