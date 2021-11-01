@@ -9,14 +9,16 @@
 import Foundation
 
 internal class Networking {
-    let config: Appcues.Config
+    private let config: Appcues.Config
+    private let storage: Storage
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
+        self.storage = container.resolve(Storage.self)
     }
 
     func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void) {
-        guard let requestURL = endpoint.url(with: config) else {
+        guard let requestURL = endpoint.url(config: config, storage: storage) else {
             completion(.failure(NetworkingError.invalidURL))
             return
         }
@@ -28,7 +30,7 @@ internal class Networking {
     }
 
     func post<T: Decodable>(to endpoint: Endpoint, body: Data, completion: @escaping (_ result: Result<T, Error>) -> Void) {
-        guard let requestURL = endpoint.url(with: config) else {
+        guard let requestURL = endpoint.url(config: config, storage: storage) else {
             completion(.failure(NetworkingError.invalidURL))
             return
         }

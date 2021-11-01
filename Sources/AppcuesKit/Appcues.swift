@@ -72,12 +72,16 @@ public class Appcues {
         container.registerLazy(Networking.self, initializer: Networking.init)
         container.registerLazy(StyleLoader.self, initializer: StyleLoader.init)
         container.registerLazy(ExperienceLoader.self, initializer: ExperienceLoader.init)
-        container.registerLazy(FlowRenderer.self, initializer: FlowRenderer.init)
+        container.registerLazy(ExperienceRenderer.self, initializer: ExperienceRenderer.init)
         container.registerLazy(UIDebugger.self, initializer: UIDebugger.init)
         container.registerLazy(AnalyticsTracker.self, initializer: AnalyticsTracker.init)
+        container.registerLazy(LifecycleTracking.self, initializer: LifecycleTracking.init)
+        container.registerLazy(UIKitScreenTracking.self, initializer: UIKitScreenTracking.init)
     }
 
     private func initializeSession(_ config: Config) {
+        storage.accountID = config.accountID
+
         let previousBuild = storage.applicationBuild
         let currentBuild = Bundle.main.build
 
@@ -96,17 +100,26 @@ public class Appcues {
             storage.userID = config.anonymousIDFactory()
         }
 
-        // TODO: move into a SessionContext
-        // self.analyticsTracker.launchType = launchType
-
         // anything that should be eager init at launch is handled here
         _ = container.resolve(AnalyticsTracker.self)
+
+        if config.trackLifecycle {
+            container.resolve(LifecycleTracking.self).launchType = launchType
+        }
+
+        if config.trackScreens {
+            _ = container.resolve(UIKitScreenTracking.self)
+        }
     }
 }
 
 extension Appcues: AnalyticsPublisher {
     func register(subscriber: AnalyticsSubscriber) {
         subscribers.append(subscriber)
+    }
+
+    func remove(subscriber: AnalyticsSubscriber) {
+        subscribers.removeAll { $0 === subscriber }
     }
 
     private func publish(_ update: TrackingUpdate) {

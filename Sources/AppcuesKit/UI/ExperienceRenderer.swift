@@ -1,5 +1,5 @@
 //
-//  FlowRenderer.swift
+//  ExperienceRenderer.swift
 //  Appcues
 //
 //  Created by Matt on 2021-10-20.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class FlowRenderer {
+internal class ExperienceRenderer {
 
     private let config: Appcues.Config
     private let styleLoader: StyleLoader

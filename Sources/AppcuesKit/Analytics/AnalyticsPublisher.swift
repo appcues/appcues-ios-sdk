@@ -8,13 +8,13 @@
 
 import Foundation
 
-internal protocol AnalyticsPublisher {
+internal protocol AnalyticsPublisher: AnyObject {
     func identify(userID: String, properties: [String: Any]?)
     func track(name: String, properties: [String: Any]?)
     func screen(title: String, properties: [String: Any]?)
 
-    // TODO: will we need remove?
     func register(subscriber: AnalyticsSubscriber)
+    func remove(subscriber: AnalyticsSubscriber)
 }
 
 extension AnalyticsPublisher {
