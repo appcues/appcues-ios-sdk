@@ -1,6 +1,6 @@
 //
 //  JSONCodingKeys.swift
-//  Appcues
+//  AppcuesKit
 //
 //  Created by Matt on 2021-10-08.
 //  Copyright © 2021 Appcues. All rights reserved.
