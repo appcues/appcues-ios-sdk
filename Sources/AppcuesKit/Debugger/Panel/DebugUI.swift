@@ -51,10 +51,12 @@ internal enum DebugUI {
                     }
                 }
 
-                if let properties = event.eventProperties {
-                    Section(header: Text("Properties")) {
-                        ForEach(properties, id: \.key) { key, value in
-                            EventDetailRowView(title: key, value: value)
+                if let propertyGroups = event.eventProperties {
+                    ForEach(propertyGroups, id: \.title) { title, items in
+                        Section(header: Text(title)) {
+                            ForEach(items, id: \.value) { title, value in
+                                EventDetailRowView(title: title, value: value)
+                            }
                         }
                     }
                 }
