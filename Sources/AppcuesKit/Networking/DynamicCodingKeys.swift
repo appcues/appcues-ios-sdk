@@ -36,7 +36,7 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
         try dict?.forEach { key, value in
             let codingKey = DynamicCodingKeys(key: key)
 
-            if key == "_identity", let autoprops = value as? Dictionary<String, Any> {
+            if key == "_identity", let autoprops = value as? [String: Any] {
                 // "_identity" is a special case - the Appcues auto-properties that supply app/user/session data
                 var autopropContainer = self.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: codingKey)
                 try autopropContainer.encodeSkippingInvalid(autoprops)

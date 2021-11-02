@@ -37,7 +37,7 @@ internal class AnalyticsTracker {
     }
 
     private func track(userID: String, name: String, properties: [String: Any]? = nil) {
-        let activity = Activity(accountID: config.accountID, userID: userID,events: [Event(name: name, attributes: properties)], profileUpdate: nil)
+        let activity = Activity(accountID: config.accountID, userID: userID, events: [Event(name: name, attributes: properties)])
         guard let data = try? Networking.encoder.encode(activity) else {
             return
         }
@@ -56,7 +56,7 @@ internal class AnalyticsTracker {
             return
         }
 
-        let activity = Activity(accountID: config.accountID, userID: userID,events: [Event(pageView: urlString, attributes: properties)])
+        let activity = Activity(accountID: config.accountID, userID: userID, events: [Event(pageView: urlString, attributes: properties)])
         guard let data = try? Networking.encoder.encode(activity) else {
             return
         }
