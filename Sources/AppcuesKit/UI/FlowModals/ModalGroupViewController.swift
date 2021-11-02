@@ -54,6 +54,10 @@ internal class ModalGroupViewController: UIViewController {
         setupFlow()
     }
 
+    func closeModal() {
+        dismiss(animated: true)
+    }
+
     private func setupFlow() {
         if modalStepGroup.skippable {
             let button = modalGroupView.addDismissButton()
@@ -63,7 +67,7 @@ internal class ModalGroupViewController: UIViewController {
 
     @objc
     private func dismissButtonTapped(_ sender: UIButton) {
-        dismiss(animated: true)
+        closeModal()
     }
 }
 

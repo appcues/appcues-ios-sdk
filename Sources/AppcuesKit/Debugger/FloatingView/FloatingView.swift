@@ -15,7 +15,7 @@ internal class FloatingView: UIView {
     var onViewActivated: (() -> Void)?
 
     lazy var imageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(asset: Asset.debugIcon))
+        let imageView = UIImageView(image: UIImage(asset: Asset.Image.debugIcon))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.backgroundColor = .secondarySystemBackground
         imageView.clipsToBounds = true
