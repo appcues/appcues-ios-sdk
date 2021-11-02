@@ -46,7 +46,7 @@ internal class WebWrapperCell: UICollectionViewCell {
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="https://fast.appcues.com/generic/injectable/4.31.30/modal.86669839fbee1b1c78f20b7d496bd3b9de3a2901.css" type="text/css" rel="stylesheet">
-        <style type="text/css">appcues{padding:0!important}\#(css ?? "")</style>
+        <style type="text/css">appcues{padding:0!important}appcues cue{box-shadow:none}\#(css ?? "")</style>
     </head>
     <body>
         <appcues class="cue-step-0 active fullscreen">
