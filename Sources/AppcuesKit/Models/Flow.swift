@@ -14,8 +14,15 @@ internal struct Flow {
         case published = "PUBLISHED"
     }
 
+    enum FlowType: String, Decodable {
+        // TODO: What are the other possible states?
+        case journey
+
+    }
+
     let id: String
     let name: String
+    let type: FlowType
     let createdAt: Date
     let updatedAt: Date
     let context: [String: Any]
@@ -36,6 +43,7 @@ extension Flow: Decodable {
     private enum CodingKeys: CodingKey {
         case id
         case name
+        case type
         case createdAt
         case updatedAt
         case context
@@ -85,6 +93,7 @@ extension Flow: Decodable {
 
         id = try container.decode(String.self, forKey: .id)
         name = try container.decode(String.self, forKey: .name)
+        type = try container.decode(FlowType.self, forKey: .type)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
         updatedAt = try container.decode(Date.self, forKey: .updatedAt)
         context = try container.decode([String: Any].self, forKey: .context)
