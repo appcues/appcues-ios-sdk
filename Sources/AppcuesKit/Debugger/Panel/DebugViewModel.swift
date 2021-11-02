@@ -43,13 +43,15 @@ extension DebugViewModel {
     }
 
     struct LoggedEvent: Identifiable {
+        typealias Pair = (title: String, value: String?)
+
         let id = UUID()
         let timestamp: Date
         let type: EventType
         let name: String
         let properties: [String: Any]?
 
-        var eventDetailItems: [(title: String, value: String?)] {
+        var eventDetailItems: [Pair] {
             [
                 ("Type", type.description),
                 ("Name", name),
@@ -57,20 +59,30 @@ extension DebugViewModel {
             ]
         }
 
-        var eventProperties: [(key: String, value: String?)]? {
+        var eventProperties: [(title: String, items: [Pair])]? {
             guard var properties = properties else { return nil }
 
-            // flatten the nested `_identity` auto-properties into individual top level items.
-            if let autoProps = properties["_identity"] as? [String: Any] {
-                properties["_identity"] = nil
-                autoProps.forEach {
-                    properties["_identity.\($0.key)"] = $0.value
-                }
-            }
+            var groups: [(title: String, items: [Pair])] = []
 
-            return properties
+            // flatten the nested `_identity` auto-properties into individual top level items.
+            let autoProps = (properties["_identity"] as? [String: Any] ?? [:])
                 .sorted { $0.key > $1.key }
                 .map { ($0.key, String(describing: $0.value)) }
+            properties["_identity"] = nil
+
+            let userProps = properties
+                .sorted { $0.key > $1.key }
+                .map { ($0.key, String(describing: $0.value)) }
+
+            if !userProps.isEmpty {
+                groups.append(("Properties", userProps))
+            }
+
+            if !autoProps.isEmpty {
+                groups.append(("Identity Auto-properties", autoProps))
+            }
+
+            return groups
         }
 
         init(from update: TrackingUpdate) {
