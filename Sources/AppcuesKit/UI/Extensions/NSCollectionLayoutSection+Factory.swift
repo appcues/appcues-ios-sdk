@@ -1,6 +1,6 @@
 //
 //  NSCollectionLayoutSection+Factory.swift
-//  Appcues
+//  AppcuesKit
 //
 //  Created by Matt on 2021-10-15.
 //  Copyright © 2021 Appcues. All rights reserved.
