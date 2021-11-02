@@ -67,8 +67,10 @@ internal class AnalyticsTracker {
         ) { [weak self] (result: Result<Taco, Error>) in
             switch result {
             case .success(let taco):
-                // This assumes that the returned flows are ordered by priority.
-                if let flow = taco.contents.first {
+                // This prioritizes experiencess over legacy web flows and assumes that the returned flows are ordered by priority.
+                if let experience = taco.experiences.first {
+                    self?.experienceRenderer.show(experience: experience)
+                } else if let flow = taco.contents.first {
                     self?.experienceRenderer.show(flow: flow)
                 }
             case .failure(let error):

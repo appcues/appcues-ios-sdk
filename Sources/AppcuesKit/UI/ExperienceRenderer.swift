@@ -20,6 +20,27 @@ internal class ExperienceRenderer {
         self.analyticsPublisher = container.resolve(AnalyticsPublisher.self)
     }
 
+    func show(experience: Experience) {
+        DispatchQueue.main.async {
+            if experience.steps.count > 1 {
+                self.config.logger.log("Experience has more than one step. Currently only the first will be presented.")
+            }
+
+            guard let experienceView = experience.steps.first?.content.view else {
+                self.config.logger.error("Experience has no steps")
+                return
+            }
+
+            guard let topController = UIApplication.shared.topViewController() else {
+                self.config.logger.error("Could not determine top view controller")
+                return
+            }
+
+            let viewController = ExperienceHostingController(rootView: experienceView)
+            topController.present(viewController, animated: true)
+        }
+    }
+
     // Show a specified flow model on top of the current application.
     func show(flow: Flow) {
         // TODO: [SC-28964] Tracking the `appcues:flow_attempted` event here is temporary (just so we can see it in the debugger.
