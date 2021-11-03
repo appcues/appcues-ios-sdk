@@ -14,7 +14,6 @@ internal class DialogContainerView: UIView {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = Asset.Color.dialogBackground.color
-        view.alpha = 0.3
         return view
     }()
 
@@ -34,13 +33,7 @@ internal class DialogContainerView: UIView {
 
         addSubview(backgroundView)
         addSubview(dialogView)
-
-        NSLayoutConstraint.activate([
-            backgroundView.topAnchor.constraint(equalTo: topAnchor),
-            backgroundView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            backgroundView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            backgroundView.trailingAnchor.constraint(equalTo: trailingAnchor)
-        ])
+        backgroundView.pin(to: self)
 
         NSLayoutConstraint.activate([
             dialogView.centerYAnchor.constraint(equalTo: centerYAnchor),

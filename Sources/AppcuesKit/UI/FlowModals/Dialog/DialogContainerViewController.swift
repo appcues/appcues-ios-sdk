@@ -10,8 +10,7 @@ import UIKit
 
 internal class DialogContainerViewController: UIViewController {
 
-    // swiftlint:disable force_cast
-    var containerView: DialogContainerView { view as! DialogContainerView }
+    lazy var containerView = DialogContainerView()
 
     private let dialogViewController: ModalGroupViewController
 
@@ -29,7 +28,7 @@ internal class DialogContainerViewController: UIViewController {
     }
 
     override func loadView() {
-        view = DialogContainerView()
+        view = containerView
         embedChildViewController(dialogViewController, inSuperview: containerView.dialogView)
         containerView.backgroundView.addGestureRecognizer(
             UITapGestureRecognizer(target: self, action: #selector(didTapBackground)))

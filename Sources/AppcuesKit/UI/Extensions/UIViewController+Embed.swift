@@ -12,13 +12,7 @@ extension UIViewController {
     func embedChildViewController(_ childVC: UIViewController, inSuperview superview: UIView) {
         addChild(childVC)
         superview.addSubview(childVC.view)
-        childVC.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            childVC.view.leadingAnchor.constraint(equalTo: superview.leadingAnchor),
-            childVC.view.topAnchor.constraint(equalTo: superview.topAnchor),
-            childVC.view.trailingAnchor.constraint(equalTo: superview.trailingAnchor),
-            childVC.view.bottomAnchor.constraint(equalTo: superview.bottomAnchor)
-        ])
+        childVC.view.pin(to: superview)
         childVC.didMove(toParent: self)
     }
 }
