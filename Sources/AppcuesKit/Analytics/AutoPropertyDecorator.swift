@@ -11,20 +11,18 @@ import WebKit
 
 internal class AutoPropertyDecorator: TrackingDecorator {
 
-    // private let storage: Storage
-    private let config: Appcues.Config
-
     private var currentScreen: String?
     private var previousScreen: String?
 
     // TODO: product reqs on when this resets
     private var sessionPageviews = 0
+    private var sessionRandomizer: Int
 
     // these are the fixed values for the duration of the app runtime
     private var applicationProperties: [String: Any] = [:]
 
     init(container: DIContainer) {
-        self.config = container.resolve(Appcues.Config.self)
+        self.sessionRandomizer = Int.random(in: 1...100)
         configureApplicationProperties()
         container.resolve(AnalyticsPublisher.self).register(decorator: self)
     }
@@ -43,8 +41,10 @@ internal class AutoPropertyDecorator: TrackingDecorator {
         var sessionProperties: [String: Any?] = [
             "userId": tracking.userID,
             "_sessionPageviews": sessionPageviews,
+            "_sessionRandomizer": sessionRandomizer,
             "_currentPageTitle": currentScreen,
-            "_lastPageTitle": previousScreen
+            "_lastPageTitle": previousScreen,
+            "_updatedAt": Date()
         ]
 
         if !Locale.preferredLanguages.isEmpty {
@@ -67,15 +67,16 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
     private func configureApplicationProperties() {
         applicationProperties = [
-            "_appcuesId": config.accountID,
             "_appId": "{GUID-TBD}",
-            "_platform": "ios",
+            "_operatingSystem": "ios",
             "_bundlePackageId": Bundle.main.identifier,
             "_appName": Bundle.main.displayName,
             "_appVersion": Bundle.main.version,
             "_appBuild": Bundle.main.build,
             "_sdkVersion": __appcues_version,
-            "_sdkName": "appcues-ios"
+            "_sdkName": "appcues-ios",
+            "_deviceType": UIDevice.current.userInterfaceIdiom.analyticsName,
+            "_deviceModel": UIDevice.current.modelName
         ]
 
         if Thread.isMainThread {
@@ -90,5 +91,26 @@ internal class AutoPropertyDecorator: TrackingDecorator {
     private func updateUserAgent() {
         guard let userAgent = WKWebView().value(forKey: "userAgent") as? String else { return }
         applicationProperties["_userAgent"] = userAgent
+    }
+}
+
+private extension UIUserInterfaceIdiom {
+    var analyticsName: String {
+        if self == .pad {
+            return "tablet"
+        }
+        return "phone"
+    }
+}
+
+private extension UIDevice {
+    var modelName: String {
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let machineMirror = Mirror(reflecting: systemInfo.machine)
+        return machineMirror.children.reduce(into: "") { identifier, element in
+            guard let value = element.value as? Int8, value != 0 else { return }
+            identifier += String(UnicodeScalar(UInt8(value)))
+        }
     }
 }
