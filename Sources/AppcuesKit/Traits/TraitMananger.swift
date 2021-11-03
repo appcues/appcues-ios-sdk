@@ -14,6 +14,7 @@ internal class TraitMananger {
 
     init(container: DIContainer) {
         // Register default container traits
+        register(trait: AppcuesModalTrait.self)
 
         // Register default controller traits
     }
