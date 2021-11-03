@@ -12,6 +12,7 @@ import Combine
 // AsyncImage is iOS 15+, so borrow this from
 // https://www.vadimbulavin.com/asynchronous-swiftui-image-loading-from-url-with-combine-and-swift/
 
+// TODO: Cache remote images for performance benefits.
 internal class ImageLoader: ObservableObject {
     @Published var image: UIImage?
     private let url: URL
