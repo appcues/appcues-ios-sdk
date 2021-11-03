@@ -44,6 +44,8 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
                 switch value {
                 case let string as String:
                     try self.encode(string, forKey: codingKey)
+                case let url as URL:
+                    try self.encode(url.absoluteString, forKey: codingKey)
                 case let bool as Bool:
                     try self.encode(bool, forKey: codingKey)
                 // swiftlint:disable:next legacy_objc_type
@@ -61,7 +63,7 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
             assertionFailure(
             """
             Unsupported value(s) included in \(self.codingPath) for key(s): \(encodingErrorKeys).
-            Only String, Number, and Bool types allowed.
+            Only String, Number, Date, URL and Bool types allowed.
             """
             )
         }
