@@ -12,9 +12,9 @@ internal class DialogContainerViewController: UIViewController {
 
     lazy var containerView = DialogContainerView()
 
-    private let dialogViewController: ModalGroupViewController
+    private let dialogViewController: UIViewController
 
-    init(dialogViewController: ModalGroupViewController) {
+    init(dialogViewController: UIViewController) {
         self.dialogViewController = dialogViewController
         super.init(nibName: nil, bundle: nil)
 
@@ -36,6 +36,6 @@ internal class DialogContainerViewController: UIViewController {
 
     @objc
     private func didTapBackground() {
-        dialogViewController.closeModal()
+        dismiss(animated: true)
     }
 }

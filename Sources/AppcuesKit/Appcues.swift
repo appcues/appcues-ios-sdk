@@ -15,6 +15,7 @@ public class Appcues {
 
     private lazy var storage = container.resolve(Storage.self)
     private lazy var uiDebugger = container.resolve(UIDebugger.self)
+    private lazy var traitManager = container.resolve(TraitMananger.self)
     private lazy var experienceLoader = container.resolve(ExperienceLoader.self)
 
     private var subscribers: [AnalyticsSubscriber] = []
@@ -73,6 +74,12 @@ public class Appcues {
         experienceLoader.load(contentID: contentID)
     }
 
+    /// Register a trait that modifies an `Experience`.
+    /// - Parameter trait: Trait to register.
+    public func register(trait: ExperienceTrait.Type) {
+        traitManager.register(trait: trait)
+    }
+
     /// Launches the Appcues debugger over your app's UI.
     public func debug() {
         uiDebugger.show()
@@ -107,6 +114,7 @@ public class Appcues {
         container.registerLazy(LifecycleTracking.self, initializer: LifecycleTracking.init)
         container.registerLazy(UIKitScreenTracking.self, initializer: UIKitScreenTracking.init)
         container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
+        container.registerLazy(TraitMananger.self, initializer: TraitMananger.init)
     }
 
     private func initializeSession(_ config: Config) {
