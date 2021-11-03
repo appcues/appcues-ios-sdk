@@ -49,6 +49,8 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
                 // swiftlint:disable:next legacy_objc_type
                 case let number as NSNumber:
                     try self.encode(number.decimalValue, forKey: codingKey)
+                case let date as Date:
+                    try self.encode(date, forKey: codingKey)
                 default:
                     encodingErrorKeys.append(codingKey.stringValue)
                 }

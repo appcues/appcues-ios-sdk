@@ -97,7 +97,10 @@ extension Networking {
 
     static var encoder: JSONEncoder {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
+        encoder.dateEncodingStrategy = .custom { (date, encoder) throws in
+            var container = encoder.singleValueContainer()
+            try container.encode(date.millisecondsSince1970)
+        }
         encoder.outputFormatting = .prettyPrinted
         return encoder
     }
@@ -107,5 +110,11 @@ extension Networking {
         decoder.dateDecodingStrategy = .millisecondsSince1970
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         return decoder
+    }
+}
+
+private extension Date {
+    var millisecondsSince1970: Int64 {
+        return Int64((self.timeIntervalSince1970 * 1_000.0).rounded())
     }
 }
