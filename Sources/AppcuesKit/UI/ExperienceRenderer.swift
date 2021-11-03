@@ -12,11 +12,13 @@ internal class ExperienceRenderer {
 
     private let config: Appcues.Config
     private let styleLoader: StyleLoader
+    private let traitManager: TraitMananger
     private let analyticsPublisher: AnalyticsPublisher
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
         self.styleLoader = container.resolve(StyleLoader.self)
+        self.traitManager = container.resolve(TraitMananger.self)
         self.analyticsPublisher = container.resolve(AnalyticsPublisher.self)
     }
 
@@ -26,7 +28,7 @@ internal class ExperienceRenderer {
                 self.config.logger.log("Experience has more than one step. Currently only the first will be presented.")
             }
 
-            guard let experienceView = experience.steps.first?.content.view else {
+            guard let step = experience.steps.first else {
                 self.config.logger.error("Experience has no steps")
                 return
             }
@@ -36,8 +38,12 @@ internal class ExperienceRenderer {
                 return
             }
 
-            let viewController = ExperienceHostingController(rootView: experienceView)
-            topController.present(viewController, animated: true)
+            let viewController = ExperienceHostingController(rootView: step.content.view)
+            self.traitManager.apply(controllerExperienceTraits: step.traits, to: viewController)
+
+            let wrappedViewController = self.traitManager.apply(containerExperienceTraits: step.traits, to: viewController)
+
+            topController.present(wrappedViewController, animated: true)
         }
     }
 
