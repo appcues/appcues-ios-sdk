@@ -31,7 +31,7 @@ class DynamicCodingKeysTests: XCTestCase {
 
     func testEncodeDictAnyInvalid() throws {
         // Arrange
-        let invalidValue = Date()
+        let invalidValue = [1, 2, 3, 4]
         let testData = TestData(dict: ["before": 1, "invalid": invalidValue, "valid": "Valid value", "anotherInvalid": ["arr", "ay"]])
 
         // Act
