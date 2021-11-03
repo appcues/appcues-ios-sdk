@@ -17,6 +17,7 @@ internal class TraitMananger {
         register(trait: AppcuesModalTrait.self)
 
         // Register default controller traits
+        register(trait: AppcuesSkippableTrait.self)
     }
 
     func register(trait: ExperienceTrait.Type) {

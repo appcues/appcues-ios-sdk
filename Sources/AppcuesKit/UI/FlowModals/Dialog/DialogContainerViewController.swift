@@ -36,6 +36,10 @@ internal class DialogContainerViewController: UIViewController {
 
     @objc
     private func didTapBackground() {
+        // TODO: this should be controller by the @appcues/skippable trait.
+        // In general traits should be standalone and shouldn't need to know implementation details, or about other traits,
+        // but skippable might be a special case. Alternatively, if @appcues/modal had a property that determined if
+        // background tap and swipe to dismiss were allowed, that would do it, and skippable would solely be for the button.
         dismiss(animated: true)
     }
 }
