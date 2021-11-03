@@ -149,7 +149,7 @@ private extension Dictionary where Key == String, Value == Any {
                 XCTFail(error.localizedDescription)
             }
             // Not comparing to expectEvent.date because it's fine if they're not identical
-            XCTAssertNotNil(requestEvent["timestamp"] as? String)
+            XCTAssertNotNil(requestEvent["timestamp"] as? Int64)
         }
     }
 
