@@ -11,6 +11,7 @@ import SwiftUI
 internal struct AppcuesStyle: ViewModifier {
     let fontSize: CGFloat?
     let fontWeight: Font.Weight
+    let lineSpacing: CGFloat?
     let alignment: TextAlignment?
     let foregroundColor: Color?
     let backgroundColor: Color?
@@ -21,6 +22,7 @@ internal struct AppcuesStyle: ViewModifier {
     init(from model: ExperienceComponent.Style?) {
         self.fontSize = CGFloat(model?.fontSize)
         self.fontWeight = Font.Weight(string: model?.fontWeight) ?? .regular
+        self.lineSpacing = CGFloat(model?.lineSpacing)
         self.alignment = TextAlignment(string: model?.alignment)
         self.foregroundColor = Color(hex: model?.foregroundColor)
         self.backgroundColor = Color(hex: model?.backgroundColor)
@@ -33,6 +35,9 @@ internal struct AppcuesStyle: ViewModifier {
         content
             .ifLet(fontSize) { view, val in
                 view.font(.system(size: val, weight: fontWeight))
+            }
+            .ifLet(lineSpacing) { view, val in
+                view.lineSpacing(val)
             }
             .ifLet(foregroundColor) { view, val in
                 view.foregroundColor(val)
