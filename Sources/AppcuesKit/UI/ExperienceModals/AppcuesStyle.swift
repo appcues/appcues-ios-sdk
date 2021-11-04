@@ -15,6 +15,7 @@ internal struct AppcuesStyle: ViewModifier {
     let alignment: TextAlignment?
     let foregroundColor: Color?
     let backgroundColor: Color?
+    let backgroundGradient: LinearGradient?
     let cornerRadius: CGFloat?
     let borderColor: Color?
     let borderWidth: CGFloat?
@@ -26,6 +27,7 @@ internal struct AppcuesStyle: ViewModifier {
         self.alignment = TextAlignment(string: model?.alignment)
         self.foregroundColor = Color(hex: model?.foregroundColor)
         self.backgroundColor = Color(hex: model?.backgroundColor)
+        self.backgroundGradient = LinearGradient(rawGradient: model?.backgroundGradient)
         self.cornerRadius = CGFloat(model?.cornerRadius)
         self.borderColor = Color(hex: model?.borderColor)
         self.borderWidth = CGFloat(model?.borderWidth)
@@ -43,6 +45,9 @@ internal struct AppcuesStyle: ViewModifier {
                 view.foregroundColor(val)
             }
             .ifLet(backgroundColor) { view, val in
+                view.background(val)
+            }
+            .ifLet(backgroundGradient) { view, val in
                 view.background(val)
             }
             .ifLet(cornerRadius) { view, val in
