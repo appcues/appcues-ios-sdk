@@ -9,8 +9,7 @@
 import UIKit
 
 internal class TraitMananger {
-    var containerExperienceTraits: [ContainerExperienceTrait.Type] = []
-    var controllerExperienceTraits: [ControllerExperienceTrait.Type] = []
+    private var traits: [ExperienceTrait.Type] = []
 
     init(container: DIContainer) {
         // Register default container traits
@@ -21,40 +20,32 @@ internal class TraitMananger {
     }
 
     func register(trait: ExperienceTrait.Type) {
-        if let containerExperienceTrait = trait as? ContainerExperienceTrait.Type {
-            containerExperienceTraits.append(containerExperienceTrait)
-        }
-
-        if let controllerExperienceTrait = trait as? ControllerExperienceTrait.Type {
-            controllerExperienceTraits.append(controllerExperienceTrait)
-        }
+        traits.append(trait)
     }
 
-    /// Map and init `ExperienceTrait` instances to apply.
-    ///
-    /// Non `ContainerExperienceTrait`'s in the `traitModels` array will be skipped.
-    func apply(containerExperienceTraits traitModels: [Experience.Trait], to viewController: UIViewController) -> UIViewController {
-        traitModels.compactMap { traitModel in
-            return containerExperienceTraits
-                .first { $0.type == traitModel.type }?
-                .init(config: traitModel.config)
-        }
-        .reduce(viewController) { controller, trait in
+    func apply(_ traitModels: [Experience.Trait], to viewController: UIViewController) -> UIViewController {
+        apply(controllerExperienceTraits: traitModels, to: viewController)
+        return apply(containerExperienceTraits: traitModels, to: viewController)
+    }
+
+    private func apply(containerExperienceTraits traitModels: [Experience.Trait], to viewController: UIViewController) -> UIViewController {
+        let traitInstances: [ContainerExperienceTrait] = abc(traitModels: traitModels)
+        return traitInstances.reduce(viewController) { controller, trait in
             trait.apply(to: controller)
         }
     }
 
-    /// Map and init `ExperienceTrait` instances to apply.
-    ///
-    /// Non `ControllerExperienceTrait`'s in the `traitModels` array will be skipped.
-    func apply(controllerExperienceTraits traitModels: [Experience.Trait], to viewController: UIViewController) {
-        traitModels.compactMap { traitModel in
-            return controllerExperienceTraits
-                .first { $0.type == traitModel.type }?
-                .init(config: traitModel.config)
-        }
-        .forEach { trait in
+    private func apply(controllerExperienceTraits traitModels: [Experience.Trait], to viewController: UIViewController) {
+        let traitInstances: [ControllerExperienceTrait] = abc(traitModels: traitModels)
+        traitInstances.forEach { trait in
             trait.apply(to: viewController)
+        }
+    }
+
+    /// Map and init `ExperienceTrait` instances to apply.
+    private func abc<T>(traitModels: [Experience.Trait]) -> [T] {
+        traitModels.compactMap { traitModel in
+            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config) as? T
         }
     }
 }

@@ -39,9 +39,7 @@ internal class ExperienceRenderer {
             }
 
             let viewController = ExperienceHostingController(rootView: step.content.view)
-            self.traitManager.apply(controllerExperienceTraits: step.traits, to: viewController)
-
-            let wrappedViewController = self.traitManager.apply(containerExperienceTraits: step.traits, to: viewController)
+            let wrappedViewController = self.traitManager.apply(step.traits, to: viewController)
 
             topController.present(wrappedViewController, animated: true)
         }
