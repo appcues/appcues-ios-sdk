@@ -176,6 +176,7 @@ extension ExperienceComponent {
         let alignment: String?
         let foregroundColor: String?
         let backgroundColor: String?
+        let backgroundGradient: RawGradient?
         let cornerRadius: Double?
         let borderColor: String?
         let borderWidth: Double?
@@ -187,6 +188,7 @@ extension ExperienceComponent {
             alignment: String? = nil,
             foregroundColor: String? = nil,
             backgroundColor: String? = nil,
+            backgroundGradient: RawGradient? = nil,
             cornerRadius: Double? = nil,
             borderColor: String? = nil,
             borderWidth: Double? = nil
@@ -197,10 +199,19 @@ extension ExperienceComponent {
             self.alignment = alignment
             self.foregroundColor = foregroundColor
             self.backgroundColor = backgroundColor
+            self.backgroundGradient = backgroundGradient
             self.cornerRadius = cornerRadius
             self.borderColor = borderColor
             self.borderWidth = borderWidth
         }
 
+    }
+}
+
+extension ExperienceComponent.Style {
+    struct RawGradient: Decodable {
+        let colors: [String]
+        let startPoint: String
+        let endPoint: String
     }
 }
