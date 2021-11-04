@@ -8,15 +8,16 @@
 
 import UIKit
 
-internal struct AppcuesSkippableTrait: ControllerExperienceTrait {
+internal struct AppcuesSkippableTrait: ExperienceTrait {
     static let type = "@appcues/skippable"
 
     init?(config: [String: Any]?) {
         // no config expected
     }
 
-    func apply(to viewController: UIViewController) {
-        viewController.addDismissButton()
+    func apply(to experienceController: UIViewController, containedIn wrappingController: UIViewController) -> UIViewController {
+        experienceController.addDismissButton()
+        return wrappingController
     }
 }
 
