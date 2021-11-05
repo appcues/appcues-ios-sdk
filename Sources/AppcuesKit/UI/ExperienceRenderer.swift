@@ -13,12 +13,14 @@ internal class ExperienceRenderer {
     private let config: Appcues.Config
     private let styleLoader: StyleLoader
     private let traitManager: TraitMananger
+    private let actionManager: ActionManager
     private let analyticsPublisher: AnalyticsPublisher
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
         self.styleLoader = container.resolve(StyleLoader.self)
         self.traitManager = container.resolve(TraitMananger.self)
+        self.actionManager = container.resolve(ActionManager.self)
         self.analyticsPublisher = container.resolve(AnalyticsPublisher.self)
     }
 
@@ -38,7 +40,8 @@ internal class ExperienceRenderer {
                 return
             }
 
-            let viewController = ExperienceHostingController(rootView: step.content.view)
+            let viewModel = ExperienceStepViewModel(step: step, actionManager: self.actionManager)
+            let viewController = ExperienceStepHostingController(rootView: step.content.view, viewModel: viewModel)
             let wrappedViewController = self.traitManager.apply(step.traits, to: viewController)
 
             topController.present(wrappedViewController, animated: true)

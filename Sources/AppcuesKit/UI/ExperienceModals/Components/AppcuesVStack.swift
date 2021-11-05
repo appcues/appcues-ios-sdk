@@ -9,7 +9,10 @@
 import SwiftUI
 
 internal struct AppcuesVStack: View {
+    let id: UUID
     let model: ExperienceComponent.VStackModel
+
+    @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
         let layout = AppcuesLayout(from: model.layout)
@@ -20,6 +23,7 @@ internal struct AppcuesVStack: View {
                 AnyView($0.view)
             }
         }
+        .setupActions(viewModel.groupedActionHandlers(for: id))
         .applyAppcues(layout, style)
     }
 }
@@ -29,7 +33,7 @@ internal struct AppcuesVStackPreview: PreviewProvider {
 
     static var previews: some View {
         Group {
-            AppcuesVStack(model: EC.VStackModel(
+            AppcuesVStack(id: UUID(), model: EC.VStackModel(
                 items: [
                     EC(model: .text(EC.textTitle)),
                     EC(model: .text(EC.textSubtitle)),
@@ -41,7 +45,7 @@ internal struct AppcuesVStackPreview: PreviewProvider {
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesVStack(model: EC.VStackModel(
+            AppcuesVStack(id: UUID(), model: EC.VStackModel(
                 items: [
                     EC(model: .text(EC.textTitle)),
                     EC(model: .text(EC.textSubtitle)),
