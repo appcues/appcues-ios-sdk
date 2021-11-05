@@ -9,7 +9,10 @@
 import SwiftUI
 
 internal struct AppcuesPager: View {
+    let id: UUID
     let model: ExperienceComponent.PagerModel
+
+    @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
         let layout = AppcuesLayout(from: model.layout)
@@ -21,6 +24,7 @@ internal struct AppcuesPager: View {
             }
         }
         .modifier(PagerViewModifier())
+        .setupActions(viewModel.groupedActionHandlers(for: id))
         .applyAppcues(layout, style)
     }
 
@@ -31,7 +35,7 @@ internal struct AppcuesPagerPreview: PreviewProvider {
 
     static var previews: some View {
         Group {
-            AppcuesPager(model: EC.PagerModel(
+            AppcuesPager(id: UUID(), model: EC.PagerModel(
                 items: [
                     EC(model: .vstack(EC.vstackHero)),
                     EC(model: .vstack(EC.vstackHero)),

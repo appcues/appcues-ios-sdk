@@ -9,7 +9,10 @@
 import SwiftUI
 
 internal struct AppcuesHStack: View {
+    let id: UUID
     let model: ExperienceComponent.HStackModel
+
+    @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
         let layout = AppcuesLayout(from: model.layout)
@@ -20,6 +23,7 @@ internal struct AppcuesHStack: View {
                 AnyView($0.view)
             }
         }
+        .setupActions(viewModel.groupedActionHandlers(for: id))
         .applyAppcues(layout, style)
     }
 }
@@ -29,7 +33,7 @@ internal struct AppcuesHStackPreview: PreviewProvider {
 
     static var previews: some View {
         Group {
-            AppcuesHStack(model: EC.HStackModel(
+            AppcuesHStack(id: UUID(), model: EC.HStackModel(
                 items: [
                     EC(model: .image(EC.imageSymbol)),
                     EC(model: .text(EC.textPlain))

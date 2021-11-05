@@ -9,7 +9,10 @@
 import SwiftUI
 
 internal struct AppcuesText: View {
+    let id: UUID
     let model: ExperienceComponent.TextModel
+
+    @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
         let layout = AppcuesLayout(from: model.layout)
@@ -19,6 +22,7 @@ internal struct AppcuesText: View {
             .ifLet(style.alignment) { view, val in
                 view.multilineTextAlignment(val)
             }
+            .setupActions(viewModel.groupedActionHandlers(for: id))
             .applyAppcues(layout, style)
     }
 }
@@ -27,11 +31,11 @@ internal struct AppcuesText: View {
 internal struct AppcuesTextPreview: PreviewProvider {
     static var previews: some View {
         Group {
-            AppcuesText(model: EC.textPlain)
+            AppcuesText(id: UUID(), model: EC.textPlain)
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesText(model: EC.TextModel(
+            AppcuesText(id: UUID(), model: EC.TextModel(
                 text: "This is some text that wraps and is center aligned.",
                 layout: EC.Layout(width: 100),
                 style: EC.Style(alignment: "center"))
@@ -39,7 +43,7 @@ internal struct AppcuesTextPreview: PreviewProvider {
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesText(model: EC.TextModel(
+            AppcuesText(id: UUID(), model: EC.TextModel(
                 text: "Heading Sized Text",
                 layout: nil,
                 style: EC.Style(fontSize: 36, foregroundColor: "#f00"))

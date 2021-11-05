@@ -16,6 +16,7 @@ public class Appcues {
     private lazy var storage = container.resolve(Storage.self)
     private lazy var uiDebugger = container.resolve(UIDebugger.self)
     private lazy var traitManager = container.resolve(TraitMananger.self)
+    private lazy var actionManager = container.resolve(ActionManager.self)
     private lazy var experienceLoader = container.resolve(ExperienceLoader.self)
 
     private var subscribers: [AnalyticsSubscriber] = []
@@ -80,6 +81,12 @@ public class Appcues {
         traitManager.register(trait: trait)
     }
 
+    /// Register an action that can be activated in an `Experience`.
+    /// - Parameter trait: Trait to register.
+    public func register(action: ExperienceAction.Type) {
+        actionManager.register(action: action)
+    }
+
     /// Launches the Appcues debugger over your app's UI.
     public func debug() {
         uiDebugger.show()
@@ -101,6 +108,7 @@ public class Appcues {
     }
 
     private func initializeContainer(_ config: Config) {
+        container.register(Appcues.self, value: self)
         container.register(Config.self, value: config)
         container.register(AnalyticsPublisher.self, value: self)
         container.registerLazy(Storage.self, initializer: Storage.init)
@@ -115,6 +123,7 @@ public class Appcues {
         container.registerLazy(UIKitScreenTracking.self, initializer: UIKitScreenTracking.init)
         container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
         container.registerLazy(TraitMananger.self, initializer: TraitMananger.init)
+        container.registerLazy(ActionManager.self, initializer: ActionManager.init)
     }
 
     private func initializeSession(_ config: Config) {

@@ -13,19 +13,19 @@ extension ExperienceComponent {
     @ViewBuilder var view: some View {
         switch model {
         case .pager(let model):
-            AppcuesPager(model: model)
+            AppcuesPager(id: id, model: model)
         case .vstack(let model):
-            AppcuesVStack(model: model)
+            AppcuesVStack(id: id, model: model)
         case .hstack(let model):
-            AppcuesHStack(model: model)
+            AppcuesHStack(id: id, model: model)
         case .zstack(let model):
-            AppcuesZStack(model: model)
+            AppcuesZStack(id: id, model: model)
         case .text(let model):
-            AppcuesText(model: model)
+            AppcuesText(id: id, model: model)
         case .button(let model):
-            AppcuesButton(model: model)
+            AppcuesButton(id: id, model: model)
         case .image(let model):
-            AppcuesImage(model: model)
+            AppcuesImage(id: id, model: model)
         case .spacer(let model):
             Spacer(minLength: CGFloat(model.layout?.spacing))
         }
