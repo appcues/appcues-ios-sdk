@@ -26,7 +26,7 @@ public class Appcues {
 
     // controls whether the SDK is actively tracking data - which means we either
     // have an identified user, or were explicitly asked to track an anonymous user
-    private var isActive = false
+    var isActive = false
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
@@ -53,21 +53,14 @@ public class Appcues {
     ///   - userID: Unique value identifying the user.
     ///   - properties: Optional properties that provide additional context about the user.
     public func identify(userID: String, properties: [String: Any]? = nil) {
-        storage.userID = userID
-        storage.isAnonymous = false
-        isActive = true
-        publish(TrackingUpdate(type: .profile, properties: properties, userID: userID))
+        identify(isAnonymous: false, userID: userID, properties: properties)
     }
 
     /// Generate a unique ID for the current user when there is not a known identity to use in
     /// the `identify` call.  This will cause the SDK to begin tracking activity and checking for
     /// qualified content.
-    public func anonymous() {
-        let anonymousUserID = config.anonymousIDFactory()
-        storage.userID = anonymousUserID
-        storage.isAnonymous = true
-        isActive = true
-        publish(TrackingUpdate(type: .profile, properties: nil, userID: anonymousUserID))
+    public func anonymous(properties: [String: Any]? = nil) {
+        identify(isAnonymous: true, userID: config.anonymousIDFactory(), properties: properties)
     }
 
     /// Clears out the current user in this session.  Can be used when the user logs out of your application.
@@ -185,6 +178,13 @@ public class Appcues {
         if config.trackScreens {
             _ = container.resolve(UIKitScreenTracking.self)
         }
+    }
+
+    private func identify(isAnonymous: Bool, userID: String, properties: [String: Any]? = nil) {
+        storage.userID = userID
+        storage.isAnonymous = isAnonymous
+        isActive = true
+        publish(TrackingUpdate(type: .profile, properties: properties, userID: userID))
     }
 }
 
