@@ -15,8 +15,8 @@ public class Appcues {
 
     private lazy var storage = container.resolve(Storage.self)
     private lazy var uiDebugger = container.resolve(UIDebugger.self)
-    private lazy var traitManager = container.resolve(TraitMananger.self)
-    private lazy var actionManager = container.resolve(ActionManager.self)
+    private lazy var traitRegistry = container.resolve(TraitRegistry.self)
+    private lazy var actionRegistry = container.resolve(ActionRegistry.self)
     private lazy var experienceLoader = container.resolve(ExperienceLoader.self)
 
     private var subscribers: [AnalyticsSubscriber] = []
@@ -78,13 +78,13 @@ public class Appcues {
     /// Register a trait that modifies an `Experience`.
     /// - Parameter trait: Trait to register.
     public func register(trait: ExperienceTrait.Type) {
-        traitManager.register(trait: trait)
+        traitRegistry.register(trait: trait)
     }
 
     /// Register an action that can be activated in an `Experience`.
     /// - Parameter trait: Trait to register.
     public func register(action: ExperienceAction.Type) {
-        actionManager.register(action: action)
+        actionRegistry.register(action: action)
     }
 
     /// Launches the Appcues debugger over your app's UI.
@@ -122,8 +122,8 @@ public class Appcues {
         container.registerLazy(LifecycleTracking.self, initializer: LifecycleTracking.init)
         container.registerLazy(UIKitScreenTracking.self, initializer: UIKitScreenTracking.init)
         container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
-        container.registerLazy(TraitMananger.self, initializer: TraitMananger.init)
-        container.registerLazy(ActionManager.self, initializer: ActionManager.init)
+        container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
+        container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
     }
 
     private func initializeSession(_ config: Config) {
