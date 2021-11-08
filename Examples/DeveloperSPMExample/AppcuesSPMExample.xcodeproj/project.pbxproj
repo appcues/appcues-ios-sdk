@@ -8,7 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7C790690C785694C7F24F8 /* EventsViewController.swift */; };
+		7013CDD44A5E7E6056595498 /* Lato-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */; };
 		702B963B624B5F8BB19F2468 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8757BA449145145EAF8FE061 /* Main.storyboard */; };
+		7A219B6092786F843A1A004A /* Lato-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A2AD399FBBF5EB8AEBE70BF /* Lato-Bold.ttf */; };
 		A0C767D67BF836D241C38AB0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7203E757C2C6EA5D37C5E443 /* Assets.xcassets */; };
 		A23B377CAA8FFC989E6A9A73 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A540BC606C8E2160FB2B489 /* AppDelegate.swift */; };
 		AB4DA4AF52B5BC21308C439B /* AppcuesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 781D0ABDB3436955E4EA34B9 /* AppcuesKit */; };
@@ -16,20 +18,24 @@
 		BF24A197BFEAF23D84AC3462 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6901798B6E99F34ACF2F707B /* SceneDelegate.swift */; };
 		DD6A303F8B4B0A8075C32454 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 288554133C93206378D963AB /* SignInViewController.swift */; };
 		F897157F45696443B145C383 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723869D8744D77D8EC9B55F1 /* ProfileViewController.swift */; };
+		FAD74CCC7D11B9407A5162D7 /* Lato-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F46FEDAF7B878A4794848F30 /* Lato-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Black.ttf"; sourceTree = "<group>"; };
 		288554133C93206378D963AB /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		476767533B954304A7121A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6901798B6E99F34ACF2F707B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		6FF4A6230C0803185A864738 /* AppcuesSPMExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AppcuesSPMExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7203E757C2C6EA5D37C5E443 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		723869D8744D77D8EC9B55F1 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		7A2AD399FBBF5EB8AEBE70BF /* Lato-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Bold.ttf"; sourceTree = "<group>"; };
 		7A540BC606C8E2160FB2B489 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7A931564B0DEB1FE780CD0A2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8F18BFFBC809004FCDB520DF /* appcues-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "appcues-ios-sdk"; path = ../..; sourceTree = SOURCE_ROOT; };
 		AF7C790690C785694C7F24F8 /* EventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsViewController.swift; sourceTree = "<group>"; };
 		C77616FC1B7BAE52C91F4FBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		F46FEDAF7B878A4794848F30 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +67,16 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		8C2264C89F22EF422DA5A775 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */,
+				7A2AD399FBBF5EB8AEBE70BF /* Lato-Bold.ttf */,
+				F46FEDAF7B878A4794848F30 /* Lato-Regular.ttf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
 		922A3D67E71A9D19D60FED01 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -72,6 +88,7 @@
 		9AE84678383C3F4AB5EF9718 /* SPMExample */ = {
 			isa = PBXGroup;
 			children = (
+				8C2264C89F22EF422DA5A775 /* Fonts */,
 				7A540BC606C8E2160FB2B489 /* AppDelegate.swift */,
 				7203E757C2C6EA5D37C5E443 /* Assets.xcassets */,
 				AF7C790690C785694C7F24F8 /* EventsViewController.swift */,
@@ -142,6 +159,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				A0C767D67BF836D241C38AB0 /* Assets.xcassets in Resources */,
+				7013CDD44A5E7E6056595498 /* Lato-Black.ttf in Resources */,
+				7A219B6092786F843A1A004A /* Lato-Bold.ttf in Resources */,
+				FAD74CCC7D11B9407A5162D7 /* Lato-Regular.ttf in Resources */,
 				B3CE09A940E9DD0DF6CA96A4 /* LaunchScreen.storyboard in Resources */,
 				702B963B624B5F8BB19F2468 /* Main.storyboard in Resources */,
 			);
