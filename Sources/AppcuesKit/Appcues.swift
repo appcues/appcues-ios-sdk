@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 /// An object that manages Appcues tracking for your app.
 public class Appcues {
@@ -62,9 +63,11 @@ public class Appcues {
     /// the `identify` call.  This will cause the SDK to begin tracking activity and checking for
     /// qualified content.
     public func anonymous() {
-        storage.userID = storage.deviceID
+        let anonymousUserID = config.anonymousIDFactory()
+        storage.userID = anonymousUserID
         storage.isAnonymous = true
         isActive = true
+        publish(TrackingUpdate(type: .profile, properties: nil, userID: anonymousUserID))
     }
 
     /// Clears out the current user in this session.  Can be used when the user logs out of your application.
@@ -168,7 +171,7 @@ public class Appcues {
 
         if launchType == .install {
             // perform any fresh install activities here
-            storage.deviceID = config.anonymousIDFactory()
+            storage.deviceID = UIDevice.identifier
         }
 
         // anything that should be eager init at launch is handled here

@@ -31,7 +31,7 @@ public extension Appcues {
         var trackLifecycle = false
 
         var anonymousIDFactory: () -> String = {
-            (UIDevice.current.identifierForVendor ?? UUID()).uuidString
+            UIDevice.identifier
         }
 
         /// Create an Appcues SDK configuration

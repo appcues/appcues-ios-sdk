@@ -13,6 +13,14 @@ import Mocker
 class AppcuesTests: XCTestCase {
     var instance: Appcues!
 
+    var storage: Storage {
+        instance.container.resolve(Storage.self)
+    }
+
+    var tracker: AnalyticsTracker {
+        instance.container.resolve(AnalyticsTracker.self)
+    }
+
     override func setUpWithError() throws {
         let configuration = URLSessionConfiguration.default
         configuration.protocolClasses = [MockingURLProtocol.self]
@@ -23,9 +31,11 @@ class AppcuesTests: XCTestCase {
             .anonymousIDFactory({ "my-anonymous-id" })
 
         instance = Appcues(config: config)
+        storage.userID = "my-anonymous-id"
     }
 
     override func tearDownWithError() throws {
+
         UserDefaults.standard.removePersistentDomain(forName: "com.appcues.storage.00000")
     }
 
@@ -48,8 +58,8 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        instance.clearDecorators()
-        instance.identify(userID: "specific-user-id", properties: ["my_key":"my_value", "another_key": 33])
+        storage.userID = "specific-user-id"
+        tracker.track(update: TrackingUpdate(type: .profile, properties: ["my_key":"my_value", "another_key": 33], userID: "specific-user-id"))
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -74,8 +84,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        instance.clearDecorators()
-        instance.track(name: "eventName", properties: ["my_key":"my_value", "another_key": 33])
+        tracker.track(update: TrackingUpdate(type: .event("eventName"), properties: ["my_key":"my_value", "another_key": 33], userID: "my-anonymous-id"))
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -100,11 +109,32 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        instance.clearDecorators()
-        instance.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])
+        tracker.track(update: TrackingUpdate(type: .screen("My test page"), properties: ["my_key":"my_value", "another_key": 33], userID: "my-anonymous-id"))
 
         // Assert
         waitForExpectations(timeout: 1)
+    }
+
+    func testAnonymousTracking() throws {
+        // Test to validate that (1) no activity flows through system when no user has been identified (anon or auth)
+        // and (2) validate that activity does begin flowing through once the user is known (anon or auth)
+
+        // Arrange
+        let subscriber = TestSubscriber()
+        instance.reset() //start out with Appcues disabled - no user
+        instance.register(subscriber: subscriber) //use a test subscriber to listen to updates coming through the system
+
+        // Act
+        instance.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //not tracked
+        instance.anonymous()                                                                                    //tracked - user
+        instance.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //tracked - screen
+        instance.reset()                                                                                        //reset
+        instance.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //not tracked
+        instance.identify(userID: "specific-user-id", properties: ["my_key":"my_value", "another_key": 33])     //tracked - user
+        instance.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //tracked - screen
+
+        // Assert
+        XCTAssertEqual(subscriber.trackedUpdates, 4)
     }
 }
 
@@ -169,5 +199,13 @@ private extension Dictionary where Key == String, Value == Any {
                 XCTFail("\(dict1[key] ?? "nil") does not match \(dict2[key] ?? "nil").")
             }
         }
+    }
+}
+
+private class TestSubscriber: AnalyticsSubscriber {
+    var trackedUpdates = 0
+
+    func track(update: TrackingUpdate) {
+        trackedUpdates += 1
     }
 }
