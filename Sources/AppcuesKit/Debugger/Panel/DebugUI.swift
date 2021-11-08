@@ -80,6 +80,19 @@ internal enum DebugUI {
                      }
                  }
              }
+             .ifLet(item.detailText) { view, detail in
+                 view.contextMenu {
+                     Button() {
+                         UIPasteboard.general.string = detail
+                     } label: {
+                         HStack {
+                             Text("Copy")
+                             Spacer()
+                             Image(systemName: "doc.on.doc")
+                         }
+                     }
+                 }
+             }
         }
     }
 

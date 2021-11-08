@@ -32,21 +32,10 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
     func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {
 
-        var isProfileUpdate = false
-
-        switch tracking.type {
-        case let .screen(title):
+        if case let .screen(title) = tracking.type {
             previousScreen = currentScreen
             currentScreen = title
             sessionPageviews += 1
-
-        case let .event(name):
-            if name == "appcues:flow_started" {
-                storage.lastContentShownAt = tracking.timestamp
-            }
-
-        case .profile:
-            isProfileUpdate = true
         }
 
         var properties = tracking.properties ?? [:]
@@ -70,14 +59,13 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
         let merged = applicationProperties.merging(sessionProperties.compactMapValues { $0 }) { _, new in new }
 
-        if isProfileUpdate {
+        if case .profile = tracking.type {
             // profile updates have auto props merged in at root level
             properties = properties.merging(merged) { _, new in new }
         } else {
             // events have auto props nested inside an _identity object
             properties["_identity"] = merged
         }
-
         decorated.properties = properties
 
         return decorated

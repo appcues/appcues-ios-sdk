@@ -15,8 +15,10 @@ internal class ExperienceRenderer {
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
     private let analyticsPublisher: AnalyticsPublisher
+    private let storage: Storage
 
     init(container: DIContainer) {
+        self.storage = container.resolve(Storage.self)
         self.config = container.resolve(Appcues.Config.self)
         self.styleLoader = container.resolve(StyleLoader.self)
         self.traitRegistry = container.resolve(TraitRegistry.self)
@@ -25,16 +27,16 @@ internal class ExperienceRenderer {
     }
 
     func show(experience: Experience) {
+        if experience.steps.count > 1 {
+            config.logger.log("Experience has more than one step. Currently only the first will be presented.")
+        }
+
+        guard let step = experience.steps.first else {
+            config.logger.error("Experience has no steps")
+            return
+        }
+
         DispatchQueue.main.async {
-            if experience.steps.count > 1 {
-                self.config.logger.log("Experience has more than one step. Currently only the first will be presented.")
-            }
-
-            guard let step = experience.steps.first else {
-                self.config.logger.error("Experience has no steps")
-                return
-            }
-
             guard let topController = UIApplication.shared.topViewController() else {
                 self.config.logger.error("Could not determine top view controller")
                 return
@@ -45,6 +47,8 @@ internal class ExperienceRenderer {
             let wrappedViewController = self.traitRegistry.apply(step.traits, to: viewController)
 
             topController.present(wrappedViewController, animated: true)
+
+            self.storage.lastContentShownAt = Date()
         }
     }
 
@@ -77,6 +81,8 @@ internal class ExperienceRenderer {
 
             let viewController = ModalGroupViewController(modalStepGroup: modalStepGroup, styleLoader: self.styleLoader)
             topController.present(viewController, animated: true)
+
+            self.storage.lastContentShownAt = Date()
         }
     }
 }

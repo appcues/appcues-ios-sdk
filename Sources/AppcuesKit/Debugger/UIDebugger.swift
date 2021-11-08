@@ -15,13 +15,16 @@ internal class UIDebugger {
     private var viewModel: DebugViewModel
 
     private let config: Appcues.Config
+    private let storage: Storage
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
+        self.storage = container.resolve(Storage.self)
 
         self.viewModel = DebugViewModel(
             accountID: config.accountID,
-            currentUserID: container.resolve(Storage.self).userID)
+            currentUserID: storage.userID,
+            isAnonymous: storage.isAnonymous)
 
         registerForAnalyticsUpdates(container)
     }
@@ -50,6 +53,7 @@ extension UIDebugger: AnalyticsSubscriber {
         // Publishing changes must from the main thread.
         DispatchQueue.main.async {
             self.viewModel.currentUserID = update.userID
+            self.viewModel.isAnonymous = self.storage.isAnonymous
             self.viewModel.addEvent(DebugViewModel.LoggedEvent(from: update))
         }
     }
