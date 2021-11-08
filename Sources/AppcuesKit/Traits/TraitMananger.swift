@@ -1,5 +1,5 @@
 //
-//  TraitMananger.swift
+//  TraitRegistry.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-03.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class TraitMananger {
+internal class TraitRegistry {
     private var traits: [ExperienceTrait.Type] = []
 
     init(container: DIContainer) {

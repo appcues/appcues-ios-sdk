@@ -17,15 +17,15 @@ internal class ExperienceStepViewModel: ObservableObject {
     }
 
     private var actions: [UUID: [Experience.Action]]
-    private let actionManager: ActionManager
+    private let actionRegistry: ActionRegistry
 
-    init(step: Experience.Step, actionManager: ActionManager) {
+    init(step: Experience.Step, actionRegistry: ActionRegistry) {
         // Update the action list to be keyed by the UUID.
         self.actions = step.actions.reduce(into: [:]) { dict, item in
             guard let uuidKey = UUID(uuidString: item.key) else { return }
             dict[uuidKey] = item.value
         }
-        self.actionManager = actionManager
+        self.actionRegistry = actionRegistry
     }
 
     /// Returns the actions for the specific component grouped by `ActionType`.
@@ -36,7 +36,7 @@ internal class ExperienceStepViewModel: ObservableObject {
             .grouped(by: \.trigger)
             .reduce(into: [:]) { dict, item in
                 guard let actionType = ActionType(rawValue: item.key) else { return }
-                dict[actionType] = actionManager.actionClosures(for: item.value)
+                dict[actionType] = actionRegistry.actionClosures(for: item.value)
             }
     }
 }

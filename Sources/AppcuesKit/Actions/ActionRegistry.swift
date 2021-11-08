@@ -1,5 +1,5 @@
 //
-//  ActionManager.swift
+//  ActionRegistry.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-03.
@@ -8,13 +8,13 @@
 
 import Foundation
 
-internal class ActionManager {
-    var actions: [ExperienceAction.Type] = []
+internal class ActionRegistry {
+    private var actions: [ExperienceAction.Type] = []
 
-    let container: DIContainer
+    private let appcues: Appcues
 
     init(container: DIContainer) {
-        self.container = container
+        self.appcues = container.resolve(Appcues.self)
 
         // Register default actions
         register(action: AppcuesCloseAction.self)
@@ -32,8 +32,8 @@ internal class ActionManager {
         actionModels.compactMap { actionModel in
             actions.first { $0.type == actionModel.type }?.init(config: actionModel.config)
         }
-        .map { [container] actionInstance in
-            return { actionInstance.execute(inContext: container.resolve(Appcues.self)) }
+        .map { [appcues] actionInstance in
+            return { actionInstance.execute(inContext: appcues) }
         }
     }
 }
