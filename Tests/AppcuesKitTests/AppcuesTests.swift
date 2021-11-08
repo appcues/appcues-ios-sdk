@@ -13,14 +13,6 @@ import Mocker
 class AppcuesTests: XCTestCase {
     var instance: Appcues!
 
-    var storage: Storage {
-        instance.container.resolve(Storage.self)
-    }
-
-    var tracker: AnalyticsTracker {
-        instance.container.resolve(AnalyticsTracker.self)
-    }
-
     override func setUpWithError() throws {
         let configuration = URLSessionConfiguration.default
         configuration.protocolClasses = [MockingURLProtocol.self]
@@ -31,7 +23,11 @@ class AppcuesTests: XCTestCase {
             .anonymousIDFactory({ "my-anonymous-id" })
 
         instance = Appcues(config: config)
-        storage.userID = "my-anonymous-id"
+
+        // set up initial test state
+        instance.clearDecorators() // no autoproperties for these tests to simplify compare
+        instance.isActive = true // track activity even if no user identified
+        instance.container.resolve(Storage.self).userID = "my-anonymous-id" // set up initial user ID
     }
 
     override func tearDownWithError() throws {
@@ -58,8 +54,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        storage.userID = "specific-user-id"
-        tracker.track(update: TrackingUpdate(type: .profile, properties: ["my_key":"my_value", "another_key": 33], userID: "specific-user-id"))
+        instance.identify(userID: "specific-user-id", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -84,7 +79,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        tracker.track(update: TrackingUpdate(type: .event("eventName"), properties: ["my_key":"my_value", "another_key": 33], userID: "my-anonymous-id"))
+        instance.track(name: "eventName", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -109,7 +104,7 @@ class AppcuesTests: XCTestCase {
         mock.register()
 
         // Act
-        tracker.track(update: TrackingUpdate(type: .screen("My test page"), properties: ["my_key":"my_value", "another_key": 33], userID: "my-anonymous-id"))
+        instance.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
         waitForExpectations(timeout: 1)
