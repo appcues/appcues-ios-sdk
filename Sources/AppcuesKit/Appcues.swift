@@ -11,7 +11,7 @@ import Foundation
 /// An object that manages Appcues tracking for your app.
 public class Appcues {
 
-    private let container = DIContainer()
+    let container = DIContainer()
 
     private lazy var storage = container.resolve(Storage.self)
     private lazy var uiDebugger = container.resolve(UIDebugger.self)
