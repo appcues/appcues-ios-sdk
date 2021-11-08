@@ -22,6 +22,7 @@ internal struct AppcuesCloseAction: ExperienceAction {
 
     func execute(inContext appcues: Appcues) {
         guard let controller = UIApplication.shared.topViewController() else { return }
+        // TODO: https://github.com/appcues/appcues-ios-sdk/pull/41#discussion_r744807931
         if controller is AppcuesController {
             controller.dismiss(animated: true)
         }
