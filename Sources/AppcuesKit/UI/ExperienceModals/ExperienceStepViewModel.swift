@@ -12,7 +12,6 @@ internal class ExperienceStepViewModel: ObservableObject {
 
     enum ActionType: String {
         case tap
-        case doubleTap
         case longPress
     }
 
