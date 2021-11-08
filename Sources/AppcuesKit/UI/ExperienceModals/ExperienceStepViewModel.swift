@@ -31,8 +31,9 @@ internal class ExperienceStepViewModel: ObservableObject {
     func groupedActionHandlers(for id: UUID) -> [ActionType: [() -> Void]] {
         guard let componentActions = actions[id] else { return [:] }
 
-        return componentActions
-            .grouped(by: \.trigger)
+        // (trailing closure in init would be less readable)
+        // swiftlint:disable:next trailing_closure
+        return Dictionary(grouping: componentActions, by: { $0.trigger })
             .reduce(into: [:]) { dict, item in
                 guard let actionType = ActionType(rawValue: item.key) else { return }
                 dict[actionType] = actionRegistry.actionClosures(for: item.value)
