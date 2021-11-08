@@ -110,7 +110,6 @@ public class Appcues {
 
     /// Launches the Appcues debugger over your app's UI.
     public func debug() {
-        guard isActive else { return }
         uiDebugger.show()
     }
 
@@ -149,6 +148,8 @@ public class Appcues {
     }
 
     private func initializeSession() {
+        isActive = !storage.userID.isEmpty
+
         let previousBuild = storage.applicationBuild
         let currentBuild = Bundle.main.build
 

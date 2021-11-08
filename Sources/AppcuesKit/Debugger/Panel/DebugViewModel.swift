@@ -10,22 +10,37 @@ import Foundation
 
 internal class DebugViewModel: ObservableObject {
     let accountID: String
-    @Published var currentUserID: String?
+    @Published var currentUserID: String {
+        didSet {
+            userIdentified = !currentUserID.isEmpty
+        }
+    }
     @Published private(set) var events: [LoggedEvent] = []
     @Published private(set) var trackingPages = false
+    @Published private(set) var userIdentified = false
+    @Published var isAnonymous = false
 
     var statusItems: [StatusItem] {
         return [
-            StatusItem(verified: true, title: "Installed", subtitle: "Account ID: \(accountID)"),
-            StatusItem(verified: true, title: "Connected to Appcues", subtitle: nil),
-            StatusItem(verified: trackingPages, title: "Tracking Pages", subtitle: nil),
-            StatusItem(verified: true, title: "User Identified", subtitle: "User ID: \(currentUserID ?? "?")")
+            StatusItem(verified: true, title: "Installed", subtitle: "Account ID: \(accountID)", detailText: nil),
+            StatusItem(verified: true, title: "Connected to Appcues", subtitle: nil, detailText: nil),
+            StatusItem(verified: trackingPages, title: "Tracking Pages", subtitle: nil, detailText: nil),
+            StatusItem(verified: userIdentified, title: "User Identified", subtitle: userDescription, detailText: currentUserID)
         ]
     }
 
-    init(accountID: String, currentUserID: String?) {
+    private var userDescription: String? {
+        if userIdentified, isAnonymous {
+            return "Anonymous User"
+        }
+        return nil
+    }
+
+    init(accountID: String, currentUserID: String, isAnonymous: Bool) {
         self.accountID = accountID
         self.currentUserID = currentUserID
+        self.isAnonymous = isAnonymous
+        self.userIdentified = !currentUserID.isEmpty
     }
 
     func addEvent(_ event: LoggedEvent) {
@@ -40,6 +55,7 @@ extension DebugViewModel {
         let verified: Bool
         let title: String
         let subtitle: String?
+        let detailText: String?
     }
 
     struct LoggedEvent: Identifiable {
