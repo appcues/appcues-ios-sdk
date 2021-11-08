@@ -11,9 +11,12 @@ import UIKit
 internal class Storage {
 
     private enum Key: String {
+        case deviceID
         case userID
+        case isAnonymous
         case applicationVersion
         case applicationBuild
+        case lastContentShownAt
     }
 
     private let config: Appcues.Config
@@ -22,6 +25,16 @@ internal class Storage {
     //      as part of the suite name
     private lazy var defaults = UserDefaults(suiteName: "com.appcues.storage.\(config.accountID)")
 
+    /// The device ID.  A value generated once upon first initialization of the SDK after installation.
+    internal var deviceID: String {
+        get {
+            return read(.deviceID, defaultValue: "")
+        }
+        set {
+            write(.deviceID, newValue: newValue)
+        }
+    }
+
     /// The current  user ID.  Can be a generated anonymous value, or authenticated value provided by application
     internal var userID: String {
         get {
@@ -29,6 +42,15 @@ internal class Storage {
         }
         set {
             write(.userID, newValue: newValue)
+        }
+    }
+
+    internal var isAnonymous: Bool {
+        get {
+            return read(.isAnonymous, defaultValue: true)
+        }
+        set {
+            write(.isAnonymous, newValue: newValue)
         }
     }
 
@@ -49,6 +71,16 @@ internal class Storage {
         }
         set {
             write(.applicationBuild, newValue: newValue)
+        }
+    }
+
+    /// The date of the last known time that an experience/flow was shown to the user in this application
+    internal var lastContentShownAt: Date? {
+        get {
+            return read(.lastContentShownAt, defaultValue: nil)
+        }
+        set {
+            write(.lastContentShownAt, newValue: newValue)
         }
     }
 

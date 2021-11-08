@@ -18,21 +18,35 @@ internal class AutoPropertyDecorator: TrackingDecorator {
     private var sessionPageviews = 0
     private var sessionRandomizer: Int
 
+    private let storage: Storage
+
     // these are the fixed values for the duration of the app runtime
     private var applicationProperties: [String: Any] = [:]
 
     init(container: DIContainer) {
         self.sessionRandomizer = Int.random(in: 1...100)
+        self.storage = container.resolve(Storage.self)
         configureApplicationProperties()
         container.resolve(AnalyticsPublisher.self).register(decorator: self)
     }
 
     func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {
 
-        if case let .screen(title) = tracking.type {
+        var isProfileUpdate = false
+
+        switch tracking.type {
+        case let .screen(title):
             previousScreen = currentScreen
             currentScreen = title
             sessionPageviews += 1
+
+        case let .event(name):
+            if name == "appcues:flow_started" {
+                storage.lastContentShownAt = tracking.timestamp
+            }
+
+        case .profile:
+            isProfileUpdate = true
         }
 
         var properties = tracking.properties ?? [:]
@@ -40,11 +54,14 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
         var sessionProperties: [String: Any?] = [
             "userId": tracking.userID,
+            "_isAnonymous": storage.isAnonymous,
+            "_localId": storage.deviceID,
             "_sessionPageviews": sessionPageviews,
             "_sessionRandomizer": sessionRandomizer,
             "_currentPageTitle": currentScreen,
             "_lastPageTitle": previousScreen,
-            "_updatedAt": Date()
+            "_updatedAt": Date(),
+            "_lastContentShownAt": storage.lastContentShownAt
         ]
 
         if !Locale.preferredLanguages.isEmpty {
@@ -53,13 +70,14 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
         let merged = applicationProperties.merging(sessionProperties.compactMapValues { $0 }) { _, new in new }
 
-        if case .profile = tracking.type {
+        if isProfileUpdate {
             // profile updates have auto props merged in at root level
             properties = properties.merging(merged) { _, new in new }
         } else {
             // events have auto props nested inside an _identity object
             properties["_identity"] = merged
         }
+
         decorated.properties = properties
 
         return decorated

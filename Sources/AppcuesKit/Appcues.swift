@@ -13,6 +13,7 @@ public class Appcues {
 
     let container = DIContainer()
 
+    private let config: Appcues.Config
     private lazy var storage = container.resolve(Storage.self)
     private lazy var uiDebugger = container.resolve(UIDebugger.self)
     private lazy var traitRegistry = container.resolve(TraitRegistry.self)
@@ -22,11 +23,16 @@ public class Appcues {
     private var subscribers: [AnalyticsSubscriber] = []
     private var decorators: [TrackingDecorator] = []
 
+    // controls whether the SDK is actively tracking data - which means we either
+    // have an identified user, or were explicitly asked to track an anonymous user
+    private var isActive = false
+
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
     public init(config: Config) {
-        initializeContainer(config)
-        initializeSession(config)
+        self.config = config
+        initializeContainer()
+        initializeSession()
     }
 
     /// Get the current version of the Appcues SDK.
@@ -47,7 +53,25 @@ public class Appcues {
     ///   - properties: Optional properties that provide additional context about the user.
     public func identify(userID: String, properties: [String: Any]? = nil) {
         storage.userID = userID
+        storage.isAnonymous = false
+        isActive = true
         publish(TrackingUpdate(type: .profile, properties: properties, userID: userID))
+    }
+
+    /// Generate a unique ID for the current user when there is not a known identity to use in
+    /// the `identify` call.  This will cause the SDK to begin tracking activity and checking for
+    /// qualified content.
+    public func anonymous() {
+        storage.userID = storage.deviceID
+        storage.isAnonymous = true
+        isActive = true
+    }
+
+    /// Clears out the current user in this session.  Can be used when the user logs out of your application.
+    public func reset() {
+        isActive = false
+        storage.userID = ""
+        storage.isAnonymous = true
     }
 
     /// Track an action taken by a user.
@@ -72,6 +96,7 @@ public class Appcues {
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(contentID: String) {
+        guard isActive else { return }
         experienceLoader.load(contentID: contentID)
     }
 
@@ -89,6 +114,7 @@ public class Appcues {
 
     /// Launches the Appcues debugger over your app's UI.
     public func debug() {
+        guard isActive else { return }
         uiDebugger.show()
     }
 
@@ -107,7 +133,7 @@ public class Appcues {
         return container.resolve(DeeplinkHandler.self).didHandleURL(url)
     }
 
-    private func initializeContainer(_ config: Config) {
+    private func initializeContainer() {
         container.register(Appcues.self, value: self)
         container.register(Config.self, value: config)
         container.register(AnalyticsPublisher.self, value: self)
@@ -126,7 +152,7 @@ public class Appcues {
         container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
     }
 
-    private func initializeSession(_ config: Config) {
+    private func initializeSession() {
         let previousBuild = storage.applicationBuild
         let currentBuild = Bundle.main.build
 
@@ -142,7 +168,7 @@ public class Appcues {
 
         if launchType == .install {
             // perform any fresh install activities here
-            storage.userID = config.anonymousIDFactory()
+            storage.deviceID = config.anonymousIDFactory()
         }
 
         // anything that should be eager init at launch is handled here
@@ -187,6 +213,8 @@ extension Appcues: AnalyticsPublisher {
     }
 
     private func publish(_ update: TrackingUpdate) {
+        guard isActive else { return }
+
         var update = update
 
         for decorator in decorators {
