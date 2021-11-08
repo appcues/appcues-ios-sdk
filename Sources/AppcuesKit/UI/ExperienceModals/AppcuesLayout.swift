@@ -9,8 +9,8 @@
 import SwiftUI
 
 internal struct AppcuesLayout: ViewModifier {
-    let padding: EdgeInsets?
-    let margin: EdgeInsets?
+    let padding: EdgeInsets
+    let margin: EdgeInsets
     let spacing: CGFloat?
     let height: CGFloat?
     let width: CGFloat?
@@ -21,8 +21,16 @@ internal struct AppcuesLayout: ViewModifier {
     let verticalAlignment: VerticalAlignment
 
     init(from model: ExperienceComponent.Layout?) {
-        self.padding = EdgeInsets(string: model?.padding)
-        self.margin = EdgeInsets(string: model?.margin)
+        self.padding = EdgeInsets(
+            top: model?.paddingTop ?? 0,
+            leading: model?.paddingLeading ?? 0,
+            bottom: model?.paddingBottom ?? 0,
+            trailing: model?.paddingTrailing ?? 0)
+        self.margin = EdgeInsets(
+            top: model?.marginTop ?? 0,
+            leading: model?.marginLeading ?? 0,
+            bottom: model?.marginBottom ?? 0,
+            trailing: model?.marginTrailing ?? 0)
         self.spacing = CGFloat(model?.spacing)
         self.height = CGFloat(model?.height)
 
@@ -40,9 +48,7 @@ internal struct AppcuesLayout: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .ifLet(padding) { view, val in
-                view.padding(val)
-            }
+            .padding(padding)
             .frame(width: width, height: height)
             .if(fillWidth) { view in
                 view.frame(maxWidth: .infinity)

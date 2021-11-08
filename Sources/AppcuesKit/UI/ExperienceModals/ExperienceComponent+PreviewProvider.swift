@@ -42,7 +42,7 @@ extension ExperienceComponent {
 
     static let buttonCallToAction = EC.ButtonModel(
         text: "Call to Action",
-        layout: EC.Layout(padding: "12, 24, 12, 24", margin: "30,0,0,0"),
+        layout: EC.Layout(paddingTop: 12, paddingLeading: 24, paddingBottom: 12, paddingTrailing: 24, marginTop: 30),
         style: EC.Style.primaryButton)
 
     static let imageSymbol = EC.ImageModel(
@@ -89,7 +89,10 @@ extension ExperienceComponent.Style {
 
 extension ExperienceComponent.Layout {
     static let button = EC.Layout(
-        padding: "12, 24, 12, 24"
+        paddingTop: 12,
+        paddingLeading: 24,
+        paddingBottom: 12,
+        paddingTrailing: 24
     )
 }
 #endif
