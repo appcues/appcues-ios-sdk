@@ -29,8 +29,6 @@ extension View {
             .modifier(layout)
             .modifier(style)
             // margin needs to be added after backgrounds/borders
-            .ifLet(layout.margin) { view, val in
-                view.padding(val)
-            }
+            .padding(layout.margin)
     }
 }
