@@ -18,7 +18,7 @@ internal struct AppcuesHStack: View {
         let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
 
-        HStack(alignment: .center, spacing: CGFloat(model.layout?.spacing)) {
+        HStack(alignment: layout.verticalAlignment, spacing: CGFloat(model.layout?.spacing)) {
             ForEach(model.items) {
                 AnyView($0.view)
             }
