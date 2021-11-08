@@ -170,6 +170,7 @@ extension ExperienceComponent {
     }
 
     struct Style: Decodable {
+        let fontName: String?
         let fontSize: Double?
         let fontWeight: String?
         let lineSpacing: Double?
@@ -182,6 +183,7 @@ extension ExperienceComponent {
         let borderWidth: Double?
 
         internal init(
+            fontName: String? = nil,
             fontSize: Double? = nil,
             fontWeight: String? = nil,
             lineSpacing: Double? = nil,
@@ -193,6 +195,7 @@ extension ExperienceComponent {
             borderColor: String? = nil,
             borderWidth: Double? = nil
         ) {
+            self.fontName = fontName
             self.fontSize = fontSize
             self.fontWeight = fontWeight
             self.lineSpacing = lineSpacing
