@@ -22,7 +22,7 @@ internal struct AppcuesText: View {
             .ifLet(style.letterSpacing) { view, val in
                 view.kerning(val)
             }
-            .ifLet(style.alignment) { view, val in
+            .ifLet(style.textAlignment) { view, val in
                 view.multilineTextAlignment(val)
             }
             .setupActions(viewModel.groupedActionHandlers(for: id))
@@ -41,7 +41,7 @@ internal struct AppcuesTextPreview: PreviewProvider {
             AppcuesText(id: UUID(), model: EC.TextModel(
                 text: "This is some text that wraps and is center aligned.",
                 layout: EC.Layout(width: 100),
-                style: EC.Style(alignment: "center"))
+                style: EC.Style(textAlignment: "center"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()

@@ -12,7 +12,7 @@ internal struct AppcuesStyle: ViewModifier {
     let font: Font?
     let letterSpacing: CGFloat?
     let lineSpacing: CGFloat?
-    let alignment: TextAlignment?
+    let textAlignment: TextAlignment?
     let foregroundColor: Color?
     let backgroundColor: Color?
     let backgroundGradient: LinearGradient?
@@ -24,7 +24,7 @@ internal struct AppcuesStyle: ViewModifier {
         self.font = Font(name: model?.fontName, size: model?.fontSize, weight: model?.fontWeight)
         self.letterSpacing = CGFloat(model?.letterSpacing)
         self.lineSpacing = CGFloat(model?.lineSpacing)
-        self.alignment = TextAlignment(string: model?.alignment)
+        self.textAlignment = TextAlignment(string: model?.textAlignment)
         self.foregroundColor = Color(hex: model?.foregroundColor)
         self.backgroundColor = Color(hex: model?.backgroundColor)
         self.backgroundGradient = LinearGradient(rawGradient: model?.backgroundGradient)
