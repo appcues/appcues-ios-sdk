@@ -145,7 +145,8 @@ extension ExperienceComponent {
 
     struct Layout: Decodable {
         let spacing: Double?
-        let alignment: String?
+        let verticalAlignment: String?
+        let horizontalAlignment: String?
         let paddingTop: Double?
         let paddingLeading: Double?
         let paddingBottom: Double?
@@ -160,7 +161,8 @@ extension ExperienceComponent {
 
         internal init(
             spacing: Double? = nil,
-            alignment: String? = nil,
+            verticalAlignment: String? = nil,
+            horizontalAlignment: String? = nil,
             paddingTop: Double? = nil,
             paddingLeading: Double? = nil,
             paddingBottom: Double? = nil,
@@ -173,7 +175,8 @@ extension ExperienceComponent {
             width: Double? = nil
         ) {
             self.spacing = spacing
-            self.alignment = alignment
+            self.verticalAlignment = verticalAlignment
+            self.horizontalAlignment = horizontalAlignment
             self.paddingTop = paddingTop
             self.paddingLeading = paddingLeading
             self.paddingBottom = paddingBottom

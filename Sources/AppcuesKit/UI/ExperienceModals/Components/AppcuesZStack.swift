@@ -42,7 +42,7 @@ internal struct AppcuesZStackPreview: PreviewProvider {
                     EC(model: .image(EC.imageBanner)),
                     EC(model: .text(EC.textTitle))
                 ],
-                layout: EC.Layout(alignment: "topLeading"),
+                layout: EC.Layout(verticalAlignment: "top", horizontalAlignment: "leading"),
                 style: nil)
             )
                 .previewLayout(PreviewLayout.sizeThatFits)

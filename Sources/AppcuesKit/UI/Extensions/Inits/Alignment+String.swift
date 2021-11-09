@@ -11,16 +11,17 @@ import SwiftUI
 extension Alignment {
 
     /// Init `Alignment` from an experience JSON model value.
-    init?(string: String?) {
-        switch string {
-        case "center": self = .center
-        case "topLeading": self = .topLeading
-        case "top": self = .top
-        case "leading": self = .leading
-        case "trailing": self = .trailing
-        case "bottomLeading": self = .bottomLeading
-        case "bottom": self = .bottom
-        case "bottomTrailing": self = .bottomTrailing
+    init?(vertical: String?, horizontal: String?) {
+        switch (vertical, horizontal) {
+        case ("top", "leading"): self = .topLeading
+        case ("top", "center"): self = .top
+        case ("top", "trailing"): self = .topTrailing
+        case ("center", "leading"): self = .leading
+        case ("center", "center"): self = .center
+        case ("center", "trailing"): self = .trailing
+        case ("bottom", "leading"): self = .bottomLeading
+        case ("bottom", "center"): self = .bottom
+        case ("bottom", "trailing"): self = .bottomTrailing
         default: return nil
         }
     }
