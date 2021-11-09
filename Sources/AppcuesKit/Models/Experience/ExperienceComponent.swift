@@ -193,7 +193,7 @@ extension ExperienceComponent {
         let fontWeight: String?
         let letterSpacing: Double?
         let lineSpacing: Double?
-        let alignment: String?
+        let textAlignment: String?
         let foregroundColor: String?
         let backgroundColor: String?
         let backgroundGradient: RawGradient?
@@ -207,7 +207,7 @@ extension ExperienceComponent {
             fontWeight: String? = nil,
             letterSpacing: Double? = nil,
             lineSpacing: Double? = nil,
-            alignment: String? = nil,
+            textAlignment: String? = nil,
             foregroundColor: String? = nil,
             backgroundColor: String? = nil,
             backgroundGradient: RawGradient? = nil,
@@ -220,7 +220,7 @@ extension ExperienceComponent {
             self.fontWeight = fontWeight
             self.letterSpacing = letterSpacing
             self.lineSpacing = lineSpacing
-            self.alignment = alignment
+            self.textAlignment = textAlignment
             self.foregroundColor = foregroundColor
             self.backgroundColor = backgroundColor
             self.backgroundGradient = backgroundGradient
