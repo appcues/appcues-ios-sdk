@@ -51,7 +51,7 @@ internal struct AppcuesVStackPreview: PreviewProvider {
                     EC(model: .text(EC.textSubtitle)),
                     EC(model: .button(EC.buttonPrimary))
                 ],
-                layout: EC.Layout(spacing: 48, alignment: "leading", paddingTop: 8, paddingLeading: 8, paddingBottom: 8, paddingTrailing: 8),
+                layout: EC.Layout(spacing: 48, horizontalAlignment: "leading", paddingTop: 8, paddingLeading: 8, paddingBottom: 8, paddingTrailing: 8),
                 style: EC.Style(backgroundColor: "#333"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)

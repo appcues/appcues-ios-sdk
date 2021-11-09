@@ -41,9 +41,9 @@ internal struct AppcuesLayout: ViewModifier {
         }
         self.fillWidth = model?.width?.isEqual(to: -1) ?? false
 
-        self.alignment = Alignment(string: model?.alignment) ?? .center
-        self.horizontalAlignment = HorizontalAlignment(string: model?.alignment) ?? .center
-        self.verticalAlignment = VerticalAlignment(string: model?.alignment) ?? .center
+        self.alignment = Alignment(vertical: model?.verticalAlignment, horizontal: model?.horizontalAlignment) ?? .center
+        self.horizontalAlignment = HorizontalAlignment(string: model?.horizontalAlignment) ?? .center
+        self.verticalAlignment = VerticalAlignment(string: model?.verticalAlignment) ?? .center
     }
 
     func body(content: Content) -> some View {
