@@ -19,6 +19,9 @@ internal struct AppcuesText: View {
         let style = AppcuesStyle(from: model.style)
 
         Text(model.text)
+            .ifLet(style.letterSpacing) { view, val in
+                view.kerning(val)
+            }
             .ifLet(style.alignment) { view, val in
                 view.multilineTextAlignment(val)
             }
