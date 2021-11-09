@@ -191,6 +191,7 @@ extension ExperienceComponent {
         let fontName: String?
         let fontSize: Double?
         let fontWeight: String?
+        let letterSpacing: Double?
         let lineSpacing: Double?
         let alignment: String?
         let foregroundColor: String?
@@ -204,6 +205,7 @@ extension ExperienceComponent {
             fontName: String? = nil,
             fontSize: Double? = nil,
             fontWeight: String? = nil,
+            letterSpacing: Double? = nil,
             lineSpacing: Double? = nil,
             alignment: String? = nil,
             foregroundColor: String? = nil,
@@ -216,6 +218,7 @@ extension ExperienceComponent {
             self.fontName = fontName
             self.fontSize = fontSize
             self.fontWeight = fontWeight
+            self.letterSpacing = letterSpacing
             self.lineSpacing = lineSpacing
             self.alignment = alignment
             self.foregroundColor = foregroundColor
