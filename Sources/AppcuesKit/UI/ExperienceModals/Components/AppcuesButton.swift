@@ -9,7 +9,6 @@
 import SwiftUI
 
 internal struct AppcuesButton: View {
-    let id: UUID
     let model: ExperienceComponent.ButtonModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
@@ -25,7 +24,7 @@ internal struct AppcuesButton: View {
             // Otherwise the button tap target seems to small when there's padding/background? Need to investigate.
             Text(model.text)
         }
-        .setupActions(viewModel.groupedActionHandlers(for: id))
+        .setupActions(viewModel.groupedActionHandlers(for: model.id))
         .applyAppcues(layout, style)
     }
 }
@@ -34,7 +33,8 @@ internal struct AppcuesButton: View {
 internal struct AppcuesButtonPreview: PreviewProvider {
     static var previews: some View {
         Group {
-            AppcuesButton(id: UUID(), model: EC.ButtonModel(
+            AppcuesButton(model: EC.ButtonModel(
+                id: UUID(),
                 text: "Default Button",
                 layout: nil,
                 style: nil)
@@ -42,11 +42,11 @@ internal struct AppcuesButtonPreview: PreviewProvider {
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesButton(id: UUID(), model: EC.buttonPrimary)
+            AppcuesButton(model: EC.buttonPrimary)
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesButton(id: UUID(), model: EC.buttonSecondary)
+            AppcuesButton(model: EC.buttonSecondary)
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
         }

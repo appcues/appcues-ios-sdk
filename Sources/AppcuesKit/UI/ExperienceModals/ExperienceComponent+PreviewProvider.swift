@@ -16,31 +16,37 @@ internal typealias EC = ExperienceComponent
 
 extension ExperienceComponent {
     static let textPlain = EC.TextModel(
+        id: UUID(),
         text: "This is some text with no style provided.",
         layout: nil,
         style: nil)
 
     static let textTitle = EC.TextModel(
+        id: UUID(),
         text: "Hero Title 🚀",
         layout: nil,
         style: EC.Style(fontSize: 36, foregroundColor: "#fff"))
 
     static let textSubtitle = EC.TextModel(
+        id: UUID(),
         text: "To infinity, and beyond!",
         layout: nil,
         style: EC.Style(foregroundColor: "#fff"))
 
     static let buttonPrimary = EC.ButtonModel(
+        id: UUID(),
         text: "Primary Button",
         layout: EC.Layout.button,
         style: EC.Style.primaryButton)
 
     static let buttonSecondary = EC.ButtonModel(
+        id: UUID(),
         text: "Secondary Button",
         layout: EC.Layout.button,
         style: EC.Style.secondaryButton)
 
     static let buttonCallToAction = EC.ButtonModel(
+        id: UUID(),
         text: "Call to Action",
         layout: EC.Layout(paddingTop: 12, paddingLeading: 24, paddingBottom: 12, paddingTrailing: 24, marginTop: 30),
         style: EC.Style.primaryButton)
@@ -57,18 +63,20 @@ extension ExperienceComponent {
         style: nil)
 
     static let vstackHero = EC.VStackModel(
+        id: UUID(),
         items: [
-            EC(model: .text(EC.textTitle)),
-            EC(model: .text(EC.textSubtitle)),
-            EC(model: .button(EC.buttonCallToAction))
+            .text(EC.textTitle),
+            .text(EC.textSubtitle),
+            .button(EC.buttonCallToAction)
         ],
         layout: EC.Layout(spacing: 12),
         style: nil)
 
     static let zstackHero = EC.ZStackModel(
+        id: UUID(),
         items: [
-            EC(model: .image(EC.imageBanner)),
-            EC(model: .vstack(EC.vstackHero))
+            .image(EC.imageBanner),
+            .vstack(EC.vstackHero)
         ],
         layout: nil,
         style: nil)
