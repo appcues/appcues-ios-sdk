@@ -9,7 +9,6 @@
 import SwiftUI
 
 internal struct AppcuesZStack: View {
-    let id: UUID
     let model: ExperienceComponent.ZStackModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
@@ -23,7 +22,7 @@ internal struct AppcuesZStack: View {
                 AnyView($0.view)
             }
         }
-        .setupActions(viewModel.groupedActionHandlers(for: id))
+        .setupActions(viewModel.groupedActionHandlers(for: model.id))
         .applyAppcues(layout, style)
     }
 }
@@ -33,14 +32,15 @@ internal struct AppcuesZStackPreview: PreviewProvider {
 
     static var previews: some View {
         Group {
-            AppcuesZStack(id: UUID(), model: EC.zstackHero)
+            AppcuesZStack(model: EC.zstackHero)
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesZStack(id: UUID(), model: EC.ZStackModel(
+            AppcuesZStack(model: EC.ZStackModel(
+                id: UUID(),
                 items: [
-                    EC(model: .image(EC.imageBanner)),
-                    EC(model: .text(EC.textTitle))
+                    .image(EC.imageBanner),
+                    .text(EC.textTitle)
                 ],
                 layout: EC.Layout(verticalAlignment: "top", horizontalAlignment: "leading"),
                 style: nil)

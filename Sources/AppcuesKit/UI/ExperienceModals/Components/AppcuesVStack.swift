@@ -9,7 +9,6 @@
 import SwiftUI
 
 internal struct AppcuesVStack: View {
-    let id: UUID
     let model: ExperienceComponent.VStackModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
@@ -23,7 +22,7 @@ internal struct AppcuesVStack: View {
                 AnyView($0.view)
             }
         }
-        .setupActions(viewModel.groupedActionHandlers(for: id))
+        .setupActions(viewModel.groupedActionHandlers(for: model.id))
         .applyAppcues(layout, style)
     }
 }
@@ -33,11 +32,12 @@ internal struct AppcuesVStackPreview: PreviewProvider {
 
     static var previews: some View {
         Group {
-            AppcuesVStack(id: UUID(), model: EC.VStackModel(
+            AppcuesVStack(model: EC.VStackModel(
+                id: UUID(),
                 items: [
-                    EC(model: .text(EC.textTitle)),
-                    EC(model: .text(EC.textSubtitle)),
-                    EC(model: .button(EC.buttonPrimary))
+                    .text(EC.textTitle),
+                    .text(EC.textSubtitle),
+                    .button(EC.buttonPrimary)
                 ],
                 layout: nil,
                 style: EC.Style(backgroundColor: "#333"))
@@ -45,11 +45,12 @@ internal struct AppcuesVStackPreview: PreviewProvider {
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesVStack(id: UUID(), model: EC.VStackModel(
+            AppcuesVStack(model: EC.VStackModel(
+                id: UUID(),
                 items: [
-                    EC(model: .text(EC.textTitle)),
-                    EC(model: .text(EC.textSubtitle)),
-                    EC(model: .button(EC.buttonPrimary))
+                    .text(EC.textTitle),
+                    .text(EC.textSubtitle),
+                    .button(EC.buttonPrimary)
                 ],
                 layout: EC.Layout(spacing: 48, horizontalAlignment: "leading", paddingTop: 8, paddingLeading: 8, paddingBottom: 8, paddingTrailing: 8),
                 style: EC.Style(backgroundColor: "#333"))

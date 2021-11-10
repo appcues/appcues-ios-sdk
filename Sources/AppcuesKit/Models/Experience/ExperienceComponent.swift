@@ -8,46 +8,69 @@
 
 import Foundation
 
-internal struct ExperienceComponent: Identifiable {
-    let id: UUID
-    let model: ComponentType
+internal protocol ComponentModel {
+    var id: UUID { get }
+    var layout: ExperienceComponent.Layout? { get }
+    var style: ExperienceComponent.Style? { get }
+}
 
-    init(model: ExperienceComponent.ComponentType) {
-        self.id = UUID()
-        self.model = model
+@dynamicMemberLookup
+internal enum ExperienceComponent {
+    case pager(PagerModel)
+    case vstack(VStackModel)
+    case hstack(HStackModel)
+    case zstack(ZStackModel)
+    case text(TextModel)
+    case button(ButtonModel)
+    case image(ImageModel)
+    case spacer(SpacerModel)
+
+    subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
+        switch self {
+        case .pager(let model): return model[keyPath: keyPath]
+        case .vstack(let model): return model[keyPath: keyPath]
+        case .hstack(let model): return model[keyPath: keyPath]
+        case .zstack(let model): return model[keyPath: keyPath]
+        case .text(let model): return model[keyPath: keyPath]
+        case .button(let model): return model[keyPath: keyPath]
+        case .image(let model): return model[keyPath: keyPath]
+        case .spacer(let model): return model[keyPath: keyPath]
+        }
     }
+}
+
+extension ExperienceComponent: Identifiable {
+    var id: UUID { self[dynamicMember: \.id] }
 }
 
 extension ExperienceComponent: Decodable {
     enum CodingKeys: CodingKey {
         case type
-        case id
-        case model
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        let modelContainer = try decoder.singleValueContainer()
 
-        id = try container.decode(UUID.self, forKey: .id)
         let type = try container.decode(String.self, forKey: .type)
 
         switch type {
         case "pager":
-            model = .pager(try container.decode(PagerModel.self, forKey: .model))
+            self = .pager(try modelContainer.decode(PagerModel.self))
         case "vstack":
-            model = .vstack(try container.decode(VStackModel.self, forKey: .model))
+            self = .vstack(try modelContainer.decode(VStackModel.self))
         case "hstack":
-            model = .hstack(try container.decode(HStackModel.self, forKey: .model))
+            self = .hstack(try modelContainer.decode(HStackModel.self))
         case "zstack":
-            model = .zstack(try container.decode(ZStackModel.self, forKey: .model))
+            self = .zstack(try modelContainer.decode(ZStackModel.self))
         case "text":
-            model = .text(try container.decode(TextModel.self, forKey: .model))
+            self = .text(try modelContainer.decode(TextModel.self))
         case "button":
-            model = .button(try container.decode(ButtonModel.self, forKey: .model))
+            self = .button(try modelContainer.decode(ButtonModel.self))
         case "image":
-            model = .image(try container.decode(ImageModel.self, forKey: .model))
+            self = .image(try modelContainer.decode(ImageModel.self))
         case "spacer":
-            model = .spacer(try container.decode(SpacerModel.self, forKey: .model))
+            self = .spacer(try modelContainer.decode(SpacerModel.self))
         default:
             let context = DecodingError.Context(codingPath: container.codingPath, debugDescription: "unknown type '\(type)'")
             throw DecodingError.valueNotFound(Self.self, context)
@@ -56,18 +79,8 @@ extension ExperienceComponent: Decodable {
 }
 
 extension ExperienceComponent {
-    enum ComponentType: Decodable {
-        case pager(PagerModel)
-        case vstack(VStackModel)
-        case hstack(HStackModel)
-        case zstack(ZStackModel)
-        case text(TextModel)
-        case button(ButtonModel)
-        case image(ImageModel)
-        case spacer(SpacerModel)
-    }
-
-    struct PagerModel: Decodable {
+    struct PagerModel: ComponentModel, Decodable {
+        let id: UUID
 //        let progress: []
         let items: [ExperienceComponent]
 
@@ -75,42 +88,48 @@ extension ExperienceComponent {
         let style: Style?
     }
 
-    struct VStackModel: Decodable {
+    struct VStackModel: ComponentModel, Decodable {
+        let id: UUID
         let items: [ExperienceComponent]
 
         let layout: Layout?
         let style: Style?
     }
 
-    struct HStackModel: Decodable {
+    struct HStackModel: ComponentModel, Decodable {
+        let id: UUID
         let items: [ExperienceComponent]
 
         let layout: Layout?
         let style: Style?
     }
 
-    struct ZStackModel: Decodable {
+    struct ZStackModel: ComponentModel, Decodable {
+        let id: UUID
         let items: [ExperienceComponent]
 
         let layout: Layout?
         let style: Style?
     }
 
-    struct TextModel: Decodable {
+    struct TextModel: ComponentModel, Decodable {
+        let id: UUID
         let text: String
 
         let layout: Layout?
         let style: Style?
     }
 
-    struct ButtonModel: Decodable {
+    struct ButtonModel: ComponentModel, Decodable {
+        let id: UUID
         let text: String
 
         let layout: Layout?
         let style: Style?
     }
 
-    struct ImageModel: Decodable {
+    struct ImageModel: ComponentModel, Decodable {
+        let id: UUID
         let imageUrl: URL?
         // Not sure if we'd support this in the builder, but it's handy for previews
         let symbolName: String?
@@ -121,6 +140,7 @@ extension ExperienceComponent {
 
         /// URL init
         internal init(imageUrl: URL?, contentMode: String?, layout: ExperienceComponent.Layout?, style: ExperienceComponent.Style?) {
+            self.id = UUID()
             self.imageUrl = imageUrl
             self.symbolName = nil
             self.contentMode = contentMode
@@ -130,6 +150,7 @@ extension ExperienceComponent {
 
         /// Symbol init
         internal init(symbolName: String?, layout: ExperienceComponent.Layout?, style: ExperienceComponent.Style?) {
+            self.id = UUID()
             self.imageUrl = nil
             self.symbolName = symbolName
             self.contentMode = "fit"
@@ -139,8 +160,10 @@ extension ExperienceComponent {
 
     }
 
-    struct SpacerModel: Decodable {
+    struct SpacerModel: ComponentModel, Decodable {
+        let id: UUID
         let layout: Layout?
+        let style: Style?
     }
 
     struct Layout: Decodable {
