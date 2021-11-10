@@ -24,14 +24,14 @@ internal struct AppcuesImage: View {
             .ifLet(ContentMode(string: model.contentMode)) { view, val in
                 view.aspectRatio(contentMode: val)
             }
+            .clipped()
             .setupActions(viewModel.groupedActionHandlers(for: model.id))
             .applyAppcues(layout, style)
-            .clipped()
         } else {
             Image(systemName: model.symbolName ?? "")
+                .clipped()
                 .setupActions(viewModel.groupedActionHandlers(for: model.id))
                 .applyAppcues(layout, style)
-                .clipped()
         }
     }
 }
