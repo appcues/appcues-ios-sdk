@@ -19,7 +19,7 @@ internal struct AppcuesImage: View {
 
         if let url = model.imageUrl {
             RemoteImage(url: url) {
-                Color(UIColor.secondarySystemBackground)
+                style.backgroundColor ?? Color(UIColor.secondarySystemBackground)
             }
             .ifLet(ContentMode(string: model.contentMode)) { view, val in
                 view.aspectRatio(contentMode: val)
