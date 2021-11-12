@@ -29,7 +29,7 @@ internal class UIKitScreenTracking {
                 new: #selector(UIViewController.appcues__viewDidAppear)
         )
 
-        NotificationCenter.default.addObserver(self, selector: #selector(screenTracked), name: .appcuesTrackedScreen, object: nil)
+        NotificationCenter.appcues.addObserver(self, selector: #selector(screenTracked), name: .appcuesTrackedScreen, object: nil)
     }
 
     @objc

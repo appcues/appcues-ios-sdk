@@ -68,6 +68,7 @@ public class Appcues {
         isActive = false
         storage.userID = ""
         storage.isAnonymous = true
+        NotificationCenter.appcues.post(name: .appcuesReset, object: self, userInfo: nil)
     }
 
     /// Track an action taken by a user.
@@ -229,4 +230,8 @@ extension Appcues: AnalyticsPublisher {
             subscriber.track(update: update)
         }
     }
+}
+
+extension Notification.Name {
+    internal static let appcuesReset = Notification.Name("appcuesReset")
 }

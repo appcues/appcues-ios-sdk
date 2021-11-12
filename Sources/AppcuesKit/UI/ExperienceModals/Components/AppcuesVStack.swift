@@ -31,6 +31,7 @@ internal struct AppcuesVStack: View {
 internal struct AppcuesVStackPreview: PreviewProvider {
 
     static var previews: some View {
+        // swiftlint:disable:next closure_body_length
         Group {
             AppcuesVStack(model: EC.VStackModel(
                 id: UUID(),
@@ -52,7 +53,12 @@ internal struct AppcuesVStackPreview: PreviewProvider {
                     .text(EC.textSubtitle),
                     .button(EC.buttonPrimary)
                 ],
-                layout: EC.Layout(spacing: 48, horizontalAlignment: "leading", paddingTop: 8, paddingLeading: 8, paddingBottom: 8, paddingTrailing: 8),
+                layout: EC.Layout(spacing: 48,
+                                  horizontalAlignment: "leading",
+                                  paddingTop: 8,
+                                  paddingLeading: 8,
+                                  paddingBottom: 8,
+                                  paddingTrailing: 8),
                 style: EC.Style(backgroundColor: "#333"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
