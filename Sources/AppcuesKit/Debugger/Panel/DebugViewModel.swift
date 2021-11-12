@@ -43,6 +43,13 @@ internal class DebugViewModel: ObservableObject {
         self.userIdentified = !currentUserID.isEmpty
     }
 
+    func reset() {
+        trackingPages = false
+        currentUserID = ""
+        isAnonymous = true
+        events.removeAll()
+    }
+
     func addEvent(_ event: LoggedEvent) {
         trackingPages = trackingPages || event.type == .screen
         events.append(event)

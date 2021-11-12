@@ -38,7 +38,7 @@ extension UIViewController {
         }
 
         // communicate the tracked screen back to AnalyticsTracker
-        NotificationCenter.default.post(name: .appcuesTrackedScreen,
+        NotificationCenter.appcues.post(name: .appcuesTrackedScreen,
                                         object: self,
                                         userInfo: Notification.toInfo(name))
     }

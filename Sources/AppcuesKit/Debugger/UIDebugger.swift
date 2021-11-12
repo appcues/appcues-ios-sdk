@@ -27,6 +27,8 @@ internal class UIDebugger {
             isAnonymous: storage.isAnonymous)
 
         registerForAnalyticsUpdates(container)
+
+        NotificationCenter.appcues.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
     }
 
     func show() {
@@ -45,6 +47,11 @@ internal class UIDebugger {
     func hide() {
         debugWindow?.isHidden = true
         debugWindow = nil
+    }
+
+    @objc
+    private func appcuesReset(notification: Notification) {
+        self.viewModel.reset()
     }
 }
 
