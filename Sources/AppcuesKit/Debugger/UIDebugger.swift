@@ -16,10 +16,12 @@ internal class UIDebugger {
 
     private let config: Appcues.Config
     private let storage: Storage
+    private let notificationCenter: NotificationCenter
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
         self.storage = container.resolve(Storage.self)
+        self.notificationCenter = container.resolve(NotificationCenter.self)
 
         self.viewModel = DebugViewModel(
             accountID: config.accountID,
@@ -28,7 +30,7 @@ internal class UIDebugger {
 
         registerForAnalyticsUpdates(container)
 
-        NotificationCenter.appcues.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
+        notificationCenter.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
     }
 
     func show() {

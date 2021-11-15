@@ -20,6 +20,7 @@ public class Appcues {
     private lazy var traitRegistry = container.resolve(TraitRegistry.self)
     private lazy var actionRegistry = container.resolve(ActionRegistry.self)
     private lazy var experienceLoader = container.resolve(ExperienceLoader.self)
+    private lazy var notificationCenter = container.resolve(NotificationCenter.self)
 
     private var subscribers: [AnalyticsSubscriber] = []
     private var decorators: [TrackingDecorator] = []
@@ -68,7 +69,7 @@ public class Appcues {
         isActive = false
         storage.userID = ""
         storage.isAnonymous = true
-        NotificationCenter.appcues.post(name: .appcuesReset, object: self, userInfo: nil)
+        notificationCenter.post(name: .appcuesReset, object: self, userInfo: nil)
     }
 
     /// Track an action taken by a user.
@@ -146,6 +147,7 @@ public class Appcues {
         container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
         container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
         container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
+        container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
     }
 
     private func initializeSession() {
