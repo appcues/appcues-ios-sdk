@@ -31,8 +31,8 @@ internal class AnalyticsTracker {
         networking.post(
             to: Networking.APIEndpoint.activity,
             body: data
-        ) { (result: Result<Taco, Error>) in
-            print(result)
+        ) { [weak self] in
+            self?.handleAnalyticsResponse(result: $0)
         }
     }
 
@@ -45,8 +45,8 @@ internal class AnalyticsTracker {
         networking.post(
             to: Networking.APIEndpoint.activity,
             body: data
-        ) { (result: Result<Taco, Error>) in
-            print(result)
+        ) { [weak self] in
+            self?.handleAnalyticsResponse(result: $0)
         }
     }
 
@@ -64,18 +64,22 @@ internal class AnalyticsTracker {
         networking.post(
             to: Networking.APIEndpoint.activity,
             body: data
-        ) { [weak self] (result: Result<Taco, Error>) in
-            switch result {
-            case .success(let taco):
-                // This prioritizes experiencess over legacy web flows and assumes that the returned flows are ordered by priority.
-                if let experience = taco.experiences.first {
-                    self?.experienceRenderer.show(experience: experience)
-                } else if let flow = taco.contents.first {
-                    self?.experienceRenderer.show(flow: flow)
-                }
-            case .failure(let error):
-                print(error)
+        ) { [weak self] in
+            self?.handleAnalyticsResponse(result: $0)
+        }
+    }
+
+    private func handleAnalyticsResponse(result: Result<Taco, Error>) {
+        switch result {
+        case .success(let taco):
+            // This prioritizes experiencess over legacy web flows and assumes that the returned flows are ordered by priority.
+            if let experience = taco.experiences.first {
+                experienceRenderer.show(experience: experience)
+            } else if let flow = taco.contents.first {
+                experienceRenderer.show(flow: flow)
             }
+        case .failure(let error):
+            print(error)
         }
     }
 
