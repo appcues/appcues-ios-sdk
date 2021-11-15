@@ -37,5 +37,10 @@ class SignInViewController: UIViewController {
 
     @IBAction private func signOutAction(unwindSegue: UIStoryboardSegue) {
         // Unwind to Sign In
+        Appcues.shared.reset()
+    }
+
+    @IBAction private func anonymousUserTapped(_ sender: Any) {
+        Appcues.shared.anonymous()
     }
 }

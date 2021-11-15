@@ -29,7 +29,7 @@
         <!--Update Profile-->
         <scene sceneID="7hu-gY-OAK">
             <objects>
-                <viewController id="R2J-xh-UFF" customClass="ProfileViewController" customModule="AppcuesExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="R2J-xh-UFF" customClass="ProfileViewController" customModule="AppcuesCocoapodsExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="6nG-Nf-dVw">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -120,7 +120,7 @@
         <!--Sign In-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="SignInViewController" customModule="AppcuesExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="SignInViewController" customModule="AppcuesCocoapodsExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -151,16 +151,33 @@
                                     </button>
                                 </subviews>
                             </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qp3-AX-klk">
+                                <rect key="frame" x="140" y="831" width="134.5" height="31"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Anonymous User"/>
+                                <connections>
+                                    <action selector="anonymousUserTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4aq-vn-hUD"/>
+                                    <segue destination="EKa-1M-EaW" kind="presentation" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="NF8-NO-Ug5"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="mjX-Zi-osT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="GzY-Wq-Ghk"/>
+                            <constraint firstItem="qp3-AX-klk" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="WoD-Kz-e0O"/>
                             <constraint firstItem="mjX-Zi-osT" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="gdB-S0-g7r"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="qp3-AX-klk" secondAttribute="bottom" id="nFp-a7-69W"/>
                             <constraint firstItem="mjX-Zi-osT" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="40" id="zol-U8-pbC"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Sign In" id="OyU-gs-faF"/>
+                    <navigationItem key="navigationItem" title="Sign In" id="OyU-gs-faF">
+                        <barButtonItem key="rightBarButtonItem" title="Skip" id="wj7-bD-gVn">
+                            <connections>
+                                <segue destination="EKa-1M-EaW" kind="presentation" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="7Yr-k2-coz"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="userIDTextField" destination="MFN-Xh-XUq" id="BQV-er-a7u"/>
                     </connections>
@@ -189,7 +206,7 @@
         <!--Trigger Events-->
         <scene sceneID="EYp-iv-EJ2">
             <objects>
-                <viewController id="IV4-7k-Qev" customClass="EventsViewController" customModule="AppcuesExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="IV4-7k-Qev" customClass="EventsViewController" customModule="AppcuesCocoapodsExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Cg6-ll-PVs">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -224,7 +241,13 @@
                             <constraint firstItem="ftz-h7-czn" firstAttribute="leading" secondItem="aEO-X7-xEa" secondAttribute="leading" constant="20" id="tql-yd-qRq"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Trigger Events" id="1Wg-Nt-6AG"/>
+                    <navigationItem key="navigationItem" title="Trigger Events" id="1Wg-Nt-6AG">
+                        <barButtonItem key="rightBarButtonItem" title="Debug" id="jE3-et-OYL">
+                            <connections>
+                                <action selector="debugTapped:" destination="IV4-7k-Qev" id="D4a-Lg-uzC"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="efB-wE-siV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -248,6 +271,9 @@
             <point key="canvasLocation" x="677" y="175"/>
         </scene>
     </scenes>
+    <inferredMetricsTieBreakers>
+        <segue reference="NF8-NO-Ug5"/>
+    </inferredMetricsTieBreakers>
     <resources>
         <image name="person" catalog="system" width="128" height="117"/>
         <image name="recordingtape" catalog="system" width="128" height="59"/>
