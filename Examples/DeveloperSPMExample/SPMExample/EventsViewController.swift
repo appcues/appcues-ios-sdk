@@ -29,4 +29,8 @@ class EventsViewController: UIViewController {
     @IBAction private func buttonTwoTapped(_ sender: UIButton) {
         Appcues.shared.track(name: "event2")
     }
+
+    @IBAction private func debugTapped(_ sender: Any) {
+        Appcues.shared.debug()
+    }
 }
