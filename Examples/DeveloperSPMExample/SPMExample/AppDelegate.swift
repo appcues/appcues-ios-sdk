@@ -15,6 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 
+        // to opt-in for standard application lifecycle events, the SDK must be
+        // initialzed and have its trackLifecycle() function called during app startup here
+        Appcues.shared.trackLifecycle()
+
         return true
     }
 
