@@ -17,13 +17,13 @@ internal struct AppcuesHStack: View {
         let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
 
-        HStack(alignment: layout.verticalAlignment, spacing: CGFloat(model.layout?.spacing)) {
+        HStack(alignment: layout.verticalAlignment, spacing: layout.spacing) {
             ForEach(model.items) {
                 AnyView($0.view)
             }
         }
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyAppcues(layout, style)
+        .applyAllAppcues(layout, style)
     }
 }
 

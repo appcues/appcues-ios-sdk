@@ -20,12 +20,15 @@ internal struct AppcuesButton: View {
         Button() {
             // handle tap in `.setupActions`
         } label: {
-            // TODO: Layout the layout and style maybe should be applied on the text here?
-            // Otherwise the button tap target seems to small when there's padding/background? Need to investigate.
             Text(model.text)
+                .applyTextStyle(style)
+                .applyForegroundStyle(style)
+                .applyInternalLayout(layout)
         }
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyAppcues(layout, style)
+        .applyBackgroundStyle(style)
+        .applyBorderStyle(style)
+        .applyExternalLayout(layout)
     }
 }
 

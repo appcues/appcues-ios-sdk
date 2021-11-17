@@ -18,14 +18,9 @@ internal struct AppcuesText: View {
         let style = AppcuesStyle(from: model.style)
 
         Text(model.text)
-            .ifLet(style.letterSpacing) { view, val in
-                view.kerning(val)
-            }
-            .ifLet(style.textAlignment) { view, val in
-                view.multilineTextAlignment(val)
-            }
+            .applyTextStyle(style)
             .setupActions(viewModel.groupedActionHandlers(for: model.id))
-            .applyAppcues(layout, style)
+            .applyAllAppcues(layout, style)
     }
 }
 

@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-internal struct AppcuesStyle: ViewModifier {
+internal struct AppcuesStyle {
     let font: Font?
     let letterSpacing: CGFloat?
     let lineSpacing: CGFloat?
@@ -31,33 +31,5 @@ internal struct AppcuesStyle: ViewModifier {
         self.cornerRadius = CGFloat(model?.cornerRadius)
         self.borderColor = Color(hex: model?.borderColor)
         self.borderWidth = CGFloat(model?.borderWidth)
-    }
-
-    func body(content: Content) -> some View {
-        content
-            .ifLet(font) { view, val in
-                view.font(val)
-            }
-            .ifLet(lineSpacing) { view, val in
-                view.lineSpacing(val)
-            }
-            .ifLet(foregroundColor) { view, val in
-                view.foregroundColor(val)
-            }
-            .ifLet(backgroundColor) { view, val in
-                view.background(val)
-            }
-            .ifLet(backgroundGradient) { view, val in
-                view.background(val)
-            }
-            .ifLet(cornerRadius) { view, val in
-                view.cornerRadius(val)
-            }
-            .ifLet(borderColor, borderWidth) { view, val1, val2 in
-                view.overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius ?? 0)
-                        .stroke(val1, lineWidth: val2)
-                )
-            }
     }
 }
