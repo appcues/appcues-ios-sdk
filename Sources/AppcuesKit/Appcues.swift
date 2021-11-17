@@ -29,6 +29,8 @@ public class Appcues {
     // have an identified user, or were explicitly asked to track an anonymous user
     var isActive = false
 
+    private var launchType: LaunchType = .open
+
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
     public init(config: Config) {
@@ -115,6 +117,21 @@ public class Appcues {
         uiDebugger.show()
     }
 
+    /// Enables automatic screen tracking.
+    public func trackScreens() {
+        // resolving will init UIKitScreenTracking, which sets up the swizzling of
+        // UIViewController for automatic screen tracking
+        _ = container.resolve(UIKitScreenTracking.self)
+    }
+
+    /// Enables automatic lifecycle tracking.
+    public func trackLifecycle() {
+        // resolving will init LifecycleTracking, which registers the notification handlers
+        // for application launch, foregrounding and backgrounding
+        let lifecycle = container.resolve(LifecycleTracking.self)
+        lifecycle.launchType = launchType
+    }
+
     /// Verifies if an incoming URL is intended for the Appcues SDK.
     /// - Parameter url: The URL being opened.
     /// - Returns: `true` if the URL matches the Appcues URL Scheme or `false` if the URL is not known by the Appcues SDK.
@@ -159,7 +176,6 @@ public class Appcues {
         storage.applicationBuild = currentBuild
         storage.applicationVersion = Bundle.main.version
 
-        var launchType = LaunchType.open
         if previousBuild.isEmpty {
             launchType = .install
         } else if previousBuild != currentBuild {
@@ -174,14 +190,6 @@ public class Appcues {
         // anything that should be eager init at launch is handled here
         _ = container.resolve(AnalyticsTracker.self)
         _ = container.resolve(AutoPropertyDecorator.self)
-
-        if config.trackLifecycle {
-            container.resolve(LifecycleTracking.self).launchType = launchType
-        }
-
-        if config.trackScreens {
-            _ = container.resolve(UIKitScreenTracking.self)
-        }
     }
 
     private func identify(isAnonymous: Bool, userID: String, properties: [String: Any]? = nil) {

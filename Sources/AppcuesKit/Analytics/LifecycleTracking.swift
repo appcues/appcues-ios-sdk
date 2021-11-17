@@ -12,10 +12,10 @@ import UIKit
 internal class LifecycleTracking {
 
     enum LifecycleEvents: String {
-        case applicationInstalled = "Application Installed"
-        case applicationOpened = "Application Opened"
-        case applicationUpdated = "Application Updated"
-        case applicationBackgrounded = "Application Backgrounded"
+        case applicationInstalled = "appcues:application_installed"
+        case applicationOpened = "appcues:application_opened"
+        case applicationUpdated = "appcues:application_updated"
+        case applicationBackgrounded = "appcues:application_backgrounded"
     }
 
     private let publisher: AnalyticsPublisher
