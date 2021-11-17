@@ -24,6 +24,7 @@ internal class ImageLoader: ObservableObject {
     init(url: URL, cache: SessionImageCache? = nil) {
         self.url = url
         self.cache = cache
+        self.image = cache?[url]
     }
 
     func load() {
@@ -74,8 +75,8 @@ internal struct RemoteImage<Placeholder: View>: View {
         }
     }
 
-    init(url: URL, @ViewBuilder placeholder: () -> Placeholder) {
+    init(url: URL, cache: SessionImageCache, @ViewBuilder placeholder: () -> Placeholder) {
         self.placeholder = placeholder()
-        loader = ImageLoader(url: url, cache: Environment(\.imageCache).wrappedValue)
+        loader = ImageLoader(url: url, cache: cache)
     }
 }
