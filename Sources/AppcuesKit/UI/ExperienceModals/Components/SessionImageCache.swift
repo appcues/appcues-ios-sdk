@@ -9,7 +9,7 @@
 import UIKit
 
 // swiftlint:disable legacy_objc_type
-internal struct SessionImageCache {
+internal class SessionImageCache {
     private let cache = NSCache<NSURL, UIImage>()
 
     subscript(_ key: URL) -> UIImage? {

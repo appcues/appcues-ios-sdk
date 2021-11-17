@@ -12,13 +12,14 @@ internal struct AppcuesImage: View {
     let model: ExperienceComponent.ImageModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
+    @Environment(\.imageCache) var imageCache: SessionImageCache
 
     var body: some View {
         let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
 
         if let url = model.imageUrl {
-            RemoteImage(url: url) {
+            RemoteImage(url: url, cache: imageCache) {
                 style.backgroundColor ?? Color(UIColor.secondarySystemBackground)
             }
             .ifLet(ContentMode(string: model.contentMode)) { view, val in
