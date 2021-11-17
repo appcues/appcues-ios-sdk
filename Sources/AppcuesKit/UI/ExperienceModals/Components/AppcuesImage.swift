@@ -27,12 +27,12 @@ internal struct AppcuesImage: View {
             }
             .clipped()
             .setupActions(viewModel.groupedActionHandlers(for: model.id))
-            .applyAppcues(layout, style)
+            .applyAllAppcues(layout, style)
         } else {
             Image(systemName: model.symbolName ?? "")
                 .clipped()
                 .setupActions(viewModel.groupedActionHandlers(for: model.id))
-                .applyAppcues(layout, style)
+                .applyAllAppcues(layout, style)
         }
     }
 }

@@ -23,7 +23,7 @@ internal struct AppcuesZStack: View {
             }
         }
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyAppcues(layout, style)
+        .applyAllAppcues(layout, style)
     }
 }
 

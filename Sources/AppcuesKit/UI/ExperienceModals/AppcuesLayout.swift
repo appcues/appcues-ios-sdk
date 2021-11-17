@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-internal struct AppcuesLayout: ViewModifier {
+internal struct AppcuesLayout {
     let padding: EdgeInsets
     let margin: EdgeInsets
     let spacing: CGFloat?
@@ -44,14 +44,5 @@ internal struct AppcuesLayout: ViewModifier {
         self.alignment = Alignment(vertical: model?.verticalAlignment, horizontal: model?.horizontalAlignment) ?? .center
         self.horizontalAlignment = HorizontalAlignment(string: model?.horizontalAlignment) ?? .center
         self.verticalAlignment = VerticalAlignment(string: model?.verticalAlignment) ?? .center
-    }
-
-    func body(content: Content) -> some View {
-        content
-            .padding(padding)
-            .frame(width: width, height: height)
-            .if(fillWidth) { view in
-                view.frame(maxWidth: .infinity)
-            }
     }
 }

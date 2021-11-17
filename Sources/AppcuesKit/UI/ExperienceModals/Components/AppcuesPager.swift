@@ -24,7 +24,7 @@ internal struct AppcuesPager: View {
         }
         .modifier(PagerViewModifier())
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyAppcues(layout, style)
+        .applyAllAppcues(layout, style)
     }
 
 }
