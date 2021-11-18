@@ -38,7 +38,7 @@ internal class UIKitScreenTracking {
 
     @objc
     private func screenTracked(notification: Notification) {
-        let title: String? = notification.value()        
+        let title: String? = notification.value()
         guard let title = title, lastTrackedScreen != title else { return }
 
         lastTrackedScreen = title
