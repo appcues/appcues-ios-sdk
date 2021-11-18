@@ -11,6 +11,10 @@ import UIKit
 
 internal class UIKitScreenTracking {
 
+    // used to ignore SDK presented screens (experiences we create) for the purpose
+    // of automatic screen tracking
+    internal static var untrackedScreenKey: UInt8 = 0
+
     private var lastTrackedScreen: String?
 
     private let publisher: AnalyticsPublisher
@@ -34,7 +38,7 @@ internal class UIKitScreenTracking {
 
     @objc
     private func screenTracked(notification: Notification) {
-        let title: String? = notification.value()
+        let title: String? = notification.value()        
         guard let title = title, lastTrackedScreen != title else { return }
 
         lastTrackedScreen = title

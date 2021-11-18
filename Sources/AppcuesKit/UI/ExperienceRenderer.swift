@@ -46,6 +46,9 @@ internal class ExperienceRenderer {
             let viewController = ExperienceStepHostingController(rootView: step.content.view, viewModel: viewModel)
             let wrappedViewController = self.traitRegistry.apply(step.traits, to: viewController)
 
+            // this flag tells automatic screen tracking to ignore screens that the SDK is presenting
+            objc_setAssociatedObject(wrappedViewController, &UIKitScreenTracking.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
+
             topController.present(wrappedViewController, animated: true)
 
             self.storage.lastContentShownAt = Date()
