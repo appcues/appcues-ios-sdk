@@ -31,13 +31,16 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
     func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {
 
-        if case let .screen(title) = tracking.type {
+        switch tracking.type {
+        case let .screen(title):
             previousScreen = currentScreen
             currentScreen = title
             sessionPageviews += 1
-        } else if case let .event(name) = tracking.type,
-           name == SessionMonitor.SessionEvents.sessionStarted.rawValue {
-          resetSession()
+        case .event(SessionMonitor.SessionEvents.sessionStarted.rawValue):
+            sessionPageviews = 0
+            sessionRandomizer = Int.random(in: 1...100)
+        default:
+            break
         }
 
         var properties = tracking.properties ?? [:]
@@ -100,11 +103,6 @@ internal class AutoPropertyDecorator: TrackingDecorator {
     private func updateUserAgent() {
         guard let userAgent = WKWebView().value(forKey: "userAgent") as? String else { return }
         applicationProperties["_userAgent"] = userAgent
-    }
-
-    private func resetSession() {
-        sessionPageviews = 0
-        sessionRandomizer = Int.random(in: 1...100)
     }
 }
 
