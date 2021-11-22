@@ -1,5 +1,5 @@
 //
-//  AppcuesSequentialContinueAction.swift
+//  AppcuesContinueAction.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-17.
@@ -8,8 +8,8 @@
 
 import Foundation
 
-internal struct AppcuesSequentialContinueAction: ExperienceAction {
-    static let type = "@appcues/sequential.continue"
+internal struct AppcuesContinueAction: ExperienceAction {
+    static let type = "@appcues/continue"
 
     let stepReference: ExperienceRenderer.StepReference
 

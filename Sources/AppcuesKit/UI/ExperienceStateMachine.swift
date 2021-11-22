@@ -177,8 +177,8 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
     // MARK: Step Lifecycle
 
     func stepWillAppear() {
-        guard case let .renderStep(_, _, currentController, isFirst) = currentState else { return }
-        guard currentController.isBeingPresented else { return }
+        guard case let .renderStep(_, _, controller, isFirst) = currentState else { return }
+        guard controller.isBeingPresented else { return }
 
         if isFirst {
             experienceWillAppear()
@@ -186,8 +186,8 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
     }
 
     func stepDidAppear() {
-        guard case let .renderStep(experience, stepIndex, currentController, isFirst) = currentState else { return }
-        guard currentController.isBeingPresented else { return }
+        guard case let .renderStep(experience, stepIndex, controller, isFirst) = currentState else { return }
+        guard controller.isBeingPresented else { return }
 
         if isFirst {
             experienceLifecycleEventDelegate?.lifecycleEvent(.flowStarted(experience))
@@ -199,10 +199,10 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
 
     func stepWillDisappear() {
         switch currentState {
-        case let .postRenderStep(_, _, currentController):
-            guard currentController.isBeingDismissed == true else { return }
-        case let .renderStep(_, _, currentController, _):
-            guard currentController.isBeingDismissed == true else { return }
+        case let .postRenderStep(_, _, controller):
+            guard controller.isBeingDismissed == true else { return }
+        case let .renderStep(_, _, controller, _):
+            guard controller.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
             experienceWillDisappear()
         default:
@@ -212,11 +212,11 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
 
     func stepDidDisappear() {
         switch currentState {
-        case let .postRenderStep(experience, stepIndex, currentController):
-            guard currentController.isBeingDismissed == true else { return }
+        case let .postRenderStep(experience, stepIndex, controller):
+            guard controller.isBeingDismissed == true else { return }
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
-        case let .renderStep(experience, stepIndex, currentController, _):
-            guard currentController.isBeingDismissed == true else { return }
+        case let .renderStep(experience, stepIndex, controller, _):
+            guard controller.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
             experienceDidDisappear()
             if stepIndex == experience.steps.count - 1 {
@@ -284,7 +284,7 @@ extension ExperienceStateMachine.ExperienceState: CustomStringConvertible {
         case let .postRenderStep(experience, stepIndex, _):
             return ".postRenderStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .stepError(experience, stepIndex, _):
-            return ".stepErrpr(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
+            return ".stepError(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .end(experience):
             return ".end(experienceID: \(experience.id.uuidString))"
         }
