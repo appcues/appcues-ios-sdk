@@ -54,26 +54,6 @@ internal class Storage {
         }
     }
 
-    /// The current `CFBundleShortVersionString` for the application, updated each launch
-    internal var applicationVersion: String {
-        get {
-            return read(.applicationVersion, defaultValue: "")
-        }
-        set {
-            write(.applicationVersion, newValue: newValue)
-        }
-    }
-
-    /// The current `CFBundleVersion` for the application, updated each launch
-    internal var applicationBuild: String {
-        get {
-            return read(.applicationBuild, defaultValue: "")
-        }
-        set {
-            write(.applicationBuild, newValue: newValue)
-        }
-    }
-
     /// The date of the last known time that an experience/flow was shown to the user in this application
     internal var lastContentShownAt: Date? {
         get {

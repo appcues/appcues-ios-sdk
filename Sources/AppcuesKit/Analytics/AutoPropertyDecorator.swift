@@ -13,19 +13,18 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
     private var currentScreen: String?
     private var previousScreen: String?
-
-    // TODO: product reqs on when this resets
     private var sessionPageviews = 0
-    private var sessionRandomizer: Int
+    private var sessionRandomizer: Int?
 
     private let storage: Storage
+    private let sessionMonitor: SessionMonitor
 
     // these are the fixed values for the duration of the app runtime
     private var applicationProperties: [String: Any] = [:]
 
     init(container: DIContainer) {
-        self.sessionRandomizer = Int.random(in: 1...100)
         self.storage = container.resolve(Storage.self)
+        self.sessionMonitor = container.resolve(SessionMonitor.self)
         configureApplicationProperties()
         container.resolve(AnalyticsPublisher.self).register(decorator: self)
     }
@@ -36,6 +35,9 @@ internal class AutoPropertyDecorator: TrackingDecorator {
             previousScreen = currentScreen
             currentScreen = title
             sessionPageviews += 1
+        } else if case let .event(name) = tracking.type,
+           name == SessionMonitor.SessionEvents.sessionStarted.rawValue {
+          resetSession()
         }
 
         var properties = tracking.properties ?? [:]
@@ -50,7 +52,8 @@ internal class AutoPropertyDecorator: TrackingDecorator {
             "_currentPageTitle": currentScreen,
             "_lastPageTitle": previousScreen,
             "_updatedAt": Date(),
-            "_lastContentShownAt": storage.lastContentShownAt
+            "_lastContentShownAt": storage.lastContentShownAt,
+            "_sessionId": sessionMonitor.sessionID?.uuidString
         ]
 
         if !Locale.preferredLanguages.isEmpty {
@@ -97,6 +100,11 @@ internal class AutoPropertyDecorator: TrackingDecorator {
     private func updateUserAgent() {
         guard let userAgent = WKWebView().value(forKey: "userAgent") as? String else { return }
         applicationProperties["_userAgent"] = userAgent
+    }
+
+    private func resetSession() {
+        sessionPageviews = 0
+        sessionRandomizer = Int.random(in: 1...100)
     }
 }
 

@@ -19,17 +19,12 @@ public class Appcues {
     private lazy var uiDebugger = container.resolve(UIDebugger.self)
     private lazy var traitRegistry = container.resolve(TraitRegistry.self)
     private lazy var actionRegistry = container.resolve(ActionRegistry.self)
+    private lazy var sessionMonitor = container.resolve(SessionMonitor.self)
     private lazy var experienceLoader = container.resolve(ExperienceLoader.self)
     private lazy var notificationCenter = container.resolve(NotificationCenter.self)
 
     private var subscribers: [AnalyticsSubscriber] = []
     private var decorators: [TrackingDecorator] = []
-
-    // controls whether the SDK is actively tracking data - which means we either
-    // have an identified user, or were explicitly asked to track an anonymous user
-    var isActive = false
-
-    private var launchType: LaunchType = .open
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
@@ -68,7 +63,9 @@ public class Appcues {
 
     /// Clears out the current user in this session.  Can be used when the user logs out of your application.
     public func reset() {
-        isActive = false
+        // call this first to close final analytics on the session
+        sessionMonitor.end()
+
         storage.userID = ""
         storage.isAnonymous = true
         notificationCenter.post(name: .appcuesReset, object: self, userInfo: nil)
@@ -96,7 +93,7 @@ public class Appcues {
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(contentID: String) {
-        guard isActive else { return }
+        guard sessionMonitor.isActive else { return }
         experienceLoader.load(contentID: contentID)
     }
 
@@ -122,14 +119,6 @@ public class Appcues {
         // resolving will init UIKitScreenTracking, which sets up the swizzling of
         // UIViewController for automatic screen tracking
         _ = container.resolve(UIKitScreenTracking.self)
-    }
-
-    /// Enables automatic lifecycle tracking.
-    public func trackLifecycle() {
-        // resolving will init LifecycleTracking, which registers the notification handlers
-        // for application launch, foregrounding and backgrounding
-        let lifecycle = container.resolve(LifecycleTracking.self)
-        lifecycle.launchType = launchType
     }
 
     /// Verifies if an incoming URL is intended for the Appcues SDK.
@@ -159,7 +148,7 @@ public class Appcues {
         container.registerLazy(UIDebugger.self, initializer: UIDebugger.init)
         container.registerLazy(DeeplinkHandler.self, initializer: DeeplinkHandler.init)
         container.registerLazy(AnalyticsTracker.self, initializer: AnalyticsTracker.init)
-        container.registerLazy(LifecycleTracking.self, initializer: LifecycleTracking.init)
+        container.registerLazy(SessionMonitor.self, initializer: SessionMonitor.init)
         container.registerLazy(UIKitScreenTracking.self, initializer: UIKitScreenTracking.init)
         container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
         container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
@@ -168,21 +157,10 @@ public class Appcues {
     }
 
     private func initializeSession() {
-        isActive = !storage.userID.isEmpty
+        // it is a fresh installation if we have no device ID
+        let isInstall = storage.deviceID.isEmpty
 
-        let previousBuild = storage.applicationBuild
-        let currentBuild = Bundle.main.build
-
-        storage.applicationBuild = currentBuild
-        storage.applicationVersion = Bundle.main.version
-
-        if previousBuild.isEmpty {
-            launchType = .install
-        } else if previousBuild != currentBuild {
-            launchType = .update
-        }
-
-        if launchType == .install {
+        if isInstall {
             // perform any fresh install activities here
             storage.deviceID = UIDevice.identifier
         }
@@ -190,12 +168,23 @@ public class Appcues {
         // anything that should be eager init at launch is handled here
         _ = container.resolve(AnalyticsTracker.self)
         _ = container.resolve(AutoPropertyDecorator.self)
+
+        sessionMonitor.start()
     }
 
     private func identify(isAnonymous: Bool, userID: String, properties: [String: Any]? = nil) {
+        guard !userID.isEmpty else {
+            config.logger.error("Invalid userID - empty string")
+            return
+        }
+
+        let userChanged = userID != storage.userID
         storage.userID = userID
         storage.isAnonymous = isAnonymous
-        isActive = true
+        if userChanged {
+            // when the idenfied use changes from last known value, we must start a new session
+            sessionMonitor.start()
+        }
         publish(TrackingUpdate(type: .profile, properties: properties, userID: userID))
     }
 }
@@ -228,7 +217,7 @@ extension Appcues: AnalyticsPublisher {
     }
 
     private func publish(_ update: TrackingUpdate) {
-        guard isActive else { return }
+        guard sessionMonitor.isActive else { return }
 
         var update = update
 

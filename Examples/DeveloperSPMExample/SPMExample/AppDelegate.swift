@@ -15,10 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
 
-        // to opt-in for standard application lifecycle events, the SDK must be
-        // initialzed and have its trackLifecycle() function called during app startup here
-        Appcues.shared.trackLifecycle()
-
         return true
     }
 
@@ -51,5 +47,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension Appcues {
     // Find your Appcues account ID in your account settings in Appcues Studio.
-    static var shared = Appcues(config: Config(accountID: <#APPCUES_ACCOUNT_ID#>))
+    static var shared = Appcues(config: Config(accountID: "34567"))
 }

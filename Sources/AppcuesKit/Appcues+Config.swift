@@ -30,6 +30,8 @@ public extension Appcues {
             UIDevice.identifier
         }
 
+        var sessionTimeout: UInt = 1_800 // 30 minutes by default
+
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID
         public init(accountID: String) {
@@ -51,6 +53,16 @@ public extension Appcues {
         @discardableResult
         public func apiHost(_ apiHost: String) -> Self {
             self.apiHost = apiHost
+            return self
+        }
+
+        /// Set the session timeout for the configuration. This timeout value is used to determine if a new session is started
+        /// upon the application returning to the foreground. The default value is 1800 seconds (30 minutes).
+        /// - Parameter sessionTimeout: The timeout length, in seconds.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        public func sessionTimeout(_ sessionTimeout: UInt) -> Self {
+            self.sessionTimeout = sessionTimeout
             return self
         }
 
