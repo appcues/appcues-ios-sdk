@@ -51,12 +51,12 @@ internal class SessionMonitor {
         guard !storage.userID.isEmpty else { return }
 
         sessionID = UUID()
-        publisher.track(name: SessionEvents.sessionStarted.rawValue)
+        publisher.track(SessionEvents.sessionStarted)
     }
 
     // called on reset(), user sign-out
     func end() {
-        publisher.track(name: SessionEvents.sessionEnded.rawValue)
+        publisher.track(SessionEvents.sessionEnded)
         sessionID = nil
     }
 
@@ -68,9 +68,9 @@ internal class SessionMonitor {
         self.applicationBackgrounded = nil
 
         if elapsed >= sessionTimeout {
-            publisher.track(name: SessionEvents.sessionStarted.rawValue)
+            publisher.track(SessionEvents.sessionStarted)
         } else {
-            publisher.track(name: SessionEvents.sessionResumed.rawValue)
+            publisher.track(SessionEvents.sessionResumed)
         }
     }
 
@@ -78,6 +78,6 @@ internal class SessionMonitor {
     func didEnterBackground(notification: Notification) {
         guard sessionID != nil else { return }
         applicationBackgrounded = Date()
-        publisher.track(name: SessionEvents.sessionSuspended.rawValue)
+        publisher.track(SessionEvents.sessionSuspended)
     }
 }

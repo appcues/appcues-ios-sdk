@@ -29,6 +29,10 @@ extension AnalyticsPublisher {
         track(name: name, properties: nil)
     }
 
+    func track<T>(_ item: T, properties: [String: Any]? = nil) where T: RawRepresentable, T.RawValue == String {
+        track(name: item.rawValue, properties: properties)
+    }
+
     func screen(title: String) {
         screen(title: title, properties: nil)
     }
