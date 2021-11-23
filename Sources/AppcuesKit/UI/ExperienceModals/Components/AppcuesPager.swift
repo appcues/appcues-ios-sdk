@@ -37,9 +37,9 @@ internal struct AppcuesPagerPreview: PreviewProvider {
             AppcuesPager(model: EC.PagerModel(
                 id: UUID(),
                 items: [
-                    .vstack(EC.vstackHero),
-                    .vstack(EC.vstackHero),
-                    .vstack(EC.vstackHero)
+                    .column(EC.vstackHero),
+                    .column(EC.vstackHero),
+                    .column(EC.vstackHero)
                 ],
                 layout: nil,
                 style: EC.Style(backgroundColor: "#333"))

@@ -1,5 +1,5 @@
 //
-//  AppcuesHStack.swift
+//  AppcuesRow.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-02.
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-internal struct AppcuesHStack: View {
-    let model: ExperienceComponent.HStackModel
+internal struct AppcuesRow: View {
+    let model: ExperienceComponent.RowModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
@@ -28,11 +28,11 @@ internal struct AppcuesHStack: View {
 }
 
 #if DEBUG
-internal struct AppcuesHStackPreview: PreviewProvider {
+internal struct AppcuesRowPreview: PreviewProvider {
 
     static var previews: some View {
         Group {
-            AppcuesHStack(model: EC.HStackModel(
+            AppcuesRow(model: EC.RowModel(
                 id: UUID(),
                 items: [
                     .image(EC.imageSymbol),

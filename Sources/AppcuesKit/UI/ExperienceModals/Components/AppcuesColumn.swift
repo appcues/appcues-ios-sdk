@@ -1,5 +1,5 @@
 //
-//  AppcuesVStack.swift
+//  AppcuesColumn.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-02.
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-internal struct AppcuesVStack: View {
-    let model: ExperienceComponent.VStackModel
+internal struct AppcuesColumn: View {
+    let model: ExperienceComponent.ColumnModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
@@ -28,12 +28,12 @@ internal struct AppcuesVStack: View {
 }
 
 #if DEBUG
-internal struct AppcuesVStackPreview: PreviewProvider {
+internal struct AppcuesColumnPreview: PreviewProvider {
 
     static var previews: some View {
         // swiftlint:disable:next closure_body_length
         Group {
-            AppcuesVStack(model: EC.VStackModel(
+            AppcuesColumn(model: EC.ColumnModel(
                 id: UUID(),
                 items: [
                     .text(EC.textTitle),
@@ -46,7 +46,7 @@ internal struct AppcuesVStackPreview: PreviewProvider {
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesVStack(model: EC.VStackModel(
+            AppcuesColumn(model: EC.ColumnModel(
                 id: UUID(),
                 items: [
                     .text(EC.textTitle),
