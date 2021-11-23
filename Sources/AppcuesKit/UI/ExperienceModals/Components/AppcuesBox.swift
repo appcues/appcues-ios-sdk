@@ -1,5 +1,5 @@
 //
-//  AppcuesZStack.swift
+//  AppcuesBox.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-02.
@@ -8,8 +8,8 @@
 
 import SwiftUI
 
-internal struct AppcuesZStack: View {
-    let model: ExperienceComponent.ZStackModel
+internal struct AppcuesBox: View {
+    let model: ExperienceComponent.BoxModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
@@ -28,15 +28,15 @@ internal struct AppcuesZStack: View {
 }
 
 #if DEBUG
-internal struct AppcuesZStackPreview: PreviewProvider {
+internal struct AppcuesBoxPreview: PreviewProvider {
 
     static var previews: some View {
         Group {
-            AppcuesZStack(model: EC.zstackHero)
+            AppcuesBox(model: EC.zstackHero)
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesZStack(model: EC.ZStackModel(
+            AppcuesBox(model: EC.BoxModel(
                 id: UUID(),
                 items: [
                     .image(EC.imageBanner),

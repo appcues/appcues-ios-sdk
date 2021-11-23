@@ -14,12 +14,12 @@ extension ExperienceComponent {
         switch self {
         case .pager(let model):
             AppcuesPager(model: model)
-        case .vstack(let model):
-            AppcuesVStack(model: model)
-        case .hstack(let model):
-            AppcuesHStack(model: model)
-        case .zstack(let model):
-            AppcuesZStack(model: model)
+        case .column(let model):
+            AppcuesColumn(model: model)
+        case .row(let model):
+            AppcuesRow(model: model)
+        case .box(let model):
+            AppcuesBox(model: model)
         case .text(let model):
             AppcuesText(model: model)
         case .button(let model):

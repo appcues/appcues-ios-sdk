@@ -17,9 +17,9 @@ internal protocol ComponentModel {
 @dynamicMemberLookup
 internal enum ExperienceComponent {
     case pager(PagerModel)
-    case vstack(VStackModel)
-    case hstack(HStackModel)
-    case zstack(ZStackModel)
+    case column(ColumnModel)
+    case row(RowModel)
+    case box(BoxModel)
     case text(TextModel)
     case button(ButtonModel)
     case image(ImageModel)
@@ -28,9 +28,9 @@ internal enum ExperienceComponent {
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
         case .pager(let model): return model[keyPath: keyPath]
-        case .vstack(let model): return model[keyPath: keyPath]
-        case .hstack(let model): return model[keyPath: keyPath]
-        case .zstack(let model): return model[keyPath: keyPath]
+        case .column(let model): return model[keyPath: keyPath]
+        case .row(let model): return model[keyPath: keyPath]
+        case .box(let model): return model[keyPath: keyPath]
         case .text(let model): return model[keyPath: keyPath]
         case .button(let model): return model[keyPath: keyPath]
         case .image(let model): return model[keyPath: keyPath]
@@ -57,12 +57,12 @@ extension ExperienceComponent: Decodable {
         switch type {
         case "pager":
             self = .pager(try modelContainer.decode(PagerModel.self))
-        case "vstack":
-            self = .vstack(try modelContainer.decode(VStackModel.self))
-        case "hstack":
-            self = .hstack(try modelContainer.decode(HStackModel.self))
-        case "zstack":
-            self = .zstack(try modelContainer.decode(ZStackModel.self))
+        case "column":
+            self = .column(try modelContainer.decode(ColumnModel.self))
+        case "row":
+            self = .row(try modelContainer.decode(RowModel.self))
+        case "box":
+            self = .box(try modelContainer.decode(BoxModel.self))
         case "text":
             self = .text(try modelContainer.decode(TextModel.self))
         case "button":
@@ -88,7 +88,7 @@ extension ExperienceComponent {
         let style: Style?
     }
 
-    struct VStackModel: ComponentModel, Decodable {
+    struct ColumnModel: ComponentModel, Decodable {
         let id: UUID
         let items: [ExperienceComponent]
 
@@ -96,7 +96,7 @@ extension ExperienceComponent {
         let style: Style?
     }
 
-    struct HStackModel: ComponentModel, Decodable {
+    struct RowModel: ComponentModel, Decodable {
         let id: UUID
         let items: [ExperienceComponent]
 
@@ -104,7 +104,7 @@ extension ExperienceComponent {
         let style: Style?
     }
 
-    struct ZStackModel: ComponentModel, Decodable {
+    struct BoxModel: ComponentModel, Decodable {
         let id: UUID
         let items: [ExperienceComponent]
 

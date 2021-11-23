@@ -62,7 +62,7 @@ extension ExperienceComponent {
         layout: ExperienceComponent.Layout(height: 300, width: 370),
         style: nil)
 
-    static let vstackHero = EC.VStackModel(
+    static let vstackHero = EC.ColumnModel(
         id: UUID(),
         items: [
             .text(EC.textTitle),
@@ -72,11 +72,11 @@ extension ExperienceComponent {
         layout: EC.Layout(spacing: 12),
         style: nil)
 
-    static let zstackHero = EC.ZStackModel(
+    static let zstackHero = EC.BoxModel(
         id: UUID(),
         items: [
             .image(EC.imageBanner),
-            .vstack(EC.vstackHero)
+            .column(EC.vstackHero)
         ],
         layout: nil,
         style: nil)
