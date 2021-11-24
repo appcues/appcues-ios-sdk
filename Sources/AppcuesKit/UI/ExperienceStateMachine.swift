@@ -12,10 +12,10 @@ internal class ExperienceStateMachine {
 
     enum ExperienceState {
         case empty
-        case start(Experience)
+        case begin(Experience)
         case beginStep(ExperienceRenderer.StepReference)
         case renderStep(Experience, Int, UIViewController, isFirst: Bool)
-        case postRenderStep(Experience, Int, UIViewController)
+        case endStep(Experience, Int, UIViewController)
         case stepError(Experience, Int, String)
         case end(Experience)
     }
@@ -42,17 +42,17 @@ internal class ExperienceStateMachine {
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func transition(to newState: ExperienceState) {
-        if case let .start(experience) = newState {
+        if case let .begin(experience) = newState {
             experienceLifecycleEventDelegate?.lifecycleEvent(.flowAttempted(experience))
         }
 
         switch (currentState, newState) {
 
         // MARK: Standard flow
-        case let (.empty, .start(experience)):
+        case let (.empty, .begin(experience)):
             currentState = newState
-            handleStart(experience)
-        case let (.start(experience), .beginStep(.index(0))):
+            handleBegin(experience)
+        case let (.begin(experience), .beginStep(.index(0))):
             currentState = newState
             handleBeginStep(experience, 0, isFirst: true)
         case let (.beginStep, .renderStep(experience, stepIndex, controller, _)):
@@ -60,12 +60,12 @@ internal class ExperienceStateMachine {
             handleRenderStep(experience, stepIndex, controller)
         case let (.renderStep(experience, stepIndex, controller, _), .beginStep):
             // If currently rendering, but trying to begin a new step, go through post-render first
-            currentState = .postRenderStep(experience, stepIndex, controller)
-            handlePostRenderStep(experience, stepIndex, controller, nextState: newState)
-        case let (.renderStep, .postRenderStep(experience, stepIndex, controller)):
+            currentState = .endStep(experience, stepIndex, controller)
+            handleEndStep(experience, stepIndex, controller, nextState: newState)
+        case let (.renderStep, .endStep(experience, stepIndex, controller)):
             currentState = newState
-            handlePostRenderStep(experience, stepIndex, controller, nextState: .end(experience))
-        case let (.postRenderStep(experience, currentIndex, _), .beginStep(stepRef)):
+            handleEndStep(experience, stepIndex, controller, nextState: .end(experience))
+        case let (.endStep(experience, currentIndex, _), .beginStep(stepRef)):
             let stepIndex = stepRef.resolve(currentIndex: currentIndex)
             if experience.steps.indices.contains(stepIndex) {
                 currentState = newState
@@ -73,7 +73,7 @@ internal class ExperienceStateMachine {
             } else {
                 transition(to: .stepError(experience, currentIndex, "Flow error: step index \(stepIndex) does not exist"))
             }
-        case let (.postRenderStep, .end(experience)):
+        case let (.endStep, .end(experience)):
             currentState = newState
             handleEnd(experience)
         case let (.renderStep, .end(experience)):
@@ -102,7 +102,7 @@ internal class ExperienceStateMachine {
             handleEnd(experience)
 
         // MARK: Invalid state transitions
-        case let (_, .start(experience)):
+        case let (_, .begin(experience)):
             experienceLifecycleEventDelegate?.lifecycleEvent(.flowError(experience, "experience already active"))
             experienceLifecycleEventDelegate?.lifecycleEvent(.flowAborted(experience))
         case (.empty, _):
@@ -117,7 +117,7 @@ internal class ExperienceStateMachine {
 
     // MARK: - Transition Handlers
 
-    private func handleStart(_ experience: Experience) {
+    private func handleBegin(_ experience: Experience) {
         transition(to: .beginStep(.index(0)))
     }
 
@@ -157,7 +157,7 @@ internal class ExperienceStateMachine {
         storage.lastContentShownAt = Date()
     }
 
-    private func handlePostRenderStep(
+    private func handleEndStep(
         _ experience: Experience, _ stepIndex: Int, _ controller: UIViewController, nextState: ExperienceState
     ) {
         DispatchQueue.main.async {
@@ -206,7 +206,7 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
 
     func stepWillDisappear() {
         switch currentState {
-        case let .postRenderStep(_, _, controller):
+        case let .endStep(_, _, controller):
             guard controller.isBeingDismissed == true else { return }
         case let .renderStep(_, _, controller, _):
             guard controller.isBeingDismissed == true else { return }
@@ -219,7 +219,7 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
 
     func stepDidDisappear() {
         switch currentState {
-        case let .postRenderStep(experience, stepIndex, controller):
+        case let .endStep(experience, stepIndex, controller):
             guard controller.isBeingDismissed == true else { return }
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
@@ -284,14 +284,14 @@ extension ExperienceStateMachine.ExperienceState: CustomStringConvertible {
         switch self {
         case .empty:
             return ".empty"
-        case let .start(experience):
-            return ".start(experienceID: \(experience.id.uuidString))"
+        case let .begin(experience):
+            return ".begin(experienceID: \(experience.id.uuidString))"
         case let .beginStep(stepRef):
             return ".beginStep(ref: \(stepRef))"
         case let .renderStep(experience, stepIndex, _, _):
             return ".renderStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
-        case let .postRenderStep(experience, stepIndex, _):
-            return ".postRenderStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
+        case let .endStep(experience, stepIndex, _):
+            return ".endStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .stepError(experience, stepIndex, _):
             return ".stepError(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .end(experience):
