@@ -11,6 +11,7 @@ import Foundation
 internal enum ExperienceLifecycleEvent {
     case stepAttempted(Experience, Int)
     case stepStarted(Experience, Int)
+    case stepInteracted(Experience, Int)
     case stepCompleted(Experience, Int)
     case stepSkipped(Experience, Int)
     case stepError(Experience, Int, String)
@@ -29,6 +30,8 @@ internal enum ExperienceLifecycleEvent {
             return "appcues:step_attempted"
         case .stepStarted:
             return "appcues:step_started"
+        case .stepInteracted:
+            return "appcues:step_interacted"
         case .stepCompleted:
             return "appcues:step_completed"
         case .stepSkipped:
@@ -56,6 +59,7 @@ internal enum ExperienceLifecycleEvent {
         switch self {
         case .stepAttempted(let experience, _),
                 .stepStarted(let experience, _),
+                .stepInteracted(let experience, _),
                 .stepCompleted(let experience, _),
                 .stepSkipped(let experience, _),
                 .stepError(let experience, _, _),
@@ -83,28 +87,26 @@ internal enum ExperienceLifecycleEvent {
         let experience = self.experience
 
         var properties: [String: Any] = [
-            "flowId": experience.id.uuidString,
+            "flowId": experience.id.uuidString.lowercased(),
             "flowName": experience.name,
             "flowType": "journey",
-//            "flowVersion": 1605813710768,
-//            "sessionId": 1637343387619,
+//            "flowVersion": 1637337060531,
+//            "sessionId": 1637608358355,
 //            "localeName": "default",
 //            "localeId": "default",
-            "stepId": "-LSkOL1VIYZjcoDoef0u",
-            "stepType": "modal",
-            "stepNumber": 0
         ]
 
         switch self {
         case .stepAttempted(_, let index),
                 .stepStarted(_, let index),
+                .stepInteracted(_, let index),
                 .stepCompleted(_, let index),
                 .stepSkipped(_, let index),
                 .stepError(_, let index, _),
                 .stepAborted(_, let index):
             if experience.steps.indices.contains(index) {
                 let step = experience.steps[index]
-                properties["stepId"] = step.id.uuidString
+                properties["stepId"] = step.id.uuidString.lowercased()
                 properties["stepType"] = "modal"
                 properties["stepNumber"] = index
             }
