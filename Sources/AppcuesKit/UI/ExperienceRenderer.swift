@@ -35,7 +35,7 @@ internal class ExperienceRenderer {
 
     func show(experience: Experience) {
         stateMachine.clientAppcuesDelegate = appcues.delegate
-        stateMachine.transition(to: .start(experience))
+        stateMachine.transition(to: .begin(experience))
     }
 
     func show(stepInCurrentExperience stepRef: StepReference) {
