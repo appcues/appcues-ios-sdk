@@ -43,8 +43,7 @@ internal class ExperienceRenderer {
     }
 
     func dismissCurrentExperience() {
-        guard case let .renderStep(_, _, controller, _) = stateMachine.currentState else { return }
-        controller.dismiss(animated: true)
+        stateMachine.transition(to: .empty)
     }
 
     // Show a specified flow model on top of the current application.

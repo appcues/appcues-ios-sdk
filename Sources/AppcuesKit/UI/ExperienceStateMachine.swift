@@ -83,6 +83,13 @@ internal class ExperienceStateMachine {
         case (.end, .empty):
             currentState = newState
 
+        // MARK: Special cases
+        case let (.renderStep(_, _, controller, _), .empty):
+            // If currently rendering, but trying to dismiss the entire experience, call `UIViewController.dismiss()`
+            // to trigger the `ExperienceStepLifecycleHandler` handling of the dismissal.
+            // Don't set `currentState` here because the lifecycle handler will take care of it
+            controller.dismiss(animated: true)
+
         // MARK: Errors
         case let (_, .stepError(experience, stepIndex, reason)):
             // any state can transition to error
