@@ -214,12 +214,14 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
         switch currentState {
         case let .postRenderStep(experience, stepIndex, controller):
             guard controller.isBeingDismissed == true else { return }
+            experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
         case let .renderStep(experience, stepIndex, controller, _):
             guard controller.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
             experienceDidDisappear()
             if stepIndex == experience.steps.count - 1 {
+                experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
                 experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
                 experienceLifecycleEventDelegate?.lifecycleEvent(.flowCompleted(experience))
             } else {
