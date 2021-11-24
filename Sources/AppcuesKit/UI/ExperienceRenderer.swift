@@ -83,9 +83,38 @@ internal class ExperienceRenderer {
 
 extension ExperienceRenderer: ExperienceEventDelegate {
     func lifecycleEvent(_ event: ExperienceLifecycleEvent) {
-        print("Analytics Event: \(event.name) \(event.properties)")
-        // TODO: Charles causes an infinite loop here
-//        analyticsPublisher.track(name: event.name, properties: event.properties)
+        // TODO: Studio currently operates off of step-child events, so send those along, but in this temporary manner
+        // since eventually appcues:step_child_error, appcues:step_child_activated, and appcues:step_child_deactivated
+        // should be unneeded.
+        // This assumes the experience JSON step.id is actually the step child ID from studio, and that there's only
+        // ever one step per group in the web studio flow.
+        switch event {
+        case .stepError:
+            var properties = event.properties
+            properties["stepChildId"] = properties["stepId"]
+            properties["stepChildNumber"] = 0
+            analyticsPublisher.track(name: "appcues:step_child_error", properties: properties)
+        default:
+            break
+        }
+
+        // TODO: Charles causes an infinite event tracking loop here if Map Local is being used to return an experience
+        analyticsPublisher.track(name: event.name, properties: event.properties)
+
+        switch event {
+        case .stepStarted:
+            var properties = event.properties
+            properties["stepChildId"] = properties["stepId"]
+            properties["stepChildNumber"] = 0
+            analyticsPublisher.track(name: "appcues:step_child_activated", properties: properties)
+        case .stepCompleted:
+            var properties = event.properties
+            properties["stepChildId"] = properties["stepId"]
+            properties["stepChildNumber"] = 0
+            analyticsPublisher.track(name: "appcues:step_child_completed", properties: properties)
+        default:
+            break
+        }
     }
 }
 
