@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class DialogContainerViewController: UIViewController, AppcuesController {
+internal class DialogContainerViewController: UIViewController {
 
     lazy var containerView = DialogContainerView()
 

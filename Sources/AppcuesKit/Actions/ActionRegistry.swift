@@ -22,6 +22,7 @@ internal class ActionRegistry {
         register(action: AppcuesLaunchExperienceAction.self)
         register(action: AppcuesTrackAction.self)
         register(action: AppcuesUpdateProfileAction.self)
+        register(action: AppcuesSequentialContinueAction.self)
     }
 
     func register(action: ExperienceAction.Type) {
