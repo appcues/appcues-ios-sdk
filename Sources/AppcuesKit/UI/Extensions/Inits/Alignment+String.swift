@@ -14,13 +14,13 @@ extension Alignment {
     init?(vertical: String?, horizontal: String?) {
         switch (vertical, horizontal) {
         case ("top", "leading"): self = .topLeading
-        case ("top", "center"): self = .top
+        case ("top", "center"), ("top", nil): self = .top
         case ("top", "trailing"): self = .topTrailing
-        case ("center", "leading"): self = .leading
-        case ("center", "center"): self = .center
-        case ("center", "trailing"): self = .trailing
+        case ("center", "leading"), (nil, "leading"): self = .leading
+        case ("center", "center"), (nil, nil): self = .center
+        case ("center", "trailing"), (nil, "trailing"): self = .trailing
         case ("bottom", "leading"): self = .bottomLeading
-        case ("bottom", "center"): self = .bottom
+        case ("bottom", "center"), ("bottom", nil): self = .bottom
         case ("bottom", "trailing"): self = .bottomTrailing
         default: return nil
         }
