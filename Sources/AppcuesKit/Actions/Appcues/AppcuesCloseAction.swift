@@ -9,9 +9,6 @@
 import Foundation
 import UIKit
 
-/// Tags Appcues-specific view controllers to be ignored in automatic screen tracking.
-internal protocol AppcuesController {}
-
 internal struct AppcuesCloseAction: ExperienceAction {
 
     static let type = "@appcues/close"
@@ -21,10 +18,7 @@ internal struct AppcuesCloseAction: ExperienceAction {
     }
 
     func execute(inContext appcues: Appcues) {
-        guard let controller = UIApplication.shared.topViewController() else { return }
-        // TODO: https://github.com/appcues/appcues-ios-sdk/pull/41#discussion_r744807931
-        if controller is AppcuesController {
-            controller.dismiss(animated: true)
-        }
+        let experienceRenderer = appcues.container.resolve(ExperienceRenderer.self)
+        experienceRenderer.dismissCurrentExperience()
     }
 }

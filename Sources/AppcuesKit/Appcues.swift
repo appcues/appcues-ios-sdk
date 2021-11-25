@@ -26,6 +26,9 @@ public class Appcues {
     private var subscribers: [AnalyticsSubscriber] = []
     private var decorators: [TrackingDecorator] = []
 
+    /// The delegate object that manages and observes experience presentations.
+    public weak var delegate: AppcuesExperienceDelegate?
+
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
     public init(config: Config) {
