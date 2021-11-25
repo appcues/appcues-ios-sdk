@@ -81,9 +81,25 @@ extension ExperienceComponent: Decodable {
 extension ExperienceComponent {
     struct PagerModel: ComponentModel, Decodable {
         let id: UUID
-//        let progress: []
+        let progress: PagerProgressModel
         let items: [ExperienceComponent]
 
+        // Optional properties
+        let axis: String?
+        // swiftlint:disable:next discouraged_optional_boolean
+        let infinite: Bool?
+
+        let layout: Layout?
+        let style: Style?
+    }
+
+    struct PagerProgressModel: Decodable {
+        enum IndicatorType: String, Decodable {
+            case none
+            case dot
+        }
+
+        let type: IndicatorType
         let layout: Layout?
         let style: Style?
     }
