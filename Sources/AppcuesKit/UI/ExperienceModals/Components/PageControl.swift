@@ -48,30 +48,29 @@ extension PageControl: UIViewRepresentable {
         uiView.numberOfPages = numberOfPages
         uiView.currentPage = currentPage
 
-        // TODO: Convert `Color` to `UIColor` pre-iOS 14?
-        if #available(iOS 14.0, *) {
-            if let currentTintColor = context.environment.currentPageIndicatorTintColor {
-                uiView.currentPageIndicatorTintColor = UIColor(currentTintColor)
-            }
-            if let pageTintColor = context.environment.pageIndicatorTintColor {
-                uiView.pageIndicatorTintColor = UIColor(pageTintColor)
-            }
+        if let currentTintColor = context.environment.currentPageIndicatorTintColor {
+            uiView.currentPageIndicatorTintColor = currentTintColor
+        }
+        if let pageTintColor = context.environment.pageIndicatorTintColor {
+            uiView.pageIndicatorTintColor = pageTintColor
         }
     }
 }
 
+// NOTE: Using UIColor here instead of Color since iOS 13 has no nice way to convert a Color back to UIColor for the UIKit.UIPageControl.
+
 extension PageControl {
     struct TintColorEnvironmentKey: EnvironmentKey {
-        static let defaultValue: Color? = nil
+        static let defaultValue: UIColor? = nil
     }
 
     struct CurrentTintColorEnvironmentKey: EnvironmentKey {
-        static let defaultValue: Color? = nil
+        static let defaultValue: UIColor? = nil
     }
 }
 
 extension EnvironmentValues {
-    var pageIndicatorTintColor: Color? {
+    var pageIndicatorTintColor: UIColor? {
         get {
             self[PageControl.TintColorEnvironmentKey.self]
         } set {
@@ -79,7 +78,7 @@ extension EnvironmentValues {
         }
     }
 
-    var currentPageIndicatorTintColor: Color? {
+    var currentPageIndicatorTintColor: UIColor? {
         get {
             self[PageControl.CurrentTintColorEnvironmentKey.self]
         } set {
@@ -89,11 +88,11 @@ extension EnvironmentValues {
 }
 
 extension View {
-    func pageIndicatorTintColor(_ color: Color?) -> some View {
+    func pageIndicatorTintColor(_ color: UIColor?) -> some View {
         environment(\.pageIndicatorTintColor, color)
     }
 
-    func currentPageIndicatorTintColor(_ color: Color?) -> some View {
+    func currentPageIndicatorTintColor(_ color: UIColor?) -> some View {
         environment(\.currentPageIndicatorTintColor, color)
     }
 }

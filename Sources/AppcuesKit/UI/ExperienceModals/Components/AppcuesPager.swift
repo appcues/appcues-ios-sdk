@@ -35,8 +35,8 @@ internal struct AppcuesPager: View {
             if model.progress.type == .dot {
                 PageControl(numberOfPages: model.items.count, currentPage: $currentPage)
                     .frame(width: CGFloat(model.items.count * 18))
-                    .pageIndicatorTintColor(progressIndicatorStyle.backgroundColor)
-                    .currentPageIndicatorTintColor(progressIndicatorStyle.foregroundColor)
+                    .pageIndicatorTintColor(UIColor(hex: model.progress.style?.backgroundColor))
+                    .currentPageIndicatorTintColor(UIColor(hex: model.progress.style?.foregroundColor))
                     .applyInternalLayout(progressIndicatorLayout)
                     .applyBorderStyle(progressIndicatorStyle)
                     .applyExternalLayout(progressIndicatorLayout)
