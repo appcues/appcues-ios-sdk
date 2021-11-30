@@ -16,6 +16,7 @@ internal struct AppcuesStyle {
     let foregroundColor: Color?
     let backgroundColor: Color?
     let backgroundGradient: LinearGradient?
+    let shadow: ExperienceComponent.Style.RawShadow?
     let cornerRadius: CGFloat?
     let borderColor: Color?
     let borderWidth: CGFloat?
@@ -28,6 +29,7 @@ internal struct AppcuesStyle {
         self.foregroundColor = Color(hex: model?.foregroundColor)
         self.backgroundColor = Color(hex: model?.backgroundColor)
         self.backgroundGradient = LinearGradient(rawGradient: model?.backgroundGradient)
+        self.shadow = model?.shadow
         self.cornerRadius = CGFloat(model?.cornerRadius)
         self.borderColor = Color(hex: model?.borderColor)
         self.borderWidth = CGFloat(model?.borderWidth)
