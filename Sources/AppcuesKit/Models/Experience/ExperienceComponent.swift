@@ -239,6 +239,7 @@ extension ExperienceComponent {
         let foregroundColor: String?
         let backgroundColor: String?
         let backgroundGradient: RawGradient?
+        let shadow: RawShadow?
         let cornerRadius: Double?
         let borderColor: String?
         let borderWidth: Double?
@@ -253,6 +254,7 @@ extension ExperienceComponent {
             foregroundColor: String? = nil,
             backgroundColor: String? = nil,
             backgroundGradient: RawGradient? = nil,
+            shadow: RawShadow? = nil,
             cornerRadius: Double? = nil,
             borderColor: String? = nil,
             borderWidth: Double? = nil
@@ -266,6 +268,7 @@ extension ExperienceComponent {
             self.foregroundColor = foregroundColor
             self.backgroundColor = backgroundColor
             self.backgroundGradient = backgroundGradient
+            self.shadow = shadow
             self.cornerRadius = cornerRadius
             self.borderColor = borderColor
             self.borderWidth = borderWidth
@@ -279,5 +282,14 @@ extension ExperienceComponent.Style {
         let colors: [String]
         let startPoint: String
         let endPoint: String
+    }
+
+    struct RawShadow: Decodable {
+        let color: String
+        let radius: Double
+        // swiftlint:disable:next identifier_name
+        let x: Double
+        // swiftlint:disable:next identifier_name
+        let y: Double
     }
 }
