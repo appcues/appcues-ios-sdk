@@ -89,11 +89,7 @@ internal enum ExperienceLifecycleEvent {
         var properties: [String: Any] = [
             "flowId": experience.id.uuidString.lowercased(),
             "flowName": experience.name,
-            "flowType": "journey",
-//            "flowVersion": 1637337060531,
-//            "sessionId": 1637608358355,
-//            "localeName": "default",
-//            "localeId": "default",
+            "flowType": "journey"
         ]
 
         switch self {
