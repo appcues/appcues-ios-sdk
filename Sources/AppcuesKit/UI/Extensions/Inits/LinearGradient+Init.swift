@@ -12,7 +12,7 @@ extension LinearGradient {
 
     /// Init `LinearGradient` from an experience JSON model value.
     init?(rawGradient: ExperienceComponent.Style.RawGradient?) {
-        let colors = rawGradient?.colors.compactMap { Color(semanticColor: $0) }
+        let colors = rawGradient?.colors.compactMap { Color(dynamicColor: $0) }
         let startPoint = UnitPoint(string: rawGradient?.startPoint)
         let endPoint = UnitPoint(string: rawGradient?.endPoint)
 
