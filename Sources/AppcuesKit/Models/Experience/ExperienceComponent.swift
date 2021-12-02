@@ -236,12 +236,12 @@ extension ExperienceComponent {
         let letterSpacing: Double?
         let lineSpacing: Double?
         let textAlignment: String?
-        let foregroundColor: SemanticColor?
-        let backgroundColor: SemanticColor?
+        let foregroundColor: DynamicColor?
+        let backgroundColor: DynamicColor?
         let backgroundGradient: RawGradient?
         let shadow: RawShadow?
         let cornerRadius: Double?
-        let borderColor: SemanticColor?
+        let borderColor: DynamicColor?
         let borderWidth: Double?
 
         internal init(
@@ -251,12 +251,12 @@ extension ExperienceComponent {
             letterSpacing: Double? = nil,
             lineSpacing: Double? = nil,
             textAlignment: String? = nil,
-            foregroundColor: SemanticColor? = nil,
-            backgroundColor: SemanticColor? = nil,
+            foregroundColor: DynamicColor? = nil,
+            backgroundColor: DynamicColor? = nil,
             backgroundGradient: RawGradient? = nil,
             shadow: RawShadow? = nil,
             cornerRadius: Double? = nil,
-            borderColor: SemanticColor? = nil,
+            borderColor: DynamicColor? = nil,
             borderWidth: Double? = nil
         ) {
             self.fontName = fontName
@@ -279,7 +279,7 @@ extension ExperienceComponent {
 
 extension ExperienceComponent.Style {
 
-    struct SemanticColor: Decodable, ExpressibleByStringLiteral {
+    struct DynamicColor: Decodable, ExpressibleByStringLiteral {
         let light: String
         let dark: String?
 
@@ -291,13 +291,13 @@ extension ExperienceComponent.Style {
     }
 
     struct RawGradient: Decodable {
-        let colors: [SemanticColor]
+        let colors: [DynamicColor]
         let startPoint: String
         let endPoint: String
     }
 
     struct RawShadow: Decodable {
-        let color: SemanticColor
+        let color: DynamicColor
         let radius: Double
         // swiftlint:disable:next identifier_name
         let x: Double

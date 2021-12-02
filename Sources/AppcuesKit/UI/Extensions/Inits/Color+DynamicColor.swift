@@ -1,5 +1,5 @@
 //
-//  Color+SemanticColor.swift
+//  Color+DynamicColor.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-12-02.
@@ -9,8 +9,8 @@
 import SwiftUI
 
 extension UIColor {
-    convenience init?(semanticColor: ExperienceComponent.Style.SemanticColor?) {
-        guard let semanticColor = semanticColor else { return nil }
+    convenience init?(dynamicColor: ExperienceComponent.Style.DynamicColor?) {
+        guard let semanticColor = dynamicColor else { return nil }
 
         self.init { traitCollection in
             if let dark = UIColor(hex: semanticColor.dark), traitCollection.userInterfaceStyle == .dark {
@@ -23,8 +23,8 @@ extension UIColor {
 }
 
 extension Color {
-    init?(semanticColor: ExperienceComponent.Style.SemanticColor?) {
-        guard let uiColor = UIColor(semanticColor: semanticColor) else { return nil }
+    init?(dynamicColor: ExperienceComponent.Style.DynamicColor?) {
+        guard let uiColor = UIColor(dynamicColor: dynamicColor) else { return nil }
         self.init(uiColor)
     }
 }

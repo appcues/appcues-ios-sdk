@@ -26,12 +26,12 @@ internal struct AppcuesStyle {
         self.letterSpacing = CGFloat(model?.letterSpacing)
         self.lineSpacing = CGFloat(model?.lineSpacing)
         self.textAlignment = TextAlignment(string: model?.textAlignment)
-        self.foregroundColor = Color(semanticColor: model?.foregroundColor)
-        self.backgroundColor = Color(semanticColor: model?.backgroundColor)
+        self.foregroundColor = Color(dynamicColor: model?.foregroundColor)
+        self.backgroundColor = Color(dynamicColor: model?.backgroundColor)
         self.backgroundGradient = LinearGradient(rawGradient: model?.backgroundGradient)
         self.shadow = model?.shadow
         self.cornerRadius = CGFloat(model?.cornerRadius)
-        self.borderColor = Color(semanticColor: model?.borderColor)
+        self.borderColor = Color(dynamicColor: model?.borderColor)
         self.borderWidth = CGFloat(model?.borderWidth)
     }
 }
