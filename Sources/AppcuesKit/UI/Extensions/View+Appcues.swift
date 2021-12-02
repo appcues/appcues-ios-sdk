@@ -59,7 +59,7 @@ extension View {
             }
             .ifLet(style.shadow) { view, val in
                 view.shadow(
-                    color: Color(hex: val.color) ?? Color(.sRGBLinear, white: 0, opacity: 0.33),
+                    color: Color(semanticColor: val.color) ?? Color(.sRGBLinear, white: 0, opacity: 0.33),
                     radius: val.radius,
                     x: val.x,
                     y: val.y)

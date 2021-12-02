@@ -236,12 +236,12 @@ extension ExperienceComponent {
         let letterSpacing: Double?
         let lineSpacing: Double?
         let textAlignment: String?
-        let foregroundColor: String?
-        let backgroundColor: String?
+        let foregroundColor: SemanticColor?
+        let backgroundColor: SemanticColor?
         let backgroundGradient: RawGradient?
         let shadow: RawShadow?
         let cornerRadius: Double?
-        let borderColor: String?
+        let borderColor: SemanticColor?
         let borderWidth: Double?
 
         internal init(
@@ -251,12 +251,12 @@ extension ExperienceComponent {
             letterSpacing: Double? = nil,
             lineSpacing: Double? = nil,
             textAlignment: String? = nil,
-            foregroundColor: String? = nil,
-            backgroundColor: String? = nil,
+            foregroundColor: SemanticColor? = nil,
+            backgroundColor: SemanticColor? = nil,
             backgroundGradient: RawGradient? = nil,
             shadow: RawShadow? = nil,
             cornerRadius: Double? = nil,
-            borderColor: String? = nil,
+            borderColor: SemanticColor? = nil,
             borderWidth: Double? = nil
         ) {
             self.fontName = fontName
@@ -278,14 +278,26 @@ extension ExperienceComponent {
 }
 
 extension ExperienceComponent.Style {
+
+    struct SemanticColor: Decodable, ExpressibleByStringLiteral {
+        let light: String
+        let dark: String?
+
+        // A hex string maps to light mode only
+        init(stringLiteral: String) {
+            self.light = stringLiteral
+            self.dark = nil
+        }
+    }
+
     struct RawGradient: Decodable {
-        let colors: [String]
+        let colors: [SemanticColor]
         let startPoint: String
         let endPoint: String
     }
 
     struct RawShadow: Decodable {
-        let color: String
+        let color: SemanticColor
         let radius: Double
         // swiftlint:disable:next identifier_name
         let x: Double
