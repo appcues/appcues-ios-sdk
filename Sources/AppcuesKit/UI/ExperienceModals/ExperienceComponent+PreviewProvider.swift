@@ -57,6 +57,7 @@ extension ExperienceComponent {
     static let vstackHero = EC.StackModel(
         id: UUID(),
         orientation: .vertical,
+        distribution: .center,
         spacing: 12,
         items: [
             .text(EC.textTitle),
