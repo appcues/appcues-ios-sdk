@@ -54,8 +54,9 @@ extension ExperienceComponent {
         contentMode: "fill",
         style: ExperienceComponent.Style(height: 300, width: 370))
 
-    static let vstackHero = EC.ColumnModel(
+    static let vstackHero = EC.StackModel(
         id: UUID(),
+        orientation: .vertical,
         items: [
             .text(EC.textTitle),
             .text(EC.textSubtitle),
@@ -67,7 +68,7 @@ extension ExperienceComponent {
         id: UUID(),
         items: [
             .image(EC.imageBanner),
-            .column(EC.vstackHero)
+            .stack(EC.vstackHero)
         ],
         style: nil)
 }

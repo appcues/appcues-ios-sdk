@@ -1,5 +1,5 @@
 //
-//  AppcuesColumn.swift
+//  AppcuesStack.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-02.
@@ -8,32 +8,44 @@
 
 import SwiftUI
 
-internal struct AppcuesColumn: View {
-    let model: ExperienceComponent.ColumnModel
+internal struct AppcuesStack: View {
+    let model: ExperienceComponent.StackModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
         let style = AppcuesStyle(from: model.style)
 
-        VStack(alignment: style.horizontalAlignment, spacing: style.spacing) {
-            ForEach(model.items) {
-                AnyView($0.view)
+        switch model.orientation {
+        case .vertical:
+            VStack(alignment: style.horizontalAlignment, spacing: style.spacing) {
+                ForEach(model.items) {
+                    AnyView($0.view)
+                }
             }
+            .setupActions(viewModel.groupedActionHandlers(for: model.id))
+            .applyAllAppcues(style)
+        case .horizontal:
+            HStack(alignment: style.verticalAlignment, spacing: style.spacing) {
+                ForEach(model.items) {
+                    AnyView($0.view)
+                }
+            }
+            .setupActions(viewModel.groupedActionHandlers(for: model.id))
+            .applyAllAppcues(style)
         }
-        .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyAllAppcues(style)
     }
 }
 
 #if DEBUG
-internal struct AppcuesColumnPreview: PreviewProvider {
+internal struct AppcuesStackPreview: PreviewProvider {
 
     static var previews: some View {
         // swiftlint:disable:next closure_body_length
         Group {
-            AppcuesColumn(model: EC.ColumnModel(
+            AppcuesStack(model: EC.StackModel(
                 id: UUID(),
+                orientation: .vertical,
                 items: [
                     .text(EC.textTitle),
                     .text(EC.textSubtitle),
@@ -44,8 +56,9 @@ internal struct AppcuesColumnPreview: PreviewProvider {
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
 
-            AppcuesColumn(model: EC.ColumnModel(
+            AppcuesStack(model: EC.StackModel(
                 id: UUID(),
+                orientation: .vertical,
                 items: [
                     .text(EC.textTitle),
                     .text(EC.textSubtitle),
@@ -62,6 +75,19 @@ internal struct AppcuesColumnPreview: PreviewProvider {
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
+
+            AppcuesStack(model: EC.StackModel(
+                id: UUID(),
+                orientation: .horizontal,
+                items: [
+                    .image(EC.imageSymbol),
+                    .text(EC.textPlain)
+                ],
+                style: EC.Style(backgroundColor: "#eee"))
+            )
+                .previewLayout(PreviewLayout.sizeThatFits)
+                .padding()
+
         }
     }
 }
