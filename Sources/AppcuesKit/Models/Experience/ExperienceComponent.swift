@@ -170,11 +170,13 @@ extension ExperienceComponent {
 
     struct SpacerModel: ComponentModel, Decodable {
         let id: UUID
+
+        let spacing: Double?
+
         let style: Style?
     }
 
     struct Style: Decodable {
-        let spacing: Double?
         let verticalAlignment: String?
         let horizontalAlignment: String?
         let paddingTop: Double?
@@ -204,7 +206,6 @@ extension ExperienceComponent {
         let borderWidth: Double?
 
         internal init(
-            spacing: Double? = nil,
             verticalAlignment: String? = nil,
             horizontalAlignment: String? = nil,
             paddingTop: Double? = nil,
@@ -231,7 +232,6 @@ extension ExperienceComponent {
             borderColor: DynamicColor? = nil,
             borderWidth: Double? = nil
         ) {
-            self.spacing = spacing
             self.verticalAlignment = verticalAlignment
             self.horizontalAlignment = horizontalAlignment
             self.paddingTop = paddingTop
