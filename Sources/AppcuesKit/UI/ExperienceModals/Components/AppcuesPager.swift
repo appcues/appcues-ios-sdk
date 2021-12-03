@@ -53,9 +53,9 @@ internal struct AppcuesPagerPreview: PreviewProvider {
                 id: UUID(),
                 progress: EC.PagerProgressModel(type: .dot, style: nil),
                 items: [
-                    .column(EC.vstackHero),
-                    .column(EC.vstackHero),
-                    .column(EC.vstackHero)
+                    .stack(EC.vstackHero),
+                    .stack(EC.vstackHero),
+                    .stack(EC.vstackHero)
                 ],
                 axis: nil,
                 infinite: false,

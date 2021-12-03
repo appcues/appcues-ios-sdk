@@ -16,8 +16,7 @@ internal protocol ComponentModel {
 @dynamicMemberLookup
 internal enum ExperienceComponent {
     case pager(PagerModel)
-    case column(ColumnModel)
-    case row(RowModel)
+    case stack(StackModel)
     case box(BoxModel)
     case text(TextModel)
     case button(ButtonModel)
@@ -27,8 +26,7 @@ internal enum ExperienceComponent {
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
         case .pager(let model): return model[keyPath: keyPath]
-        case .column(let model): return model[keyPath: keyPath]
-        case .row(let model): return model[keyPath: keyPath]
+        case .stack(let model): return model[keyPath: keyPath]
         case .box(let model): return model[keyPath: keyPath]
         case .text(let model): return model[keyPath: keyPath]
         case .button(let model): return model[keyPath: keyPath]
@@ -59,10 +57,8 @@ extension ExperienceComponent: Decodable {
             self = try container.decode(ExperienceComponent.self, forKey: .content)
         case "pager":
             self = .pager(try modelContainer.decode(PagerModel.self))
-        case "column":
-            self = .column(try modelContainer.decode(ColumnModel.self))
-        case "row":
-            self = .row(try modelContainer.decode(RowModel.self))
+        case "stack":
+            self = .stack(try modelContainer.decode(StackModel.self))
         case "box":
             self = .box(try modelContainer.decode(BoxModel.self))
         case "text":
@@ -104,15 +100,13 @@ extension ExperienceComponent {
         let style: Style?
     }
 
-    struct ColumnModel: ComponentModel, Decodable {
-        let id: UUID
-        let items: [ExperienceComponent]
+    struct StackModel: ComponentModel, Decodable {
+        enum Orientation: String, Decodable {
+            case horizontal, vertical
+        }
 
-        let style: Style?
-    }
-
-    struct RowModel: ComponentModel, Decodable {
         let id: UUID
+        let orientation: Orientation
         let items: [ExperienceComponent]
 
         let style: Style?
