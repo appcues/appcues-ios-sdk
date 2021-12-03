@@ -46,6 +46,7 @@ extension ExperienceComponent: Identifiable {
 extension ExperienceComponent: Decodable {
     enum CodingKeys: CodingKey {
         case type
+        case content
     }
 
     init(from decoder: Decoder) throws {
@@ -55,6 +56,8 @@ extension ExperienceComponent: Decodable {
         let type = try container.decode(String.self, forKey: .type)
 
         switch type {
+        case "block":
+            self = try container.decode(ExperienceComponent.self, forKey: .content)
         case "pager":
             self = .pager(try modelContainer.decode(PagerModel.self))
         case "column":
