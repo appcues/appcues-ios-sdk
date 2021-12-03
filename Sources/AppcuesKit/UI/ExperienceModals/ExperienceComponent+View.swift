@@ -27,7 +27,7 @@ extension ExperienceComponent {
         case .image(let model):
             AppcuesImage(model: model)
         case .spacer(let model):
-            Spacer(minLength: CGFloat(model.layout?.spacing))
+            Spacer(minLength: CGFloat(model.style?.spacing))
         }
     }
 }

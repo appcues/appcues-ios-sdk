@@ -10,7 +10,6 @@ import Foundation
 
 internal protocol ComponentModel {
     var id: UUID { get }
-    var layout: ExperienceComponent.Layout? { get }
     var style: ExperienceComponent.Style? { get }
 }
 
@@ -92,7 +91,6 @@ extension ExperienceComponent {
         // swiftlint:disable:next discouraged_optional_boolean
         let infinite: Bool?
 
-        let layout: Layout?
         let style: Style?
     }
 
@@ -103,7 +101,6 @@ extension ExperienceComponent {
         }
 
         let type: IndicatorType
-        let layout: Layout?
         let style: Style?
     }
 
@@ -111,7 +108,6 @@ extension ExperienceComponent {
         let id: UUID
         let items: [ExperienceComponent]
 
-        let layout: Layout?
         let style: Style?
     }
 
@@ -119,7 +115,6 @@ extension ExperienceComponent {
         let id: UUID
         let items: [ExperienceComponent]
 
-        let layout: Layout?
         let style: Style?
     }
 
@@ -127,7 +122,6 @@ extension ExperienceComponent {
         let id: UUID
         let items: [ExperienceComponent]
 
-        let layout: Layout?
         let style: Style?
     }
 
@@ -135,7 +129,6 @@ extension ExperienceComponent {
         let id: UUID
         let text: String
 
-        let layout: Layout?
         let style: Style?
     }
 
@@ -143,7 +136,6 @@ extension ExperienceComponent {
         let id: UUID
         let text: String
 
-        let layout: Layout?
         let style: Style?
     }
 
@@ -154,26 +146,23 @@ extension ExperienceComponent {
         let symbolName: String?
         let contentMode: String?
 
-        let layout: Layout?
         let style: Style?
 
         /// URL init
-        internal init(imageUrl: URL?, contentMode: String?, layout: ExperienceComponent.Layout?, style: ExperienceComponent.Style?) {
+        internal init(imageUrl: URL?, contentMode: String?, style: ExperienceComponent.Style?) {
             self.id = UUID()
             self.imageUrl = imageUrl
             self.symbolName = nil
             self.contentMode = contentMode
-            self.layout = layout
             self.style = style
         }
 
         /// Symbol init
-        internal init(symbolName: String?, layout: ExperienceComponent.Layout?, style: ExperienceComponent.Style?) {
+        internal init(symbolName: String?, style: ExperienceComponent.Style?) {
             self.id = UUID()
             self.imageUrl = nil
             self.symbolName = symbolName
             self.contentMode = "fit"
-            self.layout = layout
             self.style = style
         }
 
@@ -181,11 +170,10 @@ extension ExperienceComponent {
 
     struct SpacerModel: ComponentModel, Decodable {
         let id: UUID
-        let layout: Layout?
         let style: Style?
     }
 
-    struct Layout: Decodable {
+    struct Style: Decodable {
         let spacing: Double?
         let verticalAlignment: String?
         let horizontalAlignment: String?
@@ -201,38 +189,6 @@ extension ExperienceComponent {
         // A value of `-1` signifies "fill width".
         let width: Double?
 
-        internal init(
-            spacing: Double? = nil,
-            verticalAlignment: String? = nil,
-            horizontalAlignment: String? = nil,
-            paddingTop: Double? = nil,
-            paddingLeading: Double? = nil,
-            paddingBottom: Double? = nil,
-            paddingTrailing: Double? = nil,
-            marginTop: Double? = nil,
-            marginLeading: Double? = nil,
-            marginBottom: Double? = nil,
-            marginTrailing: Double? = nil,
-            height: Double? = nil,
-            width: Double? = nil
-        ) {
-            self.spacing = spacing
-            self.verticalAlignment = verticalAlignment
-            self.horizontalAlignment = horizontalAlignment
-            self.paddingTop = paddingTop
-            self.paddingLeading = paddingLeading
-            self.paddingBottom = paddingBottom
-            self.paddingTrailing = paddingTrailing
-            self.marginTop = marginTop
-            self.marginLeading = marginLeading
-            self.marginBottom = marginBottom
-            self.marginTrailing = marginTrailing
-            self.height = height
-            self.width = width
-        }
-    }
-
-    struct Style: Decodable {
         let fontName: String?
         let fontSize: Double?
         let fontWeight: String?
@@ -248,6 +204,19 @@ extension ExperienceComponent {
         let borderWidth: Double?
 
         internal init(
+            spacing: Double? = nil,
+            verticalAlignment: String? = nil,
+            horizontalAlignment: String? = nil,
+            paddingTop: Double? = nil,
+            paddingLeading: Double? = nil,
+            paddingBottom: Double? = nil,
+            paddingTrailing: Double? = nil,
+            marginTop: Double? = nil,
+            marginLeading: Double? = nil,
+            marginBottom: Double? = nil,
+            marginTrailing: Double? = nil,
+            height: Double? = nil,
+            width: Double? = nil,
             fontName: String? = nil,
             fontSize: Double? = nil,
             fontWeight: String? = nil,
@@ -262,6 +231,20 @@ extension ExperienceComponent {
             borderColor: DynamicColor? = nil,
             borderWidth: Double? = nil
         ) {
+            self.spacing = spacing
+            self.verticalAlignment = verticalAlignment
+            self.horizontalAlignment = horizontalAlignment
+            self.paddingTop = paddingTop
+            self.paddingLeading = paddingLeading
+            self.paddingBottom = paddingBottom
+            self.paddingTrailing = paddingTrailing
+            self.marginTop = marginTop
+            self.marginLeading = marginLeading
+            self.marginBottom = marginBottom
+            self.marginTrailing = marginTrailing
+            self.height = height
+            self.width = width
+
             self.fontName = fontName
             self.fontSize = fontSize
             self.fontWeight = fontWeight

@@ -37,11 +37,11 @@ extension View {
             }
     }
 
-    func applyInternalLayout(_ layout: AppcuesLayout) -> some View {
+    func applyInternalLayout(_ style: AppcuesStyle) -> some View {
         self
-            .padding(layout.padding)
-            .frame(width: layout.width, height: layout.height)
-            .if(layout.fillWidth) { view in
+            .padding(style.padding)
+            .frame(width: style.width, height: style.height)
+            .if(style.fillWidth) { view in
                 view.frame(maxWidth: .infinity)
             }
     }
@@ -76,18 +76,18 @@ extension View {
             }
     }
 
-    func applyExternalLayout(_ layout: AppcuesLayout) -> some View {
+    func applyExternalLayout(_ style: AppcuesStyle) -> some View {
         self
-            .padding(layout.margin)
+            .padding(style.margin)
     }
 
-    func applyAllAppcues(_ layout: AppcuesLayout, _ style: AppcuesStyle) -> some View {
+    func applyAllAppcues(_ style: AppcuesStyle) -> some View {
         self
             .applyForegroundStyle(style)
-            .applyInternalLayout(layout)
+            .applyInternalLayout(style)
             .applyBackgroundStyle(style)
             .applyBorderStyle(style)
-            .applyExternalLayout(layout)
+            .applyExternalLayout(style)
     }
 }
 

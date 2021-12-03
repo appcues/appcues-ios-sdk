@@ -15,7 +15,6 @@ internal struct AppcuesImage: View {
     @Environment(\.imageCache) var imageCache: SessionImageCache
 
     var body: some View {
-        let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
 
         if let url = model.imageUrl {
@@ -27,12 +26,12 @@ internal struct AppcuesImage: View {
             }
             .clipped()
             .setupActions(viewModel.groupedActionHandlers(for: model.id))
-            .applyAllAppcues(layout, style)
+            .applyAllAppcues(style)
         } else {
             Image(systemName: model.symbolName ?? "")
                 .clipped()
                 .setupActions(viewModel.groupedActionHandlers(for: model.id))
-                .applyAllAppcues(layout, style)
+                .applyAllAppcues(style)
         }
     }
 }
@@ -54,8 +53,7 @@ internal struct AppcuesImagePreview: PreviewProvider {
             AppcuesImage(model: EC.ImageModel(
                 imageUrl: imageURL,
                 contentMode: "fit",
-                layout: EC.Layout(height: 100, width: 100),
-                style: EC.Style(backgroundColor: "#eee"))
+                style: EC.Style(height: 100, width: 100, backgroundColor: "#eee"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()

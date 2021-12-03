@@ -14,16 +14,15 @@ internal struct AppcuesColumn: View {
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
-        let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
 
-        VStack(alignment: layout.horizontalAlignment, spacing: layout.spacing) {
+        VStack(alignment: style.horizontalAlignment, spacing: style.spacing) {
             ForEach(model.items) {
                 AnyView($0.view)
             }
         }
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyAllAppcues(layout, style)
+        .applyAllAppcues(style)
     }
 }
 
@@ -40,7 +39,6 @@ internal struct AppcuesColumnPreview: PreviewProvider {
                     .text(EC.textSubtitle),
                     .button(EC.buttonPrimary)
                 ],
-                layout: nil,
                 style: EC.Style(backgroundColor: "#333"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
@@ -53,13 +51,14 @@ internal struct AppcuesColumnPreview: PreviewProvider {
                     .text(EC.textSubtitle),
                     .button(EC.buttonPrimary)
                 ],
-                layout: EC.Layout(spacing: 48,
-                                  horizontalAlignment: "leading",
-                                  paddingTop: 8,
-                                  paddingLeading: 8,
-                                  paddingBottom: 8,
-                                  paddingTrailing: 8),
-                style: EC.Style(backgroundColor: "#333"))
+                style: EC.Style(
+                    spacing: 48,
+                    horizontalAlignment: "leading",
+                    paddingTop: 8,
+                    paddingLeading: 8,
+                    paddingBottom: 8,
+                    paddingTrailing: 8,
+                    backgroundColor: "#333"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()

@@ -14,16 +14,15 @@ internal struct AppcuesBox: View {
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
-        let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
 
-        ZStack(alignment: layout.alignment) {
+        ZStack(alignment: style.alignment) {
             ForEach(model.items) {
                 AnyView($0.view)
             }
         }
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyAllAppcues(layout, style)
+        .applyAllAppcues(style)
     }
 }
 
@@ -42,8 +41,7 @@ internal struct AppcuesBoxPreview: PreviewProvider {
                     .image(EC.imageBanner),
                     .text(EC.textTitle)
                 ],
-                layout: EC.Layout(verticalAlignment: "top", horizontalAlignment: "leading"),
-                style: nil)
+                style: EC.Style(verticalAlignment: "top", horizontalAlignment: "leading"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
