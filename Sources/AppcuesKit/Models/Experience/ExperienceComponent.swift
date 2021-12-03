@@ -104,9 +104,14 @@ extension ExperienceComponent {
         enum Orientation: String, Decodable {
             case horizontal, vertical
         }
+        enum Distribution: String, Decodable {
+            case center, equal
+        }
 
         let id: UUID
         let orientation: Orientation
+        // distribution is used by horizontal oriented stacks only
+        let distribution: Distribution?
         let spacing: Double?
         let items: [ExperienceComponent]
 
