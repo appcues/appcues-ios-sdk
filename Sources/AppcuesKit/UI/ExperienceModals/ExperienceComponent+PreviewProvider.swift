@@ -57,12 +57,13 @@ extension ExperienceComponent {
     static let vstackHero = EC.StackModel(
         id: UUID(),
         orientation: .vertical,
+        spacing: 12,
         items: [
             .text(EC.textTitle),
             .text(EC.textSubtitle),
             .button(EC.buttonCallToAction)
         ],
-        style: EC.Style(spacing: 12))
+        style: nil)
 
     static let zstackHero = EC.BoxModel(
         id: UUID(),

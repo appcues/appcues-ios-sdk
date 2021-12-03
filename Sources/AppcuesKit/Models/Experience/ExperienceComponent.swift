@@ -107,6 +107,7 @@ extension ExperienceComponent {
 
         let id: UUID
         let orientation: Orientation
+        let spacing: Double?
         let items: [ExperienceComponent]
 
         let style: Style?
