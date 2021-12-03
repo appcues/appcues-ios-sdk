@@ -18,7 +18,7 @@ internal struct AppcuesStack: View {
 
         switch model.orientation {
         case .vertical:
-            VStack(alignment: style.horizontalAlignment, spacing: style.spacing) {
+            VStack(alignment: style.horizontalAlignment, spacing: CGFloat(model.spacing ?? 0)) {
                 ForEach(model.items) {
                     AnyView($0.view)
                 }
@@ -26,7 +26,7 @@ internal struct AppcuesStack: View {
             .setupActions(viewModel.groupedActionHandlers(for: model.id))
             .applyAllAppcues(style)
         case .horizontal:
-            HStack(alignment: style.verticalAlignment, spacing: style.spacing) {
+            HStack(alignment: style.verticalAlignment, spacing: CGFloat(model.spacing ?? 0)) {
                 ForEach(model.items) {
                     AnyView($0.view)
                 }
@@ -46,6 +46,7 @@ internal struct AppcuesStackPreview: PreviewProvider {
             AppcuesStack(model: EC.StackModel(
                 id: UUID(),
                 orientation: .vertical,
+                spacing: 8,
                 items: [
                     .text(EC.textTitle),
                     .text(EC.textSubtitle),
@@ -59,6 +60,7 @@ internal struct AppcuesStackPreview: PreviewProvider {
             AppcuesStack(model: EC.StackModel(
                 id: UUID(),
                 orientation: .vertical,
+                spacing: 8,
                 items: [
                     .text(EC.textTitle),
                     .text(EC.textSubtitle),
@@ -79,6 +81,7 @@ internal struct AppcuesStackPreview: PreviewProvider {
             AppcuesStack(model: EC.StackModel(
                 id: UUID(),
                 orientation: .horizontal,
+                spacing: 8,
                 items: [
                     .image(EC.imageSymbol),
                     .text(EC.textPlain)

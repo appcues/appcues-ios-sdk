@@ -11,7 +11,6 @@ import SwiftUI
 internal struct AppcuesStyle {
     let padding: EdgeInsets
     let margin: EdgeInsets
-    let spacing: CGFloat?
     let height: CGFloat?
     let width: CGFloat?
     let fillWidth: Bool
@@ -43,7 +42,6 @@ internal struct AppcuesStyle {
             leading: model?.marginLeading ?? 0,
             bottom: model?.marginBottom ?? 0,
             trailing: model?.marginTrailing ?? 0)
-        self.spacing = CGFloat(model?.spacing)
         self.height = CGFloat(model?.height)
 
         if let width = model?.width, width > 0 {
