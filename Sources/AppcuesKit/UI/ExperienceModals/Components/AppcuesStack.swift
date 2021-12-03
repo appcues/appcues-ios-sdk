@@ -78,14 +78,13 @@ internal struct AppcuesStackPreview: PreviewProvider {
                 id: UUID(),
                 orientation: .vertical,
                 distribution: .center,
-                spacing: 8,
+                spacing: 48,
                 items: [
                     .text(EC.textTitle),
                     .text(EC.textSubtitle),
                     .button(EC.buttonPrimary)
                 ],
                 style: EC.Style(
-                    spacing: 48,
                     horizontalAlignment: "leading",
                     paddingTop: 8,
                     paddingLeading: 8,
