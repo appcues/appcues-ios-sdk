@@ -14,16 +14,15 @@ internal struct AppcuesRow: View {
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
-        let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
 
-        HStack(alignment: layout.verticalAlignment, spacing: layout.spacing) {
+        HStack(alignment: style.verticalAlignment, spacing: style.spacing) {
             ForEach(model.items) {
                 AnyView($0.view)
             }
         }
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyAllAppcues(layout, style)
+        .applyAllAppcues(style)
     }
 }
 
@@ -38,7 +37,6 @@ internal struct AppcuesRowPreview: PreviewProvider {
                     .image(EC.imageSymbol),
                     .text(EC.textPlain)
                 ],
-                layout: nil,
                 style: EC.Style(backgroundColor: "#eee"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)

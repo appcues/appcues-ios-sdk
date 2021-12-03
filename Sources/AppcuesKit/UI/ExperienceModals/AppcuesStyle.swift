@@ -9,6 +9,17 @@
 import SwiftUI
 
 internal struct AppcuesStyle {
+    let padding: EdgeInsets
+    let margin: EdgeInsets
+    let spacing: CGFloat?
+    let height: CGFloat?
+    let width: CGFloat?
+    let fillWidth: Bool
+
+    let alignment: Alignment
+    let horizontalAlignment: HorizontalAlignment
+    let verticalAlignment: VerticalAlignment
+
     let font: Font?
     let letterSpacing: CGFloat?
     let lineSpacing: CGFloat?
@@ -22,6 +33,30 @@ internal struct AppcuesStyle {
     let borderWidth: CGFloat?
 
     init(from model: ExperienceComponent.Style?) {
+        self.padding = EdgeInsets(
+            top: model?.paddingTop ?? 0,
+            leading: model?.paddingLeading ?? 0,
+            bottom: model?.paddingBottom ?? 0,
+            trailing: model?.paddingTrailing ?? 0)
+        self.margin = EdgeInsets(
+            top: model?.marginTop ?? 0,
+            leading: model?.marginLeading ?? 0,
+            bottom: model?.marginBottom ?? 0,
+            trailing: model?.marginTrailing ?? 0)
+        self.spacing = CGFloat(model?.spacing)
+        self.height = CGFloat(model?.height)
+
+        if let width = model?.width, width > 0 {
+            self.width = CGFloat(width)
+        } else {
+            self.width = nil
+        }
+        self.fillWidth = model?.width?.isEqual(to: -1) ?? false
+
+        self.alignment = Alignment(vertical: model?.verticalAlignment, horizontal: model?.horizontalAlignment) ?? .center
+        self.horizontalAlignment = HorizontalAlignment(string: model?.horizontalAlignment) ?? .center
+        self.verticalAlignment = VerticalAlignment(string: model?.verticalAlignment) ?? .center
+
         self.font = Font(name: model?.fontName, size: model?.fontSize, weight: model?.fontWeight)
         self.letterSpacing = CGFloat(model?.letterSpacing)
         self.lineSpacing = CGFloat(model?.lineSpacing)

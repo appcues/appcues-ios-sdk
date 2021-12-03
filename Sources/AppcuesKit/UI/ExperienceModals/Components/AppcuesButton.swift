@@ -14,7 +14,6 @@ internal struct AppcuesButton: View {
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
-        let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
 
         Button() {
@@ -23,12 +22,12 @@ internal struct AppcuesButton: View {
             Text(model.text)
                 .applyTextStyle(style)
                 .applyForegroundStyle(style)
-                .applyInternalLayout(layout)
+                .applyInternalLayout(style)
         }
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
         .applyBackgroundStyle(style)
         .applyBorderStyle(style)
-        .applyExternalLayout(layout)
+        .applyExternalLayout(style)
     }
 }
 
@@ -39,7 +38,6 @@ internal struct AppcuesButtonPreview: PreviewProvider {
             AppcuesButton(model: EC.ButtonModel(
                 id: UUID(),
                 text: "Default Button",
-                layout: nil,
                 style: nil)
             )
                 .previewLayout(PreviewLayout.sizeThatFits)

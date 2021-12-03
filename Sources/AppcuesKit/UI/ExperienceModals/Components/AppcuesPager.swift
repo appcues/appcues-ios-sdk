@@ -16,15 +16,12 @@ internal struct AppcuesPager: View {
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
-        let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
-
-        let progressIndicatorLayout = AppcuesLayout(from: model.progress.layout)
         let progressIndicatorStyle = AppcuesStyle(from: model.progress.style)
 
         let axis = Axis(string: model.axis) ?? .horizontal
 
-        ZStack(alignment: progressIndicatorLayout.alignment) {
+        ZStack(alignment: progressIndicatorStyle.alignment) {
             PagerView(
                 axis: axis,
                 pages: model.items.map { $0.view },
@@ -37,12 +34,12 @@ internal struct AppcuesPager: View {
                     .frame(width: CGFloat(model.items.count * 18))
                     .pageIndicatorTintColor(UIColor(dynamicColor: model.progress.style?.backgroundColor))
                     .currentPageIndicatorTintColor(UIColor(dynamicColor: model.progress.style?.foregroundColor))
-                    .applyInternalLayout(progressIndicatorLayout)
+                    .applyInternalLayout(progressIndicatorStyle)
                     .applyBorderStyle(progressIndicatorStyle)
-                    .applyExternalLayout(progressIndicatorLayout)
+                    .applyExternalLayout(progressIndicatorStyle)
             }
         }
-        .applyAllAppcues(layout, style)
+        .applyAllAppcues(style)
     }
 
 }
@@ -54,7 +51,7 @@ internal struct AppcuesPagerPreview: PreviewProvider {
         Group {
             AppcuesPager(model: EC.PagerModel(
                 id: UUID(),
-                progress: EC.PagerProgressModel(type: .dot, layout: nil, style: nil),
+                progress: EC.PagerProgressModel(type: .dot, style: nil),
                 items: [
                     .column(EC.vstackHero),
                     .column(EC.vstackHero),
@@ -62,7 +59,6 @@ internal struct AppcuesPagerPreview: PreviewProvider {
                 ],
                 axis: nil,
                 infinite: false,
-                layout: nil,
                 style: EC.Style(backgroundColor: "#333"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)

@@ -14,13 +14,12 @@ internal struct AppcuesText: View {
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
-        let layout = AppcuesLayout(from: model.layout)
         let style = AppcuesStyle(from: model.style)
 
         Text(model.text)
             .applyTextStyle(style)
             .setupActions(viewModel.groupedActionHandlers(for: model.id))
-            .applyAllAppcues(layout, style)
+            .applyAllAppcues(style)
     }
 }
 
@@ -35,8 +34,7 @@ internal struct AppcuesTextPreview: PreviewProvider {
             AppcuesText(model: EC.TextModel(
                 id: UUID(),
                 text: "This is some text that wraps and is center aligned.",
-                layout: EC.Layout(width: 100),
-                style: EC.Style(textAlignment: "center"))
+                style: EC.Style(width: 100, textAlignment: "center"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
                 .padding()
@@ -44,7 +42,6 @@ internal struct AppcuesTextPreview: PreviewProvider {
             AppcuesText(model: EC.TextModel(
                 id: UUID(),
                 text: "Heading Sized Text",
-                layout: nil,
                 style: EC.Style(fontSize: 36, foregroundColor: "#f00"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
