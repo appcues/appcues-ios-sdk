@@ -24,13 +24,15 @@ extension ExperienceComponent {
             AppcuesButton(model: model)
         case .image(let model):
             AppcuesImage(model: model)
+        case .embed(let model):
+            AppcuesEmbed(model: model)
         case .spacer(let model):
             Spacer(minLength: CGFloat(model.spacing))
         }
     }
 }
 
-extension ExperienceComponent.ImageModel.IntrinsicSize {
+extension ExperienceComponent.IntrinsicSize {
     var aspectRatio: CGFloat {
         width / height
     }

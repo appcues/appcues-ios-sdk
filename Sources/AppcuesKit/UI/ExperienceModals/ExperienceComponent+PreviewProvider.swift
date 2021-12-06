@@ -15,63 +15,70 @@ import Foundation
 internal typealias EC = ExperienceComponent
 
 extension ExperienceComponent {
-    static let textPlain = EC.TextModel(
+    static let textPlain = TextModel(
         id: UUID(),
         text: "This is some text with no style provided.",
         style: nil)
 
-    static let textTitle = EC.TextModel(
+    static let textTitle = TextModel(
         id: UUID(),
         text: "Hero Title 🚀",
         style: EC.Style(fontSize: 36, foregroundColor: "#fff"))
 
-    static let textSubtitle = EC.TextModel(
+    static let textSubtitle = TextModel(
         id: UUID(),
         text: "To infinity, and beyond!",
         style: EC.Style(foregroundColor: "#fff"))
 
-    static let buttonPrimary = EC.ButtonModel(
+    static let buttonPrimary = ButtonModel(
         id: UUID(),
         text: "Primary Button",
-        style: EC.Style.primaryButton)
+        style: Style.primaryButton)
 
-    static let buttonSecondary = EC.ButtonModel(
+    static let buttonSecondary = ButtonModel(
         id: UUID(),
         text: "Secondary Button",
-        style: EC.Style.secondaryButton)
+        style: Style.secondaryButton)
 
-    static let buttonCallToAction = EC.ButtonModel(
+    static let buttonCallToAction = ButtonModel(
         id: UUID(),
         text: "Call to Action",
-        style: EC.Style.primaryButton)
+        style: Style.primaryButton)
 
-    static let imageSymbol = EC.ImageModel(
+    static let imageSymbol = ImageModel(
         symbolName: "star.circle",
-        style: EC.Style(fontSize: 48, foregroundColor: "#FF5290"))
+        style: Style(fontSize: 48, foregroundColor: "#FF5290"))
 
-    static let imageBanner = ExperienceComponent.ImageModel(
+    static let imageBanner = ImageModel(
         imageUrl: AppcuesImagePreview.imageURL,
         contentMode: "fill",
-        intrinsicSize: ImageModel.IntrinsicSize(width: 1_920, height: 1_280),
-        style: ExperienceComponent.Style(height: 300, width: 370))
+        intrinsicSize: IntrinsicSize(width: 1_920, height: 1_280),
+        style: Style(height: 300, width: 370))
 
-    static let vstackHero = EC.StackModel(
+    static let embedVideo = EmbedModel(
+        id: UUID(),
+        // swiftlint:disable:next line_length
+        embed: "<script src=\"https://fast.wistia.com/embed/medias/41580cljhd.jsonp\" async></script><script src=\"https://fast.wistia.com/assets/external/E-v1.js\" async></script><div class=\"wistia_embed wistia_async_41580cljhd fitStrategy=fill  smallPlayButton=false playbar=false autoPlay=true settingsControl=false fullscreenButton=false \"></div>",
+        intrinsicSize: IntrinsicSize(width: 16, height: 9),
+        style: Style(height: 200))
+
+    static let vstackHero = StackModel(
         id: UUID(),
         orientation: .vertical,
         distribution: .center,
         spacing: 12,
         items: [
-            .text(EC.textTitle),
-            .text(EC.textSubtitle),
-            .button(EC.buttonCallToAction)
+            .text(textTitle),
+            .text(textSubtitle),
+            .button(buttonCallToAction)
         ],
         style: nil)
 
-    static let zstackHero = EC.BoxModel(
+    static let zstackHero = BoxModel(
         id: UUID(),
         items: [
-            .image(EC.imageBanner),
-            .stack(EC.vstackHero)
+            .image(imageBanner),
+            .stack(vstackHero)
         ],
         style: nil)
 }
