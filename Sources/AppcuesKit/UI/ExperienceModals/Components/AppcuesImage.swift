@@ -59,7 +59,7 @@ internal struct AppcuesImagePreview: PreviewProvider {
             AppcuesImage(model: EC.ImageModel(
                 imageUrl: imageURL,
                 contentMode: "fit",
-                intrinsicSize: EC.ImageModel.IntrinsicSize(width: 1_920, height: 1_280),
+                intrinsicSize: EC.IntrinsicSize(width: 1_920, height: 1_280),
                 style: EC.Style(height: 100, width: 100, backgroundColor: "#eee"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)

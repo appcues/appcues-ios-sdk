@@ -22,6 +22,7 @@ internal enum ExperienceComponent {
     case button(ButtonModel)
     case image(ImageModel)
     case spacer(SpacerModel)
+    case embed(EmbedModel)
 
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
@@ -32,6 +33,7 @@ internal enum ExperienceComponent {
         case .button(let model): return model[keyPath: keyPath]
         case .image(let model): return model[keyPath: keyPath]
         case .spacer(let model): return model[keyPath: keyPath]
+        case .embed(let model): return model[keyPath: keyPath]
         }
     }
 }
@@ -69,6 +71,8 @@ extension ExperienceComponent: Decodable {
             self = .image(try modelContainer.decode(ImageModel.self))
         case "spacer":
             self = .spacer(try modelContainer.decode(SpacerModel.self))
+        case "embed":
+            self = .embed(try modelContainer.decode(EmbedModel.self))
         default:
             let context = DecodingError.Context(codingPath: container.codingPath, debugDescription: "unknown type '\(type)'")
             throw DecodingError.valueNotFound(Self.self, context)
@@ -141,11 +145,6 @@ extension ExperienceComponent {
 
     struct ImageModel: ComponentModel, Decodable {
 
-        struct IntrinsicSize: Decodable {
-            let width: Double
-            let height: Double
-        }
-
         let id: UUID
         let imageUrl: URL?
         // Not sure if we'd support this in the builder, but it's handy for previews
@@ -175,6 +174,13 @@ extension ExperienceComponent {
             self.style = style
         }
 
+    }
+
+    struct EmbedModel: ComponentModel, Decodable {
+        let id: UUID
+        let embed: String
+        let intrinsicSize: IntrinsicSize?
+        let style: Style?
     }
 
     struct SpacerModel: ComponentModel, Decodable {
@@ -269,6 +275,11 @@ extension ExperienceComponent {
             self.borderWidth = borderWidth
         }
 
+    }
+
+    struct IntrinsicSize: Decodable {
+        let width: Double
+        let height: Double
     }
 }
 
