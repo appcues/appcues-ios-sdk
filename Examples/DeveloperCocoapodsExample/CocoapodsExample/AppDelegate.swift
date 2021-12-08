@@ -47,5 +47,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension Appcues {
     // Find your Appcues account ID in your account settings in Appcues Studio.
-    static var shared = Appcues(config: Config(accountID: <#APPCUES_ACCOUNT_ID#>))
+    // Find your Appcues application ID in your account settings under the Apps & Installation tab in Appcues Studio.
+    static var shared = Appcues(config: Config(accountID: <#APPCUES_ACCOUNT_ID#>, applicationID: <#APPCUES_APPLICATION_ID#>))
 }
