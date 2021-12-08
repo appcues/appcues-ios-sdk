@@ -18,6 +18,7 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
     private let storage: Storage
     private let sessionMonitor: SessionMonitor
+    private let config: Appcues.Config
 
     // these are the fixed values for the duration of the app runtime
     private var applicationProperties: [String: Any] = [:]
@@ -25,6 +26,7 @@ internal class AutoPropertyDecorator: TrackingDecorator {
     init(container: DIContainer) {
         self.storage = container.resolve(Storage.self)
         self.sessionMonitor = container.resolve(SessionMonitor.self)
+        self.config = container.resolve(Appcues.Config.self)
         configureApplicationProperties()
         container.resolve(AnalyticsPublisher.self).register(decorator: self)
     }
@@ -79,7 +81,7 @@ internal class AutoPropertyDecorator: TrackingDecorator {
 
     private func configureApplicationProperties() {
         applicationProperties = [
-            "_appId": "{GUID-TBD}",
+            "_appId": config.applicationID,
             "_operatingSystem": "ios",
             "_bundlePackageId": Bundle.main.identifier,
             "_appName": Bundle.main.displayName,
