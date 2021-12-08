@@ -19,7 +19,7 @@ class AnalyticsTrackerTests: XCTestCase {
         configuration.protocolClasses = [MockingURLProtocol.self]
         let urlSession = URLSession(configuration: configuration)
 
-        let config = Appcues.Config(accountID: "00000")
+        let config = Appcues.Config(accountID: "00000", applicationID: "abc")
             .urlSession(urlSession)
             .anonymousIDFactory({ "my-anonymous-id" })
 
