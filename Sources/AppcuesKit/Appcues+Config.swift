@@ -36,7 +36,8 @@ public extension Appcues {
 
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
-        /// - Parameter applicationID: Appcues Application ID - a string containing a UUID, copied from the Apps & Installation page in Studio for this iOS application.
+        /// - Parameter applicationID: Appcues Application ID - a string containing a UUID,
+        ///                            copied from the Apps & Installation page in Studio for this iOS application.
         public init(accountID: String, applicationID: String) {
             self.accountID = accountID
             self.applicationID = applicationID
