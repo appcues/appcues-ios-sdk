@@ -25,7 +25,7 @@ platform :ios do
   desc "Sanity check to make sure the cocoapods example app compiles"
   lane :compile_cocoapods_example do
     cocoapods(podfile: "Examples/DeveloperCocoapodsExample/Podfile")
-    sh("sh", "./replace-placeholders.sh", "DeveloperCocoapodsExample/CocoapodsExample", "00000")
+    sh("sh", "./replace-placeholders.sh", "DeveloperCocoapodsExample/CocoapodsExample", "00000", "abc")
     build_app(
       workspace: "Examples/DeveloperCocoapodsExample/AppcuesCocoapodsExample.xcworkspace",
       skip_archive: true,
@@ -34,7 +34,7 @@ platform :ios do
 
   desc "Sanity check to make sure the spm example app compiles"
   lane :compile_spm_example do
-    sh("sh", "./replace-placeholders.sh", "DeveloperSPMExample/SPMExample", "00000")
+    sh("sh", "./replace-placeholders.sh", "DeveloperSPMExample/SPMExample", "00000", "abc")
     build_app(
       project: "Examples/DeveloperSPMExample/AppcuesSPMExample.xcodeproj",
       skip_archive: true,
