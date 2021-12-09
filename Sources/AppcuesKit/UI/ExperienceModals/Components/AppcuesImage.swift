@@ -21,12 +21,18 @@ internal struct AppcuesImage: View {
             RemoteImage(url: url, cache: imageCache) {
                 style.backgroundColor ?? Color(UIColor.secondarySystemBackground)
             }
-            .ifLet(ContentMode(string: model.contentMode)) { view, val in
-                view.aspectRatio(contentMode: val)
-            }
-            .clipped()
             .setupActions(viewModel.groupedActionHandlers(for: model.id))
-            .applyAllAppcues(style)
+            .applyForegroundStyle(style)
+            // set the aspect ratio before applying frame sizing
+            .ifLet(ContentMode(string: model.contentMode)) { view, val in
+                view.aspectRatio(model.intrinsicSize?.aspectRatio, contentMode: val)
+            }
+            .applyInternalLayout(style)
+            // clip before adding shadows
+            .clipped()
+            .applyBackgroundStyle(style)
+            .applyBorderStyle(style)
+            .applyExternalLayout(style)
         } else {
             Image(systemName: model.symbolName ?? "")
                 .clipped()
@@ -53,6 +59,7 @@ internal struct AppcuesImagePreview: PreviewProvider {
             AppcuesImage(model: EC.ImageModel(
                 imageUrl: imageURL,
                 contentMode: "fit",
+                intrinsicSize: EC.ImageModel.IntrinsicSize(width: 1_920, height: 1_280),
                 style: EC.Style(height: 100, width: 100, backgroundColor: "#eee"))
             )
                 .previewLayout(PreviewLayout.sizeThatFits)
