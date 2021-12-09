@@ -29,3 +29,9 @@ extension ExperienceComponent {
         }
     }
 }
+
+extension ExperienceComponent.ImageModel.IntrinsicSize {
+    var aspectRatio: CGFloat {
+        width / height
+    }
+}

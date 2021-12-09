@@ -140,20 +140,28 @@ extension ExperienceComponent {
     }
 
     struct ImageModel: ComponentModel, Decodable {
+
+        struct IntrinsicSize: Decodable {
+            let width: Double
+            let height: Double
+        }
+
         let id: UUID
         let imageUrl: URL?
         // Not sure if we'd support this in the builder, but it's handy for previews
         let symbolName: String?
         let contentMode: String?
+        let intrinsicSize: IntrinsicSize?
 
         let style: Style?
 
         /// URL init
-        internal init(imageUrl: URL?, contentMode: String?, style: ExperienceComponent.Style?) {
+        internal init(imageUrl: URL?, contentMode: String?, intrinsicSize: IntrinsicSize?, style: ExperienceComponent.Style?) {
             self.id = UUID()
             self.imageUrl = imageUrl
             self.symbolName = nil
             self.contentMode = contentMode
+            self.intrinsicSize = intrinsicSize
             self.style = style
         }
 
@@ -163,6 +171,7 @@ extension ExperienceComponent {
             self.imageUrl = nil
             self.symbolName = symbolName
             self.contentMode = "fit"
+            self.intrinsicSize = nil
             self.style = style
         }
 

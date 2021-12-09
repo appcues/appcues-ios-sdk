@@ -52,6 +52,7 @@ extension ExperienceComponent {
     static let imageBanner = ExperienceComponent.ImageModel(
         imageUrl: AppcuesImagePreview.imageURL,
         contentMode: "fill",
+        intrinsicSize: ImageModel.IntrinsicSize(width: 1_920, height: 1_280),
         style: ExperienceComponent.Style(height: 300, width: 370))
 
     static let vstackHero = EC.StackModel(

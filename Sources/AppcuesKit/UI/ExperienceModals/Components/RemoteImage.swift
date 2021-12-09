@@ -60,18 +60,12 @@ internal struct RemoteImage<Placeholder: View>: View {
     private let placeholder: Placeholder
 
     var body: some View {
-        content
-            .onAppear(perform: loader.load)
-    }
-
-    private var content: some View {
-        Group {
-            if let image = loader.image {
-                Image(uiImage: image)
-                    .resizable()
-            } else {
-                placeholder
-            }
+        if let image = loader.image {
+            Image(uiImage: image)
+                .resizable()
+        } else {
+            placeholder
+                .onAppear(perform: loader.load)
         }
     }
 
