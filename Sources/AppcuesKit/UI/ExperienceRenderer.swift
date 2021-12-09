@@ -94,6 +94,11 @@ extension ExperienceRenderer: ExperienceEventDelegate {
             properties["stepChildId"] = properties["stepId"]
             properties["stepChildNumber"] = 0
             analyticsPublisher.track(name: "appcues:step_child_error", properties: properties)
+        case .stepCompleted:
+            var properties = event.properties
+            properties["stepChildId"] = properties["stepId"]
+            properties["stepChildNumber"] = 0
+            analyticsPublisher.track(name: "appcues:step_child_deactivated", properties: properties)
         default:
             break
         }
@@ -107,11 +112,6 @@ extension ExperienceRenderer: ExperienceEventDelegate {
             properties["stepChildId"] = properties["stepId"]
             properties["stepChildNumber"] = 0
             analyticsPublisher.track(name: "appcues:step_child_activated", properties: properties)
-        case .stepCompleted:
-            var properties = event.properties
-            properties["stepChildId"] = properties["stepId"]
-            properties["stepChildNumber"] = 0
-            analyticsPublisher.track(name: "appcues:step_child_completed", properties: properties)
         default:
             break
         }
