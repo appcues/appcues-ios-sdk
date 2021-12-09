@@ -15,7 +15,7 @@ internal class SessionMonitor {
         case sessionStarted = "appcues:session_started"
         case sessionSuspended = "appcues:session_suspended"
         case sessionResumed = "appcues:session_resumed"
-        case sessionEnded = "appcues:session_ended"
+        case sessionReset = "appcues:session_reset"
     }
 
     private let storage: Storage
@@ -55,8 +55,8 @@ internal class SessionMonitor {
     }
 
     // called on reset(), user sign-out
-    func end() {
-        publisher.track(SessionEvents.sessionEnded)
+    func reset() {
+        publisher.track(SessionEvents.sessionReset)
         sessionID = nil
     }
 

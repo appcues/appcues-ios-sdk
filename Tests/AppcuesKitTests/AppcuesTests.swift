@@ -42,7 +42,7 @@ class AppcuesTests: XCTestCase {
         appcues.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //not tracked
         appcues.anonymous()                                                                                    //tracked - user (+1 session start)
         appcues.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //tracked - screen
-        appcues.reset()                                                                                        //reset (+1 session end)
+        appcues.reset()                                                                                        //reset (+1 session reset)
         appcues.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //not tracked
         appcues.identify(userID: "specific-user-id", properties: ["my_key":"my_value", "another_key": 33])     //tracked - user (+1 session start)
         appcues.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //tracked - screen

@@ -67,7 +67,7 @@ public class Appcues {
     /// Clears out the current user in this session.  Can be used when the user logs out of your application.
     public func reset() {
         // call this first to close final analytics on the session
-        sessionMonitor.end()
+        sessionMonitor.reset()
 
         storage.userID = ""
         storage.isAnonymous = true
