@@ -15,6 +15,7 @@ internal class TraitRegistry {
         // Register default traits
         register(trait: AppcuesModalTrait.self)
         register(trait: AppcuesSkippableTrait.self)
+        register(trait: AppcuesStickyContentTrait.self)
     }
 
     func register(trait: ExperienceTrait.Type) {

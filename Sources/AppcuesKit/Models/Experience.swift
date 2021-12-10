@@ -46,7 +46,7 @@ extension Experience.Trait: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         type = try container.decode(String.self, forKey: .type)
-        config = (try? container.decode([String: Any].self, forKey: .config)) ?? [:]
+        config = (try? container.partialDictionaryDecode([String: Any].self, forKey: .config)) ?? [:]
     }
 }
 
