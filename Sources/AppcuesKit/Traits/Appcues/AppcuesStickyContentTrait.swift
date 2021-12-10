@@ -90,6 +90,11 @@ extension AppcuesStickyContentTrait {
 
         private var previousSize: CGSize = .zero
 
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            view.backgroundColor = .clear
+        }
+
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
 
