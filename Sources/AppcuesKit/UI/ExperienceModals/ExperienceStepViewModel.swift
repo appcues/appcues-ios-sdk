@@ -15,10 +15,12 @@ internal class ExperienceStepViewModel: ObservableObject {
         case longPress
     }
 
+    let step: Experience.Step
     private var actions: [UUID: [Experience.Action]]
     private let actionRegistry: ActionRegistry
 
     init(step: Experience.Step, actionRegistry: ActionRegistry) {
+        self.step = step
         // Update the action list to be keyed by the UUID.
         self.actions = step.actions.reduce(into: [:]) { dict, item in
             guard let uuidKey = UUID(uuidString: item.key) else { return }
