@@ -15,7 +15,7 @@ internal class ExperienceStepViewController: UIViewController {
     weak var lifecycleHandler: ExperienceStepLifecycleHandler?
 
     private let contentViewController: UIViewController
-    private lazy var scrollView = UIScrollView()
+    lazy var scrollView = UIScrollView()
 
     var customScrollInsets: UIEdgeInsets = .zero {
         didSet {
