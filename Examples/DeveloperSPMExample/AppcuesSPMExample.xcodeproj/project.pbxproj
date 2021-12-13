@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A711F382767A58D0099D732 /* GroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A711F372767A58D0099D732 /* GroupViewController.swift */; };
 		64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7C790690C785694C7F24F8 /* EventsViewController.swift */; };
 		7013CDD44A5E7E6056595498 /* Lato-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */; };
 		702B963B624B5F8BB19F2468 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8757BA449145145EAF8FE061 /* Main.storyboard */; };
@@ -23,6 +24,7 @@
 
 /* Begin PBXFileReference section */
 		05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Black.ttf"; sourceTree = "<group>"; };
+		1A711F372767A58D0099D732 /* GroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupViewController.swift; sourceTree = "<group>"; };
 		288554133C93206378D963AB /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		476767533B954304A7121A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6901798B6E99F34ACF2F707B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -98,6 +100,7 @@
 				723869D8744D77D8EC9B55F1 /* ProfileViewController.swift */,
 				6901798B6E99F34ACF2F707B /* SceneDelegate.swift */,
 				288554133C93206378D963AB /* SignInViewController.swift */,
+				1A711F372767A58D0099D732 /* GroupViewController.swift */,
 			);
 			path = SPMExample;
 			sourceTree = "<group>";
@@ -133,8 +136,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1200;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 3307568C9084A060E694F2E4 /* Build configuration list for PBXProject "AppcuesSPMExample" */;
 			compatibilityVersion = "Xcode 10.0";
@@ -195,6 +196,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A711F382767A58D0099D732 /* GroupViewController.swift in Sources */,
 				A23B377CAA8FFC989E6A9A73 /* AppDelegate.swift in Sources */,
 				64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */,
 				F897157F45696443B145C383 /* ProfileViewController.swift in Sources */,

@@ -17,6 +17,7 @@ internal class Storage {
         case applicationVersion
         case applicationBuild
         case lastContentShownAt
+        case groupID
     }
 
     private let config: Appcues.Config
@@ -42,6 +43,15 @@ internal class Storage {
         }
         set {
             write(.userID, newValue: newValue)
+        }
+    }
+
+    internal var groupID: String? {
+        get {
+            return read(.groupID, defaultValue: nil)
+        }
+        set {
+            write(.groupID, newValue: newValue)
         }
     }
 
@@ -72,7 +82,12 @@ internal class Storage {
         return defaults?.object(forKey: key.rawValue) as? T ?? defaultValue
     }
 
-    private func write<T>(_ key: Key, newValue: T) {
+    private func write<T>(_ key: Key, newValue: T?) {
+        guard let newValue = newValue else {
+            defaults?.removeObject(forKey: key.rawValue)
+            return
+        }
+
         defaults?.set(newValue, forKey: key.rawValue)
     }
 }

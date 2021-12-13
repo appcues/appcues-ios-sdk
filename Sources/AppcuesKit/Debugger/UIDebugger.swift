@@ -61,7 +61,7 @@ extension UIDebugger: AnalyticsSubscriber {
     func track(update: TrackingUpdate) {
         // Publishing changes must from the main thread.
         DispatchQueue.main.async {
-            self.viewModel.currentUserID = update.userID
+            self.viewModel.currentUserID = self.storage.userID
             self.viewModel.isAnonymous = self.storage.isAnonymous
             self.viewModel.addEvent(DebugViewModel.LoggedEvent(from: update))
         }

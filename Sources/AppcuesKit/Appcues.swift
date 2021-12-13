@@ -57,6 +57,28 @@ public class Appcues {
         identify(isAnonymous: false, userID: userID, properties: properties)
     }
 
+    /// Identify a group for the current user
+    /// - Parameters:
+    ///   - groupID: Unique value identifying the group.
+    ///   - properties: Optional properties that provide additional context about the group.
+    public func group(groupID: String?, properties: [String: Any]? = nil) {
+        var groupID = groupID
+        var properties = properties
+
+        // any empty string is interpreted as clearing the group, same as nil
+        if let strongID = groupID, strongID.isEmpty {
+            groupID = nil
+        }
+
+        // when clearing the group, ensure no properties are sent - invalid
+        if groupID == nil {
+            properties = nil
+        }
+
+        storage.groupID = groupID
+        publish(TrackingUpdate(type: .group, properties: properties))
+    }
+
     /// Generate a unique ID for the current user when there is not a known identity to use in
     /// the `identify` call.  This will cause the SDK to begin tracking activity and checking for
     /// qualified content.
@@ -71,6 +93,7 @@ public class Appcues {
 
         storage.userID = ""
         storage.isAnonymous = true
+        storage.groupID = nil
         notificationCenter.post(name: .appcuesReset, object: self, userInfo: nil)
     }
 
@@ -79,7 +102,7 @@ public class Appcues {
     ///   - name: Name of the event.
     ///   - properties: Optional properties that provide additional context about the event.
     public func track(name: String, properties: [String: Any]? = nil) {
-        publish(TrackingUpdate(type: .event(name), properties: properties, userID: storage.userID))
+        publish(TrackingUpdate(type: .event(name), properties: properties))
     }
 
     /// Track an screen viewed by a user.
@@ -87,7 +110,7 @@ public class Appcues {
     ///   - title: Name of the screen.
     ///   - properties: Optional properties that provide additional context about the event.
     public func screen(title: String, properties: [String: Any]? = nil) {
-        publish(TrackingUpdate(type: .screen(title), properties: properties, userID: storage.userID))
+        publish(TrackingUpdate(type: .screen(title), properties: properties))
     }
 
     /// Forces specific Appcues content to appear for the current user by passing in the ID.
@@ -188,7 +211,7 @@ public class Appcues {
             // when the idenfied use changes from last known value, we must start a new session
             sessionMonitor.start()
         }
-        publish(TrackingUpdate(type: .profile, properties: properties, userID: userID))
+        publish(TrackingUpdate(type: .profile, properties: properties))
     }
 }
 

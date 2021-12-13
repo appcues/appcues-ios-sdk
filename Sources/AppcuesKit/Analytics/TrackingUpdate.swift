@@ -14,12 +14,12 @@ internal struct TrackingUpdate {
         case event(String)
         case screen(String)
         case profile
+        case group
     }
 
     let type: TrackingType
     var properties: [String: Any]?
     let timestamp = Date()
-    let userID: String
 }
 
 extension TrackingUpdate: CustomStringConvertible {
