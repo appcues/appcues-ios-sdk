@@ -22,6 +22,7 @@ internal class ExperienceStepViewController: UIViewController {
 
         let rootView = ExperienceStepRootView(rootView: viewModel.step.content.view, viewModel: viewModel)
         self.contentViewController = AppcuesHostingController(rootView: rootView)
+        self.contentViewController.view.backgroundColor = .clear
 
         super.init(nibName: nil, bundle: nil)
     }

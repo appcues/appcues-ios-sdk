@@ -13,18 +13,27 @@ internal class DialogContainerView: UIView {
     let backgroundView: UIView = {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = Asset.Color.dialogBackground.color
         return view
     }()
 
     let dialogView: UIView = {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = .systemBackground
-        view.layer.cornerRadius = 6.0
         view.clipsToBounds = true
         return view
     }()
+
+    var shadowLayer: CAShapeLayer? {
+        willSet {
+            // remove existing
+            shadowLayer?.removeFromSuperlayer()
+        }
+        didSet {
+            if let shadowLayer = shadowLayer {
+                layer.insertSublayer(shadowLayer, at: 0)
+            }
+        }
+    }
 
     init() {
         super.init(frame: .zero)
@@ -46,5 +55,14 @@ internal class DialogContainerView: UIView {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        if let shadowLayer = shadowLayer {
+            shadowLayer.path = UIBezierPath(roundedRect: dialogView.frame, cornerRadius: dialogView.layer.cornerRadius).cgPath
+            shadowLayer.shadowPath = shadowLayer.path
+        }
     }
 }

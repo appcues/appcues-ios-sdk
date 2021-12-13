@@ -14,20 +14,12 @@ internal class DialogContainerViewController: UIViewController {
 
     private let dialogViewController: UIViewController
 
-    init(dialogViewController: UIViewController, skippable: Bool = false, cornerRadius: CGFloat? = nil) {
+    init(wrapping dialogViewController: UIViewController) {
         self.dialogViewController = dialogViewController
         super.init(nibName: nil, bundle: nil)
 
         modalTransitionStyle = .crossDissolve
         modalPresentationStyle = .overFullScreen
-
-        if let cornerRadius = cornerRadius {
-            containerView.dialogView.layer.cornerRadius = cornerRadius
-        }
-        if skippable {
-            containerView.backgroundView.addGestureRecognizer(
-                UITapGestureRecognizer(target: self, action: #selector(didTapBackground)))
-        }
     }
 
     @available(*, unavailable)
@@ -38,6 +30,28 @@ internal class DialogContainerViewController: UIViewController {
     override func loadView() {
         view = containerView
         embedChildViewController(dialogViewController, inSuperview: containerView.dialogView)
+    }
+
+    func configureSkippable(isSkippable: Bool) -> Self {
+        if isSkippable {
+            containerView.backgroundView.addGestureRecognizer(
+                UITapGestureRecognizer(target: self, action: #selector(didTapBackground)))
+        }
+
+        return self
+    }
+
+    func configureStyle(_ style: ExperienceComponent.Style?, backdropColor: UIColor?) -> Self {
+        containerView.backgroundView.backgroundColor = backdropColor
+        containerView.dialogView.backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
+        containerView.dialogView.layer.cornerRadius = style?.cornerRadius ?? 0
+
+        containerView.dialogView.layer.borderColor = UIColor(dynamicColor: style?.borderColor)?.cgColor
+        containerView.dialogView.layer.borderWidth = CGFloat(style?.borderWidth) ?? 0
+
+        containerView.shadowLayer = CAShapeLayer(shadowModel: style?.shadow)
+
+        return self
     }
 
     @objc
