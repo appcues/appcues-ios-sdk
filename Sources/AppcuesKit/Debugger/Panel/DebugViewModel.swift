@@ -125,6 +125,9 @@ extension DebugViewModel {
             case .profile:
                 self.type = .profile
                 self.name = "Profile Update"
+            case .group:
+                self.type = .group
+                self.name = "Group Update"
             }
         }
     }
@@ -136,6 +139,7 @@ extension DebugViewModel.LoggedEvent {
         case event
         case profile
         case experience
+        case group
 
         var description: String {
             switch self {
@@ -143,6 +147,7 @@ extension DebugViewModel.LoggedEvent {
             case .event: return "Event"
             case .profile: return "User Profile"
             case .experience: return "Experience"
+            case .group: return "Group"
             }
         }
 
@@ -152,6 +157,7 @@ extension DebugViewModel.LoggedEvent {
             case .event: return "hand.tap"
             case .profile: return "person"
             case .experience: return "wand.and.stars"
+            case .group: return "person.3.fill"
             }
         }
     }

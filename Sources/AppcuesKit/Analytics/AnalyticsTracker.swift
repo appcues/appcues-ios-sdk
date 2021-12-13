@@ -9,10 +9,11 @@
 import Foundation
 import UIKit
 
-internal class AnalyticsTracker {
+internal class AnalyticsTracker: AnalyticsSubscriber {
 
     private let container: DIContainer
 
+    private lazy var storage = container.resolve(Storage.self)
     private lazy var config = container.resolve(Appcues.Config.self)
     private lazy var networking = container.resolve(Networking.self)
     private lazy var experienceRenderer = container.resolve(ExperienceRenderer.self)
@@ -22,42 +23,9 @@ internal class AnalyticsTracker {
         registerForAnalyticsUpdates(container)
     }
 
-    private func identify(userID: String, properties: [String: Any]? = nil) {
-        let activity = Activity(accountID: config.accountID, userID: userID, events: nil, profileUpdate: properties)
-        guard let data = try? Networking.encoder.encode(activity) else {
-            return
-        }
-
-        networking.post(
-            to: Networking.APIEndpoint.activity,
-            body: data
-        ) { [weak self] in
-            self?.handleAnalyticsResponse(result: $0)
-        }
-    }
-
-    private func track(userID: String, name: String, properties: [String: Any]? = nil) {
-        let activity = Activity(accountID: config.accountID, userID: userID, events: [Event(name: name, attributes: properties)])
-        guard let data = try? Networking.encoder.encode(activity) else {
-            return
-        }
-
-        networking.post(
-            to: Networking.APIEndpoint.activity,
-            body: data
-        ) { [weak self] in
-            self?.handleAnalyticsResponse(result: $0)
-        }
-    }
-
-    private func screen(userID: String, title: String, properties: [String: Any]? = nil) {
-        guard let urlString = generatePseudoURL(screenName: title) else {
-            config.logger.error("Could not construct url for page %s", title)
-            return
-        }
-
-        let activity = Activity(accountID: config.accountID, userID: userID, events: [Event(pageView: urlString, attributes: properties)])
-        guard let data = try? Networking.encoder.encode(activity) else {
+    func track(update: TrackingUpdate) {
+        guard let activity = Activity(from: update, config: config, storage: storage),
+              let data = try? Networking.encoder.encode(activity) else {
             return
         }
 
@@ -82,28 +50,49 @@ internal class AnalyticsTracker {
             print(error)
         }
     }
+}
 
-    // Temporary solution to piggyback on the web page views. A proper mobile screen solution is still needed.
-    private func generatePseudoURL(screenName: String) -> String? {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = Bundle.main.bundleIdentifier
-        components.path = "/" + screenName.asURLSlug
-        return components.string
+extension Activity {
+    init?(from update: TrackingUpdate, config: Appcues.Config, storage: Storage) {
+        switch update.type {
+        case let .event(name):
+            self.init(accountID: config.accountID,
+                      userID: storage.userID,
+                      events: [Event(name: name, attributes: update.properties)],
+                      groupID: storage.groupID)
+
+        case let .screen(title):
+            guard let urlString = generatePseudoURL(screenName: title) else {
+                config.logger.error("Could not construct url for page %s", title)
+                return nil
+            }
+            self.init(accountID: config.accountID,
+                      userID: storage.userID,
+                      events: [Event(pageView: urlString, attributes: update.properties)],
+                      groupID: storage.groupID)
+
+        case .profile:
+            self.init(accountID: config.accountID,
+                      userID: storage.userID,
+                      events: nil,
+                      profileUpdate: update.properties,
+                      groupID: storage.groupID)
+
+        case .group:
+            self.init(accountID: config.accountID,
+                      userID: storage.userID,
+                      events: nil,
+                      groupID: storage.groupID,
+                      groupUpdate: update.properties)
+        }
     }
 }
 
-extension AnalyticsTracker: AnalyticsSubscriber {
-    func track(update: TrackingUpdate) {
-        switch update.type {
-        case let .event(name):
-            track(userID: update.userID, name: name, properties: update.properties)
-
-        case let .screen(title):
-            screen(userID: update.userID, title: title, properties: update.properties)
-
-        case .profile:
-            identify(userID: update.userID, properties: update.properties)
-        }
-    }
+// Temporary solution to piggyback on the web page views. A proper mobile screen solution is still needed.
+private func generatePseudoURL(screenName: String) -> String? {
+    var components = URLComponents()
+    components.scheme = "https"
+    components.host = Bundle.main.bundleIdentifier
+    components.path = "/" + screenName.asURLSlug
+    return components.string
 }

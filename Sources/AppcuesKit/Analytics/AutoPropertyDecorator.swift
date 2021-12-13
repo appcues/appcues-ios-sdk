@@ -41,6 +41,9 @@ internal class AutoPropertyDecorator: TrackingDecorator {
         case .event(SessionMonitor.SessionEvents.sessionStarted.rawValue):
             sessionPageviews = 0
             sessionRandomizer = Int.random(in: 1...100)
+        case .group:
+            // group updates do not have autoprops, don't manipulate anything in the properties
+            return tracking
         default:
             break
         }
@@ -49,7 +52,7 @@ internal class AutoPropertyDecorator: TrackingDecorator {
         var decorated = tracking
 
         var sessionProperties: [String: Any?] = [
-            "userId": tracking.userID,
+            "userId": storage.userID,
             "_isAnonymous": storage.isAnonymous,
             "_localId": storage.deviceID,
             "_sessionPageviews": sessionPageviews,
