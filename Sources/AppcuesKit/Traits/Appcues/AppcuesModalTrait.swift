@@ -12,7 +12,8 @@ internal struct AppcuesModalTrait: ExperienceTrait {
     static let type = "@appcues/modal"
 
     var presentationStyle: PresentationStyle
-    var cornerRadius: CGFloat?
+    var backdropColor: UIColor?
+    var modalStyle: ExperienceComponent.Style?
     var skippable: Bool
 
     init?(config: [String: Any]?) {
@@ -22,10 +23,8 @@ internal struct AppcuesModalTrait: ExperienceTrait {
             return nil
         }
 
-        if let cornerRadius = config?["cornerRadius"] as? Int {
-            self.cornerRadius = CGFloat(cornerRadius)
-        }
-
+        self.backdropColor = UIColor(dynamicColor: config?["backdropColor", decodedAs: ExperienceComponent.Style.DynamicColor.self])
+        self.modalStyle = config?["style", decodedAs: ExperienceComponent.Style.self]
         self.skippable = config?["skippable"] as? Bool ?? false
     }
 
@@ -37,20 +36,22 @@ internal struct AppcuesModalTrait: ExperienceTrait {
         }
 
         if presentationStyle == .dialog {
-            return DialogContainerViewController(
-                dialogViewController: experienceController,
-                skippable: skippable,
-                cornerRadius: cornerRadius)
+            return DialogContainerViewController(wrapping: experienceController)
+                .configureSkippable(isSkippable: skippable)
+                .configureStyle(modalStyle, backdropColor: backdropColor)
+        }
+
+        if let backgroundColor = UIColor(dynamicColor: modalStyle?.backgroundColor) {
+            experienceController.view.backgroundColor = backgroundColor
         }
 
         wrappingController.isModalInPresentation = !skippable
 
         if #available(iOS 15.0, *), let sheet = wrappingController.sheetPresentationController {
-            sheet.preferredCornerRadius = cornerRadius
+            sheet.preferredCornerRadius = CGFloat(modalStyle?.cornerRadius)
 
             if presentationStyle == .halfSheet {
-                sheet.detents = [.medium(), .large()]
-                sheet.prefersGrabberVisible = true
+                sheet.detents = [.medium()]
             }
         }
 
