@@ -29,7 +29,7 @@
         <!--Update Profile-->
         <scene sceneID="7hu-gY-OAK">
             <objects>
-                <viewController id="R2J-xh-UFF" customClass="ProfileViewController" customModule="AppcuesCocoapodsExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="R2J-xh-UFF" customClass="ProfileViewController" customModule="AppcuesSPMExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="6nG-Nf-dVw">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -96,7 +96,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CPa-rq-uVz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
                 <exit id="zm6-am-BJ8" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="1629" y="937"/>
+            <point key="canvasLocation" x="-314" y="1732"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="Fpf-vg-lJV">
@@ -111,6 +111,7 @@
                     <connections>
                         <segue destination="5i6-8x-7nf" kind="relationship" relationship="viewControllers" id="haS-vB-LEW"/>
                         <segue destination="FK3-TP-f03" kind="relationship" relationship="viewControllers" id="hwS-Sk-N0w"/>
+                        <segue destination="XJ3-u7-yjq" kind="relationship" relationship="viewControllers" id="8zI-7k-vlH"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VfC-g5-VX7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -120,7 +121,7 @@
         <!--Sign In-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="SignInViewController" customModule="AppcuesCocoapodsExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="SignInViewController" customModule="AppcuesSPMExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -151,30 +152,30 @@
                                     </button>
                                 </subviews>
                             </stackView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qp3-AX-klk">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gL3-Si-fOx">
                                 <rect key="frame" x="140" y="831" width="134.5" height="31"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Anonymous User"/>
                                 <connections>
-                                    <action selector="anonymousUserTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4aq-vn-hUD"/>
-                                    <segue destination="EKa-1M-EaW" kind="presentation" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="NF8-NO-Ug5"/>
+                                    <action selector="anonymousUserTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="2hZ-6q-1q7"/>
+                                    <segue destination="EKa-1M-EaW" kind="presentation" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="Mbv-f1-l7s"/>
                                 </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="gL3-Si-fOx" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="43u-9g-PMc"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="gL3-Si-fOx" secondAttribute="bottom" id="GNY-hj-WEU"/>
                             <constraint firstItem="mjX-Zi-osT" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="GzY-Wq-Ghk"/>
-                            <constraint firstItem="qp3-AX-klk" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="WoD-Kz-e0O"/>
                             <constraint firstItem="mjX-Zi-osT" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="gdB-S0-g7r"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="qp3-AX-klk" secondAttribute="bottom" id="nFp-a7-69W"/>
                             <constraint firstItem="mjX-Zi-osT" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="40" id="zol-U8-pbC"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Sign In" id="OyU-gs-faF">
-                        <barButtonItem key="rightBarButtonItem" title="Skip" id="wj7-bD-gVn">
+                        <barButtonItem key="rightBarButtonItem" title="Skip" id="Ua0-aa-o56">
                             <connections>
-                                <segue destination="EKa-1M-EaW" kind="presentation" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="7Yr-k2-coz"/>
+                                <segue destination="EKa-1M-EaW" kind="presentation" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="qoH-MI-PZN"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -201,12 +202,81 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kEL-Wi-UqE" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="677" y="937"/>
+            <point key="canvasLocation" x="-314" y="1034"/>
+        </scene>
+        <!--Group-->
+        <scene sceneID="asy-jO-YXo">
+            <objects>
+                <navigationController id="XJ3-u7-yjq" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Group" image="person.3" catalog="system" id="sLb-d9-Lvb"/>
+                    <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="4iI-BG-Ndh">
+                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="rdu-yG-22f" kind="relationship" relationship="rootViewController" id="1SL-34-Mzz"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kcW-pD-0Od" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="877" y="1034"/>
+        </scene>
+        <!--Update Group-->
+        <scene sceneID="hDC-kI-tkq">
+            <objects>
+                <viewController id="rdu-yG-22f" customClass="GroupViewController" customModule="AppcuesSPMExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="uOP-2I-P8G">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="js5-7t-elQ">
+                                <rect key="frame" x="40" y="128" width="334" height="101.5"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Group" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aYF-oG-O6J">
+                                        <rect key="frame" x="0.0" y="0.0" width="334" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="uPt-1p-rg9">
+                                        <rect key="frame" x="0.0" y="28.5" width="334" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits"/>
+                                    </textField>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UsU-Rf-qFv">
+                                        <rect key="frame" x="0.0" y="70.5" width="334" height="31"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Save"/>
+                                        <connections>
+                                            <action selector="saveGroupTapped:" destination="R2J-xh-UFF" eventType="touchUpInside" id="1ui-jU-SoV"/>
+                                            <action selector="saveGroupTapped:" destination="rdu-yG-22f" eventType="touchUpInside" id="sGa-0B-uwo"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="cD5-Fr-kNC"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="js5-7t-elQ" firstAttribute="leading" secondItem="cD5-Fr-kNC" secondAttribute="leading" constant="40" id="0vN-E5-eua"/>
+                            <constraint firstItem="js5-7t-elQ" firstAttribute="centerX" secondItem="uOP-2I-P8G" secondAttribute="centerX" id="Tdh-ZC-uKb"/>
+                            <constraint firstItem="js5-7t-elQ" firstAttribute="top" secondItem="cD5-Fr-kNC" secondAttribute="top" constant="40" id="rQ3-7Q-pJ6"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Update Group" id="2UT-oW-P42"/>
+                    <connections>
+                        <outlet property="groupIDTextField" destination="uPt-1p-rg9" id="mAt-xi-l3s"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="IDF-hI-XjH" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="877" y="1732"/>
         </scene>
         <!--Trigger Events-->
         <scene sceneID="EYp-iv-EJ2">
             <objects>
-                <viewController id="IV4-7k-Qev" customClass="EventsViewController" customModule="AppcuesCocoapodsExample" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="IV4-7k-Qev" customClass="EventsViewController" customModule="AppcuesSPMExample" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Cg6-ll-PVs">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -242,16 +312,16 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Trigger Events" id="1Wg-Nt-6AG">
-                        <barButtonItem key="rightBarButtonItem" title="Debug" id="jE3-et-OYL">
+                        <barButtonItem key="rightBarButtonItem" title="Debug" id="2EG-CO-a7g">
                             <connections>
-                                <action selector="debugTapped:" destination="IV4-7k-Qev" id="D4a-Lg-uzC"/>
+                                <action selector="debugTapped:" destination="IV4-7k-Qev" id="dwJ-yS-z6H"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="efB-wE-siV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1629" y="175"/>
+            <point key="canvasLocation" x="-1513" y="1732"/>
         </scene>
         <!--Events-->
         <scene sceneID="wzk-0K-XBg">
@@ -268,14 +338,15 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4ih-bf-avt" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="677" y="175"/>
+            <point key="canvasLocation" x="-1513" y="1034"/>
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="NF8-NO-Ug5"/>
+        <segue reference="qoH-MI-PZN"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="person" catalog="system" width="128" height="117"/>
+        <image name="person.3" catalog="system" width="128" height="62"/>
         <image name="recordingtape" catalog="system" width="128" height="59"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

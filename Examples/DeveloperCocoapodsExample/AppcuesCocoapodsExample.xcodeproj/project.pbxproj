@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0384A2A89074FC193A107EE5 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8663BEDD1883CC408AA4A302 /* SignInViewController.swift */; };
 		04F09F9C75FB66578541D199 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2E1BE92E4A34AD818AD21FDC /* Assets.xcassets */; };
+		1A711F3A2768E8890099D732 /* GroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A711F392768E8890099D732 /* GroupViewController.swift */; };
 		3EADA9762D050C3E2ED69514 /* Lato-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D3C0F23F9CDE7740C2E2DBF7 /* Lato-Regular.ttf */; };
 		6528A700E8CA17D8F5C244F1 /* Pods_AppcuesCocoapodsExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CE2B3CE30909C3FA8438859C /* Pods_AppcuesCocoapodsExample.framework */; };
 		866AA363BEFB1A42C8C1D149 /* Lato-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 547A647EB6D311E97F592C7C /* Lato-Black.ttf */; };
@@ -23,6 +24,7 @@
 
 /* Begin PBXFileReference section */
 		10C713E67205D9507CE2DC80 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		1A711F392768E8890099D732 /* GroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupViewController.swift; sourceTree = "<group>"; };
 		25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		2E1BE92E4A34AD818AD21FDC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		384497BA35A275E793B475C1 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
@@ -68,7 +70,6 @@
 				BEE8BBD60375CD5FD7DE19CE /* Pods-AppcuesCocoapodsExample.debug.xcconfig */,
 				5B5FB4F46BAB445009A5DE4C /* Pods-AppcuesCocoapodsExample.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -93,6 +94,7 @@
 				384497BA35A275E793B475C1 /* ProfileViewController.swift */,
 				25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */,
 				8663BEDD1883CC408AA4A302 /* SignInViewController.swift */,
+				1A711F392768E8890099D732 /* GroupViewController.swift */,
 			);
 			path = CocoapodsExample;
 			sourceTree = "<group>";
@@ -145,8 +147,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1200;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 95033167E7E129F199208F61 /* Build configuration list for PBXProject "AppcuesCocoapodsExample" */;
 			compatibilityVersion = "Xcode 10.0";
@@ -247,6 +247,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A711F3A2768E8890099D732 /* GroupViewController.swift in Sources */,
 				A245C61F75A6DAA8985A6772 /* AppDelegate.swift in Sources */,
 				EC6747EFCF3EDE3DE6E45EF3 /* EventsViewController.swift in Sources */,
 				CCD458B6662FC0AC5C80CAFF /* ProfileViewController.swift in Sources */,
