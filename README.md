@@ -13,7 +13,7 @@ The SDK is a Swift library for sending user properties and events to the Appcues
     - [One Time Setup](#one-time-setup)
       - [Initializing the SDK](#initializing-the-sdk)
       - [Supporting Debugging and Experience Previewing](#supporting-debugging-and-experience-previewing)
-    - [Tracking Events](#tracking-events)
+    - [Tracking Screens and Events](#tracking-screens-and-events)
   - [🛠 Customization](#-customization)
   - [📝 Documentation](#-documentation)
   - [🎬 Examples](#-examples)
@@ -82,9 +82,9 @@ Initializing the SDK requires you to provide two values, an Appcues account ID, 
 
 Supporting debugging and experience previewing is not required for the Appcues iOS SDK to function, but it is necessary for the optimal Appcues builder experience. Refer to the [Debug Guide](https://github.com/appcues/appcues-ios-sdk/blob/main/Sources/AppcuesKit/AppcuesKit.docc/Debugging.md) for details.
 
-### Tracking Events
+### Tracking Screens and Events
 
-Events are the “actions” your users take in your application, which can be anything from clicking a certain button to viewing a specific screen. Once you’ve installed and initialized the Appcues iOS SDK, you can start tracking events using the following methods:
+Events are the “actions” your users take in your application, which can be anything from clicking a certain button to viewing a specific screen. Once you’ve installed and initialized the Appcues iOS SDK, you can start tracking screens and events using the following methods:
 
 - `identify(userID:)`
 - `track(name:)`

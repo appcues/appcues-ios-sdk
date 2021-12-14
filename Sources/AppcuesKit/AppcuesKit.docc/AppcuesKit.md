@@ -11,6 +11,8 @@ A Swift library for sending user properties and events to the Appcues API and re
 ### Core Functionality
 
 - <doc:GettingStarted>
+- <doc:Identifying>
+- <doc:Tracking>
 - <doc:Debugging>
 - ``Appcues``
 
