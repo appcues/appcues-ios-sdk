@@ -210,6 +210,9 @@ public class Appcues {
         if userChanged {
             // when the idenfied use changes from last known value, we must start a new session
             sessionMonitor.start()
+
+            // and clear any stored group information - will have to be reset as needed
+            storage.groupID = nil
         }
         publish(TrackingUpdate(type: .profile, properties: properties))
     }
