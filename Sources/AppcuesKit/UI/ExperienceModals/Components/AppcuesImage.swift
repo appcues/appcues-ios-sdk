@@ -17,10 +17,7 @@ internal struct AppcuesImage: View {
     var body: some View {
         let style = AppcuesStyle(from: model.style)
 
-        if let url = model.imageUrl {
-            RemoteImage(url: url, cache: imageCache) {
-                style.backgroundColor ?? Color(UIColor.secondarySystemBackground)
-            }
+        content(placeholder: style.backgroundColor)
             .setupActions(viewModel.groupedActionHandlers(for: model.id))
             .applyForegroundStyle(style)
             // set the aspect ratio before applying frame sizing
@@ -33,11 +30,18 @@ internal struct AppcuesImage: View {
             .applyBackgroundStyle(style)
             .applyBorderStyle(style)
             .applyExternalLayout(style)
+    }
+
+    @ViewBuilder
+    private func content(placeholder: Color?) -> some View {
+        if let url = model.imageUrl {
+            if model.animated == true, let videoURL = url.toMP4() {
+                LoopingVideoPlayer(url: videoURL)
+            } else {
+                RemoteImage(url: url, cache: imageCache) { placeholder ?? Color(UIColor.secondarySystemBackground) }
+            }
         } else {
             Image(systemName: model.symbolName ?? "")
-                .clipped()
-                .setupActions(viewModel.groupedActionHandlers(for: model.id))
-                .applyAllAppcues(style)
         }
     }
 }

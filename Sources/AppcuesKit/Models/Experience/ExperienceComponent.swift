@@ -147,6 +147,9 @@ extension ExperienceComponent {
 
         let id: UUID
         let imageUrl: URL?
+        // Used to flag an animated gif
+        // swiftlint:disable:next discouraged_optional_boolean
+        let animated: Bool?
         // Not sure if we'd support this in the builder, but it's handy for previews
         let symbolName: String?
         let contentMode: String?
@@ -158,6 +161,7 @@ extension ExperienceComponent {
         internal init(imageUrl: URL?, contentMode: String?, intrinsicSize: IntrinsicSize?, style: ExperienceComponent.Style?) {
             self.id = UUID()
             self.imageUrl = imageUrl
+            self.animated = nil
             self.symbolName = nil
             self.contentMode = contentMode
             self.intrinsicSize = intrinsicSize
@@ -168,6 +172,7 @@ extension ExperienceComponent {
         internal init(symbolName: String?, style: ExperienceComponent.Style?) {
             self.id = UUID()
             self.imageUrl = nil
+            self.animated = nil
             self.symbolName = symbolName
             self.contentMode = "fit"
             self.intrinsicSize = nil
