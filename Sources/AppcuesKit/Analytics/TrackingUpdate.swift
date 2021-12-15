@@ -17,7 +17,22 @@ internal struct TrackingUpdate {
         case group
     }
 
+    enum Policy {
+        // any tracking activity in the queue should be immediately flushed before this one
+        // then send this one immediately (i.e. user or group updates)
+        case flushThenSend
+
+        // this activity can be appeneded to any tracking activity in the queue, but all should
+        // then be flushed immediately, since this update can affect flow qualification
+        case queueThenFlush
+
+        // this is background tracking data (i.e. flow analytics) and it can be queued and
+        // sent at a later time, does not affect flow qualificiation
+        case queue
+    }
+
     let type: TrackingType
+    let policy: Policy
     var properties: [String: Any]?
     let timestamp = Date()
 }

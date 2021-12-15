@@ -9,9 +9,8 @@
 import Foundation
 
 internal protocol AnalyticsPublisher: AnyObject {
-    func identify(userID: String, properties: [String: Any]?)
-    func track(name: String, properties: [String: Any]?)
-    func screen(title: String, properties: [String: Any]?)
+    func track(name: String, properties: [String: Any]?, sync: Bool)
+    func screen(title: String, properties: [String: Any]?, sync: Bool)
 
     func register(subscriber: AnalyticsSubscriber)
     func remove(subscriber: AnalyticsSubscriber)
@@ -21,19 +20,8 @@ internal protocol AnalyticsPublisher: AnyObject {
 }
 
 extension AnalyticsPublisher {
-    func identify(userID: String) {
-        identify(userID: userID, properties: nil)
-    }
-
-    func track(name: String) {
-        track(name: name, properties: nil)
-    }
-
-    func track<T>(_ item: T, properties: [String: Any]? = nil) where T: RawRepresentable, T.RawValue == String {
-        track(name: item.rawValue, properties: properties)
-    }
-
-    func screen(title: String) {
-        screen(title: title, properties: nil)
+    // helper used for internal SDK events to allow for enum cases to be passed for the event name
+    func track<T>(_ item: T, properties: [String: Any]? = nil, sync: Bool = false) where T: RawRepresentable, T.RawValue == String {
+        track(name: item.rawValue, properties: properties, sync: sync)
     }
 }

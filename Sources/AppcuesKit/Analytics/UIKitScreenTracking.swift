@@ -42,6 +42,6 @@ internal class UIKitScreenTracking {
         guard let title = title, lastTrackedScreen != title else { return }
 
         lastTrackedScreen = title
-        publisher.screen(title: title)
+        publisher.screen(title: title, properties: nil, sync: true)
     }
 }

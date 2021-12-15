@@ -11,7 +11,7 @@ import Foundation
 /// API request body for registering user activity.
 internal struct Activity {
     let requestID = UUID()
-    let events: [Event]?
+    var events: [Event]?
     let profileUpdate: [String: Any]?
     let userID: String
     let accountID: String
