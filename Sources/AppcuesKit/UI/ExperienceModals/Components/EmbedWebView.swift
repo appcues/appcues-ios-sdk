@@ -13,7 +13,7 @@ import WebKit
 internal struct EmbedWebView: UIViewRepresentable {
     let embed: String
 
-    func makeUIView(context: UIViewRepresentableContext<EmbedWebView>) -> WKWebView {
+    func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
         config.allowsInlineMediaPlayback = true // video plays in its position, not popping open fullscreen
         config.mediaTypesRequiringUserActionForPlayback = [] // for video autoplay
@@ -32,7 +32,5 @@ internal struct EmbedWebView: UIViewRepresentable {
         return webview
     }
 
-    func updateUIView(_ webview: WKWebView, context: UIViewRepresentableContext<EmbedWebView>) {
-        webview.loadHTMLString(embed, baseURL: nil)
-    }
+    func updateUIView(_ webview: WKWebView, context: Context) { }
 }
