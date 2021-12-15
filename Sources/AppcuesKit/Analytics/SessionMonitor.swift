@@ -51,7 +51,7 @@ internal class SessionMonitor {
         guard !storage.userID.isEmpty else { return }
 
         sessionID = UUID()
-        publisher.track(SessionEvents.sessionStarted)
+        publisher.track(SessionEvents.sessionStarted, sync: true)
     }
 
     // called on reset(), user sign-out
@@ -68,7 +68,7 @@ internal class SessionMonitor {
         self.applicationBackgrounded = nil
 
         if elapsed >= sessionTimeout {
-            publisher.track(SessionEvents.sessionStarted)
+            publisher.track(SessionEvents.sessionStarted, sync: true)
         } else {
             publisher.track(SessionEvents.sessionResumed)
         }

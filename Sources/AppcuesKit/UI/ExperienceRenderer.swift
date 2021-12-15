@@ -59,7 +59,7 @@ internal class ExperienceRenderer {
             "localeName": "default",
             "localeId": "default"
         ]
-        analyticsPublisher.track(name: "appcues:flow_attempted", properties: flowProperties)
+        analyticsPublisher.track(name: "appcues:flow_attempted", properties: flowProperties, sync: false)
 
         guard let modalStepGroup: ModalGroup = flow.steps.compactMap({ $0 as? ModalGroup }).first else {
             // Currently only supporting a single ModalGroup. Additional modal groups or other types aren't supported yet.
@@ -93,25 +93,25 @@ extension ExperienceRenderer: ExperienceEventDelegate {
             var properties = event.properties
             properties["stepChildId"] = properties["stepId"]
             properties["stepChildNumber"] = 0
-            analyticsPublisher.track(name: "appcues:step_child_error", properties: properties)
+            analyticsPublisher.track(name: "appcues:step_child_error", properties: properties, sync: false)
         case .stepCompleted:
             var properties = event.properties
             properties["stepChildId"] = properties["stepId"]
             properties["stepChildNumber"] = 0
-            analyticsPublisher.track(name: "appcues:step_child_deactivated", properties: properties)
+            analyticsPublisher.track(name: "appcues:step_child_deactivated", properties: properties, sync: false)
         default:
             break
         }
 
         // TODO: Charles causes an infinite event tracking loop here if Map Local is being used to return an experience
-        analyticsPublisher.track(name: event.name, properties: event.properties)
+        analyticsPublisher.track(name: event.name, properties: event.properties, sync: false)
 
         switch event {
         case .stepStarted:
             var properties = event.properties
             properties["stepChildId"] = properties["stepId"]
             properties["stepChildNumber"] = 0
-            analyticsPublisher.track(name: "appcues:step_child_activated", properties: properties)
+            analyticsPublisher.track(name: "appcues:step_child_activated", properties: properties, sync: false)
         default:
             break
         }
