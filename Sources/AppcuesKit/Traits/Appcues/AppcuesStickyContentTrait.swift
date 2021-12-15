@@ -63,17 +63,17 @@ internal struct AppcuesStickyContentTrait: ExperienceTrait {
         stickyContentVC.didMove(toParent: experienceController)
 
         // Pass sticky content size changes to the parent controller to update the insets.
-        stickyContentVC.onSizeChange = { size in
+        stickyContentVC.onSizeChange = { size, safeArea in
             switch edge {
             case .top:
-                experienceController.customScrollInsets.top = size.height
+                experienceController.customScrollInsets.top = size.height - safeArea.top
             case .leading:
                 // TODO: mapping left->leading could be backwards for RTL
-                experienceController.customScrollInsets.left = size.width
+                experienceController.customScrollInsets.left = size.width - safeArea.left
             case .bottom:
-                experienceController.customScrollInsets.bottom = size.height
+                experienceController.customScrollInsets.bottom = size.height - safeArea.bottom
             case .trailing:
-                experienceController.customScrollInsets.right = size.width
+                experienceController.customScrollInsets.right = size.width - safeArea.right
             }
         }
 
@@ -86,7 +86,7 @@ extension AppcuesStickyContentTrait {
     /// HostingController that reports `frame` size changes.
     class StickyHostingController<Content: View>: AppcuesHostingController<Content> {
 
-        var onSizeChange: ((CGSize) -> Void)?
+        var onSizeChange: ((CGSize, UIEdgeInsets) -> Void)?
 
         private var previousSize: CGSize = .zero
 
@@ -99,7 +99,7 @@ extension AppcuesStickyContentTrait {
             super.viewDidLayoutSubviews()
 
             if view.frame.size != previousSize {
-                onSizeChange?(view.frame.size)
+                onSizeChange?(view.frame.size, view.safeAreaInsets)
                 previousSize = view.frame.size
             }
         }

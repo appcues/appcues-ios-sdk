@@ -49,10 +49,18 @@ extension View {
     func applyBackgroundStyle(_ style: AppcuesStyle) -> some View {
         self
             .ifLet(style.backgroundColor) { view, val in
-                view.background(val)
+                if #available(iOS 14.0, *) {
+                    view.background(val.ignoresSafeArea(.container, edges: .all))
+                } else {
+                    view.background(val.edgesIgnoringSafeArea(.all))
+                }
             }
             .ifLet(style.backgroundGradient) { view, val in
-                view.background(val)
+                if #available(iOS 14.0, *) {
+                    view.background(val.ignoresSafeArea(.container, edges: .all))
+                } else {
+                    view.background(val.edgesIgnoringSafeArea(.all))
+                }
             }
             .ifLet(style.cornerRadius) { view, val in
                 view.cornerRadius(val)
