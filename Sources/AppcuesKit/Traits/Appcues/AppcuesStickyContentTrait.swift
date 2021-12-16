@@ -46,13 +46,13 @@ internal struct AppcuesStickyContentTrait: ExperienceTrait {
         }
         switch edge {
         case .top:
-            constraints.append(stickyContentVC.view.topAnchor.constraint(equalTo: experienceController.view.topAnchor))
+            constraints.append(stickyContentVC.view.bottomAnchor.constraint(equalTo: experienceController.view.safeAreaLayoutGuide.topAnchor))
         case .leading:
-            constraints.append(stickyContentVC.view.leadingAnchor.constraint(equalTo: experienceController.view.leadingAnchor))
+            constraints.append(stickyContentVC.view.trailingAnchor.constraint(equalTo: experienceController.view.safeAreaLayoutGuide.leadingAnchor))
         case .bottom:
-            constraints.append(stickyContentVC.view.bottomAnchor.constraint(equalTo: experienceController.view.bottomAnchor))
+            constraints.append(stickyContentVC.view.topAnchor.constraint(equalTo: experienceController.view.safeAreaLayoutGuide.bottomAnchor))
         case .trailing:
-            constraints.append(stickyContentVC.view.trailingAnchor.constraint(equalTo: experienceController.view.trailingAnchor))
+            constraints.append(stickyContentVC.view.leadingAnchor.constraint(equalTo: experienceController.view.safeAreaLayoutGuide.trailingAnchor))
         }
 
         // Add the stick content to the parent controller.
@@ -66,14 +66,14 @@ internal struct AppcuesStickyContentTrait: ExperienceTrait {
         stickyContentVC.onSizeChange = { size, safeArea in
             switch edge {
             case .top:
-                experienceController.customScrollInsets.top = size.height - safeArea.top
+                experienceController.additionalSafeAreaInsets.top = size.height - safeArea.top
             case .leading:
                 // TODO: mapping left->leading could be backwards for RTL
-                experienceController.customScrollInsets.left = size.width - safeArea.left
+                experienceController.additionalSafeAreaInsets.left = size.width - safeArea.left
             case .bottom:
-                experienceController.customScrollInsets.bottom = size.height - safeArea.bottom
+                experienceController.additionalSafeAreaInsets.bottom = size.height - safeArea.bottom
             case .trailing:
-                experienceController.customScrollInsets.right = size.width - safeArea.right
+                experienceController.additionalSafeAreaInsets.right = size.width - safeArea.right
             }
         }
 
