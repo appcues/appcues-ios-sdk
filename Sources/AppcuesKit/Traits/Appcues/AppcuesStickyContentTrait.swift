@@ -30,36 +30,11 @@ internal struct AppcuesStickyContentTrait: ExperienceTrait {
         // Must have the environmentObject so any actions in the sticky content can be applied.
         let stickyContentVC = StickyHostingController(rootView: content.view.environmentObject(experienceController.viewModel))
 
-        // Determine the constraints for the sticky view by the `Edge` it's attached to.
-        var constraints: [NSLayoutConstraint] = []
-        switch edge {
-        case .top, .bottom:
-            constraints.append(contentsOf: [
-                stickyContentVC.view.leadingAnchor.constraint(equalTo: experienceController.view.leadingAnchor),
-                stickyContentVC.view.trailingAnchor.constraint(equalTo: experienceController.view.trailingAnchor)
-            ])
-        case .leading, .trailing:
-            constraints.append(contentsOf: [
-                stickyContentVC.view.topAnchor.constraint(equalTo: experienceController.view.topAnchor),
-                stickyContentVC.view.bottomAnchor.constraint(equalTo: experienceController.view.bottomAnchor)
-            ])
-        }
-        switch edge {
-        case .top:
-            constraints.append(stickyContentVC.view.bottomAnchor.constraint(equalTo: experienceController.view.safeAreaLayoutGuide.topAnchor))
-        case .leading:
-            constraints.append(stickyContentVC.view.trailingAnchor.constraint(equalTo: experienceController.view.safeAreaLayoutGuide.leadingAnchor))
-        case .bottom:
-            constraints.append(stickyContentVC.view.topAnchor.constraint(equalTo: experienceController.view.safeAreaLayoutGuide.bottomAnchor))
-        case .trailing:
-            constraints.append(stickyContentVC.view.leadingAnchor.constraint(equalTo: experienceController.view.safeAreaLayoutGuide.trailingAnchor))
-        }
-
         // Add the stick content to the parent controller.
         experienceController.addChild(stickyContentVC)
         experienceController.view.insertSubview(stickyContentVC.view, aboveSubview: experienceController.scrollView)
         stickyContentVC.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate(constraints)
+        NSLayoutConstraint.activate(constraints(for: edge, container: experienceController.view, child: stickyContentVC.view))
         stickyContentVC.didMove(toParent: experienceController)
 
         // Pass sticky content size changes to the parent controller to update the insets.
@@ -79,6 +54,35 @@ internal struct AppcuesStickyContentTrait: ExperienceTrait {
 
         // Return the unmodified `wrappingController`.
         return wrappingController
+    }
+
+    // Determine the constraints for the sticky view by the `Edge` it's attached to.
+    private func constraints(for: Edge, container containerView: UIView, child stickyView: UIView) -> [NSLayoutConstraint] {
+        var constraints: [NSLayoutConstraint] = []
+        switch edge {
+        case .top, .bottom:
+            constraints.append(contentsOf: [
+                stickyView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+                stickyView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor)
+            ])
+        case .leading, .trailing:
+            constraints.append(contentsOf: [
+                stickyView.topAnchor.constraint(equalTo: containerView.topAnchor),
+                stickyView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
+            ])
+        }
+        switch edge {
+        case .top:
+            constraints.append(stickyView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor))
+        case .leading:
+            constraints.append(stickyView.trailingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.leadingAnchor))
+        case .bottom:
+            constraints.append(stickyView.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor))
+        case .trailing:
+            constraints.append(stickyView.leadingAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.trailingAnchor))
+        }
+
+        return constraints
     }
 }
 
