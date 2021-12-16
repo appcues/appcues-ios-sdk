@@ -32,6 +32,10 @@ internal struct AppcuesModalTrait: ExperienceTrait {
     func apply(to experienceController: UIViewController, containedIn wrappingController: UIViewController) -> UIViewController {
         wrappingController.modalPresentationStyle = presentationStyle.modalPresentationStyle
 
+        if skippable {
+            experienceController.addDismissButton()
+        }
+
         if presentationStyle == .dialog {
             return DialogContainerViewController(
                 dialogViewController: experienceController,
@@ -71,5 +75,25 @@ extension AppcuesModalTrait {
                 return .pageSheet
             }
         }
+    }
+}
+
+private extension UIViewController {
+    func addDismissButton() {
+        let dismissButton = UIButton(type: .close)
+        dismissButton.translatesAutoresizingMaskIntoConstraints = false
+        dismissButton.addTarget(self, action: #selector(dismissButtonTapped), for: .touchUpInside)
+
+        view.addSubview(dismissButton)
+
+        NSLayoutConstraint.activate([
+            view.trailingAnchor.constraint(equalToSystemSpacingAfter: dismissButton.trailingAnchor, multiplier: 1),
+            dismissButton.topAnchor.constraint(equalToSystemSpacingBelow: view.safeAreaLayoutGuide.topAnchor, multiplier: 1)
+        ])
+    }
+
+    @objc
+    func dismissButtonTapped() {
+        dismiss(animated: true)
     }
 }

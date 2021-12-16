@@ -14,7 +14,6 @@ internal class TraitRegistry {
     init(container: DIContainer) {
         // Register default traits
         register(trait: AppcuesModalTrait.self)
-        register(trait: AppcuesSkippableTrait.self)
         register(trait: AppcuesStickyContentTrait.self)
     }
 
