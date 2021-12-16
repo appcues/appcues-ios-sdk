@@ -11,7 +11,7 @@ import Foundation
 internal struct TrackingUpdate {
 
     enum TrackingType {
-        case event(String)
+        case event(name: String, sync: Bool)
         case screen(String)
         case profile
         case group
@@ -32,9 +32,21 @@ internal struct TrackingUpdate {
     }
 
     let type: TrackingType
-    let policy: Policy
     var properties: [String: Any]?
     let timestamp = Date()
+
+    var policy: Policy {
+        switch type {
+        case let .event(_, sync):
+            return sync ? .queueThenFlush : .queue
+
+        case .screen:
+            return .queueThenFlush
+
+        case .group, .profile:
+            return .flushThenSend
+        }
+    }
 }
 
 extension TrackingUpdate: CustomStringConvertible {

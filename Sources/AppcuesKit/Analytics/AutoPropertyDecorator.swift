@@ -38,7 +38,7 @@ internal class AutoPropertyDecorator: TrackingDecorator {
             previousScreen = currentScreen
             currentScreen = title
             sessionPageviews += 1
-        case .event(SessionMonitor.SessionEvents.sessionStarted.rawValue):
+        case .event(SessionMonitor.SessionEvents.sessionStarted.rawValue, _):
             sessionPageviews = 0
             sessionRandomizer = Int.random(in: 1...100)
         case .group:

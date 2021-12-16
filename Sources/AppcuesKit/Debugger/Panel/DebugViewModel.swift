@@ -113,10 +113,10 @@ extension DebugViewModel {
             self.properties = update.properties
 
             switch update.type {
-            case .event("appcues:flow_attempted"):
+            case .event("appcues:flow_attempted", _):
                 self.type = .experience
                 self.name = (properties?["flowName"] as? String) ?? "Flow"
-            case let .event(name):
+            case let .event(name, _):
                 self.type = .event
                 self.name = name
             case let .screen(title):
