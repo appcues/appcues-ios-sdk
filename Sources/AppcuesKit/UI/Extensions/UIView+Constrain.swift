@@ -20,4 +20,14 @@ extension UIView {
             self.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
+
+    func center(in view: UIView) {
+       self.translatesAutoresizingMaskIntoConstraints = false
+
+       NSLayoutConstraint.activate([
+           self.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+           self.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+       ])
+   }
+
 }
