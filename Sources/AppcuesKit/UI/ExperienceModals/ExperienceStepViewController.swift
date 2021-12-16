@@ -17,15 +17,6 @@ internal class ExperienceStepViewController: UIViewController {
     private let contentViewController: UIViewController
     lazy var scrollView = UIScrollView()
 
-    var customScrollInsets: UIEdgeInsets = .zero {
-        didSet {
-            // Set the insets on `contentViewController` so that sticky views don't cause a loop where they try to
-            // inset by the `additionalSafeAreaInsets` they set.
-            contentViewController.additionalSafeAreaInsets = customScrollInsets
-            scrollView.verticalScrollIndicatorInsets = customScrollInsets
-        }
-    }
-
     init(viewModel: ExperienceStepViewModel) {
         self.viewModel = viewModel
 
