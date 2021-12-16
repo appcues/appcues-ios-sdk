@@ -114,6 +114,7 @@ private extension UIViewController {
             let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect)
 
             let blurredEffectView = UIVisualEffectView(effect: blurEffect)
+            blurredEffectView.isUserInteractionEnabled = false
             let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
             let imageView = UIImageView(image: xmark)
 
