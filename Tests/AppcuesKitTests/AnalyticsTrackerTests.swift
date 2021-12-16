@@ -51,7 +51,7 @@ class AnalyticsTrackerTests: XCTestCase {
         mock.register()
 
         appcues.container.resolve(Storage.self).userID = "specific-user-id" //simulates identify()
-        let update = TrackingUpdate(type: .profile, properties: ["my_key":"my_value", "another_key": 33])
+        let update = TrackingUpdate(type: .profile, policy: .flushThenSend, properties: ["my_key":"my_value", "another_key": 33])
 
         // Act
         analytics.track(update: update)
@@ -78,7 +78,7 @@ class AnalyticsTrackerTests: XCTestCase {
         }
         mock.register()
 
-        let update = TrackingUpdate(type: .event("eventName"), properties: ["my_key":"my_value", "another_key": 33])
+        let update = TrackingUpdate(type: .event("eventName"), policy: .queueThenFlush, properties: ["my_key":"my_value", "another_key": 33])
 
         // Act
         analytics.track(update: update)
@@ -105,7 +105,7 @@ class AnalyticsTrackerTests: XCTestCase {
         }
         mock.register()
 
-        let update = TrackingUpdate(type: .screen("My test page"), properties: ["my_key":"my_value", "another_key": 33])
+        let update = TrackingUpdate(type: .screen("My test page"), policy: .queueThenFlush, properties: ["my_key":"my_value", "another_key": 33])
 
         // Act
         analytics.track(update: update)
