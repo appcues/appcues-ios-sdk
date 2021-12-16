@@ -76,7 +76,7 @@ public class Appcues {
         }
 
         storage.groupID = groupID
-        publish(TrackingUpdate(type: .group, policy: .flushThenSend, properties: properties))
+        publish(TrackingUpdate(type: .group, properties: properties))
     }
 
     /// Generate a unique ID for the current user when there is not a known identity to use in
@@ -110,7 +110,7 @@ public class Appcues {
     ///   - title: Name of the screen.
     ///   - properties: Optional properties that provide additional context about the event.
     public func screen(title: String, properties: [String: Any]? = nil) {
-        screen(title: title, properties: properties, sync: true)
+        publish(TrackingUpdate(type: .screen(title), properties: properties))
     }
 
     /// Forces specific Appcues content to appear for the current user by passing in the ID.
@@ -214,17 +214,13 @@ public class Appcues {
             // and clear any stored group information - will have to be reset as needed
             storage.groupID = nil
         }
-        publish(TrackingUpdate(type: .profile, policy: .flushThenSend, properties: properties))
+        publish(TrackingUpdate(type: .profile, properties: properties))
     }
 }
 
 extension Appcues: AnalyticsPublisher {
     func track(name: String, properties: [String: Any]?, sync: Bool) {
-        publish(TrackingUpdate(type: .event(name), policy: sync ? .queueThenFlush : .queue, properties: properties))
-    }
-
-    func screen(title: String, properties: [String: Any]?, sync: Bool) {
-        publish(TrackingUpdate(type: .screen(title), policy: sync ? .queueThenFlush : .queue, properties: properties))
+        publish(TrackingUpdate(type: .event(name: name, sync: sync), properties: properties))
     }
 
     func register(subscriber: AnalyticsSubscriber) {

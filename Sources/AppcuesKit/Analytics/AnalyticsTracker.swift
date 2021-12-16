@@ -101,7 +101,7 @@ internal class AnalyticsTracker: AnalyticsSubscriber {
 extension Activity {
     init?(from update: TrackingUpdate, config: Appcues.Config, storage: Storage) {
         switch update.type {
-        case let .event(name):
+        case let .event(name, _):
             self.init(accountID: config.accountID,
                       userID: storage.userID,
                       events: [Event(name: name, attributes: update.properties)],
