@@ -54,7 +54,7 @@ internal enum DebugUI {
                 if let propertyGroups = event.eventProperties {
                     ForEach(propertyGroups, id: \.title) { title, items in
                         Section(header: Text(title)) {
-                            ForEach(items, id: \.value) { title, value in
+                            ForEach(items, id: \.title) { title, value in
                                 EventDetailRowView(title: title, value: value)
                             }
                         }
