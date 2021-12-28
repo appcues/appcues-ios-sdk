@@ -16,7 +16,9 @@ internal struct AppcuesEmbed: View {
 
     var body: some View {
         EmbedWebView(embed: model.embed)
-            .aspectRatio(model.intrinsicSize?.aspectRatio, contentMode: .fill)
+            .ifLet(model.intrinsicSize?.aspectRatio) { view, val in
+                view.aspectRatio(val, contentMode: .fill)
+            }
             .applyAllAppcues(AppcuesStyle(from: model.style))
     }
 }
