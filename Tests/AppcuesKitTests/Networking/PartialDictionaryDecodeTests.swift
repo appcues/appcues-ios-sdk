@@ -37,7 +37,16 @@ class PartialDictionaryDecodeTests: XCTestCase {
                             "content": {
                                 "type": "button",
                                 "id": "c34f7d02-443d-497c-ac3a-1a9b42af9dd8",
-                                "text": "Button 1",
+                                "content": {
+                                    "type": "text",
+                                    "id": "6a43a477-7fc1-475e-998a-9b33ef6ad481",
+                                    "text": "Button 1",
+                                    "style": {
+                                        "fontName": "Lato-Bold",
+                                        "fontSize": 17,
+                                        "foregroundColor": { "light": "#fff" }
+                                    }
+                                },
                                 "style": {
                                     "marginTop": 20,
                                     "marginBottom": 20,
@@ -45,14 +54,11 @@ class PartialDictionaryDecodeTests: XCTestCase {
                                     "paddingLeading": 18,
                                     "paddingBottom": 8,
                                     "paddingTrailing": 18,
-                                    "fontName": "Lato-Bold",
-                                    "fontSize": 17,
                                     "backgroundGradient": {
                                         "colors": [{ "light": "#5C5CFF" }, { "light": "#8960FF" }],
                                         "startPoint": "leading",
                                         "endPoint": "trailing"
                                     },
-                                    "foregroundColor": { "light": "#fff" },
                                     "cornerRadius": 6,
                                     "shadow": {
                                         "color": { "light": "#777777ee" },
