@@ -19,15 +19,10 @@ internal struct AppcuesButton: View {
         Button() {
             // handle tap in `.setupActions`
         } label: {
-            Text(model.text)
-                .applyTextStyle(style)
-                .applyForegroundStyle(style)
-                .applyInternalLayout(style)
+            model.content.view
         }
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyBackgroundStyle(style)
-        .applyBorderStyle(style)
-        .applyExternalLayout(style)
+        .applyAllAppcues(style)
     }
 }
 
@@ -37,7 +32,7 @@ internal struct AppcuesButtonPreview: PreviewProvider {
         Group {
             AppcuesButton(model: EC.ButtonModel(
                 id: UUID(),
-                text: "Default Button",
+                content: ExperienceComponent.text(ExperienceComponent.TextModel(id: UUID(), text: "Default Button", style: nil)),
                 style: nil)
             )
                 .previewLayout(PreviewLayout.sizeThatFits)

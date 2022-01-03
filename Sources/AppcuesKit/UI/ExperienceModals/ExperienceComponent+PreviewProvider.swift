@@ -32,17 +32,17 @@ extension ExperienceComponent {
 
     static let buttonPrimary = ButtonModel(
         id: UUID(),
-        text: "Primary Button",
+        content: ExperienceComponent.text(TextModel(id: UUID(), text: "Primary Button", style: nil)),
         style: Style.primaryButton)
 
     static let buttonSecondary = ButtonModel(
         id: UUID(),
-        text: "Secondary Button",
+        content: ExperienceComponent.text(TextModel(id: UUID(), text: "Secondary Button", style: nil)),
         style: Style.secondaryButton)
 
     static let buttonCallToAction = ButtonModel(
         id: UUID(),
-        text: "Call to Action",
+        content: ExperienceComponent.text(TextModel(id: UUID(), text: "Call to Action", style: nil)),
         style: Style.primaryButton)
 
     static let imageSymbol = ImageModel(

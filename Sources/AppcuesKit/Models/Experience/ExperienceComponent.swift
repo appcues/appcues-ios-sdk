@@ -14,7 +14,7 @@ internal protocol ComponentModel {
 }
 
 @dynamicMemberLookup
-internal enum ExperienceComponent {
+internal indirect enum ExperienceComponent {
     case pager(PagerModel)
     case stack(StackModel)
     case box(BoxModel)
@@ -138,7 +138,7 @@ extension ExperienceComponent {
 
     struct ButtonModel: ComponentModel, Decodable {
         let id: UUID
-        let text: String
+        let content: ExperienceComponent
 
         let style: Style?
     }
