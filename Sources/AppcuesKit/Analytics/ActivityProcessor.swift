@@ -19,9 +19,10 @@ internal class ActivityProcessor {
         let userID: String
         let requestID: String
         let data: Data
+        let created: Date
 
         // could have a more advanced policy for things like only attempting after x seconds
-        var lastAttempt = Date()
+        var lastAttempt: Date?
         // or only attempting a max X times then clearing from cache
         var numberOfAttempts = 0
 
@@ -33,27 +34,7 @@ internal class ActivityProcessor {
             self.userID = activity.userID
             self.requestID = activity.requestID.uuidString
             self.data = data
-        }
-
-        mutating func saveAttempt(in directory: URL) {
-            lastAttempt = Date()
-            numberOfAttempts += 1
-
-            let jsonString = self.toString()
-            if let jsonData = jsonString.data(using: .utf8) {
-                let file = directory.appendingPathComponent(requestID)
-                // will replace if exists (shouldnt)
-                FileManager.default.createFile(atPath: file.path, contents: jsonData)
-            }
-        }
-
-        func remove(from directory: URL) {
-            do {
-                let file = directory.appendingPathComponent(requestID)
-                try FileManager.default.removeItem(atPath: file.path)
-            } catch {
-                print("Failed to remove: \(error)")
-            }
+            self.created = Date()
         }
     }
 
@@ -74,100 +55,138 @@ internal class ActivityProcessor {
         return appcuesURL
     }
 
+    private var getPendingFiles: [URL] {
+        let allFiles = try? FileManager
+            .default.contentsOfDirectory(at: storageDirectory, includingPropertiesForKeys: [], options: .skipsHiddenFiles)
+        // exclude any items that are currently in flight / first time requests
+        return allFiles?.filter { !processingItems.contains($0.lastPathComponent) } ?? []
+    }
+
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
         self.networking = container.resolve(Networking.self)
     }
 
-    func process(_ activity: Activity?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
-        guard let activity = activity,
-              var cache = ActivityCache(activity) else {
-                  return
-              }
-
-        // first, add to list of items in process - so a background retry does not include this
-        processingItems.insert(cache.requestID)
-
-        // second, store this item to a file - so we can retry later should anything go wrong, app killed, etc
-        cache.saveAttempt(in: storageDirectory)
-
-        // third, try to POST out to the network
-        post(activity: cache, sync: sync, isRetry: false, completion: completion)
+    // supports clearing out any pending cache from elsewhere - session start?
+    func flush() {
+        flush(cache: nil, sync: false, completion: nil)
     }
 
-    private func post(activity: ActivityCache, sync: Bool, isRetry: Bool, completion: ((Result<Taco, Error>) -> Void)? = nil) {
+    func process(_ activity: Activity?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
+        guard let activity = activity, let cache = ActivityCache(activity) else { return }
+
+        // store this item to a file - so we can retry later should anything go wrong, app killed, etc
+        store(cache)
+
+        // then flush the cache, including this current item and perhaps anything else that needs retry
+        flush(cache: cache, sync: sync, completion: completion)
+    }
+
+    private func flush(cache: ActivityCache?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
+        // now gather up all the pending files in cache (might be more failed items before this one)
+        // and sort them by create date
+        let activities: [ActivityCache] = getPendingFiles.compactMap {
+            if let jsonData = try? String(contentsOf: $0, encoding: .utf8).data(using: .utf8) {
+               return try? decoder.decode(ActivityCache.self, from: jsonData)
+            }
+            return nil
+        }.sorted { $0.created < $1.created }
+
+        // mark them all as requests in process
+        let requests = activities.map { $0.requestID }
+        processingItems.formUnion(requests)
+
+        post(activities: activities, currentRequestID: cache?.requestID, currentSync: sync, currentCompletion: completion)
+    }
+
+    private func post(activities: [ActivityCache],
+                      currentRequestID: String?,
+                      currentSync: Bool,
+                      currentCompletion: ((Result<Taco, Error>) -> Void)?) {
+        var activities = activities
+        guard !activities.isEmpty else { return } // done - nothing in the queue
+
+        let activity = activities.removeFirst()
+
+        // check if this item in the list is the "current" activity that triggered this processing initially
+        let isCurrent = activity.requestID == currentRequestID
+
+        // if so, make sure its completion gets passed along.  any other retry attempts will not have completion blocks
+        let completion = isCurrent ? currentCompletion : nil
+
+        // similarly, pass along the `sync` value (synchronous qualification flag) for the current activity
+        let sync = isCurrent ? currentSync : false
+
         networking.post(
             to: Networking.APIEndpoint.activity(userID: activity.userID, sync: sync),
             body: activity.data
         ) { [weak self] (result: Result<Taco, Error>) in
 
-            switch result {
-            case .success:
-                self?.completeProcessing(activity: activity, success: true, isRetry: isRetry)
+            guard let self = self else { return }
 
-            case .failure(let error):
-
-                // we only want to keep in the queue for retry if it was a client side issue with connection
-                // are there other error cases we should consider here beyond those identified in the switch below?
-                // https://developer.apple.com/documentation/foundation/urlerror/2293104-notconnectedtointernet
-                // some for example:
-                // cannotFindHost, dataNotAllowed, dnsLookupFailed, networkConnectionLost, ...
-                let success: Bool
-                switch error {
-                case URLError.notConnectedToInternet, URLError.timedOut:
-                    success = false
-                default:
-                    // all other responses are considered a successful request, in terms of client behavior
-                    // and we should clear the item out of cache and not retry.  This avoid continously sending
-                    // something that the server is rejecting as malformed, for example.
-                    success = true
-                }
-
-                // in the future, we may retry on some types of server errors, but out of scope currently.
-                self?.completeProcessing(activity: activity, success: success, isRetry: isRetry)
+            var success = true
+            if case let .failure(error) = result, error.requiresRetry {
+                success = false
             }
+
+            // if it was successful (or retry not enabled), no retry needed - clean out the file
+            if success {
+                self.remove(activity)
+            }
+
+            // then, always remove it from the list of current items "in flight" - this allows
+            // a later retry to run, if it was needed
+            self.processingItems.remove(activity.requestID)
 
             completion?(result)
+
+            // recurse on remainder of the queue
+            self.post(activities: activities,
+                      currentRequestID: currentRequestID,
+                      currentSync: currentSync,
+                      currentCompletion: currentCompletion)
         }
     }
 
-    // depending on success/fail - clean up cache and processing state
-    private func completeProcessing(activity: ActivityCache, success: Bool, isRetry: Bool) {
-        // if it was successful, no retry needed - clean out the file
-        if success {
-            activity.remove(from: storageDirectory)
-        }
-
-        // then, always remove it from the list of current items "in flight" - this allows
-        // a later retry to run, if it was needed
-        processingItems.remove(activity.requestID)
-
-        // do not want to trigger another retry pass from within a retry, `isRetry` guards against that
-        if !isRetry, success {
-            retryIfNeeded()
-        }
+    private func remove(_ activity: ActivityCache) {
+        let file = storageDirectory.appendingPathComponent(activity.requestID)
+        try? FileManager.default.removeItem(atPath: file.path)
     }
 
-    private func retryIfNeeded() {
-        let files = getFilesForRetry()
-        files.forEach {
-            if let jsonData = try? String(contentsOf: $0, encoding: .utf8).data(using: .utf8),
-               var activity = try? decoder.decode(ActivityCache.self, from: jsonData) {
+    private func store(_ activity: ActivityCache) {
+        var activity = activity
+        activity.lastAttempt = Date()
+        activity.numberOfAttempts += 1
 
-                processingItems.insert(activity.requestID)
-                activity.saveAttempt(in: storageDirectory)
-
-                // the completion of POST will clean it out of cache, if successful
-                post(activity: activity, sync: false, isRetry: true)
-            }
+        let jsonString = activity.toString()
+        if let jsonData = jsonString.data(using: .utf8) {
+            let file = storageDirectory.appendingPathComponent(activity.requestID)
+            // will replace if exists (shouldnt)
+            FileManager.default.createFile(atPath: file.path, contents: jsonData)
         }
     }
+}
 
-    private func getFilesForRetry() -> [URL] {
-        let allFiles = try? FileManager
-            .default.contentsOfDirectory(at: storageDirectory, includingPropertiesForKeys: [], options: .skipsHiddenFiles)
-        // exclude any items that are currently in flight / first time requests
-        return allFiles?.filter { !processingItems.contains($0.lastPathComponent) } ?? []
+private extension Error {
+    var requiresRetry: Bool {
+        // we only want to keep in the queue for retry if it was a client side issue with connection
+        // are there other error cases we should consider here beyond those identified in the switch below?
+        // https://developer.apple.com/documentation/foundation/urlerror/2293104-notconnectedtointernet
+        // some for example:
+        // cannotFindHost, dnsLookupFailed, networkConnectionLost, ...
+        switch self {
+        case URLError.notConnectedToInternet,
+            URLError.timedOut,
+            URLError.dataNotAllowed,
+            URLError.internationalRoamingOff:
+            return true
+        default:
+            // all other responses are considered a successful request, in terms of client behavior
+            // and we should clear the item out of cache and not retry.  This avoid continously sending
+            // something that the server is rejecting as malformed, for example.
+            // in the future, we may retry on some types of server errors, but out of scope currently.
+            return false
+        }
     }
 }
 
