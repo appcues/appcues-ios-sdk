@@ -67,9 +67,6 @@ internal class ActivityProcessor {
     // keep this list so they can be ignored when gathering up the cache files to attempt a retry with
     private var processingItems: Set<String> = []
 
-    // only allow a single retry attempt from cache files at a time
-    private var isProcessingRetry = false
-
     private var storageDirectory: URL {
         let appcuesURL = FileManager.default.documentsDirectory.appendingPathComponent("appcues/activity/\(config.applicationID)/")
         // try to create it, will fail if already exists - can ignore
@@ -111,20 +108,19 @@ internal class ActivityProcessor {
             case .failure(let error):
 
                 // we only want to keep in the queue for retry if it was a client side issue with connection
-                // are there other error cases we should consider here beyond NSURLErrorNotConnectedToInternet?
+                // are there other error cases we should consider here beyond those identified in the switch below?
                 // https://developer.apple.com/documentation/foundation/urlerror/2293104-notconnectedtointernet
                 // some for example:
-                // timedOut, cannotFindHost, dataNotAllowed, dnsLookupFailed, networkConnectionLost, ...
+                // cannotFindHost, dataNotAllowed, dnsLookupFailed, networkConnectionLost, ...
                 let success: Bool
                 switch error {
-                case URLError.notConnectedToInternet:
+                case URLError.notConnectedToInternet, URLError.timedOut:
                     success = false
                 default:
                     // all other responses are considered a successful request, in terms of client behavior
                     // and we should clear the item out of cache and not retry.  This avoid continously sending
                     // something that the server is rejecting as malformed, for example.
-                    //success = true
-                    success = false // TESTING
+                    success = true
                 }
 
                 // in the future, we may retry on some types of server errors, but out of scope currently.
@@ -153,7 +149,6 @@ internal class ActivityProcessor {
     }
 
     private func retryIfNeeded() {
-        // TODO: any way to avoid hitting filesystem query each time here? is that an issue?
         let files = getFilesForRetry()
         files.forEach {
             if let jsonData = try? String(contentsOf: $0, encoding: .utf8).data(using: .utf8),
