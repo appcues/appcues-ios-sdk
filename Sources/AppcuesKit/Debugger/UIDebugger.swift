@@ -25,6 +25,7 @@ internal class UIDebugger {
 
         self.viewModel = DebugViewModel(
             accountID: config.accountID,
+            applicationID: config.applicationID,
             currentUserID: storage.userID,
             isAnonymous: storage.isAnonymous)
 

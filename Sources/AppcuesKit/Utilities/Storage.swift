@@ -22,9 +22,9 @@ internal class Storage {
 
     private let config: Appcues.Config
 
-    // Note: not using a property wrapper for UserDefaults, since we want to include the account ID
+    // Note: not using a property wrapper for UserDefaults, since we want to include the application ID
     //      as part of the suite name
-    private lazy var defaults = UserDefaults(suiteName: "com.appcues.storage.\(config.accountID)")
+    private lazy var defaults = UserDefaults(suiteName: "com.appcues.storage.\(config.applicationID)")
 
     /// The device ID.  A value generated once upon first initialization of the SDK after installation.
     internal var deviceID: String {

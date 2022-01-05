@@ -180,6 +180,7 @@ public class Appcues {
         container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
         container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
+        container.registerLazy(ActivityProcessor.self, initializer: ActivityProcessor.init)
     }
 
     private func initializeSession() {

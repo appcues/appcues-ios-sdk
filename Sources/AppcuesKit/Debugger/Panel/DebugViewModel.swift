@@ -10,6 +10,7 @@ import Foundation
 
 internal class DebugViewModel: ObservableObject {
     let accountID: String
+    let applicationID: String
     @Published var currentUserID: String {
         didSet {
             userIdentified = !currentUserID.isEmpty
@@ -22,7 +23,10 @@ internal class DebugViewModel: ObservableObject {
 
     var statusItems: [StatusItem] {
         return [
-            StatusItem(verified: true, title: "Installed", subtitle: "Account ID: \(accountID)", detailText: nil),
+            StatusItem(verified: true,
+                       title: "Installed",
+                       subtitle: "Account ID: \(accountID), Application ID: \(applicationID)",
+                       detailText: nil),
             StatusItem(verified: true, title: "Connected to Appcues", subtitle: nil, detailText: nil),
             StatusItem(verified: trackingPages, title: "Tracking Pages", subtitle: nil, detailText: nil),
             StatusItem(verified: userIdentified, title: "User Identified", subtitle: userDescription, detailText: currentUserID)
@@ -36,8 +40,9 @@ internal class DebugViewModel: ObservableObject {
         return nil
     }
 
-    init(accountID: String, currentUserID: String, isAnonymous: Bool) {
+    init(accountID: String, applicationID: String, currentUserID: String, isAnonymous: Bool) {
         self.accountID = accountID
+        self.applicationID = applicationID
         self.currentUserID = currentUserID
         self.isAnonymous = isAnonymous
         self.userIdentified = !currentUserID.isEmpty
