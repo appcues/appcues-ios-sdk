@@ -25,7 +25,7 @@ class AnalyticsTrackerTests: XCTestCase {
 
         appcues = Appcues(config: config)
         appcues.container.resolve(Storage.self).userID = "my-anonymous-id" // set up initial user ID
-        analytics = appcues.container.resolve(AnalyticsTracker.self)        
+        analytics = appcues.container.resolve(AnalyticsTracker.self)
     }
 
     override func tearDownWithError() throws {
