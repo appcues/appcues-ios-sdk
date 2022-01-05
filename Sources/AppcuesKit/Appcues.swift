@@ -130,7 +130,7 @@ public class Appcues {
     }
 
     /// Register an action that can be activated in an `Experience`.
-    /// - Parameter trait: Trait to register.
+    /// - Parameter action: Action to register.
     public func register(action: ExperienceAction.Type) {
         actionRegistry.register(action: action)
     }
