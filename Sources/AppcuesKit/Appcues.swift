@@ -158,7 +158,7 @@ public class Appcues {
     /// guard !<#appcuesInstance#>.didHandleURL(url) else { return true }
     /// ```
     @discardableResult
-    func didHandleURL(_ url: URL) -> Bool {
+    public func didHandleURL(_ url: URL) -> Bool {
         return container.resolve(DeeplinkHandler.self).didHandleURL(url)
     }
 
