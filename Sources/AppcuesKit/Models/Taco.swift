@@ -8,17 +8,13 @@
 
 import Foundation
 
-/// API repsonse stucture for a `sync=1` request and the `/taco` endpoint.
+/// API repsonse stucture for an `/activity` request and the `/taco` endpoint.
 internal struct Taco {
     /// Web modal structure.
     let contents: [Flow]
     /// Mobile experience JSON structure.
     let experiences: [Experience]
     let performedQualification: Bool
-
-    // Note: calls without `sync=1` do not include items above on response, just "ok": true
-    //       thus, all are marked optional for successful parse of the response regardless
-    let ok: String?
 }
 
 extension Taco: Decodable {
@@ -34,7 +30,13 @@ extension Taco: Decodable {
 
         contents = (try? container.decode([Flow].self, forKey: .contents)) ?? []
         experiences = (try? container.decode([Experience].self, forKey: .experiences)) ?? []
-        performedQualification = (try? container.decode(Bool.self, forKey: .performedQualification)) ?? false
-        ok = try? container.decode(String.self, forKey: .ok)
+
+        if (try? container.decode(String.self, forKey: .ok)) != nil {
+            // a reponse with only "ok" is the case when the `sync=1` param is not included - no
+            // syncronous qualification, just internal analytics data
+            performedQualification = false
+        } else {
+            performedQualification = try container.decode(Bool.self, forKey: .performedQualification)
+        }
     }
 }

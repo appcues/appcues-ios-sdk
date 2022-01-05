@@ -20,6 +20,8 @@ internal class SessionMonitor {
 
     private let storage: Storage
     private let publisher: AnalyticsPublisher
+    private let tracker: AnalyticsTracker
+    private let processor: ActivityProcessor
 
     private let sessionTimeout: UInt
 
@@ -32,6 +34,8 @@ internal class SessionMonitor {
 
     init(container: DIContainer) {
         self.publisher = container.resolve(AnalyticsPublisher.self)
+        self.tracker = container.resolve(AnalyticsTracker.self)
+        self.processor = container.resolve(ActivityProcessor.self)
         self.storage = container.resolve(Storage.self)
         self.sessionTimeout = container.resolve(Appcues.Config.self).sessionTimeout
 
@@ -52,6 +56,9 @@ internal class SessionMonitor {
 
         sessionID = UUID()
         publisher.track(SessionEvents.sessionStarted, properties: nil, sync: true)
+
+        // flush any backed up analytics cache
+        processor.flush()
     }
 
     // called on reset(), user sign-out
@@ -72,6 +79,9 @@ internal class SessionMonitor {
         } else {
             publisher.track(SessionEvents.sessionResumed, properties: nil, sync: false)
         }
+
+        // flush any backed up analytics cache
+        processor.flush()
     }
 
     @objc
@@ -79,5 +89,8 @@ internal class SessionMonitor {
         guard sessionID != nil else { return }
         applicationBackgrounded = Date()
         publisher.track(SessionEvents.sessionSuspended, properties: nil, sync: false)
+
+        // ensure any pending in-memory analytics get processed asap
+        tracker.flushAsync()
     }
 }

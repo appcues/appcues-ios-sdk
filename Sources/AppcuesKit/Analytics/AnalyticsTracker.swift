@@ -65,6 +65,12 @@ internal class AnalyticsTracker: AnalyticsSubscriber {
         }
     }
 
+    // to be called when any pending activity should immediately be flushed to cache, and network if possible
+    // i.e. app going to background / being killed
+    func flushAsync() {
+        flushPendingActivity(sync: false)
+    }
+
     private func flushPendingActivity(sync: Bool) {
         flushWorkItem = nil
         let merged = pendingActivity.merge()
@@ -146,14 +152,6 @@ private extension Array where Element == Activity {
             accumulating.append(update)
         }
         return merged
-    }
-}
-
-private extension DispatchSemaphore {
-    func with(_ block: () -> Void) {
-        wait()
-        defer { signal() }
-        block()
     }
 }
 
