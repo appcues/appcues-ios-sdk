@@ -55,6 +55,20 @@ func application(_ application: UIApplication, open url: URL, options: [UIApplic
     return false
 }
 ```
+
+A SwiftUI app can handle the custom URL scheme as part of the `onOpenURL` modifier associated with the `Scene` of your main `App`:
+
+```swift
+var body: some Scene {
+    WindowGroup {
+        MyApp()
+        .onOpenURL { url in
+            guard !appcues.didHandleURL(url) else { return }
+        }
+    }
+}
+```
+
 ### Verifying the Custom URL Scheme
 
 Test that the URL scheme handling is set up correctly by navigating to `appcues-APPCUES_APPLICATION_ID://debugger` in your browser on the device with the app installed.
