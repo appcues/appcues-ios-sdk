@@ -16,7 +16,7 @@ extension Networking {
 
     /// Endpoints in the Appcues API.
     enum APIEndpoint: Endpoint {
-        case activity(sync: Bool)
+        case activity(userID: String, sync: Bool)
         case content(contentID: String)
         case custom(path: String)
 
@@ -27,8 +27,8 @@ extension Networking {
             components.host = config.apiHost
 
             switch self {
-            case let .activity(sync):
-                components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/activity"
+            case let .activity(userID, sync):
+                components.path = "/v1/accounts/\(config.accountID)/users/\(userID)/activity"
                 if sync {
                     components.queryItems = [URLQueryItem(name: "sync", value: "1")]
                 }

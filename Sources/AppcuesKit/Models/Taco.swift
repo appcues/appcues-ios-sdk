@@ -15,6 +15,10 @@ internal struct Taco {
     /// Mobile experience JSON structure.
     let experiences: [Experience]
     let performedQualification: Bool
+
+    // Note: calls without `sync=1` do not include items above on response, just "ok": true
+    //       thus, all are marked optional for successful parse of the response regardless
+    let ok: String?
 }
 
 extension Taco: Decodable {
@@ -22,6 +26,7 @@ extension Taco: Decodable {
         case contents
         case experiences
         case performedQualification
+        case ok
     }
 
     init(from decoder: Decoder) throws {
@@ -29,7 +34,7 @@ extension Taco: Decodable {
 
         contents = (try? container.decode([Flow].self, forKey: .contents)) ?? []
         experiences = (try? container.decode([Experience].self, forKey: .experiences)) ?? []
-
-        performedQualification = try container.decode(Bool.self, forKey: .performedQualification)
+        performedQualification = (try? container.decode(Bool.self, forKey: .performedQualification)) ?? false
+        ok = try? container.decode(String.self, forKey: .ok)
     }
 }

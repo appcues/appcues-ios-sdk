@@ -19,9 +19,10 @@ internal class AnalyticsTracker: AnalyticsSubscriber {
     private lazy var config = container.resolve(Appcues.Config.self)
     private lazy var networking = container.resolve(Networking.self)
     private lazy var experienceRenderer = container.resolve(ExperienceRenderer.self)
+    private lazy var activityStorage = container.resolve(ActivityProcessor.self)
 
     // maintain a batch of asynchronous events that are waiting to be flushed to network
-    private let activityLock = DispatchSemaphore(value: 1)
+    private let syncQueue = DispatchQueue(label: "appcues-analytics")
     private var pendingActivity: [Activity] = []
     private var flushWorkItem: DispatchWorkItem?
 
@@ -35,25 +36,25 @@ internal class AnalyticsTracker: AnalyticsSubscriber {
 
         switch update.policy {
         case .queueThenFlush:
-            activityLock.with {
+            syncQueue.sync {
                 flushWorkItem?.cancel()
                 pendingActivity.append(activity)
                 flushPendingActivity(sync: true)
             }
 
         case .flushThenSend:
-            activityLock.with {
+            syncQueue.sync {
                 flushWorkItem?.cancel()
                 flushPendingActivity(sync: false)
                 flush(activity, sync: true)
             }
 
         case .queue:
-            activityLock.with {
+            syncQueue.sync {
                 pendingActivity.append(activity)
                 if flushWorkItem == nil {
                     let workItem = DispatchWorkItem { [weak self] in
-                        self?.activityLock.with {
+                        self?.syncQueue.sync {
                             self?.flushPendingActivity(sync: false)
                         }
                     }
@@ -72,28 +73,16 @@ internal class AnalyticsTracker: AnalyticsSubscriber {
     }
 
     private func flush(_ activity: Activity?, sync: Bool) {
-        guard let activity = activity, let data = try? Networking.encoder.encode(activity) else { return }
-
-        networking.post(
-            to: Networking.APIEndpoint.activity(sync: sync),
-            body: data
-        ) { [weak self] in
-            self?.handleAnalyticsResponse(result: $0, sync: sync)
-        }
-    }
-
-    private func handleAnalyticsResponse(result: Result<Taco, Error>, sync: Bool) {
-        guard sync else { return }
-        switch result {
-        case .success(let taco):
-            // This prioritizes experiencess over legacy web flows and assumes that the returned flows are ordered by priority.
-            if let experience = taco.experiences.first {
-                experienceRenderer.show(experience: experience)
-            } else if let flow = taco.contents.first {
-                experienceRenderer.show(flow: flow)
+        activityStorage.process(activity, sync: sync) { [weak self] result in
+            guard sync, let experienceRenderer = self?.experienceRenderer else { return }
+            if case let .success(taco) = result {
+                // This prioritizes experiencess over legacy web flows and assumes that the returned flows are ordered by priority.
+                if let experience = taco.experiences.first {
+                    experienceRenderer.show(experience: experience)
+                } else if let flow = taco.contents.first {
+                    experienceRenderer.show(flow: flow)
+                }
             }
-        case .failure(let error):
-            print(error)
         }
     }
 }
