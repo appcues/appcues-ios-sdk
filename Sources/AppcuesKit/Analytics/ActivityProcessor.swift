@@ -67,11 +67,6 @@ internal class ActivityProcessor {
         self.networking = container.resolve(Networking.self)
     }
 
-    // supports clearing out any pending cache from elsewhere - session start?
-    func flush() {
-        flush(cache: nil, sync: false, completion: nil)
-    }
-
     func process(_ activity: Activity?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
         guard let activity = activity, let cache = ActivityCache(activity) else { return }
 
@@ -82,6 +77,11 @@ internal class ActivityProcessor {
         flush(cache: cache, sync: sync, completion: completion)
     }
 
+    // supports clearing out any pending cache from elsewhere - session start?
+    func flush() {
+        flush(cache: nil, sync: false, completion: nil)
+    }
+
     private func flush(cache: ActivityCache?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
         // now gather up all the pending files in cache (might be more failed items before this one)
         // and sort them by create date
@@ -90,13 +90,64 @@ internal class ActivityProcessor {
                return try? decoder.decode(ActivityCache.self, from: jsonData)
             }
             return nil
-        }.sorted { $0.created < $1.created }
+        }
+
+        let itemsToFlush = prepareCache(available: activities)
 
         // mark them all as requests in process
-        let requests = activities.map { $0.requestID }
-        processingItems.formUnion(requests)
+        processingItems.formUnion(itemsToFlush.map { $0.requestID })
 
-        post(activities: activities, currentRequestID: cache?.requestID, currentSync: sync, currentCompletion: completion)
+        post(activities: itemsToFlush, currentRequestID: cache?.requestID, currentSync: sync, currentCompletion: completion)
+    }
+
+    // this method returns the X (based on config) applicable items to flush from the cache.
+    // there may be a bunch of other older things lingering around in the cache filesystem, but
+    // we are not supporting a full offline mode capability at this time - i.e. we'll not flush out
+    // 1,000+ collected items or let things linger indefinitely - the purpose of our cache is simply
+    // a relatively near-term error/retry mechanism for intermittent network instability
+    private func prepareCache(available: [ActivityCache]) -> [ActivityCache] {
+        let activities = available.sorted { $0.created < $1.created }
+        let count = activities.count
+
+        // only flush max X, based on config
+        let cacheSize = Int(config.activityCacheSize)
+        // since items are sorted chronologically, we take the most recent from the end (suffix)
+        let mostRecent = Array(activities.suffix(cacheSize))
+        var outdated: [ActivityCache] = []
+
+        // if there are more items in the cache than allowed, trim off the front, up to our allowed
+        // cache size, and mark them as outdated (for deletion)
+        if count > config.activityCacheSize {
+            outdated.append(contentsOf: activities.prefix(upTo: count - cacheSize))
+        }
+
+        // optionally, if a max age is specified, filter out items that are older
+        var eligible: [ActivityCache]
+        if let maxAgeSeconds = config.activityCacheMaxAge {
+            // need to filter out those older than the max age
+            eligible = []
+            for activity in mostRecent {
+                let elapsed = Int(Date().timeIntervalSince(activity.created))
+                if elapsed > maxAgeSeconds {
+                    // too old
+                    outdated.append(activity)
+                } else {
+                    // good to go
+                    eligible.append(activity)
+                }
+            }
+
+        } else {
+            // no max age, so all of most recent, up to max size, can be sent
+            eligible = mostRecent
+        }
+
+        // remove outdated items from filesystem - no longer valid
+        for oldItem in outdated {
+            remove(oldItem)
+        }
+
+        return eligible
     }
 
     private func post(activities: [ActivityCache],

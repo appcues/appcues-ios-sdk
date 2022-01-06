@@ -34,6 +34,10 @@ public extension Appcues {
 
         var sessionTimeout: UInt = 1_800 // 30 minutes by default
 
+        var activityCacheSize: UInt = 25
+
+        var activityCacheMaxAge: UInt?
+
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
         /// - Parameter applicationID: Appcues Application ID - a string containing a UUID,
@@ -68,6 +72,28 @@ public extension Appcues {
         @discardableResult
         public func sessionTimeout(_ sessionTimeout: UInt) -> Self {
             self.sessionTimeout = sessionTimeout
+            return self
+        }
+
+        /// Set the activity cache size for the configuration.  This value determines how many analytics requests can be
+        /// stored on the local device and retried later, in the case of the device network connection being unavailable.
+        /// Only the most recent requests, up to this count, are retained.
+        /// - Parameter activityCacheSize: The number of items to store, maximum 25, minimum 0.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        public func activityCacheSize(_ activityCacheSize: UInt) -> Self {
+            self.activityCacheSize = max(0, min(25, activityCacheSize))
+            return self
+        }
+
+        /// Sets the activity cache max age for the configuration.  This value determines how long an item can be stored
+        /// on the local device and retried later, in the case of hte device network connection being unavailable.  Only
+        /// requests that are more recent than the max age will be retried - or all, if not set.
+        /// - Parameter activityCacheMaxAge: The max age, in seconds, since now.  The default is `nil`, meaning no max age.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        public func activityCacheMaxAge(_ activityCacheMaxAge: UInt?) -> Self {
+            self.activityCacheMaxAge = activityCacheMaxAge
             return self
         }
 
