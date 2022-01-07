@@ -81,6 +81,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     }
 
     private func flush(_ activity: Activity?, sync: Bool) {
+        guard let activity = activity else { return }
         activityProcessor.process(activity, sync: sync) { [weak self] result in
             guard sync, let experienceRenderer = self?.experienceRenderer else { return }
             if case let .success(taco) = result {

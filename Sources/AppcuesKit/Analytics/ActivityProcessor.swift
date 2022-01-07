@@ -9,7 +9,7 @@
 import Foundation
 
 internal protocol ActivityProcessing {
-    func process(_ activity: Activity?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?)
+    func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?)
     func flush()
 }
 
@@ -72,8 +72,8 @@ internal class ActivityProcessor: ActivityProcessing {
         self.networking = container.resolve(Networking.self)
     }
 
-    func process(_ activity: Activity?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
-        guard let activity = activity, let cache = ActivityCache(activity) else { return }
+    func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
+        guard let cache = ActivityCache(activity) else { return }
 
         // store this item to a file - so we can retry later should anything go wrong, app killed, etc
         store(cache)
