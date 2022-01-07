@@ -21,9 +21,8 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
     private lazy var storage = container.resolve(DataStoring.self)
     private lazy var config = container.resolve(Appcues.Config.self)
-    private lazy var networking = container.resolve(Networking.self)
     private lazy var experienceRenderer = container.resolve(ExperienceRendering.self)
-    private lazy var activityStorage = container.resolve(ActivityProcessing.self)
+    private lazy var activityProcessor = container.resolve(ActivityProcessing.self)
 
     // maintain a batch of asynchronous events that are waiting to be flushed to network
     private let syncQueue = DispatchQueue(label: "appcues-analytics")
@@ -32,7 +31,6 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
     init(container: DIContainer) {
         self.container = container
-        registerForAnalyticsUpdates(container)
     }
 
     func track(update: TrackingUpdate) {
@@ -83,7 +81,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     }
 
     private func flush(_ activity: Activity?, sync: Bool) {
-        activityStorage.process(activity, sync: sync) { [weak self] result in
+        activityProcessor.process(activity, sync: sync) { [weak self] result in
             guard sync, let experienceRenderer = self?.experienceRenderer else { return }
             if case let .success(taco) = result {
                 // This prioritizes experiencess over legacy web flows and assumes that the returned flows are ordered by priority.

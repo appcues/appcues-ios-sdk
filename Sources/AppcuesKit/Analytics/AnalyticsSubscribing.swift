@@ -11,9 +11,3 @@ import Foundation
 internal protocol AnalyticsSubscribing: AnyObject {
     func track(update: TrackingUpdate)
 }
-
-extension AnalyticsSubscribing {
-    func registerForAnalyticsUpdates(_ container: DIContainer) {
-        container.resolve(AnalyticsPublishing.self).register(subscriber: self)
-    }
-}
