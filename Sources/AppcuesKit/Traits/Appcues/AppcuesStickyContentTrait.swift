@@ -32,7 +32,7 @@ internal struct AppcuesStickyContentTrait: ExperienceTrait {
 
         // Add the stick content to the parent controller.
         experienceController.addChild(stickyContentVC)
-        experienceController.view.insertSubview(stickyContentVC.view, aboveSubview: experienceController.scrollView)
+        experienceController.view.addSubview(stickyContentVC.view)
         stickyContentVC.view.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate(constraints(for: edge, container: experienceController.view, child: stickyContentVC.view))
         stickyContentVC.didMove(toParent: experienceController)
