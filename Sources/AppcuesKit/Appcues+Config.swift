@@ -22,9 +22,9 @@ public extension Appcues {
 
         let applicationID: String
 
-        var apiHost: String = Networking.defaultAPIHost
+        var apiHost: String = NetworkClient.defaultAPIHost
 
-        var urlSession: URLSession = Networking.defaultURLSession
+        var urlSession: URLSession = NetworkClient.defaultURLSession
 
         var logger: OSLog = .disabled
 

@@ -8,7 +8,24 @@
 
 import UIKit
 
-internal class Storage {
+internal protocol DataStoring: AnyObject {
+    /// The device ID.  A value generated once upon first initialization of the SDK after installation.
+    var deviceID: String { get set }
+
+    /// The current  user ID.  Can be a generated anonymous value, or authenticated value provided by application.
+    var userID: String { get set }
+
+    /// The current group ID.  Optional, and by default `nil` unless the host application has set a group for the user.
+    var groupID: String? { get set }
+
+    /// Tracks whether the current user has been identified explicitly as an anonymous user, as opposed to an identified user.
+    var isAnonymous: Bool { get set }
+
+    /// The date of the last known time that an experience/flow was shown to the user in this application
+    var lastContentShownAt: Date? { get set }
+}
+
+internal class Storage: DataStoring {
 
     private enum Key: String {
         case deviceID
@@ -26,7 +43,6 @@ internal class Storage {
     //      as part of the suite name
     private lazy var defaults = UserDefaults(suiteName: "com.appcues.storage.\(config.applicationID)")
 
-    /// The device ID.  A value generated once upon first initialization of the SDK after installation.
     internal var deviceID: String {
         get {
             return read(.deviceID, defaultValue: "")
@@ -36,7 +52,6 @@ internal class Storage {
         }
     }
 
-    /// The current  user ID.  Can be a generated anonymous value, or authenticated value provided by application
     internal var userID: String {
         get {
             return read(.userID, defaultValue: "")
@@ -64,7 +79,6 @@ internal class Storage {
         }
     }
 
-    /// The date of the last known time that an experience/flow was shown to the user in this application
     internal var lastContentShownAt: Date? {
         get {
             return read(.lastContentShownAt, defaultValue: nil)

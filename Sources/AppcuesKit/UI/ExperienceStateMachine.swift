@@ -13,7 +13,7 @@ internal class ExperienceStateMachine {
     enum ExperienceState {
         case empty
         case begin(Experience)
-        case beginStep(ExperienceRenderer.StepReference)
+        case beginStep(StepReference)
         case renderStep(Experience, Int, UIViewController, isFirst: Bool)
         case endStep(Experience, Int, UIViewController)
         case stepError(Experience, Int, String)
@@ -23,7 +23,7 @@ internal class ExperienceStateMachine {
     private let config: Appcues.Config
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
-    private let storage: Storage
+    private let storage: DataStoring
 
     private(set) var currentState: ExperienceState
 
@@ -35,7 +35,7 @@ internal class ExperienceStateMachine {
         config = container.resolve(Appcues.Config.self)
         traitRegistry = container.resolve(TraitRegistry.self)
         actionRegistry = container.resolve(ActionRegistry.self)
-        storage = container.resolve(Storage.self)
+        storage = container.resolve(DataStoring.self)
 
         currentState = .empty
     }
@@ -131,7 +131,7 @@ internal class ExperienceStateMachine {
             let wrappedViewController = self.traitRegistry.apply(step.traits, to: stepViewController)
 
             // this flag tells automatic screen tracking to ignore screens that the SDK is presenting
-            objc_setAssociatedObject(wrappedViewController, &UIKitScreenTracking.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
+            objc_setAssociatedObject(wrappedViewController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
 
             self.transition(to: .renderStep(experience, stepIndex, wrappedViewController, isFirst: isFirst))
         }

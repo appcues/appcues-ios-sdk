@@ -33,7 +33,7 @@ extension UIViewController {
         guard let top = UIApplication.shared.topViewController() else { return }
 
         // this untracked flag allows us to avoid tracking screens that our SDK presented
-        let untracked = objc_getAssociatedObject(self, &UIKitScreenTracking.untrackedScreenKey) as? Bool ?? false
+        let untracked = objc_getAssociatedObject(self, &UIKitScreenTracker.untrackedScreenKey) as? Bool ?? false
         guard !untracked else { return }
 
         var name = String(describing: top.self.classForCoder)

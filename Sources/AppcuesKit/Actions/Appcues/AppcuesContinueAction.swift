@@ -11,7 +11,7 @@ import Foundation
 internal struct AppcuesContinueAction: ExperienceAction {
     static let type = "@appcues/continue"
 
-    let stepReference: ExperienceRenderer.StepReference
+    let stepReference: StepReference
 
     init?(config: [String: Any]?) {
         if let index = config?["index"] as? Int {
@@ -25,7 +25,7 @@ internal struct AppcuesContinueAction: ExperienceAction {
     }
 
     func execute(inContext appcues: Appcues) {
-        let experienceRenderer = appcues.container.resolve(ExperienceRenderer.self)
+        let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
         experienceRenderer.show(stepInCurrentExperience: stepReference)
     }
 }

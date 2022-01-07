@@ -61,9 +61,9 @@ internal class DeeplinkHandler {
 
         switch action {
         case .preview(let contentID):
-            container.resolve(ExperienceLoader.self).load(contentID: contentID)
+            container.resolve(ExperienceLoading.self).load(contentID: contentID)
         case .debugger:
-            container.resolve(UIDebugger.self).show()
+            container.resolve(UIDebugging.self).show()
         }
 
         // Reset after handling to avoid handling notifications multiple times.

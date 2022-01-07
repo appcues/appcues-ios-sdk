@@ -1,5 +1,5 @@
 //
-//  TrackingDecorator.swift
+//  AnalyticsDecorating.swift
 //  AppcuesKit
 //
 //  Created by James Ellis on 11/1/21.
@@ -8,6 +8,6 @@
 
 import Foundation
 
-internal protocol TrackingDecorator: AnyObject {
+internal protocol AnalyticsDecorating: AnyObject {
     func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate
 }

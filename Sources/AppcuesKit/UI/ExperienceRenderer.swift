@@ -12,21 +12,42 @@ internal protocol ExperienceEventDelegate: AnyObject {
     func lifecycleEvent(_ event: ExperienceLifecycleEvent)
 }
 
-internal class ExperienceRenderer {
+internal protocol ExperienceRendering {
+    func show(experience: Experience)
+    func show(stepInCurrentExperience stepRef: StepReference)
+    func show(flow: Flow)
+    func dismissCurrentExperience()
+}
+
+internal enum StepReference {
+    case index(Int)
+    case offset(Int)
+
+    func resolve(currentIndex: Int) -> Int {
+        switch self {
+        case .index(let index):
+            return index
+        case .offset(let offset):
+            return currentIndex + offset
+        }
+    }
+}
+
+internal class ExperienceRenderer: ExperienceRendering {
 
     private let stateMachine: ExperienceStateMachine
 
     private let appcues: Appcues
     private let config: Appcues.Config
-    private let styleLoader: StyleLoader
+    private let styleLoader: StyleLoading
     private let analyticsPublisher: AnalyticsPublisher
-    private let storage: Storage
+    private let storage: DataStoring
 
     init(container: DIContainer) {
         self.appcues = container.resolve(Appcues.self)
-        self.storage = container.resolve(Storage.self)
+        self.storage = container.resolve(DataStoring.self)
         self.config = container.resolve(Appcues.Config.self)
-        self.styleLoader = container.resolve(StyleLoader.self)
+        self.styleLoader = container.resolve(StyleLoading.self)
         self.analyticsPublisher = container.resolve(AnalyticsPublisher.self)
 
         self.stateMachine = ExperienceStateMachine(container: container)
@@ -114,22 +135,6 @@ extension ExperienceRenderer: ExperienceEventDelegate {
             analyticsPublisher.track(name: "appcues:step_child_activated", properties: properties, sync: false)
         default:
             break
-        }
-    }
-}
-
-extension ExperienceRenderer {
-    enum StepReference {
-        case index(Int)
-        case offset(Int)
-
-        func resolve(currentIndex: Int) -> Int {
-            switch self {
-            case .index(let index):
-                return index
-            case .offset(let offset):
-                return currentIndex + offset
-            }
         }
     }
 }

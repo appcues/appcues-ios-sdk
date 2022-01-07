@@ -1,5 +1,5 @@
 //
-//  Networking.swift
+//  NetworkClient.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-10-07.
@@ -8,13 +8,18 @@
 
 import Foundation
 
-internal class Networking {
+internal protocol Networking {
+    func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void)
+    func post<T: Decodable>(to endpoint: Endpoint, body: Data, completion: @escaping (_ result: Result<T, Error>) -> Void)
+}
+
+internal class NetworkClient: Networking {
     private let config: Appcues.Config
-    private let storage: Storage
+    private let storage: DataStoring
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
-        self.storage = container.resolve(Storage.self)
+        self.storage = container.resolve(DataStoring.self)
     }
 
     func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void) {
@@ -81,7 +86,7 @@ internal class Networking {
     }
 }
 
-extension Networking {
+extension NetworkClient {
     static let defaultAPIHost = "api.appcues.com"
 
     static var defaultURLSession: URLSession {

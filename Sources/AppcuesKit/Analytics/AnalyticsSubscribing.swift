@@ -1,5 +1,5 @@
 //
-//  AnalyticsSubscriber.swift
+//  AnalyticsSubscribing.swift
 //  AppcuesKit
 //
 //  Created by James Ellis on 10/28/21.
@@ -8,11 +8,11 @@
 
 import Foundation
 
-internal protocol AnalyticsSubscriber: AnyObject {
+internal protocol AnalyticsSubscribing: AnyObject {
     func track(update: TrackingUpdate)
 }
 
-extension AnalyticsSubscriber {
+extension AnalyticsSubscribing {
     func registerForAnalyticsUpdates(_ container: DIContainer) {
         container.resolve(AnalyticsPublisher.self).register(subscriber: self)
     }

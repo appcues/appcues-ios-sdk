@@ -8,15 +8,20 @@
 
 import Foundation
 
+internal struct Style: Decodable {
+    let globalStyling: String
+}
+
+internal protocol StyleLoading {
+    var cachedStyles: [String: Style] { get }
+
+    func fetch(styleID: String, _ completion: @escaping (Result<Style, Error>) -> Void)
+}
+
 /// Manage styles associated with flows.
 ///
 /// A flow step group includes a style ID that can be used to look up the style properties for the associated theme.
-internal class StyleLoader {
-
-    // MARK: Model
-    struct Style: Decodable {
-        let globalStyling: String
-    }
+internal class StyleLoader: StyleLoading {
 
     // MARK: Dependencies
     private let networking: Networking
@@ -35,7 +40,7 @@ internal class StyleLoader {
         }
 
         networking.get(
-            from: Networking.CDNEndpoint.styles(styleID: styleID)
+            from: CDNEndpoint.styles(styleID: styleID)
         ) { [weak self] (result: Result<Style, Error>) in
             switch result {
             case .success(let style):
