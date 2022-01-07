@@ -14,6 +14,6 @@ internal protocol AnalyticsSubscribing: AnyObject {
 
 extension AnalyticsSubscribing {
     func registerForAnalyticsUpdates(_ container: DIContainer) {
-        container.resolve(AnalyticsPublisher.self).register(subscriber: self)
+        container.resolve(AnalyticsPublishing.self).register(subscriber: self)
     }
 }

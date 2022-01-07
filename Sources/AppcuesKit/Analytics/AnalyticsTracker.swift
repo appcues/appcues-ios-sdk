@@ -9,11 +9,11 @@
 import Foundation
 import UIKit
 
-internal protocol AnalyticsTracking: AnalyticsSubscribing {
+internal protocol AnalyticsTracking {
     func flushAsync()
 }
 
-internal class AnalyticsTracker: AnalyticsTracking {
+internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
     private static let flushAfterSeconds: Double = 10
 
