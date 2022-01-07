@@ -18,7 +18,7 @@ internal struct AppcuesCloseAction: ExperienceAction {
     }
 
     func execute(inContext appcues: Appcues) {
-        let experienceRenderer = appcues.container.resolve(ExperienceRenderer.self)
+        let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
         experienceRenderer.dismissCurrentExperience()
     }
 }

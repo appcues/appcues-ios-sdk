@@ -12,7 +12,7 @@ import Mocker
 
 class AnalyticsTrackerTests: XCTestCase {
     var appcues: Appcues!
-    var analytics: AnalyticsTracker!
+    var analytics: AnalyticsTracking!
 
     override func setUpWithError() throws {
         let configuration = URLSessionConfiguration.default
@@ -24,8 +24,8 @@ class AnalyticsTrackerTests: XCTestCase {
             .anonymousIDFactory({ "my-anonymous-id" })
 
         appcues = Appcues(config: config)
-        appcues.container.resolve(Storage.self).userID = "my-anonymous-id" // set up initial user ID
-        analytics = appcues.container.resolve(AnalyticsTracker.self)
+        appcues.container.resolve(DataStoring.self).userID = "my-anonymous-id" // set up initial user ID
+        analytics = appcues.container.resolve(AnalyticsTracking.self)
     }
 
     override func tearDownWithError() throws {

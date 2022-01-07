@@ -8,22 +8,26 @@
 
 import Foundation
 
-internal class ExperienceLoader {
+internal protocol ExperienceLoading {
+    func load(contentID: String)
+}
+
+internal class ExperienceLoader: ExperienceLoading {
 
     private let networking: Networking
-    private let experienceRenderer: ExperienceRenderer
+    private let experienceRenderer: ExperienceRendering
 
     // TODO: pull style loader into here so that everything is resolve at render time
     // CSS loading temporary thing for now anyway
 
     init(container: DIContainer) {
         self.networking = container.resolve(Networking.self)
-        self.experienceRenderer = container.resolve(ExperienceRenderer.self)
+        self.experienceRenderer = container.resolve(ExperienceRendering.self)
     }
 
     func load(contentID: String) {
         networking.get(
-            from: Networking.APIEndpoint.content(contentID: contentID)
+            from: APIEndpoint.content(contentID: contentID)
         ) { [weak self] (result: Result<Flow, Error>) in
             switch result {
             case .success(let flow):

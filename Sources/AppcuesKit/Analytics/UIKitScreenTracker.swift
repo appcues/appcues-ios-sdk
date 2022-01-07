@@ -1,5 +1,5 @@
 //
-//  UIKitScreenTracking.swift
+//  UIKitScreenTracker.swift
 //  AppcuesKit
 //
 //  Created by James Ellis on 10/29/21.
@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-internal class UIKitScreenTracking {
+internal class UIKitScreenTracker {
 
     // used to ignore SDK presented screens (experiences we create) for the purpose
     // of automatic screen tracking

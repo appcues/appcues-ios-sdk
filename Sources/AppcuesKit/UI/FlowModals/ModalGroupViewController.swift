@@ -13,11 +13,11 @@ internal class ModalGroupViewController: UIViewController {
 
     private let modalStepGroup: ModalGroup
 
-    private let styleLoader: StyleLoader
+    private let styleLoader: StyleLoading
 
     private lazy var modalGroupView = ModalGroupView()
 
-    init(modalStepGroup: ModalGroup, styleLoader: StyleLoader) {
+    init(modalStepGroup: ModalGroup, styleLoader: StyleLoading) {
         self.modalStepGroup = modalStepGroup
         self.styleLoader = styleLoader
 

@@ -9,19 +9,27 @@
 import Foundation
 import UIKit
 
-internal class SessionMonitor {
+internal protocol SessionMonitoring {
+    var sessionID: UUID? { get }
+    var isActive: Bool { get }
 
-    enum SessionEvents: String {
-        case sessionStarted = "appcues:session_started"
-        case sessionSuspended = "appcues:session_suspended"
-        case sessionResumed = "appcues:session_resumed"
-        case sessionReset = "appcues:session_reset"
-    }
+    func start()
+    func reset()
+}
 
-    private let storage: Storage
+internal enum SessionEvents: String {
+    case sessionStarted = "appcues:session_started"
+    case sessionSuspended = "appcues:session_suspended"
+    case sessionResumed = "appcues:session_resumed"
+    case sessionReset = "appcues:session_reset"
+}
+
+internal class SessionMonitor: SessionMonitoring {
+
+    private let storage: DataStoring
     private let publisher: AnalyticsPublisher
-    private let tracker: AnalyticsTracker
-    private let processor: ActivityProcessor
+    private let tracker: AnalyticsTracking
+    private let processor: ActivityProcessing
 
     private let sessionTimeout: UInt
 
@@ -34,9 +42,9 @@ internal class SessionMonitor {
 
     init(container: DIContainer) {
         self.publisher = container.resolve(AnalyticsPublisher.self)
-        self.tracker = container.resolve(AnalyticsTracker.self)
-        self.processor = container.resolve(ActivityProcessor.self)
-        self.storage = container.resolve(Storage.self)
+        self.tracker = container.resolve(AnalyticsTracking.self)
+        self.processor = container.resolve(ActivityProcessing.self)
+        self.storage = container.resolve(DataStoring.self)
         self.sessionTimeout = container.resolve(Appcues.Config.self).sessionTimeout
 
         NotificationCenter.default.addObserver(self,

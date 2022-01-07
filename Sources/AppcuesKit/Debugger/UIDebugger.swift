@@ -9,18 +9,22 @@
 import UIKit
 import SwiftUI
 
-internal class UIDebugger {
+internal protocol UIDebugging: AnalyticsSubscribing {
+    func show()
+}
+
+internal class UIDebugger: UIDebugging {
     private var debugWindow: UIWindow?
 
     private var viewModel: DebugViewModel
 
     private let config: Appcues.Config
-    private let storage: Storage
+    private let storage: DataStoring
     private let notificationCenter: NotificationCenter
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
-        self.storage = container.resolve(Storage.self)
+        self.storage = container.resolve(DataStoring.self)
         self.notificationCenter = container.resolve(NotificationCenter.self)
 
         self.viewModel = DebugViewModel(
@@ -58,7 +62,7 @@ internal class UIDebugger {
     }
 }
 
-extension UIDebugger: AnalyticsSubscriber {
+extension UIDebugger: AnalyticsSubscribing {
     func track(update: TrackingUpdate) {
         // Publishing changes must from the main thread.
         DispatchQueue.main.async {

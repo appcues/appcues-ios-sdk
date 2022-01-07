@@ -9,17 +9,21 @@
 import Foundation
 import UIKit
 
-internal class AnalyticsTracker: AnalyticsSubscriber {
+internal protocol AnalyticsTracking: AnalyticsSubscribing {
+    func flushAsync()
+}
+
+internal class AnalyticsTracker: AnalyticsTracking {
 
     private static let flushAfterSeconds: Double = 10
 
     private let container: DIContainer
 
-    private lazy var storage = container.resolve(Storage.self)
+    private lazy var storage = container.resolve(DataStoring.self)
     private lazy var config = container.resolve(Appcues.Config.self)
     private lazy var networking = container.resolve(Networking.self)
-    private lazy var experienceRenderer = container.resolve(ExperienceRenderer.self)
-    private lazy var activityStorage = container.resolve(ActivityProcessor.self)
+    private lazy var experienceRenderer = container.resolve(ExperienceRendering.self)
+    private lazy var activityStorage = container.resolve(ActivityProcessing.self)
 
     // maintain a batch of asynchronous events that are waiting to be flushed to network
     private let syncQueue = DispatchQueue(label: "appcues-analytics")
@@ -94,7 +98,7 @@ internal class AnalyticsTracker: AnalyticsSubscriber {
 }
 
 extension Activity {
-    init?(from update: TrackingUpdate, config: Appcues.Config, storage: Storage) {
+    init?(from update: TrackingUpdate, config: Appcues.Config, storage: DataStoring) {
         switch update.type {
         case let .event(name, _):
             self.init(accountID: config.accountID,

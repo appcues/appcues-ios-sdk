@@ -15,16 +15,16 @@ public class Appcues {
     let container = DIContainer()
 
     private let config: Appcues.Config
-    private lazy var storage = container.resolve(Storage.self)
-    private lazy var uiDebugger = container.resolve(UIDebugger.self)
+    private lazy var storage = container.resolve(DataStoring.self)
+    private lazy var uiDebugger = container.resolve(UIDebugging.self)
     private lazy var traitRegistry = container.resolve(TraitRegistry.self)
     private lazy var actionRegistry = container.resolve(ActionRegistry.self)
-    private lazy var sessionMonitor = container.resolve(SessionMonitor.self)
-    private lazy var experienceLoader = container.resolve(ExperienceLoader.self)
+    private lazy var sessionMonitor = container.resolve(SessionMonitoring.self)
+    private lazy var experienceLoader = container.resolve(ExperienceLoading.self)
     private lazy var notificationCenter = container.resolve(NotificationCenter.self)
 
-    private var subscribers: [AnalyticsSubscriber] = []
-    private var decorators: [TrackingDecorator] = []
+    private var subscribers: [AnalyticsSubscribing] = []
+    private var decorators: [AnalyticsDecorating] = []
 
     /// The delegate object that manages and observes experience presentations.
     public weak var delegate: AppcuesExperienceDelegate?
@@ -144,7 +144,7 @@ public class Appcues {
     public func trackScreens() {
         // resolving will init UIKitScreenTracking, which sets up the swizzling of
         // UIViewController for automatic screen tracking
-        _ = container.resolve(UIKitScreenTracking.self)
+        _ = container.resolve(UIKitScreenTracker.self)
     }
 
     /// Verifies if an incoming URL is intended for the Appcues SDK.
@@ -166,21 +166,21 @@ public class Appcues {
         container.register(Appcues.self, value: self)
         container.register(Config.self, value: config)
         container.register(AnalyticsPublisher.self, value: self)
-        container.registerLazy(Storage.self, initializer: Storage.init)
-        container.registerLazy(Networking.self, initializer: Networking.init)
-        container.registerLazy(StyleLoader.self, initializer: StyleLoader.init)
-        container.registerLazy(ExperienceLoader.self, initializer: ExperienceLoader.init)
-        container.registerLazy(ExperienceRenderer.self, initializer: ExperienceRenderer.init)
-        container.registerLazy(UIDebugger.self, initializer: UIDebugger.init)
+        container.registerLazy(DataStoring.self, initializer: Storage.init)
+        container.registerLazy(Networking.self, initializer: NetworkClient.init)
+        container.registerLazy(StyleLoading.self, initializer: StyleLoader.init)
+        container.registerLazy(ExperienceLoading.self, initializer: ExperienceLoader.init)
+        container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
+        container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
         container.registerLazy(DeeplinkHandler.self, initializer: DeeplinkHandler.init)
-        container.registerLazy(AnalyticsTracker.self, initializer: AnalyticsTracker.init)
-        container.registerLazy(SessionMonitor.self, initializer: SessionMonitor.init)
-        container.registerLazy(UIKitScreenTracking.self, initializer: UIKitScreenTracking.init)
+        container.registerLazy(AnalyticsTracking.self, initializer: AnalyticsTracker.init)
+        container.registerLazy(SessionMonitoring.self, initializer: SessionMonitor.init)
+        container.registerLazy(UIKitScreenTracker.self, initializer: UIKitScreenTracker.init)
         container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
         container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
         container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
-        container.registerLazy(ActivityProcessor.self, initializer: ActivityProcessor.init)
+        container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
     }
 
     private func initializeSession() {
@@ -193,7 +193,7 @@ public class Appcues {
         }
 
         // anything that should be eager init at launch is handled here
-        _ = container.resolve(AnalyticsTracker.self)
+        _ = container.resolve(AnalyticsTracking.self)
         _ = container.resolve(AutoPropertyDecorator.self)
 
         sessionMonitor.start()
@@ -224,19 +224,19 @@ extension Appcues: AnalyticsPublisher {
         publish(TrackingUpdate(type: .event(name: name, sync: sync), properties: properties))
     }
 
-    func register(subscriber: AnalyticsSubscriber) {
+    func register(subscriber: AnalyticsSubscribing) {
         subscribers.append(subscriber)
     }
 
-    func remove(subscriber: AnalyticsSubscriber) {
+    func remove(subscriber: AnalyticsSubscribing) {
         subscribers.removeAll { $0 === subscriber }
     }
 
-    func register(decorator: TrackingDecorator) {
+    func register(decorator: AnalyticsDecorating) {
         decorators.append(decorator)
     }
 
-    func remove(decorator: TrackingDecorator) {
+    func remove(decorator: AnalyticsDecorating) {
         decorators.removeAll { $0 === decorator }
     }
 

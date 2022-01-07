@@ -8,9 +8,14 @@
 
 import Foundation
 
+internal protocol ActivityProcessing {
+    func process(_ activity: Activity?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?)
+    func flush()
+}
+
 /// This class is responsible for the network transport of analytics data to the /activity API endpoint.  This includes
 /// the underlying persistent cache and retry, if necessary, for connection issues or app termination - to avoid loss of data.
-internal class ActivityProcessor {
+internal class ActivityProcessor: ActivityProcessing {
 
     // container for client side cache files that allow simple access to the
     // data necessary for a later retry if anything failed on initial send
@@ -27,7 +32,7 @@ internal class ActivityProcessor {
         var numberOfAttempts = 0
 
         init?(_ activity: Activity) {
-            guard let data = try? Networking.encoder.encode(activity) else {
+            guard let data = try? NetworkClient.encoder.encode(activity) else {
                 return nil
             }
             self.accountID = activity.accountID
@@ -169,7 +174,7 @@ internal class ActivityProcessor {
         let sync = isCurrent ? currentSync : false
 
         networking.post(
-            to: Networking.APIEndpoint.activity(userID: activity.userID, sync: sync),
+            to: APIEndpoint.activity(userID: activity.userID, sync: sync),
             body: activity.data
         ) { [weak self] (result: Result<Taco, Error>) in
 

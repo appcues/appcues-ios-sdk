@@ -12,11 +12,11 @@ internal protocol AnalyticsPublisher: AnyObject {
     func track(name: String, properties: [String: Any]?, sync: Bool)
     func screen(title: String, properties: [String: Any]?)
 
-    func register(subscriber: AnalyticsSubscriber)
-    func remove(subscriber: AnalyticsSubscriber)
+    func register(subscriber: AnalyticsSubscribing)
+    func remove(subscriber: AnalyticsSubscribing)
 
-    func register(decorator: TrackingDecorator)
-    func remove(decorator: TrackingDecorator)
+    func register(decorator: AnalyticsDecorating)
+    func remove(decorator: AnalyticsDecorating)
 }
 
 extension AnalyticsPublisher {

@@ -9,23 +9,23 @@
 import Foundation
 import WebKit
 
-internal class AutoPropertyDecorator: TrackingDecorator {
+internal class AutoPropertyDecorator: AnalyticsDecorating {
 
     private var currentScreen: String?
     private var previousScreen: String?
     private var sessionPageviews = 0
     private var sessionRandomizer: Int?
 
-    private let storage: Storage
-    private let sessionMonitor: SessionMonitor
+    private let storage: DataStoring
+    private let sessionMonitor: SessionMonitoring
     private let config: Appcues.Config
 
     // these are the fixed values for the duration of the app runtime
     private var applicationProperties: [String: Any] = [:]
 
     init(container: DIContainer) {
-        self.storage = container.resolve(Storage.self)
-        self.sessionMonitor = container.resolve(SessionMonitor.self)
+        self.storage = container.resolve(DataStoring.self)
+        self.sessionMonitor = container.resolve(SessionMonitoring.self)
         self.config = container.resolve(Appcues.Config.self)
         configureApplicationProperties()
         container.resolve(AnalyticsPublisher.self).register(decorator: self)
@@ -38,7 +38,7 @@ internal class AutoPropertyDecorator: TrackingDecorator {
             previousScreen = currentScreen
             currentScreen = title
             sessionPageviews += 1
-        case .event(SessionMonitor.SessionEvents.sessionStarted.rawValue, _):
+        case .event(SessionEvents.sessionStarted.rawValue, _):
             sessionPageviews = 0
             sessionRandomizer = Int.random(in: 1...100)
         case .group:

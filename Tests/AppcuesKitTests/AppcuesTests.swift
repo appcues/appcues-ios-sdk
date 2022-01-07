@@ -52,7 +52,7 @@ class AppcuesTests: XCTestCase {
     }
 }
 
-private class TestSubscriber: AnalyticsSubscriber {
+private class TestSubscriber: AnalyticsSubscribing {
     var trackedUpdates = 0
 
     func track(update: TrackingUpdate) {
