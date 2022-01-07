@@ -13,8 +13,8 @@ import UIKit
 public class Appcues {
 
     let container = DIContainer()
+    let config: Appcues.Config
 
-    private let config: Appcues.Config
     private lazy var storage = container.resolve(DataStoring.self)
     private lazy var uiDebugger = container.resolve(UIDebugging.self)
     private lazy var traitRegistry = container.resolve(TraitRegistry.self)
@@ -33,8 +33,8 @@ public class Appcues {
     /// - Parameter config: `Config` object for this instance.
     public init(config: Config) {
         self.config = config
+
         initializeContainer()
-        initializeSession()
     }
 
     /// Get the current version of the Appcues SDK.
@@ -162,7 +162,7 @@ public class Appcues {
         return container.resolve(DeeplinkHandler.self).didHandleURL(url)
     }
 
-    private func initializeContainer() {
+    func initializeContainer() {
         container.register(Appcues.self, value: self)
         container.register(Config.self, value: config)
         container.register(AnalyticsPublishing.self, value: self)
@@ -181,21 +181,19 @@ public class Appcues {
         container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
         container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
-    }
 
-    private func initializeSession() {
-        // it is a fresh installation if we have no device ID
-        let isInstall = storage.deviceID.isEmpty
+        // anything that should happen at startup automatically is handled here
 
-        if isInstall {
-            // perform any fresh install activities here
-            storage.deviceID = UIDevice.identifier
+        // register core analytics tracking to receive tracking updates
+        if let trackingSubscriber = container.resolve(AnalyticsTracking.self) as? AnalyticsSubscribing {
+            register(subscriber: trackingSubscriber)
         }
 
-        // anything that should be eager init at launch is handled here
-        _ = container.resolve(AnalyticsTracking.self)
-        _ = container.resolve(AutoPropertyDecorator.self)
+        // register the autoproperty decorator
+        let autoPropDecorator = container.resolve(AutoPropertyDecorator.self)
+        register(decorator: autoPropDecorator)
 
+        // start session monitoring
         sessionMonitor.start()
     }
 

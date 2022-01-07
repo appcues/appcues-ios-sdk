@@ -28,7 +28,6 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
         self.sessionMonitor = container.resolve(SessionMonitoring.self)
         self.config = container.resolve(Appcues.Config.self)
         configureApplicationProperties()
-        container.resolve(AnalyticsPublishing.self).register(decorator: self)
     }
 
     func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {

@@ -90,6 +90,7 @@ internal class Storage: DataStoring {
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
+        self.deviceID = UIDevice.identifier
     }
 
     private func read<T>(_ key: Key, defaultValue: T) -> T {
