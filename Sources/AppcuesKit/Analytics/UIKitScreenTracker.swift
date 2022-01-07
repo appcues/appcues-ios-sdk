@@ -17,10 +17,10 @@ internal class UIKitScreenTracker {
 
     private var lastTrackedScreen: String?
 
-    private let publisher: AnalyticsPublisher
+    private let publisher: AnalyticsPublishing
 
     init(container: DIContainer) {
-        self.publisher = container.resolve(AnalyticsPublisher.self)
+        self.publisher = container.resolve(AnalyticsPublishing.self)
 
         func swizzle(forClass: AnyClass, original: Selector, new: Selector) {
             guard let originalMethod = class_getInstanceMethod(forClass, original) else { return }

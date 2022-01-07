@@ -40,7 +40,7 @@ internal class ExperienceRenderer: ExperienceRendering {
     private let appcues: Appcues
     private let config: Appcues.Config
     private let styleLoader: StyleLoading
-    private let analyticsPublisher: AnalyticsPublisher
+    private let analyticsPublisher: AnalyticsPublishing
     private let storage: DataStoring
 
     init(container: DIContainer) {
@@ -48,7 +48,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         self.storage = container.resolve(DataStoring.self)
         self.config = container.resolve(Appcues.Config.self)
         self.styleLoader = container.resolve(StyleLoading.self)
-        self.analyticsPublisher = container.resolve(AnalyticsPublisher.self)
+        self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
 
         self.stateMachine = ExperienceStateMachine(container: container)
         stateMachine.experienceLifecycleEventDelegate = self

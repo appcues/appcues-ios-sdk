@@ -165,7 +165,7 @@ public class Appcues {
     private func initializeContainer() {
         container.register(Appcues.self, value: self)
         container.register(Config.self, value: config)
-        container.register(AnalyticsPublisher.self, value: self)
+        container.register(AnalyticsPublishing.self, value: self)
         container.registerLazy(DataStoring.self, initializer: Storage.init)
         container.registerLazy(Networking.self, initializer: NetworkClient.init)
         container.registerLazy(StyleLoading.self, initializer: StyleLoader.init)
@@ -219,7 +219,7 @@ public class Appcues {
     }
 }
 
-extension Appcues: AnalyticsPublisher {
+extension Appcues: AnalyticsPublishing {
     func track(name: String, properties: [String: Any]?, sync: Bool) {
         publish(TrackingUpdate(type: .event(name: name, sync: sync), properties: properties))
     }

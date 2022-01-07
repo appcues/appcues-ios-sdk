@@ -27,7 +27,7 @@ internal enum SessionEvents: String {
 internal class SessionMonitor: SessionMonitoring {
 
     private let storage: DataStoring
-    private let publisher: AnalyticsPublisher
+    private let publisher: AnalyticsPublishing
     private let tracker: AnalyticsTracking
     private let processor: ActivityProcessing
 
@@ -41,7 +41,7 @@ internal class SessionMonitor: SessionMonitoring {
     }
 
     init(container: DIContainer) {
-        self.publisher = container.resolve(AnalyticsPublisher.self)
+        self.publisher = container.resolve(AnalyticsPublishing.self)
         self.tracker = container.resolve(AnalyticsTracking.self)
         self.processor = container.resolve(ActivityProcessing.self)
         self.storage = container.resolve(DataStoring.self)
