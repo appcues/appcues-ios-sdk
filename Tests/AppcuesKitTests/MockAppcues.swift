@@ -21,6 +21,34 @@ class MockAppcues: Appcues {
         container.register(AnalyticsPublishing.self, value: self)
 
         // TODO: build out the service mocks and registration
+        container.register(DataStoring.self, value: storage)
+        container.register(ActivityProcessing.self, value: activityProcessor)
 
+    }
+
+    var storage: MockStorage = MockStorage()
+    var activityProcessor: MockActivityProcessor = MockActivityProcessor()
+}
+
+class MockStorage: DataStoring {
+    var deviceID: String = "device-id"
+    var userID: String = "user-id"
+    var groupID: String?
+    var isAnonymous: Bool = false
+    var lastContentShownAt: Date?
+}
+
+class MockActivityProcessor: ActivityProcessing {
+
+    var onProcess: ((Activity, Bool, ((Result<Taco, Error>) -> Void)?) -> Void)?
+
+    var onFlush: (() -> Void)?
+
+    func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
+        onProcess?(activity, sync, completion)
+    }
+
+    func flush() {
+        onFlush?()
     }
 }
