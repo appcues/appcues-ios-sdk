@@ -35,13 +35,27 @@ internal class ExperienceStepView: UIView {
         return view
     }()
 
+    var pageControl: UIPageControl = {
+        let view = UIPageControl()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.hidesForSinglePage = true
+        view.currentPageIndicatorTintColor = .secondaryLabel
+        view.pageIndicatorTintColor = .tertiaryLabel
+        return view
+    }()
+
     init() {
         super.init(frame: .zero)
 
         addSubview(collectionView)
+        addSubview(pageControl)
+
         collectionView.pin(to: self)
 
-        // TODO: Paging dots if multiple pages and if swipeEnabled 
+        NSLayoutConstraint.activate([
+            pageControl.centerXAnchor.constraint(equalTo: centerXAnchor),
+            pageControl.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
+        ])
     }
 
     @available(*, unavailable)
@@ -108,6 +122,10 @@ internal class ExperienceStepViewController: UIViewController {
         experienceStepView.collectionView.register(StepPageCell.self, forCellWithReuseIdentifier: StepPageCell.reuseID)
         experienceStepView.collectionView.dataSource = self
         experienceStepView.collectionView.delegate = self
+
+        experienceStepView.pageControl.numberOfPages = stepControllers.count
+
+        experienceStepView.pageControl.addTarget(self, action: #selector(updateCurrentPage(sender:)), for: .valueChanged)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -130,8 +148,16 @@ internal class ExperienceStepViewController: UIViewController {
         lifecycleHandler?.stepDidDisappear()
     }
 
-    func goTo(pageIndex: Int) {
-        experienceStepView.collectionView.scrollToItem(at: IndexPath(row: pageIndex, section: 0), at: .centeredHorizontally, animated: true)
+    @objc
+    func updateCurrentPage(sender: UIPageControl) {
+        goTo(pageIndex: sender.currentPage, animated: false)
+    }
+
+    func goTo(pageIndex: Int, animated: Bool = true) {
+        experienceStepView.collectionView.scrollToItem(
+            at: IndexPath(row: pageIndex, section: 0),
+            at: .centeredHorizontally,
+            animated: animated)
     }
 
     func scrollHandler(_ visibleItems: [NSCollectionLayoutVisibleItem], _ point: CGPoint, _ environment: NSCollectionLayoutEnvironment) {
@@ -151,6 +177,7 @@ internal class ExperienceStepViewController: UIViewController {
             if let stepIndex = visibleItems.last?.indexPath.row {
                 // TODO: use this for step seen analytics
                 print("current step index", stepIndex)
+                experienceStepView.pageControl.currentPage = stepIndex
             }
             return
         }
