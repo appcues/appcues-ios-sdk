@@ -9,15 +9,28 @@
 import SwiftUI
 
 internal class ExperienceStepView: UIView {
+
+    lazy var preferredHeightConstraint: NSLayoutConstraint = {
+        var constraint = heightAnchor.constraint(equalToConstant: 0)
+        constraint.priority = .defaultLow
+        constraint.isActive = true
+        return constraint
+    }()
+
+    var scrollHandler: NSCollectionLayoutSectionVisibleItemsInvalidationHandler?
+
     lazy var collectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 0
+        let section = NSCollectionLayoutSection.fullPaged
+        section.visibleItemsInvalidationHandler = { [weak self] visibleItems, point, environment in
+            self?.scrollHandler?(visibleItems, point, environment)
+        }
+
+        let layout = UICollectionViewCompositionalLayout(section: section)
 
         let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
         view.backgroundColor = .clear
-        view.isPagingEnabled = true
-        view.showsHorizontalScrollIndicator = false
+        view.alwaysBounceVertical = false
+        view.contentInsetAdjustmentBehavior = .never
 
         return view
     }()
@@ -67,6 +80,7 @@ internal class ExperienceStepViewController: UIViewController {
             contentViewController.view.backgroundColor = .clear
             return contentViewController
         }
+
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -85,6 +99,10 @@ internal class ExperienceStepViewController: UIViewController {
         stepControllers.forEach {
             addChild($0)
             $0.didMove(toParent: self)
+        }
+
+        experienceStepView.scrollHandler = { [weak self] visibleItems, point, environment in
+            self?.scrollHandler(visibleItems, point, environment)
         }
 
         experienceStepView.collectionView.register(StepPageCell.self, forCellWithReuseIdentifier: StepPageCell.reuseID)
@@ -112,17 +130,52 @@ internal class ExperienceStepViewController: UIViewController {
         lifecycleHandler?.stepDidDisappear()
     }
 
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        // Ensure page cells resize when the controller size changes
-        if let flowLayout = experienceStepView.collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            flowLayout.invalidateLayout()
+    func goTo(pageIndex: Int) {
+        experienceStepView.collectionView.scrollToItem(at: IndexPath(row: pageIndex, section: 0), at: .centeredHorizontally, animated: true)
+    }
+
+    func scrollHandler(_ visibleItems: [NSCollectionLayoutVisibleItem], _ point: CGPoint, _ environment: NSCollectionLayoutEnvironment) {
+        // Visible items always contains index 0, even when it shouldn't, so filter out pages that aren't actually visible.
+        let width = environment.container.contentSize.width
+        let visibleRange = (point.x - width + CGFloat.leastNormalMagnitude)..<(point.x + width)
+        let actuallyVisibleItems = visibleItems.filter { visibleRange.contains(CGFloat($0.indexPath.row) * width) }
+
+        let cells: [StepPageCell] = actuallyVisibleItems
+            .compactMap { experienceStepView.collectionView.cellForItem(at: $0.indexPath) as? StepPageCell }
+
+        guard cells.count == 2 else {
+            // The magic value 17 is needed for the initial sizing pass.
+            // Any value smaller doesn't work (but larger ones are fine).
+            experienceStepView.preferredHeightConstraint.constant = cells.last?.contentHeight ?? 17
+
+            if let stepIndex = visibleItems.last?.indexPath.row {
+                // TODO: use this for step seen analytics
+                print("current step index", stepIndex)
+            }
+            return
+        }
+
+        // For a contentHeight value large enough to scroll, this can create a slightly odd animation where the container
+        // reaches it's max size too quickly because we're scaling the size as if the full contentHeight can be achieved.
+        // TODO: To fix, we'd need to cap the contentHeight values at the max height of the container.
+        if let firstHeight = cells[0].contentHeight, let secondHeight = cells[1].contentHeight {
+            let heightDiff = secondHeight - firstHeight
+            let transitionPercentage = transitionPercentage(itemWidth: width, xOffset: point.x)
+            experienceStepView.preferredHeightConstraint.constant = firstHeight + heightDiff * transitionPercentage
         }
     }
 
+    private func transitionPercentage(itemWidth: CGFloat, xOffset: CGFloat) -> CGFloat {
+        var percentage = (xOffset.truncatingRemainder(dividingBy: itemWidth)) / itemWidth
+        // When the scroll percentage hits exactly 100, it's actually calculated as 0 from the mod operator, so set it to 1
+        if percentage == 0 {
+            percentage = 1
+        }
+        return percentage
+    }
 }
 
-extension ExperienceStepViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+extension ExperienceStepViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         stepControllers.count
     }
@@ -134,22 +187,6 @@ extension ExperienceStepViewController: UICollectionViewDataSource, UICollection
         cell.setContent(to: stepControllers[indexPath.row].view)
 
         return cell
-    }
-
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // TODO: Step analytics here
-        print("stepSeen \(indexPath.row)")
-    }
-
-    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        // TODO: Step analytics here
-        print("stepComplete \(indexPath.row)")
-    }
-
-    func collectionView(
-        _ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath
-    ) -> CGSize {
-        view.frame.size
     }
 }
 
@@ -163,6 +200,10 @@ extension ExperienceStepViewController {
             view.contentInsetAdjustmentBehavior = .always
             return view
         }()
+
+        var contentHeight: CGFloat? {
+            scrollView.subviews.first?.frame.size.height
+        }
 
         override init(frame: CGRect) {
             super.init(frame: .zero)
@@ -178,6 +219,8 @@ extension ExperienceStepViewController {
 
         override func prepareForReuse() {
             super.prepareForReuse()
+            // reset the contentOffset so each cell starts at the top
+            scrollView.contentOffset = .zero
             scrollView.subviews.forEach { $0.removeFromSuperview() }
         }
 
