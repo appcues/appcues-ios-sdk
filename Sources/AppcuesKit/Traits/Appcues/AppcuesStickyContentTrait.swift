@@ -25,7 +25,7 @@ internal struct AppcuesStickyContentTrait: ExperienceTrait {
 
     func apply(to experienceController: UIViewController, containedIn wrappingController: UIViewController) -> UIViewController {
         // Need to cast for access to the viewModel and the customScrollInsets property.
-        guard let experienceController = experienceController as? ExperienceStepViewController else { return wrappingController }
+        guard let experienceController = experienceController as? ExperiencePagingViewController else { return wrappingController }
 
         // Must have the environmentObject so any actions in the sticky content can be applied.
         let stickyContentVC = StickyHostingController(rootView: content.view.environmentObject(experienceController.viewModel))
