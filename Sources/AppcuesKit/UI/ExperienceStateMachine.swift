@@ -86,7 +86,7 @@ internal class ExperienceStateMachine {
         // MARK: Special cases
         case let (.renderStep(_, _, controller, _), .empty):
             // If currently rendering, but trying to dismiss the entire experience, call `UIViewController.dismiss()`
-            // to trigger the `ExperienceStepLifecycleHandler` handling of the dismissal.
+            // to trigger the `ExperienceContainerLifecycleHandler` handling of the dismissal.
             // Don't set `currentState` here because the lifecycle handler will take care of it
             controller.dismiss(animated: true)
 
@@ -178,12 +178,12 @@ internal class ExperienceStateMachine {
     }
 }
 
-// MARK: - ExperienceStepLifecycleHandler
+// MARK: - ExperienceContainerLifecycleHandler
 
-extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
+extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
     // MARK: Step Lifecycle
 
-    func stepWillAppear() {
+    func containerWillAppear() {
         guard case let .renderStep(_, _, controller, isFirst) = currentState else { return }
         guard controller.isBeingPresented else { return }
 
@@ -192,7 +192,7 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
         }
     }
 
-    func stepDidAppear() {
+    func containerDidAppear() {
         guard case let .renderStep(experience, stepIndex, controller, isFirst) = currentState else { return }
         guard controller.isBeingPresented else { return }
 
@@ -204,7 +204,7 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
         experienceLifecycleEventDelegate?.lifecycleEvent(.stepStarted(experience, stepIndex))
     }
 
-    func stepWillDisappear() {
+    func containerWillDisappear() {
         switch currentState {
         case let .endStep(_, _, controller):
             guard controller.isBeingDismissed == true else { return }
@@ -217,7 +217,7 @@ extension ExperienceStateMachine: ExperienceStepLifecycleHandler {
         }
     }
 
-    func stepDidDisappear() {
+    func containerDidDisappear() {
         switch currentState {
         case let .endStep(experience, stepIndex, controller):
             guard controller.isBeingDismissed == true else { return }

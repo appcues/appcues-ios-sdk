@@ -69,7 +69,7 @@ internal class ExperienceStepViewController: UIViewController {
 
     let viewModel: ExperienceStepViewModel
 
-    weak var lifecycleHandler: ExperienceStepLifecycleHandler?
+    weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
 
     private lazy var experienceStepView = ExperienceStepView()
 
@@ -130,22 +130,22 @@ internal class ExperienceStepViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        lifecycleHandler?.stepWillAppear()
+        lifecycleHandler?.containerWillAppear()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        lifecycleHandler?.stepDidAppear()
+        lifecycleHandler?.containerDidAppear()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        lifecycleHandler?.stepWillDisappear()
+        lifecycleHandler?.containerWillDisappear()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        lifecycleHandler?.stepDidDisappear()
+        lifecycleHandler?.containerDidDisappear()
     }
 
     @objc
