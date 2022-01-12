@@ -126,7 +126,7 @@ internal class ExperienceStateMachine {
 
         DispatchQueue.main.async {
             let viewModel = ExperienceStepViewModel(step: step, actionRegistry: self.actionRegistry)
-            let stepViewController = ExperienceStepViewController(viewModel: viewModel)
+            let stepViewController = ExperiencePagingViewController(viewModel: viewModel)
             stepViewController.lifecycleHandler = self
             let wrappedViewController = self.traitRegistry.apply(step.traits, to: stepViewController)
 
