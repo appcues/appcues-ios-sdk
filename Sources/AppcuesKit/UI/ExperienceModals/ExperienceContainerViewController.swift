@@ -1,5 +1,5 @@
 //
-//  ExperienceStepViewController.swift
+//  ExperienceContainerViewController.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-02.
@@ -64,8 +64,7 @@ private class ExperienceContainerView: UIView {
     }
 }
 
-// TODO: This controller will be renamed (ExperienceStepGroupVC?) with the modal group trait.
-internal class ExperienceStepViewController: UIViewController {
+internal class ExperienceContainerViewController: UIViewController {
 
     let viewModel: ExperienceStepViewModel
 
@@ -202,7 +201,7 @@ internal class ExperienceStepViewController: UIViewController {
     }
 }
 
-extension ExperienceStepViewController: UICollectionViewDataSource, UICollectionViewDelegate {
+extension ExperienceContainerViewController: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         stepControllers.count
     }
@@ -217,7 +216,7 @@ extension ExperienceStepViewController: UICollectionViewDataSource, UICollection
     }
 }
 
-extension ExperienceStepViewController {
+extension ExperienceContainerViewController {
     class StepPageCell: UICollectionViewCell {
         static var reuseID: String { String(describing: self) }
 
