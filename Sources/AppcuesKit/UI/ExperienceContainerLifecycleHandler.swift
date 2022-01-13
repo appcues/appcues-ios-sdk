@@ -13,4 +13,7 @@ internal protocol ExperienceContainerLifecycleHandler: AnyObject {
     func containerDidAppear()
     func containerWillDisappear()
     func containerDidDisappear()
+
+    /// NOTE: `pageIndex` refers to the index in the group, **not** the stepIndex in the experience.
+    func containerNavigated(from oldPageIndex: Int, to newPageIndex: Int)
 }

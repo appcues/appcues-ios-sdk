@@ -28,21 +28,21 @@ internal struct ModalConfig {
         self.skippable = config?["skippable"] as? Bool ?? false
     }
 
-    func apply(to experienceController: UIViewController, containedIn wrappingController: UIViewController) -> UIViewController {
+    func apply(to containerController: UIViewController, wrappedBy wrappingController: UIViewController) -> UIViewController {
         wrappingController.modalPresentationStyle = presentationStyle.modalPresentationStyle
 
         if skippable {
-            experienceController.addDismissButton()
+            containerController.addDismissButton()
         }
 
         if presentationStyle == .dialog {
-            return DialogContainerViewController(wrapping: experienceController)
+            return DialogContainerViewController(wrapping: containerController)
                 .configureSkippable(isSkippable: skippable)
                 .configureStyle(modalStyle, backdropColor: backdropColor)
         }
 
         if let backgroundColor = UIColor(dynamicColor: modalStyle?.backgroundColor) {
-            experienceController.view.backgroundColor = backgroundColor
+            containerController.view.backgroundColor = backgroundColor
         }
 
         wrappingController.isModalInPresentation = !skippable

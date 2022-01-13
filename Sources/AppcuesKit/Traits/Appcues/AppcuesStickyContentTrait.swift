@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-internal struct AppcuesStickyContentTrait: ExperienceTrait {
+internal struct AppcuesStickyContentTrait: ControllerExperienceTrait {
     static let type = "@appcues/sticky-content"
 
     let edge: Edge
@@ -23,37 +23,34 @@ internal struct AppcuesStickyContentTrait: ExperienceTrait {
         }
     }
 
-    func apply(to experienceController: UIViewController, containedIn wrappingController: UIViewController) -> UIViewController {
-        // Need to cast for access to the viewModel and the customScrollInsets property.
-        guard let experienceController = experienceController as? ExperiencePagingViewController else { return wrappingController }
+    func apply(to viewController: UIViewController) {
+        // Need to cast for access to the viewModel.
+        guard let viewController = viewController as? ExperienceStepViewController else { return }
 
         // Must have the environmentObject so any actions in the sticky content can be applied.
-        let stickyContentVC = StickyHostingController(rootView: content.view.environmentObject(experienceController.viewModel))
+        let stickyContentVC = StickyHostingController(rootView: content.view.environmentObject(viewController.viewModel))
 
         // Add the stick content to the parent controller.
-        experienceController.addChild(stickyContentVC)
-        experienceController.view.addSubview(stickyContentVC.view)
+        viewController.addChild(stickyContentVC)
+        viewController.view.addSubview(stickyContentVC.view)
         stickyContentVC.view.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate(constraints(for: edge, container: experienceController.view, child: stickyContentVC.view))
-        stickyContentVC.didMove(toParent: experienceController)
+        NSLayoutConstraint.activate(constraints(for: edge, container: viewController.view, child: stickyContentVC.view))
+        stickyContentVC.didMove(toParent: viewController)
 
         // Pass sticky content size changes to the parent controller to update the insets.
         stickyContentVC.onSizeChange = { size, safeArea in
             switch edge {
             case .top:
-                experienceController.additionalSafeAreaInsets.top = size.height - safeArea.top
+                viewController.additionalSafeAreaInsets.top = size.height - safeArea.top
             case .leading:
                 // TODO: mapping left->leading could be backwards for RTL
-                experienceController.additionalSafeAreaInsets.left = size.width - safeArea.left
+                viewController.additionalSafeAreaInsets.left = size.width - safeArea.left
             case .bottom:
-                experienceController.additionalSafeAreaInsets.bottom = size.height - safeArea.bottom
+                viewController.additionalSafeAreaInsets.bottom = size.height - safeArea.bottom
             case .trailing:
-                experienceController.additionalSafeAreaInsets.right = size.width - safeArea.right
+                viewController.additionalSafeAreaInsets.right = size.width - safeArea.right
             }
         }
-
-        // Return the unmodified `wrappingController`.
-        return wrappingController
     }
 
     // Determine the constraints for the sticky view by the `Edge` it's attached to.

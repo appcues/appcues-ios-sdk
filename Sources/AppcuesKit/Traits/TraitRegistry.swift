@@ -14,6 +14,7 @@ internal class TraitRegistry {
     init(container: DIContainer) {
         // Register default traits
         register(trait: AppcuesModalTrait.self)
+        register(trait: AppcuesModalGroupTrait.self)
         register(trait: AppcuesStickyContentTrait.self)
     }
 
@@ -21,12 +22,23 @@ internal class TraitRegistry {
         traits.append(trait)
     }
 
-    func apply(_ traitModels: [Experience.Trait], to experienceController: UIViewController) -> UIViewController {
-        traitModels.compactMap { traitModel in
-            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config)
+    func apply(_ traitModels: [Experience.Trait], toStep stepController: ExperienceStepViewController) {
+        traitModels
+        .compactMap { traitModel in
+            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config) as? ControllerExperienceTrait
         }
-        .reduce(experienceController) { wrappingController, trait in
-            trait.apply(to: experienceController, containedIn: wrappingController)
+        .forEach { trait in
+            trait.apply(to: stepController)
+        }
+    }
+
+    func apply(_ traitModels: [Experience.Trait], toContainer containerController: ExperiencePagingViewController) -> UIViewController {
+        traitModels
+        .compactMap { traitModel in
+            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config) as? ContainerExperienceTrait
+        }
+        .reduce(containerController) { wrappingController, trait in
+            trait.apply(to: containerController, wrappedBy: wrappingController)
         }
     }
 }
