@@ -6,7 +6,7 @@
 //  Copyright © 2021 Appcues. All rights reserved.
 //
 
-import SwiftUI
+import UIKit
 
 private class ExperiencePagingView: UIView {
 
@@ -66,33 +66,27 @@ private class ExperiencePagingView: UIView {
 
 internal class ExperiencePagingViewController: UIViewController {
 
-    let viewModel: ExperienceStepViewModel
-
     weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
 
-    private lazy var pagingView = ExperiencePagingView()
+    var targetPageIndex: Int?
+    private var currentPageIndex: Int = 0 {
+        didSet {
+            if currentPageIndex != oldValue {
+                lifecycleHandler?.containerNavigated(from: oldValue, to: currentPageIndex)
+                pageControl.currentPage = currentPageIndex
+            }
+        }
+    }
 
+    private lazy var pagingView = ExperiencePagingView()
+    var pageControl: UIPageControl { pagingView.pageControl }
+
+    let groupID: String?
     private let stepControllers: [UIViewController]
 
-    init(viewModel: ExperienceStepViewModel) {
-        self.viewModel = viewModel
-
-        // TODO: This is temporary until the new step and modal group trait is implemented.
-        // The controllers will be created in the ExperienceStateMachine and passed into this init.
-        let pages: [ExperienceComponent]
-        switch viewModel.step.content {
-        case .pager(let pagerModel):
-            pages = pagerModel.items
-        default:
-            pages = [viewModel.step.content]
-        }
-
-        stepControllers = pages.map { page in
-            let rootView = ExperienceStepRootView(rootView: page.view, viewModel: viewModel)
-            let contentViewController = AppcuesHostingController(rootView: rootView)
-            contentViewController.view.backgroundColor = .clear
-            return contentViewController
-        }
+    init(stepControllers: [UIViewController], groupID: String?) {
+        self.stepControllers = stepControllers
+        self.groupID = groupID
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -173,10 +167,8 @@ internal class ExperiencePagingViewController: UIViewController {
             // Any value smaller doesn't work (but larger ones are fine).
             pagingView.preferredHeightConstraint.constant = cells.last?.contentHeight ?? 17
 
-            if let stepIndex = visibleItems.last?.indexPath.row {
-                // TODO: use this for step seen analytics
-                print("current step index", stepIndex)
-                pagingView.pageControl.currentPage = stepIndex
+            if let pageIndex = visibleItems.last?.indexPath.row {
+                currentPageIndex = pageIndex
             }
             return
         }
@@ -216,6 +208,13 @@ extension ExperiencePagingViewController: UICollectionViewDataSource, UICollecti
         }
 
         return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if let pageIndex = targetPageIndex {
+            targetPageIndex = nil
+            goTo(pageIndex: pageIndex, animated: false)
+        }
     }
 }
 

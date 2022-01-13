@@ -59,6 +59,7 @@ internal class ExperienceStateMachine {
             currentState = newState
             handleRenderStep(experience, stepIndex, controller)
         case let (.renderStep(experience, stepIndex, controller, _), .beginStep):
+            // TODO: check if the target step is in the current container and shortcut things
             // If currently rendering, but trying to begin a new step, go through post-render first
             currentState = .endStep(experience, stepIndex, controller)
             handleEndStep(experience, stepIndex, controller, nextState: newState)
@@ -77,7 +78,7 @@ internal class ExperienceStateMachine {
             currentState = newState
             handleEnd(experience)
         case let (.renderStep, .end(experience)):
-            // Case triggered by stepDidDisappear (`UIViewController.dismiss()` called from outside state machine)
+            // Case triggered by containerDidDisappear (`UIViewController.dismiss()` called from outside state machine)
             currentState = newState
             handleEnd(experience)
         case (.end, .empty):
@@ -122,18 +123,35 @@ internal class ExperienceStateMachine {
     }
 
     private func handleBeginStep(_ experience: Experience, _ stepIndex: Int, isFirst: Bool = false) {
-        let step = experience.steps[stepIndex]
+        let targetStep = experience.steps[stepIndex]
+
+        let stepsInModalGroup = experience.modalGroup(containing: stepIndex)
 
         DispatchQueue.main.async {
-            let viewModel = ExperienceStepViewModel(step: step, actionRegistry: self.actionRegistry)
-            let stepViewController = ExperiencePagingViewController(viewModel: viewModel)
-            stepViewController.lifecycleHandler = self
-            let wrappedViewController = self.traitRegistry.apply(step.traits, to: stepViewController)
+            let controllers: [ExperienceStepViewController] = stepsInModalGroup.map { step in
+                let viewModel = ExperienceStepViewModel(step: step, actionRegistry: self.actionRegistry)
+                let stepViewController = ExperienceStepViewController(viewModel: viewModel)
+                self.traitRegistry.apply(step.traits, toStep: stepViewController)
+                return stepViewController
+            }
 
-            // this flag tells automatic screen tracking to ignore screens that the SDK is presenting
-            objc_setAssociatedObject(wrappedViewController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
+            let pagingViewController = ExperiencePagingViewController(
+                stepControllers: controllers,
+                groupID: targetStep.traits.modalGroupID)
+            pagingViewController.lifecycleHandler = self
+            // Apply the step-level traits to the container only if the step isn't part of a larger group
+            let traitsToApply = experience.traits + (stepsInModalGroup.count == 1 ? targetStep.traits : [])
+            let wrappedContainerViewController = self.traitRegistry.apply(traitsToApply, toContainer: pagingViewController)
 
-            self.transition(to: .renderStep(experience, stepIndex, wrappedViewController, isFirst: isFirst))
+            // We may be transitioning to a step that's not the first page in the group
+            if stepsInModalGroup.count > 1, let pageIndex = stepsInModalGroup.firstIndex(where: { $0.id == targetStep.id }) {
+                pagingViewController.targetPageIndex = pageIndex
+            }
+
+            // This flag tells automatic screen tracking to ignore screens that the SDK is presenting
+            objc_setAssociatedObject(wrappedContainerViewController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
+
+            self.transition(to: .renderStep(experience, stepIndex, wrappedContainerViewController, isFirst: isFirst))
         }
     }
 
@@ -239,6 +257,25 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
             transition(to: .end(experience))
         default:
             break
+        }
+    }
+
+    func containerNavigated(from oldPageIndex: Int, to newPageIndex: Int) {
+        guard case let .renderStep(experience, stepIndex, controller, _) = currentState else { return }
+
+        let stepsInModalGroup = experience.modalGroup(containing: stepIndex)
+        let targetStepId = stepsInModalGroup[newPageIndex].id
+
+        // Analytics for completed step
+        experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
+        experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
+
+        // Analytics for new step
+        experienceLifecycleEventDelegate?.lifecycleEvent(.stepAttempted(experience, stepIndex))
+        experienceLifecycleEventDelegate?.lifecycleEvent(.stepStarted(experience, stepIndex))
+
+        if let newStepIndex = experience.steps.firstIndex(where: { $0.id == targetStepId }) {
+            currentState = .renderStep(experience, newStepIndex, controller, isFirst: false)
         }
     }
 

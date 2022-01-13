@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal struct AppcuesModalTrait: ExperienceTrait {
+internal struct AppcuesModalTrait: ContainerExperienceTrait {
     static let type = "@appcues/modal"
 
     let modalConfig: ModalConfig
@@ -21,7 +21,7 @@ internal struct AppcuesModalTrait: ExperienceTrait {
         }
     }
 
-    func apply(to experienceController: UIViewController, containedIn wrappingController: UIViewController) -> UIViewController {
-        return modalConfig.apply(to: experienceController, containedIn: wrappingController)
+    func apply(to containerController: UIViewController, wrappedBy wrappingController: UIViewController) -> UIViewController {
+        return modalConfig.apply(to: containerController, wrappedBy: wrappingController)
     }
 }
