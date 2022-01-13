@@ -22,13 +22,16 @@ internal protocol ExperienceRendering {
 internal enum StepReference {
     case index(Int)
     case offset(Int)
+    case stepID(UUID)
 
-    func resolve(currentIndex: Int) -> Int {
+    func resolve(experience: Experience, currentIndex: Int) -> Int {
         switch self {
         case .index(let index):
             return index
         case .offset(let offset):
             return currentIndex + offset
+        case .stepID(let stepID):
+            return experience.steps.firstIndex { $0.id == stepID } ?? -1
         }
     }
 }
