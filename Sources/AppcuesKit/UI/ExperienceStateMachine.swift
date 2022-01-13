@@ -14,7 +14,7 @@ internal class ExperienceStateMachine {
         case empty
         case begin(Experience)
         case beginStep(StepReference)
-        case renderStep(Experience, Int, UIViewController, isFirst: Bool)
+        case renderStep(Experience, Int, container: ExperiencePagingViewController, wrapper: UIViewController, isFirst: Bool)
         case endStep(Experience, Int, UIViewController)
         case stepError(Experience, Int, String)
         case end(Experience)
@@ -55,13 +55,23 @@ internal class ExperienceStateMachine {
         case let (.begin(experience), .beginStep(.index(0))):
             currentState = newState
             handleBeginStep(experience, 0, isFirst: true)
-        case let (.beginStep, .renderStep(experience, stepIndex, controller, _)):
+        case let (.beginStep, .renderStep(experience, stepIndex, _, controller, _)):
             currentState = newState
             handleRenderStep(experience, stepIndex, controller)
-        case let (.renderStep(experience, stepIndex, controller, _), .beginStep):
-            // TODO: check if the target step is in the current container and shortcut things
+        case let (.renderStep(experience, currentIndex, container, controller, _), .beginStep(stepRef)):
+            // Check if the target step is in the current container, and handle that scenario
+            let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex)
+            if experience.steps.indices.contains(stepIndex),
+               container.groupID == experience.steps[stepIndex].traits.modalGroupID,
+               let pageIndex = experience.modalGroup(containing: stepIndex).firstIndex(where: { $0.id == experience.steps[stepIndex].id })
+            {
+                // This will navigate to the new page and in turn call `containerNavigated` to update the `currentState`.
+                container.goTo(pageIndex: pageIndex)
+                break
+            }
+
             // If currently rendering, but trying to begin a new step, go through post-render first
-            currentState = .endStep(experience, stepIndex, controller)
+            currentState = .endStep(experience, currentIndex, controller)
             handleEndStep(experience, stepIndex, controller, nextState: newState)
         case let (.renderStep, .endStep(experience, stepIndex, controller)):
             currentState = newState
@@ -85,7 +95,7 @@ internal class ExperienceStateMachine {
             currentState = newState
 
         // MARK: Special cases
-        case let (.renderStep(_, _, controller, _), .empty):
+        case let (.renderStep(_, _, _, controller, _), .empty):
             // If currently rendering, but trying to dismiss the entire experience, call `UIViewController.dismiss()`
             // to trigger the `ExperienceContainerLifecycleHandler` handling of the dismissal.
             // Don't set `currentState` here because the lifecycle handler will take care of it
@@ -151,7 +161,12 @@ internal class ExperienceStateMachine {
             // This flag tells automatic screen tracking to ignore screens that the SDK is presenting
             objc_setAssociatedObject(wrappedContainerViewController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
 
-            self.transition(to: .renderStep(experience, stepIndex, wrappedContainerViewController, isFirst: isFirst))
+            self.transition(to: .renderStep(
+                experience,
+                stepIndex,
+                container: pagingViewController,
+                wrapper: wrappedContainerViewController,
+                isFirst: isFirst))
         }
     }
 
@@ -202,7 +217,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
     // MARK: Step Lifecycle
 
     func containerWillAppear() {
-        guard case let .renderStep(_, _, controller, isFirst) = currentState else { return }
+        guard case let .renderStep(_, _, _, controller, isFirst) = currentState else { return }
         guard controller.isBeingPresented else { return }
 
         if isFirst {
@@ -211,7 +226,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
     }
 
     func containerDidAppear() {
-        guard case let .renderStep(experience, stepIndex, controller, isFirst) = currentState else { return }
+        guard case let .renderStep(experience, stepIndex, _, controller, isFirst) = currentState else { return }
         guard controller.isBeingPresented else { return }
 
         if isFirst {
@@ -226,7 +241,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         switch currentState {
         case let .endStep(_, _, controller):
             guard controller.isBeingDismissed == true else { return }
-        case let .renderStep(_, _, controller, _):
+        case let .renderStep(_, _, _, controller, _):
             guard controller.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
             experienceWillDisappear()
@@ -241,7 +256,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
             guard controller.isBeingDismissed == true else { return }
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
-        case let .renderStep(experience, stepIndex, controller, _):
+        case let .renderStep(experience, stepIndex, _, controller, _):
             guard controller.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
             experienceDidDisappear()
@@ -261,7 +276,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
     }
 
     func containerNavigated(from oldPageIndex: Int, to newPageIndex: Int) {
-        guard case let .renderStep(experience, stepIndex, controller, _) = currentState else { return }
+        guard case let .renderStep(experience, stepIndex, container, controller, _) = currentState else { return }
 
         let stepsInModalGroup = experience.modalGroup(containing: stepIndex)
         let targetStepId = stepsInModalGroup[newPageIndex].id
@@ -275,7 +290,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         experienceLifecycleEventDelegate?.lifecycleEvent(.stepStarted(experience, stepIndex))
 
         if let newStepIndex = experience.steps.firstIndex(where: { $0.id == targetStepId }) {
-            currentState = .renderStep(experience, newStepIndex, controller, isFirst: false)
+            currentState = .renderStep(experience, newStepIndex, container: container, wrapper: controller, isFirst: false)
         }
     }
 
@@ -325,7 +340,7 @@ extension ExperienceStateMachine.ExperienceState: CustomStringConvertible {
             return ".begin(experienceID: \(experience.id.uuidString))"
         case let .beginStep(stepRef):
             return ".beginStep(ref: \(stepRef))"
-        case let .renderStep(experience, stepIndex, _, _):
+        case let .renderStep(experience, stepIndex, _, _, _):
             return ".renderStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .endStep(experience, stepIndex, _):
             return ".endStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
