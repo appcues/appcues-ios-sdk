@@ -66,7 +66,7 @@ internal class ExperienceStateMachine {
             currentState = newState
             handleEndStep(experience, stepIndex, controller, nextState: .end(experience))
         case let (.endStep(experience, currentIndex, _), .beginStep(stepRef)):
-            let stepIndex = stepRef.resolve(currentIndex: currentIndex)
+            let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex)
             if experience.steps.indices.contains(stepIndex) {
                 currentState = newState
                 handleBeginStep(experience, stepIndex)

@@ -18,6 +18,8 @@ internal struct AppcuesContinueAction: ExperienceAction {
             stepReference = .index(index)
         } else if let offset = config?["offset"] as? Int {
             stepReference = .offset(offset)
+        } else if let stepID = UUID(uuidString: config?["stepID"] as? String ?? "") {
+            stepReference = .stepID(stepID)
         } else {
             // Default to continuing to next step
             stepReference = .offset(1)
