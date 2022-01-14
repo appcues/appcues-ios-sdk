@@ -20,7 +20,7 @@ internal class ExperienceStepView: UIView {
     var scrollHandler: NSCollectionLayoutSectionVisibleItemsInvalidationHandler?
 
     lazy var collectionView: UICollectionView = {
-        let section = NSCollectionLayoutSection.fullPaged
+        let section = NSCollectionLayoutSection.fullScreenCarousel()
         section.visibleItemsInvalidationHandler = { [weak self] visibleItems, point, environment in
             self?.scrollHandler?(visibleItems, point, environment)
         }
