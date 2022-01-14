@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-internal class ExperienceStepView: UIView {
+private class ExperiencePagingView: UIView {
 
     lazy var preferredHeightConstraint: NSLayoutConstraint = {
         var constraint = heightAnchor.constraint(equalToConstant: 0)
@@ -71,7 +71,7 @@ internal class ExperienceStepViewController: UIViewController {
 
     weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
 
-    private lazy var experienceStepView = ExperienceStepView()
+    private lazy var pagingView = ExperiencePagingView()
 
     private let stepControllers: [UIViewController]
 
@@ -104,7 +104,7 @@ internal class ExperienceStepViewController: UIViewController {
     }
 
     override func loadView() {
-        view = experienceStepView
+        view = pagingView
     }
 
     override func viewDidLoad() {
@@ -115,17 +115,17 @@ internal class ExperienceStepViewController: UIViewController {
             $0.didMove(toParent: self)
         }
 
-        experienceStepView.scrollHandler = { [weak self] visibleItems, point, environment in
+        pagingView.scrollHandler = { [weak self] visibleItems, point, environment in
             self?.scrollHandler(visibleItems, point, environment)
         }
 
-        experienceStepView.collectionView.register(StepPageCell.self, forCellWithReuseIdentifier: StepPageCell.reuseID)
-        experienceStepView.collectionView.dataSource = self
-        experienceStepView.collectionView.delegate = self
+        pagingView.collectionView.register(StepPageCell.self, forCellWithReuseIdentifier: StepPageCell.reuseID)
+        pagingView.collectionView.dataSource = self
+        pagingView.collectionView.delegate = self
 
-        experienceStepView.pageControl.numberOfPages = stepControllers.count
+        pagingView.pageControl.numberOfPages = stepControllers.count
 
-        experienceStepView.pageControl.addTarget(self, action: #selector(updateCurrentPage(sender:)), for: .valueChanged)
+        pagingView.pageControl.addTarget(self, action: #selector(updateCurrentPage(sender:)), for: .valueChanged)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -154,7 +154,7 @@ internal class ExperienceStepViewController: UIViewController {
     }
 
     func goTo(pageIndex: Int, animated: Bool = true) {
-        experienceStepView.collectionView.scrollToItem(
+        pagingView.collectionView.scrollToItem(
             at: IndexPath(row: pageIndex, section: 0),
             at: .centeredHorizontally,
             animated: animated)
@@ -165,19 +165,19 @@ internal class ExperienceStepViewController: UIViewController {
 
         // `visibleItems` always contains index 0, even when it shouldn't,
         // so we're using `collectionView.indexPathsForVisibleItems` instead.
-        let cells: [StepPageCell] = experienceStepView.collectionView.indexPathsForVisibleItems
+        let cells: [StepPageCell] = pagingView.collectionView.indexPathsForVisibleItems
             .sorted()
-            .compactMap { experienceStepView.collectionView.cellForItem(at: $0) as? StepPageCell }
+            .compactMap { pagingView.collectionView.cellForItem(at: $0) as? StepPageCell }
 
         guard cells.count == 2 else {
             // The magic value 17 is needed for the initial sizing pass.
             // Any value smaller doesn't work (but larger ones are fine).
-            experienceStepView.preferredHeightConstraint.constant = cells.last?.contentHeight ?? 17
+            pagingView.preferredHeightConstraint.constant = cells.last?.contentHeight ?? 17
 
             if let stepIndex = visibleItems.last?.indexPath.row {
                 // TODO: use this for step seen analytics
                 print("current step index", stepIndex)
-                experienceStepView.pageControl.currentPage = stepIndex
+                pagingView.pageControl.currentPage = stepIndex
             }
             return
         }
@@ -189,7 +189,7 @@ internal class ExperienceStepViewController: UIViewController {
             let heightDiff = secondHeight - firstHeight
             let transitionPercentage = transitionPercentage(itemWidth: width, xOffset: point.x)
             // Set the preferred container height to transition smoothly between the difference in heights.
-            experienceStepView.preferredHeightConstraint.constant = firstHeight + heightDiff * transitionPercentage
+            pagingView.preferredHeightConstraint.constant = firstHeight + heightDiff * transitionPercentage
         }
     }
 
