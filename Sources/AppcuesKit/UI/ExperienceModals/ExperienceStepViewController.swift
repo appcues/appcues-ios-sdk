@@ -73,7 +73,7 @@ internal class ExperienceStepViewController: UIViewController {
 
     private lazy var experienceStepView = ExperienceStepView()
 
-    let stepControllers: [UIViewController]
+    private let stepControllers: [UIViewController]
 
     init(viewModel: ExperienceStepViewModel) {
         self.viewModel = viewModel
@@ -188,10 +188,12 @@ internal class ExperienceStepViewController: UIViewController {
         if let firstHeight = cells[0].contentHeight, let secondHeight = cells[1].contentHeight {
             let heightDiff = secondHeight - firstHeight
             let transitionPercentage = transitionPercentage(itemWidth: width, xOffset: point.x)
+            // Set the preferred container height to transition smoothly between the difference in heights.
             experienceStepView.preferredHeightConstraint.constant = firstHeight + heightDiff * transitionPercentage
         }
     }
 
+    /// Calculate the horizontal scroll progress between any two sibling pages.
     private func transitionPercentage(itemWidth: CGFloat, xOffset: CGFloat) -> CGFloat {
         var percentage = (xOffset.truncatingRemainder(dividingBy: itemWidth)) / itemWidth
         // When the scroll percentage hits exactly 100, it's actually calculated as 0 from the mod operator, so set it to 1
@@ -208,10 +210,11 @@ extension ExperienceStepViewController: UICollectionViewDataSource, UICollection
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        // swiftlint:disable:next force_cast
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: StepPageCell.reuseID, for: indexPath) as! StepPageCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: StepPageCell.reuseID, for: indexPath)
 
-        cell.setContent(to: stepControllers[indexPath.row].view)
+        if let pageCell = cell as? StepPageCell {
+            pageCell.setContent(to: stepControllers[indexPath.row].view)
+        }
 
         return cell
     }
