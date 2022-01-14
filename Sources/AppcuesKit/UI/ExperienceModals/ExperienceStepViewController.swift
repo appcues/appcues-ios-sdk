@@ -161,13 +161,13 @@ internal class ExperienceStepViewController: UIViewController {
     }
 
     func scrollHandler(_ visibleItems: [NSCollectionLayoutVisibleItem], _ point: CGPoint, _ environment: NSCollectionLayoutEnvironment) {
-        // Visible items always contains index 0, even when it shouldn't, so filter out pages that aren't actually visible.
         let width = environment.container.contentSize.width
-        let visibleRange = (point.x - width + CGFloat.leastNormalMagnitude)..<(point.x + width)
-        let actuallyVisibleItems = visibleItems.filter { visibleRange.contains(CGFloat($0.indexPath.row) * width) }
 
-        let cells: [StepPageCell] = actuallyVisibleItems
-            .compactMap { experienceStepView.collectionView.cellForItem(at: $0.indexPath) as? StepPageCell }
+        // `visibleItems` always contains index 0, even when it shouldn't,
+        // so we're using `collectionView.indexPathsForVisibleItems` instead.
+        let cells: [StepPageCell] = experienceStepView.collectionView.indexPathsForVisibleItems
+            .sorted()
+            .compactMap { experienceStepView.collectionView.cellForItem(at: $0) as? StepPageCell }
 
         guard cells.count == 2 else {
             // The magic value 17 is needed for the initial sizing pass.
