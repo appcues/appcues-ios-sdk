@@ -14,6 +14,7 @@ internal class ExperienceStateMachine {
         case empty
         case begin(Experience)
         case beginStep(StepReference)
+        // swiftlint:disable:next enum_case_associated_values_count
         case renderStep(Experience, Int, container: ExperiencePagingViewController, wrapper: UIViewController, isFirst: Bool)
         case endStep(Experience, Int, UIViewController)
         case stepError(Experience, Int, String)
@@ -63,8 +64,7 @@ internal class ExperienceStateMachine {
             let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex)
             if experience.steps.indices.contains(stepIndex),
                container.groupID == experience.steps[stepIndex].traits.modalGroupID,
-               let pageIndex = experience.modalGroup(containing: stepIndex).firstIndex(where: { $0.id == experience.steps[stepIndex].id })
-            {
+               let pageIndex = experience.modalGroup(containing: stepIndex).firstIndex(where: { $0.id == experience.steps[stepIndex].id }) {
                 // This will navigate to the new page and in turn call `containerNavigated` to update the `currentState`.
                 container.goTo(pageIndex: pageIndex)
                 break
@@ -290,6 +290,8 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         experienceLifecycleEventDelegate?.lifecycleEvent(.stepStarted(experience, stepIndex))
 
         if let newStepIndex = experience.steps.firstIndex(where: { $0.id == targetStepId }) {
+            // We don't want the state machine to generally support a .renderStep->.renderStep transition,
+            // so we're shortcutting it internally here by setting currentState directly.
             currentState = .renderStep(experience, newStepIndex, container: container, wrapper: controller, isFirst: false)
         }
     }
