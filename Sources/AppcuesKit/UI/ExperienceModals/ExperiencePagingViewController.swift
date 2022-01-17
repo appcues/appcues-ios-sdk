@@ -141,6 +141,15 @@ internal class ExperiencePagingViewController: UIViewController {
         lifecycleHandler?.containerDidDisappear()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        if let pageIndex = targetPageIndex {
+            targetPageIndex = nil
+            goTo(pageIndex: pageIndex, animated: false)
+        }
+    }
+
     @objc
     func updateCurrentPage(sender: UIPageControl) {
         goTo(pageIndex: sender.currentPage, animated: false)
@@ -208,13 +217,6 @@ extension ExperiencePagingViewController: UICollectionViewDataSource, UICollecti
         }
 
         return cell
-    }
-
-    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if let pageIndex = targetPageIndex {
-            targetPageIndex = nil
-            goTo(pageIndex: pageIndex, animated: false)
-        }
     }
 }
 
