@@ -23,11 +23,15 @@ class MockAppcues: Appcues {
         // TODO: build out the service mocks and registration
         container.register(DataStoring.self, value: storage)
         container.register(ActivityProcessing.self, value: activityProcessor)
+        container.register(SessionMonitoring.self, value: sessionMonitor)
+
+        container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
 
     }
 
-    var storage: MockStorage = MockStorage()
-    var activityProcessor: MockActivityProcessor = MockActivityProcessor()
+    var storage = MockStorage()
+    var activityProcessor = MockActivityProcessor()
+    var sessionMonitor = MockSessionMonitor()
 }
 
 class MockStorage: DataStoring {
@@ -50,5 +54,20 @@ class MockActivityProcessor: ActivityProcessing {
 
     func flush() {
         onFlush?()
+    }
+}
+
+class MockSessionMonitor: SessionMonitoring {
+    var sessionID: UUID?
+    var isActive: Bool = true
+    var onStart: (() -> Void)?
+    var onReset: (() -> Void)?
+
+    func start() {
+        onStart?()
+    }
+
+    func reset() {
+        onReset?()
     }
 }
