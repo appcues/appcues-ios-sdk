@@ -43,6 +43,11 @@ internal class ExperienceStepViewController: UIViewController {
             contentViewController.view.widthAnchor.constraint(equalTo: stepView.scrollView.widthAnchor)
         ])
     }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        preferredContentSize = contentViewController.view.frame.size
+    }
 }
 
 extension ExperienceStepViewController {
@@ -53,10 +58,6 @@ extension ExperienceStepViewController {
             view.contentInsetAdjustmentBehavior = .always
             return view
         }()
-
-        var contentHeight: CGFloat {
-            scrollView.contentSize.height
-        }
 
         init() {
             super.init(frame: .zero)
