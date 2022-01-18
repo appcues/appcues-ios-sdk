@@ -84,6 +84,7 @@ internal class ExperiencePagingViewController: UIViewController {
     let groupID: String?
     private let stepControllers: [UIViewController]
 
+    /// **Note:** `stepControllers` are expected to have a preferredContentSize specified.
     init(stepControllers: [UIViewController], groupID: String?) {
         self.stepControllers = stepControllers
         self.groupID = groupID
@@ -103,11 +104,6 @@ internal class ExperiencePagingViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        stepControllers.forEach {
-            addChild($0)
-            $0.didMove(toParent: self)
-        }
-
         pagingView.scrollHandler = { [weak self] visibleItems, point, environment in
             self?.scrollHandler(visibleItems, point, environment)
         }
@@ -124,6 +120,13 @@ internal class ExperiencePagingViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         lifecycleHandler?.containerWillAppear()
+
+        if let pageIndex = targetPageIndex {
+            targetPageIndex = nil
+            DispatchQueue.main.async {
+                self.goTo(pageIndex: pageIndex, animated: false)
+            }
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -141,13 +144,11 @@ internal class ExperiencePagingViewController: UIViewController {
         lifecycleHandler?.containerDidDisappear()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
+        super.preferredContentSizeDidChange(forChildContentContainer: container)
 
-        if let pageIndex = targetPageIndex {
-            targetPageIndex = nil
-            goTo(pageIndex: pageIndex, animated: false)
-        }
+        // If the current child controller changes it's preferred size, propagate that to the paging view.
+        pagingView.preferredHeightConstraint.constant = container.preferredContentSize.height
     }
 
     @objc
@@ -165,32 +166,31 @@ internal class ExperiencePagingViewController: UIViewController {
     func scrollHandler(_ visibleItems: [NSCollectionLayoutVisibleItem], _ point: CGPoint, _ environment: NSCollectionLayoutEnvironment) {
         let width = environment.container.contentSize.width
 
-        // `visibleItems` always contains index 0, even when it shouldn't,
-        // so we're using `collectionView.indexPathsForVisibleItems` instead.
-        let cells: [StepPageCell] = pagingView.collectionView.indexPathsForVisibleItems
-            .sorted()
-            .compactMap { pagingView.collectionView.cellForItem(at: $0) as? StepPageCell }
+        // Visible items always contains index 0, even when it shouldn't, so filter out pages that aren't actually visible.
+        // `collectionView.indexPathsForVisibleItems` would be an option but it's not always correct when jumping without animation.
+        let visibleRange = (point.x - width + CGFloat.leastNormalMagnitude)..<(point.x + width)
+        let actuallyVisibleItems = visibleItems.filter { visibleRange.contains(CGFloat($0.indexPath.row) * width) }
 
-        guard cells.count == 2 else {
-            // The magic value 17 is needed for the initial sizing pass.
-            // Any value smaller doesn't work (but larger ones are fine).
-            pagingView.preferredHeightConstraint.constant = cells.last?.contentHeight ?? 17
+        let heights: [CGFloat] = actuallyVisibleItems
+            .map { stepControllers[$0.indexPath.row].preferredContentSize.height }
+
+        if heights.count == 2 {
+            // For a contentHeight value large enough to scroll, this can create a slightly odd animation where the container
+            // reaches it's max size too quickly because we're scaling the size as if the full contentHeight can be achieved.
+            // TODO: To fix, we'd need to cap the contentHeight values at the max height of the container.
+            let heightDiff = heights[1] - heights[0]
+            let transitionPercentage = transitionPercentage(itemWidth: width, xOffset: point.x)
+            // Set the preferred container height to transition smoothly between the difference in heights.
+            pagingView.preferredHeightConstraint.constant = heights[0] + heightDiff * transitionPercentage
+        } else {
+            if let singleHeight = heights.last {
+                pagingView.preferredHeightConstraint.constant = singleHeight
+            }
 
             if let pageIndex = visibleItems.last?.indexPath.row {
                 currentPageIndex = pageIndex
             }
-            return
         }
-
-        // For a contentHeight value large enough to scroll, this can create a slightly odd animation where the container
-        // reaches it's max size too quickly because we're scaling the size as if the full contentHeight can be achieved.
-        // TODO: To fix, we'd need to cap the contentHeight values at the max height of the container.
-        let firstHeight = cells[0].contentHeight
-        let secondHeight = cells[1].contentHeight
-        let heightDiff = secondHeight - firstHeight
-        let transitionPercentage = transitionPercentage(itemWidth: width, xOffset: point.x)
-        // Set the preferred container height to transition smoothly between the difference in heights.
-        pagingView.preferredHeightConstraint.constant = firstHeight + heightDiff * transitionPercentage
     }
 
     /// Calculate the horizontal scroll progress between any two sibling pages.
@@ -218,18 +218,22 @@ extension ExperiencePagingViewController: UICollectionViewDataSource, UICollecti
 
         return cell
     }
+
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let controller = stepControllers[indexPath.row]
+        addChild(controller)
+        controller.didMove(toParent: self)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let controller = stepControllers[indexPath.row]
+        controller.willMove(toParent: nil)
+        controller.removeFromParent()
+    }
 }
 
 extension ExperiencePagingViewController {
     class StepPageCell: UICollectionViewCell {
-
-        var contentHeight: CGFloat {
-            if let stepView = contentView.subviews.first as? ExperienceStepViewController.ExperienceStepView {
-                return stepView.contentHeight
-            } else {
-                return contentView.frame.size.height
-            }
-        }
 
         override init(frame: CGRect) {
             super.init(frame: .zero)
