@@ -185,12 +185,12 @@ internal class ExperiencePagingViewController: UIViewController {
         // For a contentHeight value large enough to scroll, this can create a slightly odd animation where the container
         // reaches it's max size too quickly because we're scaling the size as if the full contentHeight can be achieved.
         // TODO: To fix, we'd need to cap the contentHeight values at the max height of the container.
-        if let firstHeight = cells[0].contentHeight, let secondHeight = cells[1].contentHeight {
-            let heightDiff = secondHeight - firstHeight
-            let transitionPercentage = transitionPercentage(itemWidth: width, xOffset: point.x)
-            // Set the preferred container height to transition smoothly between the difference in heights.
-            pagingView.preferredHeightConstraint.constant = firstHeight + heightDiff * transitionPercentage
-        }
+        let firstHeight = cells[0].contentHeight
+        let secondHeight = cells[1].contentHeight
+        let heightDiff = secondHeight - firstHeight
+        let transitionPercentage = transitionPercentage(itemWidth: width, xOffset: point.x)
+        // Set the preferred container height to transition smoothly between the difference in heights.
+        pagingView.preferredHeightConstraint.constant = firstHeight + heightDiff * transitionPercentage
     }
 
     /// Calculate the horizontal scroll progress between any two sibling pages.
@@ -224,22 +224,16 @@ extension ExperiencePagingViewController {
     class StepPageCell: UICollectionViewCell {
         static var reuseID: String { String(describing: self) }
 
-        private lazy var scrollView: UIScrollView = {
-            let view = UIScrollView()
-            // Force a consistent safe area behaviour regardless of whether the content scrolls
-            view.contentInsetAdjustmentBehavior = .always
-            return view
-        }()
-
-        var contentHeight: CGFloat? {
-            scrollView.subviews.first?.frame.size.height
+        var contentHeight: CGFloat {
+            if let stepView = contentView.subviews.first as? ExperienceStepViewController.ExperienceStepView {
+                return stepView.contentHeight
+            } else {
+                return contentView.frame.size.height
+            }
         }
 
         override init(frame: CGRect) {
             super.init(frame: .zero)
-
-            contentView.addSubview(scrollView)
-            scrollView.pin(to: contentView)
         }
 
         @available(*, unavailable)
@@ -249,19 +243,12 @@ extension ExperiencePagingViewController {
 
         override func prepareForReuse() {
             super.prepareForReuse()
-            // reset the contentOffset so each cell starts at the top
-            scrollView.contentOffset = .zero
-            scrollView.subviews.forEach { $0.removeFromSuperview() }
+            contentView.subviews.forEach { $0.removeFromSuperview() }
         }
 
         func setContent(to view: UIView) {
-            scrollView.subviews.forEach { $0.removeFromSuperview() }
-
-            scrollView.addSubview(view)
-            view.pin(to: scrollView)
-            NSLayoutConstraint.activate([
-                view.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
-            ])
+            contentView.addSubview(view)
+            view.pin(to: contentView)
         }
     }
 }
