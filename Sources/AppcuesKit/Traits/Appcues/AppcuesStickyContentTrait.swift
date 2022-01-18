@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-internal struct AppcuesStickyContentTrait: ControllerExperienceTrait {
+internal struct AppcuesStickyContentTrait: ControllerTrait {
     static let type = "@appcues/sticky-content"
 
     let edge: Edge

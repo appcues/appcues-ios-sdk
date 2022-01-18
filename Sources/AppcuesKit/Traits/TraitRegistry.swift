@@ -25,7 +25,7 @@ internal class TraitRegistry {
     func apply(_ traitModels: [Experience.Trait], toStep stepController: ExperienceStepViewController) {
         traitModels
         .compactMap { traitModel in
-            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config) as? ControllerExperienceTrait
+            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config) as? ControllerTrait
         }
         .forEach { trait in
             trait.apply(to: stepController)
@@ -35,7 +35,7 @@ internal class TraitRegistry {
     func apply(_ traitModels: [Experience.Trait], toContainer containerController: ExperiencePagingViewController) -> UIViewController {
         traitModels
         .compactMap { traitModel in
-            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config) as? ContainerExperienceTrait
+            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config) as? ContainerTrait
         }
         .reduce(containerController) { wrappingController, trait in
             trait.apply(to: containerController, wrappedBy: wrappingController)

@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal struct AppcuesModalGroupTrait: ContainerExperienceTrait {
+internal struct AppcuesModalGroupTrait: ContainerTrait {
     static let type = "@appcues/modal-group"
 
     let modalConfig: ModalConfig

@@ -1,5 +1,5 @@
 //
-//  ControllerExperienceTrait.swift
+//  ControllerTrait.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2022-01-13.
@@ -9,12 +9,9 @@
 import UIKit
 
 /// An `ExperienceTrait` that modifies a `UIViewController`.
-public protocol ControllerTrait {
+public protocol ControllerTrait: ExperienceTrait {
 
     /// Modify a view controller to include the trait.
     /// - Parameter viewController: The view controller to apply the trait to.
     func apply(to viewController: UIViewController)
 }
-
-/// A type that is an experience trait that modifies a `UIViewController`.
-public typealias ControllerExperienceTrait = ExperienceTrait & ControllerTrait
