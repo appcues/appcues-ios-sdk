@@ -222,7 +222,6 @@ extension ExperiencePagingViewController: UICollectionViewDataSource, UICollecti
 
 extension ExperiencePagingViewController {
     class StepPageCell: UICollectionViewCell {
-        static var reuseID: String { String(describing: self) }
 
         var contentHeight: CGFloat {
             if let stepView = contentView.subviews.first as? ExperienceStepViewController.ExperienceStepView {
