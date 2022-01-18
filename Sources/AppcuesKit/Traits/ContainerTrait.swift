@@ -1,5 +1,5 @@
 //
-//  ContainerExperienceTrait.swift
+//  ContainerTrait.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2022-01-13.
@@ -9,7 +9,7 @@
 import UIKit
 
 /// An `ExperienceTrait` that wraps a `UIViewController`.
-public protocol ContainerTrait {
+public protocol ContainerTrait: ExperienceTrait {
 
     /// Modify a view controller to include the trait.
     /// - Parameter containerController: The container view controller of the experience.
@@ -23,6 +23,3 @@ public protocol ContainerTrait {
     func apply(to containerController: UIViewController, wrappedBy wrappingController: UIViewController) -> UIViewController
 
 }
-
-/// A type that is an experience trait that wraps the Experience.
-public typealias ContainerExperienceTrait = ExperienceTrait & ContainerTrait
