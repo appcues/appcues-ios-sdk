@@ -26,16 +26,18 @@ class MockAppcues: Appcues {
 
         // TODO: build out the service mocks and registration
         container.register(DataStoring.self, value: storage)
-        container.register(ActivityProcessing.self, value: activityProcessor)
+        container.register(ExperienceRendering.self, value: experienceRenderer)
         container.register(SessionMonitoring.self, value: sessionMonitor)
+        container.register(ActivityProcessing.self, value: activityProcessor)
 
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
 
     }
 
     var storage = MockStorage()
-    var activityProcessor = MockActivityProcessor()
+    var experienceRenderer = MockExperienceRenderer()
     var sessionMonitor = MockSessionMonitor()
+    var activityProcessor = MockActivityProcessor()
 }
 
 class MockStorage: DataStoring {
@@ -46,18 +48,27 @@ class MockStorage: DataStoring {
     var lastContentShownAt: Date?
 }
 
-class MockActivityProcessor: ActivityProcessing {
+class MockExperienceRenderer: ExperienceRendering {
 
-    var onProcess: ((Activity, Bool, ((Result<Taco, Error>) -> Void)?) -> Void)?
+    var onShowExperience: ((Experience) -> Void)?
+    var onShowStep: ((StepReference) -> Void)?
+    var onShowFlow: ((Flow) -> Void)?
+    var onDismissCurrentExperience: (() -> Void)?
 
-    var onFlush: (() -> Void)?
-
-    func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
-        onProcess?(activity, sync, completion)
+    func show(experience: Experience) {
+        onShowExperience?(experience)
     }
 
-    func flush() {
-        onFlush?()
+    func show(stepInCurrentExperience stepRef: StepReference) {
+        onShowStep?(stepRef)
+    }
+
+    func show(flow: Flow) {
+        onShowFlow?(flow)
+    }
+
+    func dismissCurrentExperience() {
+        onDismissCurrentExperience?()
     }
 }
 
@@ -73,5 +84,20 @@ class MockSessionMonitor: SessionMonitoring {
 
     func reset() {
         onReset?()
+    }
+}
+
+class MockActivityProcessor: ActivityProcessing {
+
+    var onProcess: ((Activity, Bool, ((Result<Taco, Error>) -> Void)?) -> Void)?
+
+    var onFlush: (() -> Void)?
+
+    func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
+        onProcess?(activity, sync, completion)
+    }
+
+    func flush() {
+        onFlush?()
     }
 }
