@@ -9,8 +9,15 @@
 import UIKit
 import SafariServices
 
+internal protocol URLOpening {
+    func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey: Any], completionHandler: ((Bool) -> Void)?)
+    func topViewController() -> UIViewController?
+}
+
 internal struct AppcuesLinkAction: ExperienceAction {
     static let type = "@appcues/link"
+
+    var urlOpener: URLOpening = UIApplication.shared
 
     let url: URL
     let openExternally: Bool
@@ -26,9 +33,11 @@ internal struct AppcuesLinkAction: ExperienceAction {
 
     func execute(inContext appcues: Appcues) {
         if openExternally {
-            UIApplication.shared.open(url)
+            urlOpener.open(url, options: [:], completionHandler: nil)
         } else {
-            UIApplication.shared.topViewController()?.present(SFSafariViewController(url: url), animated: true)
+            urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true)
         }
     }
 }
+
+extension UIApplication: URLOpening {}
