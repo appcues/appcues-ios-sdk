@@ -30,11 +30,15 @@ internal class ActionRegistry {
     }
 
     func actionClosures(for actionModels: [Experience.Action]) -> [() -> Void] {
-        actionModels.compactMap { actionModel in
-            actions.first { $0.type == actionModel.type }?.init(config: actionModel.config)
-        }
-        .map { [appcues] actionInstance in
-            return { actionInstance.execute(inContext: appcues) }
+        actionModels.compactMap { [appcues] actionModel in
+            // Using a traditional for-loop so we can return as soon as we init our matching item.
+            // If there are multiple actions with the same `type`, take the one registered earliest that can be successfully initialized.
+            for action in actions where action.type == actionModel.type {
+                if let actionInstance = action.init(config: actionModel.config) {
+                    return { actionInstance.execute(inContext: appcues) }
+                }
+            }
+            return nil
         }
     }
 }

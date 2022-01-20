@@ -10,6 +10,10 @@ import Foundation
 @testable import AppcuesKit
 
 class MockAppcues: Appcues {
+    init() {
+        super.init(config: Appcues.Config(accountID: "00000", applicationID: "abc"))
+    }
+
     override init(config: Config) {
         super.init(config: config)
     }
