@@ -26,6 +26,7 @@ class MockAppcues: Appcues {
 
         // TODO: build out the service mocks and registration
         container.register(DataStoring.self, value: storage)
+        container.register(ExperienceLoading.self, value: experienceLoader)
         container.register(ExperienceRendering.self, value: experienceRenderer)
         container.register(SessionMonitoring.self, value: sessionMonitor)
         container.register(ActivityProcessing.self, value: activityProcessor)
@@ -35,6 +36,7 @@ class MockAppcues: Appcues {
     }
 
     var storage = MockStorage()
+    var experienceLoader = MockExperienceLoader()
     var experienceRenderer = MockExperienceRenderer()
     var sessionMonitor = MockSessionMonitor()
     var activityProcessor = MockActivityProcessor()
@@ -46,6 +48,15 @@ class MockStorage: DataStoring {
     var groupID: String?
     var isAnonymous: Bool = false
     var lastContentShownAt: Date?
+}
+
+class MockExperienceLoader: ExperienceLoading {
+
+    var onLoad: ((String) -> Void)?
+
+    func load(contentID: String) {
+        onLoad?(contentID)
+    }
 }
 
 class MockExperienceRenderer: ExperienceRendering {
