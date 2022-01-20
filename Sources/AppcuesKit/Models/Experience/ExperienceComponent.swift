@@ -15,7 +15,6 @@ internal protocol ComponentModel {
 
 @dynamicMemberLookup
 internal indirect enum ExperienceComponent {
-    case pager(PagerModel)
     case stack(StackModel)
     case box(BoxModel)
     case text(TextModel)
@@ -26,7 +25,6 @@ internal indirect enum ExperienceComponent {
 
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
-        case .pager(let model): return model[keyPath: keyPath]
         case .stack(let model): return model[keyPath: keyPath]
         case .box(let model): return model[keyPath: keyPath]
         case .text(let model): return model[keyPath: keyPath]
@@ -57,8 +55,6 @@ extension ExperienceComponent: Decodable {
         switch type {
         case "block":
             self = try container.decode(ExperienceComponent.self, forKey: .content)
-        case "pager":
-            self = .pager(try modelContainer.decode(PagerModel.self))
         case "stack":
             self = .stack(try modelContainer.decode(StackModel.self))
         case "box":
@@ -81,29 +77,6 @@ extension ExperienceComponent: Decodable {
 }
 
 extension ExperienceComponent {
-    struct PagerModel: ComponentModel, Decodable {
-        let id: UUID
-        let progress: PagerProgressModel
-        let items: [ExperienceComponent]
-
-        // Optional properties
-        let axis: String?
-        // swiftlint:disable:next discouraged_optional_boolean
-        let infinite: Bool?
-
-        let style: Style?
-    }
-
-    struct PagerProgressModel: Decodable {
-        enum IndicatorType: String, Decodable {
-            case none
-            case dot
-        }
-
-        let type: IndicatorType
-        let style: Style?
-    }
-
     struct StackModel: ComponentModel, Decodable {
         enum Orientation: String, Decodable {
             case horizontal, vertical

@@ -12,8 +12,6 @@ extension ExperienceComponent {
 
     @ViewBuilder var view: some View {
         switch self {
-        case .pager(let model):
-            AppcuesPager(model: model)
         case .stack(let model):
             AppcuesStack(model: model)
         case .box(let model):
