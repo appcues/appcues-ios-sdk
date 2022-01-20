@@ -35,6 +35,12 @@ class MockAppcues: Appcues {
 
     }
 
+    var onIdentify: ((String, [String: Any]?) -> Void)?
+    override func identify(userID: String, properties: [String : Any]? = nil) {
+        onIdentify?(userID, properties)
+        super.identify(userID: userID, properties: properties)
+    }
+
     var onTrack: ((String, [String: Any]?) -> Void)?
     override func track(name: String, properties: [String : Any]? = nil) {
         onTrack?(name, properties)
