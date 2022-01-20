@@ -35,6 +35,12 @@ class MockAppcues: Appcues {
 
     }
 
+    var onTrack: ((String, [String: Any]?) -> Void)?
+    override func track(name: String, properties: [String : Any]? = nil) {
+        onTrack?(name, properties)
+        super.track(name: name, properties: properties)
+    }
+
     var storage = MockStorage()
     var experienceLoader = MockExperienceLoader()
     var experienceRenderer = MockExperienceRenderer()
