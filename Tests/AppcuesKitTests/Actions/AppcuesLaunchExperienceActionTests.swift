@@ -32,7 +32,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
     func testExecute() throws {
         // Arrange
         var loadCalled = false
-        appcues.experienceLoader.onLoad = { contentID in
+        appcues.experienceLoader.onLoad = { contentID, published in
             XCTAssertEqual(contentID, "123")
             loadCalled = true
         }

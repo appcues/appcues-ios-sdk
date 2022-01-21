@@ -84,13 +84,12 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         guard let activity = activity else { return }
         activityProcessor.process(activity, sync: sync) { [weak self] result in
             guard sync, let experienceRenderer = self?.experienceRenderer else { return }
-            if case let .success(taco) = result {
-                // This prioritizes experiencess over legacy web flows and assumes that the returned flows are ordered by priority.
-                if let experience = taco.experiences.first {
-                    experienceRenderer.show(experience: experience)
-                } else if let flow = taco.contents.first {
-                    experienceRenderer.show(flow: flow)
-                }
+            if case let .success(taco) = result, let experience = taco.experiences.first {
+                // note: by default, we just show the first experience in the response, as the API
+                // prioritizes in order if there are more than one qualified experiences for a given response.
+                // however - it might be desirable in the future to allow for a fallback to seconde, third, etc
+                // should there be some issue preventing the first item from being valid for rendering at all.
+                experienceRenderer.show(experience: experience, published: true)
             }
         }
     }

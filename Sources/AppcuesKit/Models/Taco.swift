@@ -10,8 +10,6 @@ import Foundation
 
 /// API repsonse stucture for an `/activity` request and the `/taco` endpoint.
 internal struct Taco {
-    /// Web modal structure.
-    let contents: [Flow]
     /// Mobile experience JSON structure.
     let experiences: [Experience]
     let performedQualification: Bool
@@ -28,7 +26,6 @@ extension Taco: Decodable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        contents = (try? container.decode([Flow].self, forKey: .contents)) ?? []
         experiences = (try? container.decode([Experience].self, forKey: .experiences)) ?? []
 
         if (try? container.decode(String.self, forKey: .ok)) != nil {

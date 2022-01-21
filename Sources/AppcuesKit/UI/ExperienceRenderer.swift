@@ -13,9 +13,8 @@ internal protocol ExperienceEventDelegate: AnyObject {
 }
 
 internal protocol ExperienceRendering {
-    func show(experience: Experience)
+    func show(experience: Experience, published: Bool)
     func show(stepInCurrentExperience stepRef: StepReference)
-    func show(flow: Flow)
     func dismissCurrentExperience()
 }
 
@@ -39,25 +38,25 @@ internal enum StepReference {
 internal class ExperienceRenderer: ExperienceRendering {
 
     private let stateMachine: ExperienceStateMachine
-
+    private let analyticsTracker: ExperienceAnalyticsTracker
     private let appcues: Appcues
     private let config: Appcues.Config
-    private let styleLoader: StyleLoading
-    private let analyticsPublisher: AnalyticsPublishing
     private let storage: DataStoring
 
     init(container: DIContainer) {
         self.appcues = container.resolve(Appcues.self)
         self.storage = container.resolve(DataStoring.self)
         self.config = container.resolve(Appcues.Config.self)
-        self.styleLoader = container.resolve(StyleLoading.self)
-        self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
 
+        // two items below are not registered/resolved directly from container as they
+        // are considered private implementation details of the ExperienceRenderer - helpers.
         self.stateMachine = ExperienceStateMachine(container: container)
-        stateMachine.experienceLifecycleEventDelegate = self
+        self.analyticsTracker = ExperienceAnalyticsTracker(container: container)
     }
 
-    func show(experience: Experience) {
+    func show(experience: Experience, published: Bool) {
+        // only listen to experience lifecycle events and track analytics on published experiences (not previews)
+        stateMachine.experienceLifecycleEventDelegate = published ? analyticsTracker : nil
         stateMachine.clientAppcuesDelegate = appcues.delegate
         stateMachine.transition(to: .begin(experience))
     }
@@ -70,74 +69,4 @@ internal class ExperienceRenderer: ExperienceRendering {
         stateMachine.transition(to: .empty)
     }
 
-    // Show a specified flow model on top of the current application.
-    func show(flow: Flow) {
-        // TODO: [SC-28964] Tracking the `appcues:flow_attempted` event here is temporary (just so we can see it in the debugger.
-
-        let flowProperties: [String: Any] = [
-            "flowId": flow.id,
-            "flowName": flow.name,
-            "flowType": flow.type.rawValue,
-            "flowVersion": round(flow.updatedAt.timeIntervalSince1970 * 1_000),
-            // "sessionId": 1635781664936,
-            "localeName": "default",
-            "localeId": "default"
-        ]
-        analyticsPublisher.track(name: "appcues:flow_attempted", properties: flowProperties, sync: false)
-
-        guard let modalStepGroup: ModalGroup = flow.steps.compactMap({ $0 as? ModalGroup }).first else {
-            // Currently only supporting a single ModalGroup. Additional modal groups or other types aren't supported yet.
-            self.config.logger.error("Cannot show flow %{public}s because it has no modal groups", flow.id)
-            return
-        }
-
-        DispatchQueue.main.async {
-            guard let topController = UIApplication.shared.topViewController() else {
-                self.config.logger.error("Could not determine top view controller")
-                return
-            }
-
-            let viewController = ModalGroupViewController(modalStepGroup: modalStepGroup, styleLoader: self.styleLoader)
-            topController.present(viewController, animated: true)
-
-            self.storage.lastContentShownAt = Date()
-        }
-    }
-}
-
-extension ExperienceRenderer: ExperienceEventDelegate {
-    func lifecycleEvent(_ event: ExperienceLifecycleEvent) {
-        // TODO: Studio currently operates off of step-child events, so send those along, but in this temporary manner
-        // since eventually appcues:step_child_error, appcues:step_child_activated, and appcues:step_child_deactivated
-        // should be unneeded.
-        // This assumes the experience JSON step.id is actually the step child ID from studio, and that there's only
-        // ever one step per group in the web studio flow.
-        switch event {
-        case .stepError:
-            var properties = event.properties
-            properties["stepChildId"] = properties["stepId"]
-            properties["stepChildNumber"] = 0
-            analyticsPublisher.track(name: "appcues:step_child_error", properties: properties, sync: false)
-        case .stepCompleted:
-            var properties = event.properties
-            properties["stepChildId"] = properties["stepId"]
-            properties["stepChildNumber"] = 0
-            analyticsPublisher.track(name: "appcues:step_child_deactivated", properties: properties, sync: false)
-        default:
-            break
-        }
-
-        // TODO: Charles causes an infinite event tracking loop here if Map Local is being used to return an experience
-        analyticsPublisher.track(name: event.name, properties: event.properties, sync: false)
-
-        switch event {
-        case .stepStarted:
-            var properties = event.properties
-            properties["stepChildId"] = properties["stepId"]
-            properties["stepChildNumber"] = 0
-            analyticsPublisher.track(name: "appcues:step_child_activated", properties: properties, sync: false)
-        default:
-            break
-        }
-    }
 }

@@ -9,7 +9,7 @@
 import Foundation
 
 internal protocol ExperienceLoading {
-    func load(contentID: String)
+    func load(contentID: String, published: Bool)
 }
 
 internal class ExperienceLoader: ExperienceLoading {
@@ -17,21 +17,23 @@ internal class ExperienceLoader: ExperienceLoading {
     private let networking: Networking
     private let experienceRenderer: ExperienceRendering
 
-    // TODO: pull style loader into here so that everything is resolve at render time
-    // CSS loading temporary thing for now anyway
-
     init(container: DIContainer) {
         self.networking = container.resolve(Networking.self)
         self.experienceRenderer = container.resolve(ExperienceRendering.self)
     }
 
-    func load(contentID: String) {
+    func load(contentID: String, published: Bool) {
+
+        let endpoint = published ?
+            APIEndpoint.content(contentID: contentID) :
+            APIEndpoint.preview(contentID: contentID)
+
         networking.get(
-            from: APIEndpoint.content(contentID: contentID)
-        ) { [weak self] (result: Result<Flow, Error>) in
+            from: endpoint
+        ) { [weak self] (result: Result<Experience, Error>) in
             switch result {
-            case .success(let flow):
-                self?.experienceRenderer.show(flow: flow)
+            case .success(let experience):
+                self?.experienceRenderer.show(experience: experience, published: published)
             case .failure(let error):
                 print(error)
             }
