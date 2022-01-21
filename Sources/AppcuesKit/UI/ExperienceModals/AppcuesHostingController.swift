@@ -15,5 +15,6 @@ internal class AppcuesHostingController<Content: View>: UIHostingController<Cont
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         view.setNeedsUpdateConstraints()
+        preferredContentSize = view.frame.size
     }
 }

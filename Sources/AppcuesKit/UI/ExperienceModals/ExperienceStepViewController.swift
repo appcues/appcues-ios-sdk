@@ -44,10 +44,12 @@ internal class ExperienceStepViewController: UIViewController {
         ])
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
+        super.preferredContentSizeDidChange(forChildContentContainer: container)
+
         preferredContentSize = contentViewController.view.frame.size
     }
+
 }
 
 extension ExperienceStepViewController {
