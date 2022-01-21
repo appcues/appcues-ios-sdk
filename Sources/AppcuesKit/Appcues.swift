@@ -120,7 +120,7 @@ public class Appcues {
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(contentID: String) {
         guard sessionMonitor.isActive else { return }
-        experienceLoader.load(contentID: contentID)
+        experienceLoader.load(contentID: contentID, published: true)
     }
 
     /// Register a trait that modifies an `Experience`.
@@ -168,7 +168,6 @@ public class Appcues {
         container.register(AnalyticsPublishing.self, value: self)
         container.registerLazy(DataStoring.self, initializer: Storage.init)
         container.registerLazy(Networking.self, initializer: NetworkClient.init)
-        container.registerLazy(StyleLoading.self, initializer: StyleLoader.init)
         container.registerLazy(ExperienceLoading.self, initializer: ExperienceLoader.init)
         container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
         container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
