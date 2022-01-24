@@ -18,8 +18,7 @@ internal class DeeplinkHandler {
         init?(url: URL, isSessionActive: Bool) {
             guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
 
-            if components.host == "preview", let contentID = components.valueOf("contentID"), isSessionActive {
-                // can only show content via deeplink when a session is active
+            if components.host == "preview", let contentID = components.valueOf("contentID") {
                 self = .preview(contentID: contentID)
             } else if components.host == "show", let contentID = components.valueOf("contentID"), isSessionActive {
                 // can only show content via deeplink when a session is active
