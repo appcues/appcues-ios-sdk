@@ -11,19 +11,24 @@ import UIKit
 internal class DeeplinkHandler {
 
     enum Action {
-        case preview(contentID: String) // preview for draft content
-        case show(contentID: String)    // published content
+        case preview(experienceID: String) // preview for draft content
+        case show(experienceID: String)    // published content
         case debugger
 
         init?(url: URL, isSessionActive: Bool) {
-            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
+            // supported paths:
+            // appcues-{app_id}://sdk/experience_preview/{experience_id}
+            // appcues-{app_id}://sdk/experience_content/{experience_id}
+            // appcues-{app_id}://sdk/debugger
 
-            if components.host == "preview", let contentID = components.valueOf("contentID") {
-                self = .preview(contentID: contentID)
-            } else if components.host == "show", let contentID = components.valueOf("contentID"), isSessionActive {
+            let pathTokens = url.path.split(separator: "/").map { String($0) }
+
+            if pathTokens.count == 2, pathTokens[0] == "experience_preview" {
+                self = .preview(experienceID: pathTokens[1])
+            } else if pathTokens.count == 2, pathTokens[0] == "experience_content", isSessionActive {
                 // can only show content via deeplink when a session is active
-                self = .show(contentID: contentID)
-            } else if components.host == "debugger" {
+                self = .show(experienceID: pathTokens[1])
+            } else if pathTokens.count == 1, pathTokens[0] == "debugger" {
                 self = .debugger
             } else {
                 return nil
@@ -65,10 +70,10 @@ internal class DeeplinkHandler {
         guard let action = action else { return }
 
         switch action {
-        case .preview(let contentID):
-            container.resolve(ExperienceLoading.self).load(contentID: contentID, published: false)
-        case .show(let contentID):
-            container.resolve(ExperienceLoading.self).load(contentID: contentID, published: true)
+        case .preview(let experienceID):
+            container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: false)
+        case .show(let experienceID):
+            container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: true)
         case .debugger:
             container.resolve(UIDebugging.self).show()
         }

@@ -113,14 +113,14 @@ public class Appcues {
         publish(TrackingUpdate(type: .screen(title), properties: properties))
     }
 
-    /// Forces specific Appcues content to appear for the current user by passing in the ID.
+    /// Forces specific Appcues experience to appear for the current user by passing in the ID.
     /// - Parameters:
-    ///   - contentID: ID of the flow.
+    ///   - experienceID: ID of the experience.
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
-    public func show(contentID: String) {
+    public func show(experienceID: String) {
         guard sessionMonitor.isActive else { return }
-        experienceLoader.load(contentID: contentID, published: true)
+        experienceLoader.load(experienceID: experienceID, published: true)
     }
 
     /// Register a trait that modifies an `Experience`.

@@ -9,7 +9,7 @@
 import Foundation
 
 internal protocol ExperienceLoading {
-    func load(contentID: String, published: Bool)
+    func load(experienceID: String, published: Bool)
 }
 
 internal class ExperienceLoader: ExperienceLoading {
@@ -22,11 +22,11 @@ internal class ExperienceLoader: ExperienceLoading {
         self.experienceRenderer = container.resolve(ExperienceRendering.self)
     }
 
-    func load(contentID: String, published: Bool) {
+    func load(experienceID: String, published: Bool) {
 
         let endpoint = published ?
-            APIEndpoint.content(contentID: contentID) :
-            APIEndpoint.preview(contentID: contentID)
+            APIEndpoint.content(experienceID: experienceID) :
+            APIEndpoint.preview(experienceID: experienceID)
 
         networking.get(
             from: endpoint

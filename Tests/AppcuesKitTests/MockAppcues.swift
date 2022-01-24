@@ -66,8 +66,8 @@ class MockExperienceLoader: ExperienceLoading {
 
     var onLoad: ((String, Bool) -> Void)?
 
-    func load(contentID: String, published: Bool) {
-        onLoad?(contentID, published)
+    func load(experienceID: String, published: Bool) {
+        onLoad?(experienceID, published)
     }
 }
 
