@@ -13,7 +13,6 @@ internal enum APIEndpoint: Endpoint {
     case activity(userID: String, sync: Bool)
     case content(contentID: String)
     case preview(contentID: String)
-    case custom(path: String)
 
     /// URL fragments that that are appended to the `Config.apiHost` to make the URL for a network request.
     func url(config: Appcues.Config, storage: DataStoring) -> URL? {
@@ -30,9 +29,8 @@ internal enum APIEndpoint: Endpoint {
         case let .content(contentID):
             components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/experience_content/\(contentID)"
         case let .preview(contentID):
-            components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/experience_preview/\(contentID)"
-        case let .custom(path):
-            components.path = path
+            // note: preview does not contain the /users/{user_id} portion of the path
+            components.path = "/v1/accounts/\(config.accountID)/experience_preview/\(contentID)"
         }
 
         return components.url
