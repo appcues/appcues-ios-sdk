@@ -11,8 +11,8 @@ import Foundation
 /// Endpoints in the Appcues API.
 internal enum APIEndpoint: Endpoint {
     case activity(userID: String, sync: Bool)
-    case content(contentID: String)
-    case preview(contentID: String)
+    case content(experienceID: String)
+    case preview(experienceID: String)
 
     /// URL fragments that that are appended to the `Config.apiHost` to make the URL for a network request.
     func url(config: Appcues.Config, storage: DataStoring) -> URL? {
@@ -26,11 +26,11 @@ internal enum APIEndpoint: Endpoint {
             if sync {
                 components.queryItems = [URLQueryItem(name: "sync", value: "1")]
             }
-        case let .content(contentID):
-            components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/experience_content/\(contentID)"
-        case let .preview(contentID):
+        case let .content(experienceID):
+            components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/experience_content/\(experienceID)"
+        case let .preview(experienceID):
             // note: preview does not contain the /users/{user_id} portion of the path
-            components.path = "/v1/accounts/\(config.accountID)/experience_preview/\(contentID)"
+            components.path = "/v1/accounts/\(config.accountID)/experience_preview/\(experienceID)"
         }
 
         return components.url
