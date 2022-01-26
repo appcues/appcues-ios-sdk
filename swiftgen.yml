@@ -15,4 +15,5 @@ xcassets:
     - templateName: swift5
       params:
         forceProvidesNamespaces: true
+        bundle: Appcues.resourceBundle
       output: Asset+Generated.swift
