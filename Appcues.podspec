@@ -32,7 +32,9 @@ TODO: Add long description of the pod here.
   s.ios.deployment_target = '13.0'
 
   s.source_files = 'Sources/AppcuesKit/**/*.swift'
-  s.resources = 'Sources/AppcuesKit/*.xcassets'
+  s.resource_bundles = {
+      'Appcues' => ['Sources/AppcuesKit/*.xcassets']
+  }
 
   # s.resource_bundles = {
   #   'Appcues' => ['Appcues/Assets/*.png']
