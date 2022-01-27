@@ -101,7 +101,7 @@ extension Activity {
         case let .event(name, _):
             self.init(accountID: config.accountID,
                       userID: storage.userID,
-                      events: [Event(name: name, attributes: update.properties)],
+                      events: [Event(name: name, attributes: update.properties, context: update.context)],
                       groupID: storage.groupID)
 
         case let .screen(title):
@@ -111,7 +111,7 @@ extension Activity {
             }
             self.init(accountID: config.accountID,
                       userID: storage.userID,
-                      events: [Event(pageView: urlString, attributes: update.properties)],
+                      events: [Event(pageView: urlString, attributes: update.properties, context: update.context)],
                       groupID: storage.groupID)
 
         case .profile:
@@ -157,7 +157,7 @@ private extension Array where Element == Activity {
     }
 }
 
-// Temporary solution to piggyback on the web page views. A proper mobile screen solution is still needed.
+// TODO: Temporary solution to piggyback on the web page views. A proper mobile screen solution is still needed.
 private func generatePseudoURL(screenName: String) -> String? {
     var components = URLComponents()
     components.scheme = "https"

@@ -23,6 +23,13 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     // these are the fixed values for the duration of the app runtime
     private var applicationProperties: [String: Any] = [:]
 
+    // these may be redundant with _identity autoprops in some cases, but backend
+    // systems requested that we send in both spots on requests
+    private lazy var contextProperties: [String: Any] = [
+        "app_id": config.applicationID,
+        "app_version": Bundle.main.version
+    ]
+
     init(container: DIContainer) {
         self.storage = container.resolve(DataStoring.self)
         self.sessionMonitor = container.resolve(SessionMonitoring.self)
@@ -32,11 +39,14 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
 
     func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {
 
+        var context = self.contextProperties
+
         switch tracking.type {
         case let .screen(title):
             previousScreen = currentScreen
             currentScreen = title
             sessionPageviews += 1
+            context["screen"] = title
         case .event(SessionEvents.sessionStarted.rawValue, _):
             sessionPageviews = 0
             sessionRandomizer = Int.random(in: 1...100)
@@ -77,6 +87,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             properties["_identity"] = merged
         }
         decorated.properties = properties
+        decorated.context = context
 
         return decorated
     }
