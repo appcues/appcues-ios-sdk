@@ -13,20 +13,23 @@ internal struct Event {
     let name: String
     let timestamp: Date
     let attributes: [String: Any]?
+    let context: [String: Any]?
 
-    init(name: String, timestamp: Date = Date(), attributes: [String: Any]? = nil) {
+    init(name: String, timestamp: Date = Date(), attributes: [String: Any]? = nil, context: [String: Any]? = nil) {
         self.name = name
         self.timestamp = timestamp
         self.attributes = attributes
+        self.context = context
     }
 
-    init(pageView url: String, attributes: [String: Any]? = nil) {
+    init(pageView url: String, attributes: [String: Any]? = nil, context: [String: Any]? = nil) {
         name = "appcues:page_view"
         timestamp = Date()
 
         var extendedAttributes = attributes ?? [:]
         extendedAttributes["url"] = url
         self.attributes = extendedAttributes
+        self.context = context
     }
 }
 
@@ -35,6 +38,7 @@ extension Event: Encodable {
         case name
         case timestamp
         case attributes
+        case context
     }
 
     func encode(to encoder: Encoder) throws {
@@ -45,6 +49,11 @@ extension Event: Encodable {
         if let attributes = attributes {
             var attributesContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .attributes)
             try attributesContainer.encodeSkippingInvalid(attributes)
+        }
+
+        if let context = context {
+            var attributesContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .context)
+            try attributesContainer.encodeSkippingInvalid(context)
         }
     }
 }

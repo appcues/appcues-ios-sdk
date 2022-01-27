@@ -33,6 +33,7 @@ internal struct TrackingUpdate {
 
     let type: TrackingType
     var properties: [String: Any]?
+    var context: [String: Any]?
     let timestamp = Date()
 
     var policy: Policy {
