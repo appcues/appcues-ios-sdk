@@ -8,6 +8,7 @@
 
 import XCTest
 @testable import AppcuesKit
+import CoreMedia
 
 class AppcuesTests: XCTestCase {
     var appcues: MockAppcues!
@@ -25,8 +26,8 @@ class AppcuesTests: XCTestCase {
 
         // Arrange
         let subscriber = TestSubscriber()
+        appcues.register(subscriber: subscriber)
         appcues.sessionMonitor.isActive = false //start out with Appcues disabled - no user
-        appcues.register(subscriber: subscriber) //use a test subscriber to listen to updates coming through the system
 
         appcues.sessionMonitor.onStart = {
             self.appcues.sessionMonitor.isActive = true
@@ -46,14 +47,259 @@ class AppcuesTests: XCTestCase {
         appcues.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //tracked - screen
 
         // Assert
-        XCTAssertEqual(subscriber.trackedUpdates, 4)
+        XCTAssertEqual(4, subscriber.trackedUpdates)
+    }
+
+    func testIdentifyWithEmptyUserIsNotTracked() throws {
+        // Arrange
+        let subscriber = TestSubscriber()
+        appcues.register(subscriber: subscriber)
+
+        // Act
+        appcues.identify(userID: "", properties: nil)
+
+        // Assert
+        XCTAssertEqual(0, subscriber.trackedUpdates)
+    }
+
+    func testSetGroup() throws {
+        // Arrange
+        let subscriber = TestSubscriber()
+        appcues.register(subscriber: subscriber)
+
+        // Act
+        appcues.group(groupID: "group1", properties: ["my_key":"my_value", "another_key": 33])
+
+        // Assert
+        XCTAssertNotNil(subscriber.lastUpdate)
+        guard case .group = subscriber.lastUpdate?.type else { return XCTFail() }
+        try ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(subscriber.lastUpdate?.properties)
+        XCTAssertEqual("group1", appcues.storage.groupID)
+    }
+
+    func testNilGroupIDRemovesGroup() throws {
+        // Arrange
+        let subscriber = TestSubscriber()
+        appcues.register(subscriber: subscriber)
+
+        // Act
+        appcues.group(groupID: nil, properties: ["my_key":"my_value", "another_key": 33])
+
+        // Assert
+        XCTAssertNotNil(subscriber.lastUpdate)
+        guard case .group = subscriber.lastUpdate?.type else { return XCTFail() }
+        XCTAssertNil(appcues.storage.groupID)
+        XCTAssertNil(subscriber.lastUpdate?.properties)
+    }
+
+    func testEmptyStringGroupIDRemovesGroup() throws {
+        // Arrange
+        let subscriber = TestSubscriber()
+        appcues.register(subscriber: subscriber)
+
+        // Act
+        appcues.group(groupID: "", properties: ["my_key":"my_value", "another_key": 33])
+
+        // Assert
+        XCTAssertNotNil(subscriber.lastUpdate)
+        guard case .group = subscriber.lastUpdate?.type else { return XCTFail() }
+        XCTAssertNil(appcues.storage.groupID)
+        XCTAssertNil(subscriber.lastUpdate?.properties)
+    }
+
+    func testRegisterDecorator() throws {
+        // Arrange
+        let decorator = TestDecorator()
+
+        // Act
+        appcues.register(decorator: decorator)
+        appcues.track(name: "custom event", properties: nil)
+
+        // Assert
+        XCTAssertEqual(1, decorator.decorations)
+    }
+
+    func testRemoveDecorator() throws {
+        // Arrange
+        let decorator = TestDecorator()
+        appcues.register(decorator: decorator)
+        appcues.track(name: "custom event", properties: nil)
+
+        // Act
+        appcues.remove(decorator: decorator)
+        appcues.track(name: "custom event", properties: nil)
+
+        // Assert
+        XCTAssertEqual(1, decorator.decorations)
+    }
+
+    func testClearDecorators() throws {
+        // Arrange
+        let decorator1 = TestDecorator()
+        appcues.register(decorator: decorator1)
+        let decorator2 = TestDecorator()
+        appcues.register(decorator: decorator2)
+        appcues.track(name: "custom event", properties: nil)
+
+        // Act
+        appcues.clearDecorators()
+        appcues.track(name: "custom event", properties: nil)
+
+        // Assert
+        XCTAssertEqual(1, decorator1.decorations)
+        XCTAssertEqual(1, decorator2.decorations)
+    }
+
+    func testRegisterSubscriber() throws {
+        // Arrange
+        let subscriber = TestSubscriber()
+
+        // Act
+        appcues.register(subscriber: subscriber)
+        appcues.track(name: "custom event", properties: nil)
+
+        // Assert
+        XCTAssertEqual(1, subscriber.trackedUpdates)
+    }
+
+    func testRemoveSubscriber() throws {
+        // Arrange
+        let subscriber = TestSubscriber()
+        appcues.register(subscriber: subscriber)
+        appcues.track(name: "custom event", properties: nil)
+
+        // Act
+        appcues.remove(subscriber: subscriber)
+        appcues.track(name: "custom event", properties: nil)
+
+        // Assert
+        XCTAssertEqual(1, subscriber.trackedUpdates)
+    }
+
+    func testClearSubscribers() throws {
+        // Arrange
+        let subscriber1 = TestSubscriber()
+        appcues.register(subscriber: subscriber1)
+        let subscriber2 = TestSubscriber()
+        appcues.register(subscriber: subscriber2)
+        appcues.track(name: "custom event", properties: nil)
+
+        // Act
+        appcues.clearSubscribers()
+        appcues.track(name: "custom event", properties: nil)
+
+        // Assert
+        XCTAssertEqual(1, subscriber1.trackedUpdates)
+        XCTAssertEqual(1, subscriber2.trackedUpdates)
+    }
+
+    func testSdkVersion() throws {
+        // Act
+        let version = appcues.version()
+        let tokens = version.split(separator: ".")
+
+        // Assert
+        // just looking for some valid return string with at least a major/minor version
+        XCTAssertTrue(tokens.count > 2)
+        XCTAssertNotNil(Int(tokens[0]))
+        XCTAssertNotNil(Int(tokens[1]))
+    }
+
+    func testDebug() throws {
+        // Arrange
+        let debuggerShownExpectation = expectation(description: "Debugger shown")
+        appcues.debugger.onShow = {
+            debuggerShownExpectation.fulfill()
+        }
+
+        // Act
+        appcues.debug()
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testShowExperienceByID() throws {
+        // Arrange
+        var experienceShown = false
+        appcues.experienceLoader.onLoad = { experienceID, published in
+            XCTAssertEqual(true, published)
+            XCTAssertEqual("1234", experienceID)
+            experienceShown = true
+        }
+
+        // Act
+        appcues.show(experienceID: "1234")
+
+        // Assert
+        XCTAssertTrue(experienceShown)
+    }
+
+    func testExperienceNotShownIfNoSession() throws {
+        // Arrange
+        appcues.sessionMonitor.isActive = false
+        var experienceShown = false
+        appcues.experienceLoader.onLoad = { experienceID, published in
+            experienceShown = true
+        }
+
+        // Act
+        appcues.show(experienceID: "1234")
+
+        // Assert
+        XCTAssertFalse(experienceShown)
+    }
+
+    func testAutomaticScreenTracking() throws {
+        // Arrange
+        let screenExpectation = expectation(description: "Screen tracked")
+        appcues.onScreen = { title, properties in
+            XCTAssertEqual("test screen", title)
+            XCTAssertNil(properties)
+            screenExpectation.fulfill()
+        }
+
+        // Act
+        appcues.trackScreens()
+        // simulates an automatic tracked screen to verify if tracking is handling
+        NotificationCenter.appcues.post(name: .appcuesTrackedScreen,
+                                        object: self,
+                                        userInfo: Notification.toInfo("test screen"))
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testDidHandleURL() throws {
+        // Arrange
+        appcues.deeplinkHandler.onDidHandleURL = { url -> Bool in
+            XCTAssertEqual(URL(string: "https://www.appcues.com")!, url)
+            return true
+        }
+
+        // Act
+        let result = appcues.didHandleURL(URL(string: "https://www.appcues.com")!)
+
+        // Assert
+        XCTAssertTrue(result)
     }
 }
 
 private class TestSubscriber: AnalyticsSubscribing {
     var trackedUpdates = 0
+    var lastUpdate: TrackingUpdate?
 
     func track(update: TrackingUpdate) {
         trackedUpdates += 1
+        lastUpdate = update
+    }
+}
+
+private class TestDecorator: AnalyticsDecorating {
+    var decorations = 0
+
+    func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {
+        decorations += 1
+        return tracking
     }
 }

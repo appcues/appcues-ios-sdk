@@ -159,7 +159,7 @@ public class Appcues {
     /// ```
     @discardableResult
     public func didHandleURL(_ url: URL) -> Bool {
-        return container.resolve(DeeplinkHandler.self).didHandleURL(url)
+        return container.resolve(DeeplinkHandling.self).didHandleURL(url)
     }
 
     func initializeContainer() {
@@ -171,7 +171,7 @@ public class Appcues {
         container.registerLazy(ExperienceLoading.self, initializer: ExperienceLoader.init)
         container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
         container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
-        container.registerLazy(DeeplinkHandler.self, initializer: DeeplinkHandler.init)
+        container.registerLazy(DeeplinkHandling.self, initializer: DeeplinkHandler.init)
         container.registerLazy(AnalyticsTracking.self, initializer: AnalyticsTracker.init)
         container.registerLazy(SessionMonitoring.self, initializer: SessionMonitor.init)
         container.registerLazy(UIKitScreenTracker.self, initializer: UIKitScreenTracker.init)

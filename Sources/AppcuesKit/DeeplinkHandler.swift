@@ -8,7 +8,11 @@
 
 import UIKit
 
-internal class DeeplinkHandler {
+internal protocol DeeplinkHandling {
+    func didHandleURL(_ url: URL) -> Bool
+}
+
+internal class DeeplinkHandler: DeeplinkHandling {
 
     enum Action {
         case preview(experienceID: String) // preview for draft content
