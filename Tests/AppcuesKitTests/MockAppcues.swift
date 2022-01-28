@@ -28,10 +28,14 @@ class MockAppcues: Appcues {
         container.register(DataStoring.self, value: storage)
         container.register(ExperienceLoading.self, value: experienceLoader)
         container.register(ExperienceRendering.self, value: experienceRenderer)
+        container.register(UIDebugging.self, value: debugger)
         container.register(SessionMonitoring.self, value: sessionMonitor)
         container.register(ActivityProcessing.self, value: activityProcessor)
+        container.register(DeeplinkHandling.self, value: deeplinkHandler)
 
+        // dependencies that are not mocked
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
+        container.registerLazy(UIKitScreenTracker.self, initializer: UIKitScreenTracker.init)
 
     }
 
@@ -47,11 +51,19 @@ class MockAppcues: Appcues {
         super.track(name: name, properties: properties)
     }
 
+    var onScreen: ((String, [String: Any]?) -> Void)?
+    override func screen(title: String, properties: [String : Any]? = nil) {
+        onScreen?(title, properties)
+        super.screen(title: title, properties: properties)
+    }
+
     var storage = MockStorage()
     var experienceLoader = MockExperienceLoader()
     var experienceRenderer = MockExperienceRenderer()
     var sessionMonitor = MockSessionMonitor()
     var activityProcessor = MockActivityProcessor()
+    var debugger = MockDebugger()
+    var deeplinkHandler = MockDeeplinkHandler()
 }
 
 class MockStorage: DataStoring {
@@ -108,7 +120,6 @@ class MockSessionMonitor: SessionMonitoring {
 class MockActivityProcessor: ActivityProcessing {
 
     var onProcess: ((Activity, Bool, ((Result<Taco, Error>) -> Void)?) -> Void)?
-
     var onFlush: (() -> Void)?
 
     func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
@@ -117,5 +128,21 @@ class MockActivityProcessor: ActivityProcessing {
 
     func flush() {
         onFlush?()
+    }
+}
+
+class MockDebugger: UIDebugging {
+
+    var onShow: (() -> Void)?
+    func show() {
+        onShow?()
+    }
+}
+
+class MockDeeplinkHandler: DeeplinkHandling {
+
+    var onDidHandleURL: ((URL) -> Bool)?
+    func didHandleURL(_ url: URL) -> Bool {
+        return onDidHandleURL?(url) ?? false
     }
 }

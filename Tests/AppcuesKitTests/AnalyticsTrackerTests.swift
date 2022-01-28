@@ -107,7 +107,7 @@ class AnalyticsTrackerTests: XCTestCase {
 }
 
 // Helpers to test an Activity request body is as expected
-private extension Dictionary where Key == String, Value == Any {
+extension Dictionary where Key == String, Value == Any {
 
     func verifyPropertiesMatch(_ other: [String: Any]?) throws {
         guard let other = other else {
