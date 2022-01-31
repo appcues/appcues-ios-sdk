@@ -6,9 +6,9 @@
 //  Copyright © 2021 Appcues. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
-internal protocol ExperienceContainerLifecycleHandler: AnyObject {
+public protocol ExperienceContainerLifecycleHandler: AnyObject {
     func containerWillAppear()
     func containerDidAppear()
     func containerWillDisappear()

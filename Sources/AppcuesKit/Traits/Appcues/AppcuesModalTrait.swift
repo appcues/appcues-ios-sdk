@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal struct AppcuesModalTrait: ContainerTrait {
+internal struct AppcuesModalTrait: WrapperCreatingTrait {
     static let type = "@appcues/modal"
 
     let modalConfig: ModalConfig
@@ -21,7 +21,11 @@ internal struct AppcuesModalTrait: ContainerTrait {
         }
     }
 
-    func apply(to containerController: UIViewController, wrappedBy wrappingController: UIViewController) -> UIViewController {
-        return modalConfig.apply(to: containerController, wrappedBy: wrappingController)
+    func createWrapper(around containerController: ExperienceStepContainer) -> UIViewController {
+        return modalConfig.createWrapper(around: containerController)
+    }
+
+    func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
+        modalConfig.addBackdrop(backdropView: backdropView, to: wrapperController)
     }
 }

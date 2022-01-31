@@ -8,7 +8,8 @@
 
 import UIKit
 
-internal struct AppcuesModalGroupTrait: ContainerTrait {
+internal struct AppcuesModalGroupTrait: ConditionalGroupingTrait, JoiningTrait,
+                                        ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait {
     static let type = "@appcues/modal-group"
 
     let modalConfig: ModalConfig
@@ -28,18 +29,40 @@ internal struct AppcuesModalGroupTrait: ContainerTrait {
         self.swipeEnabled = config?["swipeEnabled"] as? Bool ?? true
     }
 
-    func apply(to containerController: UIViewController, wrappedBy wrappingController: UIViewController) -> UIViewController {
-        guard let containerController = containerController as? ExperiencePagingViewController else { return wrappingController }
+    func join(initialStep stepIndex: Int, in experience: Experience) -> [Experience.Step] {
+        let modalGroupID = experience.steps[stepIndex].traits.groupID(type: Self.type)
+        return experience.steps.filter { $0.traits.groupID(type: Self.type) == modalGroupID }
+    }
 
-        guard containerController.groupID == groupID else { return wrappingController }
+    func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) -> ExperienceStepContainer {
+        let pagingViewController = ExperiencePagingViewController(
+            stepControllers: stepControllers,
+            groupID: groupID)
+
+        if targetPageIndex != 0 {
+            pagingViewController.targetPageIndex = targetPageIndex
+        }
+
+        return pagingViewController
+    }
+
+    func decorate(containerController: ExperienceStepContainer) {
+        guard let containerController = containerController as? ExperiencePagingViewController else { return }
+        guard containerController.groupID == groupID else { return }
 
         if let progress = progress {
             containerController.pageControl.isHidden = progress.type == .none
             containerController.pageControl.pageIndicatorTintColor = UIColor(dynamicColor: progress.style?.backgroundColor)
             containerController.pageControl.currentPageIndicatorTintColor = UIColor(dynamicColor: progress.style?.foregroundColor)
         }
+    }
 
-        return modalConfig.apply(to: containerController, wrappedBy: wrappingController)
+    func createWrapper(around containerController: ExperienceStepContainer) -> UIViewController {
+        return modalConfig.createWrapper(around: containerController)
+    }
+
+    func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
+        modalConfig.addBackdrop(backdropView: backdropView, to: wrapperController)
     }
 }
 

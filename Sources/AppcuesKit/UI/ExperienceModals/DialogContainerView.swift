@@ -10,12 +10,6 @@ import UIKit
 
 internal class DialogContainerView: UIView {
 
-    let backgroundView: UIView = {
-        let view = UIView(frame: .zero)
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
-    }()
-
     let dialogView: UIView = {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -40,9 +34,7 @@ internal class DialogContainerView: UIView {
 
         backgroundColor = .clear
 
-        addSubview(backgroundView)
         addSubview(dialogView)
-        backgroundView.pin(to: self)
 
         NSLayoutConstraint.activate([
             // ensure the dialog can't exceed the container height (it should scroll instead).
