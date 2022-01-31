@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-internal struct AppcuesStickyContentTrait: ControllerTrait {
+internal struct AppcuesStickyContentTrait: StepDecoratingTrait {
     static let type = "@appcues/sticky-content"
 
     let edge: Edge
@@ -23,7 +23,7 @@ internal struct AppcuesStickyContentTrait: ControllerTrait {
         }
     }
 
-    func apply(to viewController: UIViewController) {
+    func decorate(stepController viewController: UIViewController) {
         // Need to cast for access to the viewModel.
         guard let viewController = viewController as? ExperienceStepViewController else { return }
 

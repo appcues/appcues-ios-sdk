@@ -37,18 +37,9 @@ internal struct Experience: Decodable {
     let steps: [Step]
 }
 
-extension Experience {
-    func modalGroup(containing stepIndex: Int) -> [Step] {
-        let modalGroupID = steps[stepIndex].traits.modalGroupID
-        return steps.filter { $0.traits.modalGroupID == modalGroupID }
-    }
-}
-
 extension Array where Element == Experience.Trait {
-    var modalGroupID: String? {
-        self
-            .first { $0.type == "@appcues/modal-group-item" }?
-            .config?["groupID"] as? String
+    func groupID(type: String) -> String? {
+        self.first { $0.type == "\(type)-item" }?.config?["groupID"] as? String
     }
 }
 

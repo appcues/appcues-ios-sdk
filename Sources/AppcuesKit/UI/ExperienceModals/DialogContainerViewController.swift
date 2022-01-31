@@ -32,17 +32,7 @@ internal class DialogContainerViewController: UIViewController {
         embedChildViewController(dialogViewController, inSuperview: containerView.dialogView)
     }
 
-    func configureSkippable(isSkippable: Bool) -> Self {
-        if isSkippable {
-            containerView.backgroundView.addGestureRecognizer(
-                UITapGestureRecognizer(target: self, action: #selector(didTapBackground)))
-        }
-
-        return self
-    }
-
-    func configureStyle(_ style: ExperienceComponent.Style?, backdropColor: UIColor?) -> Self {
-        containerView.backgroundView.backgroundColor = backdropColor
+    func configureStyle(_ style: ExperienceComponent.Style?) -> Self {
         containerView.dialogView.backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
         containerView.dialogView.layer.cornerRadius = style?.cornerRadius ?? 0
 
@@ -52,10 +42,5 @@ internal class DialogContainerViewController: UIViewController {
         containerView.shadowLayer = CAShapeLayer(shadowModel: style?.shadow)
 
         return self
-    }
-
-    @objc
-    private func didTapBackground() {
-        dismiss(animated: true)
     }
 }

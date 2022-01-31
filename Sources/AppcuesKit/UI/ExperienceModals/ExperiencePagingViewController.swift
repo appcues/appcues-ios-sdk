@@ -64,7 +64,7 @@ private class ExperiencePagingView: UIView {
     }
 }
 
-internal class ExperiencePagingViewController: UIViewController {
+internal class ExperiencePagingViewController: UIViewController, ExperienceStepContainer {
 
     weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
 
@@ -90,6 +90,9 @@ internal class ExperiencePagingViewController: UIViewController {
         self.groupID = groupID
 
         super.init(nibName: nil, bundle: nil)
+
+        // By default modals cannot be interactively dismissed. The `@appcues/skippable` trait overrides this.
+        self.isModalInPresentation = true
     }
 
     @available(*, unavailable)
@@ -149,11 +152,16 @@ internal class ExperiencePagingViewController: UIViewController {
 
         // If the current child controller changes it's preferred size, propagate that to the paging view.
         pagingView.preferredHeightConstraint.constant = container.preferredContentSize.height
+        preferredContentSize = container.preferredContentSize
     }
 
     @objc
     func updateCurrentPage(sender: UIPageControl) {
         goTo(pageIndex: sender.currentPage, animated: false)
+    }
+
+    func navigate(to pageIndex: Int) {
+        goTo(pageIndex: pageIndex)
     }
 
     func goTo(pageIndex: Int, animated: Bool = true) {

@@ -16,29 +16,17 @@ internal class TraitRegistry {
         register(trait: AppcuesModalTrait.self)
         register(trait: AppcuesModalGroupTrait.self)
         register(trait: AppcuesStickyContentTrait.self)
+        register(trait: AppcuesSkippableTrait.self)
+        register(trait: AppcuesBackdropTrait.self)
     }
 
     func register(trait: ExperienceTrait.Type) {
         traits.append(trait)
     }
 
-    func apply(_ traitModels: [Experience.Trait], toStep stepController: ExperienceStepViewController) {
-        traitModels
-        .compactMap { traitModel in
-            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config) as? ControllerTrait
-        }
-        .forEach { trait in
-            trait.apply(to: stepController)
-        }
-    }
-
-    func apply(_ traitModels: [Experience.Trait], toContainer containerController: ExperiencePagingViewController) -> UIViewController {
-        traitModels
-        .compactMap { traitModel in
-            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config) as? ContainerTrait
-        }
-        .reduce(containerController) { wrappingController, trait in
-            trait.apply(to: containerController, wrappedBy: wrappingController)
+    func instances(for models: [Experience.Trait]) -> [ExperienceTrait] {
+        models.compactMap { traitModel in
+            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config)
         }
     }
 }
