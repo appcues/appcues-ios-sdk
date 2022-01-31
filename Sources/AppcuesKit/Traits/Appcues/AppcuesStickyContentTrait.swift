@@ -11,10 +11,12 @@ import SwiftUI
 internal struct AppcuesStickyContentTrait: StepDecoratingTrait {
     static let type = "@appcues/sticky-content"
 
+    let groupID: String?
     let edge: Edge
     let content: ExperienceComponent
 
     init?(config: [String: Any]?) {
+        self.groupID = config?["groupID"] as? String
         if let edge = Edge(config?["edge"] as? String), let content = config?["content", decodedAs: ExperienceComponent.self] {
             self.edge = edge
             self.content = content

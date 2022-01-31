@@ -23,16 +23,11 @@ internal struct TraitComposer {
         var targetPageIndex = 0
 
         let experienceTraitInstances: [ExperienceTrait] = traitRegistry.instances(for: experience.traits).filter {
-            // Only apply experience-level traits that have grouping behavior if the target step is part of the group.
-            if let groupTrait = ($0 as? ConditionalGroupingTrait) {
-                let groupID = experience.steps[stepIndex].traits.groupID(type: type(of: $0).type)
-                return groupTrait.groupID == groupID
-            } else {
-                return true
-            }
+            // Only apply experience-level traits if the trait isn't grouped or target step is part of the group.
+            $0.groupID == nil || $0.groupID == experience.steps[stepIndex].traits.groupID
         }
 
-        if let joiner = experienceTraitInstances.compactMapFirst({ $0 as? JoiningTrait }) {
+        if let joiner = experienceTraitInstances.compactMapFirst({ $0 as? GroupingTrait }) {
             stepModels = joiner.join(initialStep: stepIndex, in: experience)
             targetPageIndex = stepModels.firstIndex { $0.id == experience.steps[stepIndex].id } ?? targetPageIndex
         }

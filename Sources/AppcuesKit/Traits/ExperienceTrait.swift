@@ -18,13 +18,15 @@ public protocol ExperienceTrait {
     /// Should be formatted `@org/name` (e.g. `@appcues/modal`).
     static var type: String { get }
 
+    var groupID: String? { get }
+
     /// Initializer from an `Experience.Trait` data model.
     ///
     /// This initializer should verify the config has any required properties and return `nil` if not.
     init?(config: [String: Any]?)
 }
 
- internal protocol JoiningTrait: ExperienceTrait {
+ internal protocol GroupingTrait: ExperienceTrait {
     func join(initialStep stepIndex: Int, in experience: Experience) -> [Experience.Step]
 }
 
