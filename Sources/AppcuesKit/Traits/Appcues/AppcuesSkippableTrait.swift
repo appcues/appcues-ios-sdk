@@ -11,10 +11,12 @@ import UIKit
 internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecoratingTrait {
     static var type: String = "@appcues/skippable"
 
+    let groupID: String?
+
     private weak var containerController: UIViewController?
 
     required init?(config: [String: Any]?) {
-        // no config
+        self.groupID = config?["groupID"] as? String
     }
 
     func decorate(containerController: ExperienceStepContainer) {

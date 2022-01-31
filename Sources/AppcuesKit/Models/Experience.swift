@@ -38,8 +38,8 @@ internal struct Experience: Decodable {
 }
 
 extension Array where Element == Experience.Trait {
-    func groupID(type: String) -> String? {
-        self.first { $0.type == "\(type)-item" }?.config?["groupID"] as? String
+    var groupID: String? {
+        self.first { $0.type == "@appcues/group-item" }?.config?["groupID"] as? String
     }
 }
 
