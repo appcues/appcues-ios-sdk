@@ -9,7 +9,7 @@
 import UIKit
 
 internal struct AppcuesModalGroupTrait: ConditionalGroupingTrait, JoiningTrait,
-                                        ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait {
+                                        ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
     static let type = "@appcues/modal-group"
 
     let modalConfig: ModalConfig
@@ -63,6 +63,14 @@ internal struct AppcuesModalGroupTrait: ConditionalGroupingTrait, JoiningTrait,
 
     func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
         modalConfig.addBackdrop(backdropView: backdropView, to: wrapperController)
+    }
+
+    func present(viewController: UIViewController) throws {
+        UIApplication.shared.topViewController()?.present(viewController, animated: true)
+    }
+
+    func remove(viewController: UIViewController) {
+        viewController.dismiss(animated: true)
     }
 }
 

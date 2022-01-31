@@ -132,10 +132,10 @@ internal class ExperienceStateMachine {
     }
 
     private func handleBeginStep(_ experience: Experience, _ stepIndex: Int, isFirst: Bool = false) {
-        let traitComposer = TraitComposer(experience: experience, stepIndex: stepIndex, traitRegistry: traitRegistry)
-
         DispatchQueue.main.async {
             do {
+                let traitComposer = try TraitComposer(experience: experience, stepIndex: stepIndex, traitRegistry: self.traitRegistry)
+
                 let package = try traitComposer.package(actionRegistry: self.actionRegistry)
                 self.transition(to: .renderStep(
                     experience,

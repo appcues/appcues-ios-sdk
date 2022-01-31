@@ -18,7 +18,7 @@ internal struct TraitComposer {
     private let wrapperCreating: WrapperCreatingTrait?
     private let presenting: PresentingTrait
 
-    init(experience: Experience, stepIndex: Int, traitRegistry: TraitRegistry) {
+    init(experience: Experience, stepIndex: Int, traitRegistry: TraitRegistry) throws {
         var stepModels = [experience.steps[stepIndex]]
         var targetPageIndex = 0
 
@@ -73,11 +73,11 @@ internal struct TraitComposer {
 
         self.targetPageIndex = targetPageIndex
         self.stepModelsWithDecorators = stepModelsWithDecorators
-        self.containerCreating = containerCreating ?? DefaultContainerCreatingTrait()
+        self.containerCreating = try containerCreating.unwrap(or: TraitError(description: "Container creating capability trait required"))
         self.containerDecorating = containerDecorating
         self.backdropDecorating = backdropDecorating
         self.wrapperCreating = wrapperCreating
-        self.presenting = presenting ?? DefaultPresentingTrait()
+        self.presenting = try presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
     }
 
     func package(actionRegistry: ActionRegistry) throws -> ExperiencePackage {
@@ -107,30 +107,11 @@ internal struct TraitComposer {
     }
 }
 
-private extension TraitComposer {
-    struct DefaultContainerCreatingTrait: ContainerCreatingTrait {
-        static var type: String = "_defaultContainerCreatingTrait"
-
-        init() {}
-        init?(config: [String: Any]?) {}
-
-        func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceStepContainer {
-            ExperiencePagingViewController(stepControllers: stepControllers, groupID: nil)
-        }
-    }
-
-    struct DefaultPresentingTrait: PresentingTrait {
-        static var type: String = "_defaultPresentingTrait"
-
-        init() {}
-        init?(config: [String: Any]?) {}
-
-        func present(viewController: UIViewController) throws {
-            UIApplication.shared.topViewController()?.present(viewController, animated: true)
-        }
-
-        func remove(viewController: UIViewController) {
-            viewController.dismiss(animated: true)
+private extension Optional {
+    func unwrap(or error: @autoclosure () -> Error) throws -> Wrapped {
+        switch self {
+        case .some(let value): return value
+        case .none: throw error()
         }
     }
 }
