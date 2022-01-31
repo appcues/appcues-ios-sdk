@@ -8,7 +8,6 @@
 
 import XCTest
 @testable import AppcuesKit
-import CoreMedia
 
 class AppcuesTests: XCTestCase {
     var appcues: MockAppcues!
@@ -71,9 +70,9 @@ class AppcuesTests: XCTestCase {
         appcues.group(groupID: "group1", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
-        XCTAssertNotNil(subscriber.lastUpdate)
-        guard case .group = subscriber.lastUpdate?.type else { return XCTFail() }
-        try ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(subscriber.lastUpdate?.properties)
+        let lastUpdate = try XCTUnwrap(subscriber.lastUpdate)
+        guard case .group = lastUpdate.type else { return XCTFail() }
+        try ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(lastUpdate.properties)
         XCTAssertEqual("group1", appcues.storage.groupID)
     }
 
@@ -86,10 +85,10 @@ class AppcuesTests: XCTestCase {
         appcues.group(groupID: nil, properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
-        XCTAssertNotNil(subscriber.lastUpdate)
-        guard case .group = subscriber.lastUpdate?.type else { return XCTFail() }
+        let lastUpdate = try XCTUnwrap(subscriber.lastUpdate)
+        guard case .group = lastUpdate.type else { return XCTFail() }
         XCTAssertNil(appcues.storage.groupID)
-        XCTAssertNil(subscriber.lastUpdate?.properties)
+        XCTAssertNil(lastUpdate.properties)
     }
 
     func testEmptyStringGroupIDRemovesGroup() throws {
@@ -101,10 +100,10 @@ class AppcuesTests: XCTestCase {
         appcues.group(groupID: "", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
-        XCTAssertNotNil(subscriber.lastUpdate)
-        guard case .group = subscriber.lastUpdate?.type else { return XCTFail() }
+        let lastUpdate = try XCTUnwrap(subscriber.lastUpdate)
+        guard case .group = lastUpdate.type else { return XCTFail() }
         XCTAssertNil(appcues.storage.groupID)
-        XCTAssertNil(subscriber.lastUpdate?.properties)
+        XCTAssertNil(lastUpdate.properties)
     }
 
     func testRegisterDecorator() throws {
