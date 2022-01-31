@@ -55,7 +55,3 @@ public protocol PresentingTrait: ExperienceTrait {
     func present(viewController: UIViewController) throws
     func remove(viewController: UIViewController)
 }
-
-public protocol ConditionalGroupingTrait: ExperienceTrait {
-    var groupID: String { get }
-}
