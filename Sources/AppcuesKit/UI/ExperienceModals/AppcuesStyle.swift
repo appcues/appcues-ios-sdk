@@ -57,7 +57,11 @@ internal struct AppcuesStyle {
 
         self.font = Font(name: model?.fontName, size: model?.fontSize, weight: model?.fontWeight)
         self.letterSpacing = CGFloat(model?.letterSpacing)
-        self.lineSpacing = CGFloat(model?.lineSpacing)
+        if let lineHeight = CGFloat(model?.lineHeight) {
+            self.lineSpacing = lineHeight - CGFloat(model?.fontSize ?? 17)
+        } else {
+            self.lineSpacing = nil
+        }
         self.textAlignment = TextAlignment(string: model?.textAlignment)
         self.foregroundColor = Color(dynamicColor: model?.foregroundColor)
         self.backgroundColor = Color(dynamicColor: model?.backgroundColor)
