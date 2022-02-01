@@ -56,9 +56,7 @@ class ActionRegistryTests: XCTestCase {
         XCTAssertEqual(actionClosures.count, 0)
     }
 
-    /// Codifies the behavior that if there are multiple actions with the same `type`, then only the one registered earliest **that can be successfully initialized** is executed.
     func testDuplicateTypeRegistrations() throws {
-
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
         let executionExpectation2 = expectation(description: "Second action executed")
@@ -73,8 +71,8 @@ class ActionRegistryTests: XCTestCase {
         )
 
         // Act
-        actionRegistry.register(action: ImpossibleAction.self)
         actionRegistry.register(action: TestAction.self)
+        // This will trigger an assertionFailure if we're not in a test cycle
         actionRegistry.register(action: TestAction2.self)
 
         // Assert
@@ -86,8 +84,8 @@ class ActionRegistryTests: XCTestCase {
     }
 }
 
-extension ActionRegistryTests {
-    internal struct TestAction: ExperienceAction {
+private extension ActionRegistryTests {
+    struct TestAction: ExperienceAction {
         static let type = "@test/action"
 
         var executionExpectation: XCTestExpectation?
@@ -101,7 +99,7 @@ extension ActionRegistryTests {
         }
     }
 
-    internal struct TestAction2: ExperienceAction {
+    struct TestAction2: ExperienceAction {
         static let type = "@test/action"
 
         var executionExpectation2: XCTestExpectation?
@@ -114,17 +112,4 @@ extension ActionRegistryTests {
             executionExpectation2?.fulfill()
         }
     }
-
-    internal struct ImpossibleAction: ExperienceAction {
-        static let type = "@test/action"
-
-        init?(config: [String: Any]?) {
-            // Always fail initialization
-            return nil
-        }
-
-        func execute(inContext appcues: Appcues) {
-        }
-    }
-
 }
