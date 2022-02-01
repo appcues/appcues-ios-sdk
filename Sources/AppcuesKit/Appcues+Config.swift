@@ -34,9 +34,9 @@ public extension Appcues {
 
         var sessionTimeout: UInt = 1_800 // 30 minutes by default
 
-        var activityCacheSize: UInt = 25
+        var activityStorageMaxSize: UInt = 25
 
-        var activityCacheMaxAge: UInt?
+        var activityStorageMaxAge: UInt?
 
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
@@ -75,25 +75,25 @@ public extension Appcues {
             return self
         }
 
-        /// Set the activity cache size for the configuration.  This value determines how many analytics requests can be
+        /// Set the activity storage max size for the configuration.  This value determines how many analytics requests can be
         /// stored on the local device and retried later, in the case of the device network connection being unavailable.
         /// Only the most recent requests, up to this count, are retained.
-        /// - Parameter activityCacheSize: The number of items to store, maximum 25, minimum 0.
+        /// - Parameter activityStorageMaxSize: The number of items to store, maximum 25, minimum 0.
         /// - Returns: The `Configuration` object.
         @discardableResult
-        public func activityCacheSize(_ activityCacheSize: UInt) -> Self {
-            self.activityCacheSize = max(0, min(25, activityCacheSize))
+        public func activityStorageMaxSize(_ activityStorageMaxSize: UInt) -> Self {
+            self.activityStorageMaxSize = max(0, min(25, activityStorageMaxSize))
             return self
         }
 
-        /// Sets the activity cache max age for the configuration.  This value determines how long an item can be stored
+        /// Sets the activity storage max age for the configuration.  This value determines how long an item can be stored
         /// on the local device and retried later, in the case of hte device network connection being unavailable.  Only
         /// requests that are more recent than the max age will be retried - or all, if not set.
-        /// - Parameter activityCacheMaxAge: The max age, in seconds, since now.  The default is `nil`, meaning no max age.
+        /// - Parameter activityStorageMaxAge: The max age, in seconds, since now.  The default is `nil`, meaning no max age.
         /// - Returns: The `Configuration` object.
         @discardableResult
-        public func activityCacheMaxAge(_ activityCacheMaxAge: UInt?) -> Self {
-            self.activityCacheMaxAge = activityCacheMaxAge
+        public func activityStorageMaxAge(_ activityStorageMaxAge: UInt?) -> Self {
+            self.activityStorageMaxAge = activityStorageMaxAge
             return self
         }
 

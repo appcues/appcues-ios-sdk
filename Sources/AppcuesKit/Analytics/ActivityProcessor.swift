@@ -14,121 +14,77 @@ internal protocol ActivityProcessing {
 }
 
 /// This class is responsible for the network transport of analytics data to the /activity API endpoint.  This includes
-/// the underlying persistent cache and retry, if necessary, for connection issues or app termination - to avoid loss of data.
+/// the underlying persistent storage and retry, if necessary, for connection issues or app termination - to avoid loss of data.
 internal class ActivityProcessor: ActivityProcessing {
-
-    // container for client side cache files that allow simple access to the
-    // data necessary for a later retry if anything failed on initial send
-    private struct ActivityCache: Codable {
-        let accountID: String
-        let userID: String
-        let requestID: String
-        let data: Data
-        let created: Date
-
-        // could have a more advanced policy for things like only attempting after x seconds
-        var lastAttempt: Date?
-        // or only attempting a max X times then clearing from cache
-        var numberOfAttempts = 0
-
-        init?(_ activity: Activity) {
-            guard let data = try? NetworkClient.encoder.encode(activity) else {
-                return nil
-            }
-            self.accountID = activity.accountID
-            self.userID = activity.userID
-            self.requestID = activity.requestID.uuidString
-            self.data = data
-            self.created = Date()
-        }
-    }
 
     private let config: Appcues.Config
     private let networking: Networking
-    private let decoder = JSONDecoder()
+    private let activityStorage: ActivityStoring
 
     // the list of UUIDs for Activity requests that are "current" - meaning they are actively being
     // sent as first time requests - not fail/retry items that should be sent again...yet
     //
-    // keep this list so they can be ignored when gathering up the cache files to attempt a retry with
+    // keep this list so they can be ignored when gathering up the stored files to attempt a retry with
     private var processingItems: Set<String> = []
-
-    private var storageDirectory: URL {
-        let appcuesURL = FileManager.default.documentsDirectory.appendingPathComponent("appcues/activity/\(config.applicationID)/")
-        // try to create it, will fail if already exists - can ignore
-        try? FileManager.default.createDirectory(at: appcuesURL, withIntermediateDirectories: true, attributes: nil)
-        return appcuesURL
-    }
-
-    private var getPendingFiles: [URL] {
-        let allFiles = try? FileManager
-            .default.contentsOfDirectory(at: storageDirectory, includingPropertiesForKeys: [], options: .skipsHiddenFiles)
-        // exclude any items that are currently in flight / first time requests
-        return allFiles?.filter { !processingItems.contains($0.lastPathComponent) } ?? []
-    }
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
         self.networking = container.resolve(Networking.self)
+        self.activityStorage = container.resolve(ActivityStoring.self)
     }
 
     func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
-        guard let cache = ActivityCache(activity) else { return }
+        guard let activity = ActivityStorage(activity) else { return }
 
         // store this item to a file - so we can retry later should anything go wrong, app killed, etc
-        store(cache)
+        activityStorage.save(activity)
 
-        // then flush the cache, including this current item and perhaps anything else that needs retry
-        flush(cache: cache, sync: sync, completion: completion)
+        // then flush the storage, including this current item and perhaps anything else that needs retry
+        flush(activity: activity, sync: sync, completion: completion)
     }
 
-    // supports clearing out any pending cache from elsewhere - session start?
+    // supports clearing out any pending storage from elsewhere - session start?
     func flush() {
-        flush(cache: nil, sync: false, completion: nil)
+        flush(activity: nil, sync: false, completion: nil)
     }
 
-    private func flush(cache: ActivityCache?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
-        // now gather up all the pending files in cache (might be more failed items before this one)
-        // and sort them by create date
-        let activities: [ActivityCache] = getPendingFiles.compactMap {
-            if let jsonData = try? String(contentsOf: $0, encoding: .utf8).data(using: .utf8) {
-               return try? decoder.decode(ActivityCache.self, from: jsonData)
-            }
-            return nil
-        }
+    private func flush(activity: ActivityStorage?, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
 
-        let itemsToFlush = prepareCache(available: activities)
+        // exclude any items that are currently in flight already
+        let activities = activityStorage.read().filter { !processingItems.contains($0.requestID) }
+
+        let itemsToFlush = prepareForRetry(available: activities)
 
         // mark them all as requests in process
         processingItems.formUnion(itemsToFlush.map { $0.requestID })
 
-        post(activities: itemsToFlush, currentRequestID: cache?.requestID, currentSync: sync, currentCompletion: completion)
+        post(activities: itemsToFlush, currentRequestID: activity?.requestID, currentSync: sync, currentCompletion: completion)
     }
 
-    // this method returns the X (based on config) applicable items to flush from the cache.
-    // there may be a bunch of other older things lingering around in the cache filesystem, but
+    // this method returns the X (based on config) applicable items to flush from storage.
+    // there may be a bunch of other older things lingering around in storage, but
     // we are not supporting a full offline mode capability at this time - i.e. we'll not flush out
-    // 1,000+ collected items or let things linger indefinitely - the purpose of our cache is simply
+    // 1,000+ collected items or let things linger indefinitely - the purpose of our storage is simply
     // a relatively near-term error/retry mechanism for intermittent network instability
-    private func prepareCache(available: [ActivityCache]) -> [ActivityCache] {
+    private func prepareForRetry(available: [ActivityStorage]) -> [ActivityStorage] {
         let activities = available.sorted { $0.created < $1.created }
         let count = activities.count
 
         // only flush max X, based on config
-        let cacheSize = Int(config.activityCacheSize)
+        let storageMaxSize = Int(config.activityStorageMaxSize)
         // since items are sorted chronologically, we take the most recent from the end (suffix)
-        let mostRecent = Array(activities.suffix(cacheSize))
-        var outdated: [ActivityCache] = []
+        let mostRecent = Array(activities.suffix(storageMaxSize))
+        var outdated: [ActivityStorage] = []
 
-        // if there are more items in the cache than allowed, trim off the front, up to our allowed
-        // cache size, and mark them as outdated (for deletion)
-        if count > config.activityCacheSize {
-            outdated.append(contentsOf: activities.prefix(upTo: count - cacheSize))
+        // if there are more items in storage than allowed, trim off the front, up to our allowed
+        // storage size, and mark them as outdated (for deletion)
+        if count > storageMaxSize {
+            outdated.append(contentsOf: activities.prefix(upTo: count - storageMaxSize))
         }
 
         // optionally, if a max age is specified, filter out items that are older
-        var eligible: [ActivityCache]
-        if let maxAgeSeconds = config.activityCacheMaxAge {
+        var eligible: [ActivityStorage]
+        if let maxAgeSeconds = config.activityStorageMaxAge {
             // need to filter out those older than the max age
             eligible = []
             for activity in mostRecent {
@@ -149,13 +105,13 @@ internal class ActivityProcessor: ActivityProcessing {
 
         // remove outdated items from filesystem - no longer valid
         for oldItem in outdated {
-            remove(oldItem)
+            activityStorage.remove(oldItem)
         }
 
         return eligible
     }
 
-    private func post(activities: [ActivityCache],
+    private func post(activities: [ActivityStorage],
                       currentRequestID: String?,
                       currentSync: Bool,
                       currentCompletion: ((Result<Taco, Error>) -> Void)?) {
@@ -187,7 +143,7 @@ internal class ActivityProcessor: ActivityProcessing {
 
             // if it was successful (or retry not enabled), no retry needed - clean out the file
             if success {
-                self.remove(activity)
+                self.activityStorage.remove(activity)
             }
 
             // then, always remove it from the list of current items "in flight" - this allows
@@ -201,24 +157,6 @@ internal class ActivityProcessor: ActivityProcessing {
                       currentRequestID: currentRequestID,
                       currentSync: currentSync,
                       currentCompletion: currentCompletion)
-        }
-    }
-
-    private func remove(_ activity: ActivityCache) {
-        let file = storageDirectory.appendingPathComponent(activity.requestID)
-        try? FileManager.default.removeItem(atPath: file.path)
-    }
-
-    private func store(_ activity: ActivityCache) {
-        var activity = activity
-        activity.lastAttempt = Date()
-        activity.numberOfAttempts += 1
-
-        let jsonString = activity.toString()
-        if let jsonData = jsonString.data(using: .utf8) {
-            let file = storageDirectory.appendingPathComponent(activity.requestID)
-            // will replace if exists (shouldnt)
-            FileManager.default.createFile(atPath: file.path, contents: jsonData)
         }
     }
 }
@@ -238,46 +176,10 @@ private extension Error {
             return true
         default:
             // all other responses are considered a successful request, in terms of client behavior
-            // and we should clear the item out of cache and not retry.  This avoid continously sending
+            // and we should clear the item out of storage and not retry.  This avoid continously sending
             // something that the server is rejecting as malformed, for example.
             // in the future, we may retry on some types of server errors, but out of scope currently.
             return false
         }
-    }
-}
-
-private extension Encodable {
-    func prettyPrint() -> String {
-        return toString(pretty: true)
-    }
-
-    func toString() -> String {
-        return toString(pretty: false)
-    }
-
-    func toString(pretty: Bool) -> String {
-        var returnString = ""
-        do {
-            let encoder = JSONEncoder()
-            if pretty {
-                encoder.outputFormatting = .prettyPrinted
-            }
-
-            let json = try encoder.encode(self)
-            if let printed = String(data: json, encoding: .utf8) {
-                returnString = printed
-            }
-        } catch {
-            returnString = error.localizedDescription
-        }
-        return returnString
-    }
-}
-
-private extension FileManager {
-    var documentsDirectory: URL {
-        let paths = urls(for: .documentDirectory, in: .userDomainMask)
-        let documentsDirectory = paths[0]
-        return documentsDirectory
     }
 }
