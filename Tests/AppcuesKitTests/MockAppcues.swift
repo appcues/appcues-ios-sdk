@@ -26,12 +26,15 @@ class MockAppcues: Appcues {
 
         // TODO: build out the service mocks and registration
         container.register(DataStoring.self, value: storage)
+        container.register(Networking.self, value: networking)
         container.register(ExperienceLoading.self, value: experienceLoader)
         container.register(ExperienceRendering.self, value: experienceRenderer)
         container.register(UIDebugging.self, value: debugger)
+        container.register(DeeplinkHandling.self, value: deeplinkHandler)
         container.register(SessionMonitoring.self, value: sessionMonitor)
         container.register(ActivityProcessing.self, value: activityProcessor)
-        container.register(DeeplinkHandling.self, value: deeplinkHandler)
+        container.register(ActivityStoring.self, value: activityStorage)
+
 
         // dependencies that are not mocked
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
@@ -64,6 +67,8 @@ class MockAppcues: Appcues {
     var activityProcessor = MockActivityProcessor()
     var debugger = MockDebugger()
     var deeplinkHandler = MockDeeplinkHandler()
+    var activityStorage = MockActivityStorage()
+    var networking = MockNetworking()
 }
 
 class MockStorage: DataStoring {
@@ -145,4 +150,72 @@ class MockDeeplinkHandler: DeeplinkHandling {
     func didHandleURL(_ url: URL) -> Bool {
         return onDidHandleURL?(url) ?? false
     }
+}
+
+class MockActivityStorage: ActivityStoring {
+
+    var onSave: ((ActivityStorage) -> Void)?
+    func save(_ activity: ActivityStorage) {
+        onSave?(activity)
+    }
+
+    var onRemove: ((ActivityStorage) -> Void)?
+    func remove(_ activity: ActivityStorage) {
+        onRemove?(activity)
+    }
+
+    var onRead: (() -> [ActivityStorage])?
+    func read() -> [ActivityStorage] {
+        return onRead?() ?? []
+    }
+}
+
+class MockNetworking: Networking {
+
+    enum MockError: Error {
+        case noMock
+        case invalidSuccessType
+    }
+
+    var onGet: ((Endpoint) -> Result<Any, Error>)?
+    func get<T>(from endpoint: Endpoint, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
+        guard let result = onGet?(endpoint) else {
+            completion(.failure(MockError.noMock))
+            return
+        }
+        switch result {
+        case .success(let value):
+            if let converted = value as? T {
+                completion(.success(converted))
+            }
+            else {
+                completion(.failure(MockError.invalidSuccessType))
+            }
+        case .failure(let error):
+            completion(.failure(error))
+        }
+    }
+
+    var onPost: ((Endpoint, Data, ((Result<Any, Error>) -> Void)) -> Void)?
+    func post<T>(to endpoint: Endpoint, body: Data, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
+        guard let onPost = onPost else {
+            completion(.failure(MockError.noMock))
+            return
+        }
+        onPost(endpoint, body) { result in
+            switch result {
+            case .success(let value):
+                if let converted = value as? T {
+                    completion(.success(converted))
+                }
+                else {
+                    completion(.failure(MockError.invalidSuccessType))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+
 }

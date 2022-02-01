@@ -53,7 +53,12 @@ internal class ActivityProcessor: ActivityProcessing {
         // exclude any items that are currently in flight already
         let activities = activityStorage.read().filter { !processingItems.contains($0.requestID) }
 
-        let itemsToFlush = prepareForRetry(available: activities)
+        var itemsToFlush = prepareForRetry(available: activities)
+
+        // always ensure a current item is included - config may have been set to allow zero items in storage
+        if itemsToFlush.isEmpty, let activity = activity {
+            itemsToFlush.append(activity)
+        }
 
         // mark them all as requests in process
         processingItems.formUnion(itemsToFlush.map { $0.requestID })
@@ -84,11 +89,12 @@ internal class ActivityProcessor: ActivityProcessing {
 
         // optionally, if a max age is specified, filter out items that are older
         var eligible: [ActivityStorage]
-        if let maxAgeSeconds = config.activityStorageMaxAge {
+        if let configMaxAgeSeconds = config.activityStorageMaxAge {
             // need to filter out those older than the max age
             eligible = []
+            let maxAgeSeconds = Double(configMaxAgeSeconds)
             for activity in mostRecent {
-                let elapsed = Int(Date().timeIntervalSince(activity.created))
+                let elapsed = Date().timeIntervalSince(activity.created)
                 if elapsed > maxAgeSeconds {
                     // too old
                     outdated.append(activity)
