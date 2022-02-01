@@ -88,9 +88,11 @@ internal struct TraitComposer {
 
         let wrappedContainerViewController = try wrapperCreating?.createWrapper(around: containerController) ?? containerController
 
-        let backdropView = UIView()
-        try backdropDecorating.forEach { try $0.decorate(backdropView: backdropView) }
-        wrapperCreating?.addBackdrop(backdropView: backdropView, to: wrappedContainerViewController)
+        if let wrapperCreating = wrapperCreating {
+            let backdropView = UIView()
+            try backdropDecorating.forEach { try $0.decorate(backdropView: backdropView) }
+            wrapperCreating.addBackdrop(backdropView: backdropView, to: wrappedContainerViewController)
+        }
 
         return ExperiencePackage(
             steps: stepModelsWithDecorators.map { $0.0 },
