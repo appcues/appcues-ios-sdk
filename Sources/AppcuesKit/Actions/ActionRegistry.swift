@@ -9,7 +9,7 @@
 import Foundation
 
 internal class ActionRegistry {
-    private var actions: [ExperienceAction.Type] = []
+    private var actions: [String: ExperienceAction.Type] = [:]
 
     private let appcues: Appcues
 
@@ -26,17 +26,22 @@ internal class ActionRegistry {
     }
 
     func register(action: ExperienceAction.Type) {
-        actions.append(action)
+        guard actions[action.type] == nil else {
+            #if DEBUG
+            if ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil {
+                assertionFailure("Action of type \(action.type) is already registered.")
+            }
+            #endif
+            return
+        }
+
+        actions[action.type] = action
     }
 
     func actionClosures(for actionModels: [Experience.Action]) -> [() -> Void] {
         actionModels.compactMap { [appcues] actionModel in
-            // Using a traditional for-loop so we can return as soon as we init our matching item.
-            // If there are multiple actions with the same `type`, take the one registered earliest that can be successfully initialized.
-            for action in actions where action.type == actionModel.type {
-                if let actionInstance = action.init(config: actionModel.config) {
-                    return { actionInstance.execute(inContext: appcues) }
-                }
+            if let actionInstance = actions[actionModel.type]?.init(config: actionModel.config) {
+                return { actionInstance.execute(inContext: appcues) }
             }
             return nil
         }
