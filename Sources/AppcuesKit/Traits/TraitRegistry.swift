@@ -9,7 +9,7 @@
 import UIKit
 
 internal class TraitRegistry {
-    private var traits: [ExperienceTrait.Type] = []
+    private var traits: [String: ExperienceTrait.Type] = [:]
 
     init(container: DIContainer) {
         // Register default traits
@@ -22,12 +22,21 @@ internal class TraitRegistry {
     }
 
     func register(trait: ExperienceTrait.Type) {
-        traits.append(trait)
+        guard traits[trait.type] == nil else {
+            #if DEBUG
+            if ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil {
+                assertionFailure("Trait of type \(trait.type) is already registered.")
+            }
+            #endif
+            return
+        }
+
+        traits[trait.type] = trait
     }
 
     func instances(for models: [Experience.Trait]) -> [ExperienceTrait] {
         models.compactMap { traitModel in
-            traits.first { $0.type == traitModel.type }?.init(config: traitModel.config)
+            traits[traitModel.type]?.init(config: traitModel.config)
         }
     }
 }
