@@ -180,6 +180,7 @@ public class Appcues {
         container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
         container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
+        container.registerLazy(ActivityStoring.self, initializer: ActivityFileStorage.init)
 
         // anything that should happen at startup automatically is handled here
 
