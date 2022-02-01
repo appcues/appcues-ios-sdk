@@ -119,36 +119,36 @@ extension ExperienceComponent {
     struct ImageModel: ComponentModel, Decodable {
 
         let id: UUID
-        let imageUrl: URL?
+        let imageUrl: URL
         // Used to flag an animated gif
         // swiftlint:disable:next discouraged_optional_boolean
         let animated: Bool?
-        // Not sure if we'd support this in the builder, but it's handy for previews
-        let symbolName: String?
         let contentMode: String?
         let intrinsicSize: IntrinsicSize?
+        let accessibilityLabel: String?
 
         let style: Style?
 
         /// URL init
-        internal init(imageUrl: URL?, contentMode: String?, intrinsicSize: IntrinsicSize?, style: ExperienceComponent.Style?) {
+        internal init(imageUrl: URL, contentMode: String?, intrinsicSize: IntrinsicSize?, style: ExperienceComponent.Style?) {
             self.id = UUID()
             self.imageUrl = imageUrl
             self.animated = nil
-            self.symbolName = nil
             self.contentMode = contentMode
             self.intrinsicSize = intrinsicSize
+            self.accessibilityLabel = nil
             self.style = style
         }
 
         /// Symbol init
-        internal init(symbolName: String?, style: ExperienceComponent.Style?) {
+        internal init(symbolName: String, style: ExperienceComponent.Style?) {
             self.id = UUID()
-            self.imageUrl = nil
+            // swiftlint:disable:next force_unwrapping
+            self.imageUrl = URL(string: "sf-symbol://\(symbolName)")!
             self.animated = nil
-            self.symbolName = symbolName
             self.contentMode = "fit"
             self.intrinsicSize = nil
+            self.accessibilityLabel = nil
             self.style = style
         }
 
@@ -188,7 +188,7 @@ extension ExperienceComponent {
         let fontSize: Double?
         let fontWeight: String?
         let letterSpacing: Double?
-        let lineSpacing: Double?
+        let lineHeight: Double?
         let textAlignment: String?
         let foregroundColor: DynamicColor?
         let backgroundColor: DynamicColor?
@@ -215,7 +215,7 @@ extension ExperienceComponent {
             fontSize: Double? = nil,
             fontWeight: String? = nil,
             letterSpacing: Double? = nil,
-            lineSpacing: Double? = nil,
+            lineHeight: Double? = nil,
             textAlignment: String? = nil,
             foregroundColor: DynamicColor? = nil,
             backgroundColor: DynamicColor? = nil,
@@ -242,7 +242,7 @@ extension ExperienceComponent {
             self.fontSize = fontSize
             self.fontWeight = fontWeight
             self.letterSpacing = letterSpacing
-            self.lineSpacing = lineSpacing
+            self.lineHeight = lineHeight
             self.textAlignment = textAlignment
             self.foregroundColor = foregroundColor
             self.backgroundColor = backgroundColor

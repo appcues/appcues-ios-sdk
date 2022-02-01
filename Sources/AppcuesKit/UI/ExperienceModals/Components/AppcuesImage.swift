@@ -18,6 +18,9 @@ internal struct AppcuesImage: View {
         let style = AppcuesStyle(from: model.style)
 
         content(placeholder: style.backgroundColor)
+            .ifLet(model.accessibilityLabel) { view, val in
+                view.accessibility(label: Text(val))
+            }
             .setupActions(viewModel.groupedActionHandlers(for: model.id))
             .applyForegroundStyle(style)
             // set the aspect ratio before applying frame sizing
@@ -34,14 +37,14 @@ internal struct AppcuesImage: View {
 
     @ViewBuilder
     private func content(placeholder: Color?) -> some View {
-        if let url = model.imageUrl {
-            if model.animated == true, let videoURL = url.toMP4() {
+        if model.imageUrl.scheme == "sf-symbol" {
+            Image(systemName: model.imageUrl.host ?? "")
+        } else {
+            if model.animated == true, let videoURL = model.imageUrl.toMP4() {
                 LoopingVideoPlayer(url: videoURL)
             } else {
-                RemoteImage(url: url, cache: imageCache) { placeholder ?? Color(UIColor.secondarySystemBackground) }
+                RemoteImage(url: model.imageUrl, cache: imageCache) { placeholder ?? Color(UIColor.secondarySystemBackground) }
             }
-        } else {
-            Image(systemName: model.symbolName ?? "")
         }
     }
 }
