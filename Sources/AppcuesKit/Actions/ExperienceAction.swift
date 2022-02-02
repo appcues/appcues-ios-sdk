@@ -13,7 +13,7 @@ public protocol ExperienceAction {
 
     /// The name of the action.
     ///
-    /// Should be formatted `@org/name` (e.g. `@appcues/close`).
+    /// Must be unique and should be formatted `@org/name` (e.g. `@appcues/close`).
     static var type: String { get }
 
     /// Initializer from an `Experience.Action` data model.
