@@ -57,7 +57,7 @@ public class Appcues {
         identify(isAnonymous: false, userID: userID, properties: properties)
     }
 
-    /// Identify a group for the current user
+    /// Identify a group for the current user.
     /// - Parameters:
     ///   - groupID: Unique value identifying the group.
     ///   - properties: Optional properties that provide additional context about the group.
