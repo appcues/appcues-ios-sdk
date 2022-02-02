@@ -12,6 +12,7 @@
 - <doc:Identifying>
 - ``Appcues/identify(userID:properties:)``
 - ``Appcues/anonymous(properties:)``
+- ``Appcues/group(groupID:properties:)``
 - ``Appcues/reset()``
 
 ### Tracking Screens and Events
@@ -25,8 +26,9 @@
 
 - <doc:Debugging>
 - ``Appcues/debug()``
-- ``Appcues/show(contentID:)``
-- ``Appcues/didHandleURL(_:)``
+- ``Appcues/show(experienceID:)``
+- ``Appcues/didHandleURL(_:)-2o09x``
+- ``Appcues/didHandleURL(_:)-5273o``
 
 ### Customizing and Extending
 
