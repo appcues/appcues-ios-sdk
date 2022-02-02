@@ -11,7 +11,7 @@ import Foundation
 extension URL {
     /// Map a url with any file extension to one with a `.mp4` file extension.
     ///
-    /// This supports a behaviour that's specific to Cloudinary.
+    /// This supports a behavior that's specific to Cloudinary.
     func toMP4() -> URL? {
         guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else { return nil }
 

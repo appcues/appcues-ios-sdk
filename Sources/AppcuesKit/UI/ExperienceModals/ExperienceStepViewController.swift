@@ -56,7 +56,7 @@ extension ExperienceStepViewController {
     class ExperienceStepView: UIView {
         lazy var scrollView: UIScrollView = {
             let view = UIScrollView()
-            // Force a consistent safe area behaviour regardless of whether the content scrolls
+            // Force a consistent safe area behavior regardless of whether the content scrolls
             view.contentInsetAdjustmentBehavior = .always
             return view
         }()

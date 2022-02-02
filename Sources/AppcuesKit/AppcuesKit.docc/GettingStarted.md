@@ -16,7 +16,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 }
 ```
 
-The ``Appcues/Config`` object has a number of properties that may optionally be set to customize the behaviour of the SDK. 
+The ``Appcues/Config`` object has a number of properties that may optionally be set to customize the behavior of the SDK. 
 
 Initializing the SDK requires you to provide two values, an Appcues account ID, and an Appcues mobile application ID. These values can be obtained from your [Appcues settings](https://studio.appcues.com/settings/account).
 
