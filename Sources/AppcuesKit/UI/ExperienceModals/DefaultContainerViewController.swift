@@ -1,5 +1,5 @@
 //
-//  ExperienceContainerViewController.swift
+//  DefaultContainerViewController.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2022-02-03.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class ExperienceContainerViewController: UIViewController, ExperienceStepContainer {
+internal class DefaultContainerViewController: UIViewController, ExperienceStepContainer {
 
     weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
     let pageMonitor: PageMonitor
