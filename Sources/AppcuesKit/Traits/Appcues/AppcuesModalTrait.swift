@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal struct AppcuesModalTrait: ContainerCreatingTrait, WrapperCreatingTrait, PresentingTrait {
+internal struct AppcuesModalTrait: WrapperCreatingTrait, PresentingTrait {
     static let type = "@appcues/modal"
 
     let groupID: String?
@@ -27,11 +27,6 @@ internal struct AppcuesModalTrait: ContainerCreatingTrait, WrapperCreatingTrait,
 
         self.backdropColor = UIColor(dynamicColor: config?["backdropColor", decodedAs: ExperienceComponent.Style.DynamicColor.self])
         self.modalStyle = config?["style", decodedAs: ExperienceComponent.Style.self]
-    }
-
-    func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceStepContainer {
-        // TODO: disable swipe-to-page by default. @appcues/carousel should enable it.
-        ExperiencePagingViewController(stepControllers: stepControllers)
     }
 
     func createWrapper(around containerController: ExperienceStepContainer) -> UIViewController {

@@ -18,6 +18,7 @@ internal class TraitRegistry {
         register(trait: AppcuesStickyContentTrait.self)
         register(trait: AppcuesSkippableTrait.self)
         register(trait: AppcuesBackdropTrait.self)
+        register(trait: AppcuesPagingDotsTrait.self)
         register(trait: AppcuesGroupTrait.self)
     }
 

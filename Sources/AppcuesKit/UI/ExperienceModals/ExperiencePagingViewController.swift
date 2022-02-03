@@ -35,27 +35,11 @@ private class ExperiencePagingView: UIView {
         return view
     }()
 
-    var pageControl: UIPageControl = {
-        let view = UIPageControl()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.hidesForSinglePage = true
-        view.currentPageIndicatorTintColor = .secondaryLabel
-        view.pageIndicatorTintColor = .tertiaryLabel
-        return view
-    }()
-
     init() {
         super.init(frame: .zero)
 
         addSubview(collectionView)
-        addSubview(pageControl)
-
         collectionView.pin(to: self)
-
-        NSLayoutConstraint.activate([
-            pageControl.centerXAnchor.constraint(equalTo: centerXAnchor),
-            pageControl.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor)
-        ])
     }
 
     @available(*, unavailable)
@@ -70,24 +54,16 @@ internal class ExperiencePagingViewController: UIViewController, ExperienceStepC
     let pageMonitor: PageMonitor
 
     var targetPageIndex: Int?
-    private var currentPageIndex: Int = 0 {
-        didSet {
-            if currentPageIndex != oldValue {
-                lifecycleHandler?.containerNavigated(from: oldValue, to: currentPageIndex)
-                pageControl.currentPage = currentPageIndex
-            }
-        }
-    }
 
     private lazy var pagingView = ExperiencePagingView()
-    var pageControl: UIPageControl { pagingView.pageControl }
 
     private let stepControllers: [UIViewController]
 
     /// **Note:** `stepControllers` are expected to have a preferredContentSize specified.
-    init(stepControllers: [UIViewController]) {
+    init(stepControllers: [UIViewController], targetPageIndex: Int = 0) {
         self.pageMonitor = PageMonitor(numberOfPages: stepControllers.count, currentPage: 0)
         self.stepControllers = stepControllers
+        self.targetPageIndex = targetPageIndex
 
         super.init(nibName: nil, bundle: nil)
 
