@@ -68,7 +68,7 @@ internal struct TraitComposer {
 
         self.targetPageIndex = targetPageIndex
         self.stepModelsWithDecorators = stepModelsWithDecorators
-        self.containerCreating = try containerCreating.unwrap(or: TraitError(description: "Container creating capability trait required"))
+        self.containerCreating = containerCreating ?? DefaultContainerCreatingTrait()
         self.containerDecorating = containerDecorating
         self.backdropDecorating = backdropDecorating
         self.wrapperCreating = wrapperCreating
@@ -101,6 +101,21 @@ internal struct TraitComposer {
             presenter: { try self.presenting.present(viewController: wrappedContainerViewController) },
             dismisser: { self.presenting.remove(viewController: wrappedContainerViewController) }
         )
+    }
+}
+
+private extension TraitComposer {
+    struct DefaultContainerCreatingTrait: ContainerCreatingTrait {
+        static var type: String = "_defaultContainerCreatingTrait"
+
+        let groupID: String? = nil
+
+        init() {}
+        init?(config: [String: Any]?) {}
+
+        func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceStepContainer {
+            ExperienceContainerViewController(stepControllers: stepControllers, targetPageIndex: targetPageIndex)
+        }
     }
 }
 
