@@ -31,7 +31,7 @@ internal struct AppcuesModalTrait: ContainerCreatingTrait, WrapperCreatingTrait,
 
     func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceStepContainer {
         // TODO: disable swipe-to-page by default. @appcues/carousel should enable it.
-        ExperiencePagingViewController(stepControllers: stepControllers, groupID: nil)
+        ExperiencePagingViewController(stepControllers: stepControllers)
     }
 
     func createWrapper(around containerController: ExperienceStepContainer) -> UIViewController {

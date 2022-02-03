@@ -81,13 +81,11 @@ internal class ExperiencePagingViewController: UIViewController, ExperienceStepC
     private lazy var pagingView = ExperiencePagingView()
     var pageControl: UIPageControl { pagingView.pageControl }
 
-    let groupID: String?
     private let stepControllers: [UIViewController]
 
     /// **Note:** `stepControllers` are expected to have a preferredContentSize specified.
-    init(stepControllers: [UIViewController], groupID: String?) {
+    init(stepControllers: [UIViewController]) {
         self.stepControllers = stepControllers
-        self.groupID = groupID
 
         super.init(nibName: nil, bundle: nil)
 
