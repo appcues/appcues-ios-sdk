@@ -110,14 +110,14 @@ public protocol WrapperCreatingTrait: ExperienceTrait {
 /// A trait responsible for providing the ability to show and hide the experience.
 public protocol PresentingTrait: ExperienceTrait {
 
-    /// Create a wrapper controller around a container controller.
-    /// - Parameter viewController: The view controller to .
+    /// Shows the view controller for an experience.
+    /// - Parameter viewController: The view controller to present.
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
     /// ending the attempt to display the experience.
     func present(viewController: UIViewController) throws
 
-    /// Create a wrapper controller around a container controller.
+    /// Removes the view controller for an experience.
     /// - Parameter viewController: The view controller to remove.
     func remove(viewController: UIViewController)
 }
