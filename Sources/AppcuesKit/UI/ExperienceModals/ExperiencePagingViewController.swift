@@ -67,6 +67,7 @@ private class ExperiencePagingView: UIView {
 internal class ExperiencePagingViewController: UIViewController, ExperienceStepContainer {
 
     weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
+    let pageMonitor: PageMonitor
 
     var targetPageIndex: Int?
     private var currentPageIndex: Int = 0 {
@@ -85,12 +86,17 @@ internal class ExperiencePagingViewController: UIViewController, ExperienceStepC
 
     /// **Note:** `stepControllers` are expected to have a preferredContentSize specified.
     init(stepControllers: [UIViewController]) {
+        self.pageMonitor = PageMonitor(numberOfPages: stepControllers.count, currentPage: 0)
         self.stepControllers = stepControllers
 
         super.init(nibName: nil, bundle: nil)
 
         // By default modals cannot be interactively dismissed. The `@appcues/skippable` trait overrides this.
         self.isModalInPresentation = true
+
+        pageMonitor.addObserver { [weak self] newIndex, oldIndex in
+            self?.lifecycleHandler?.containerNavigated(from: oldIndex, to: newIndex)
+        }
     }
 
     @available(*, unavailable)
@@ -112,10 +118,6 @@ internal class ExperiencePagingViewController: UIViewController, ExperienceStepC
         pagingView.collectionView.register(StepPageCell.self, forCellWithReuseIdentifier: StepPageCell.reuseID)
         pagingView.collectionView.dataSource = self
         pagingView.collectionView.delegate = self
-
-        pagingView.pageControl.numberOfPages = stepControllers.count
-
-        pagingView.pageControl.addTarget(self, action: #selector(updateCurrentPage(sender:)), for: .valueChanged)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -125,7 +127,7 @@ internal class ExperiencePagingViewController: UIViewController, ExperienceStepC
         if let pageIndex = targetPageIndex {
             targetPageIndex = nil
             DispatchQueue.main.async {
-                self.goTo(pageIndex: pageIndex, animated: false)
+                self.navigate(to: pageIndex, animated: false)
             }
         }
     }
@@ -153,16 +155,7 @@ internal class ExperiencePagingViewController: UIViewController, ExperienceStepC
         preferredContentSize = container.preferredContentSize
     }
 
-    @objc
-    func updateCurrentPage(sender: UIPageControl) {
-        goTo(pageIndex: sender.currentPage, animated: false)
-    }
-
-    func navigate(to pageIndex: Int) {
-        goTo(pageIndex: pageIndex)
-    }
-
-    func goTo(pageIndex: Int, animated: Bool = true) {
+    func navigate(to pageIndex: Int, animated: Bool) {
         pagingView.collectionView.scrollToItem(
             at: IndexPath(row: pageIndex, section: 0),
             at: .centeredHorizontally,
@@ -194,7 +187,7 @@ internal class ExperiencePagingViewController: UIViewController, ExperienceStepC
             }
 
             if let pageIndex = visibleItems.last?.indexPath.row {
-                currentPageIndex = pageIndex
+                pageMonitor.set(currentPage: pageIndex)
             }
         }
     }

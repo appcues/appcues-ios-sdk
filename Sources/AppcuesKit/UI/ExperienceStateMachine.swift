@@ -67,7 +67,7 @@ internal class ExperienceStateMachine {
             }
             let targetStepID = experience.steps[stepIndex].id
             if let pageIndex = package.steps.firstIndex(where: { $0.id == targetStepID }) {
-                package.containerController.navigate(to: pageIndex)
+                package.containerController.navigate(to: pageIndex, animated: true)
             } else {
                 // If currently rendering, but trying to begin a new step, go through post-render first
                 currentState = .endStep(experience, currentIndex, package.wrapperController)
