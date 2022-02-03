@@ -17,6 +17,7 @@ internal class ExperienceContainerViewController: UIViewController, ExperienceSt
 
     private let stepControllers: [UIViewController]
 
+    private lazy var stepContainerView = UIView()
     private lazy var preferredHeightConstraint: NSLayoutConstraint = {
         var constraint = view.heightAnchor.constraint(equalToConstant: 0)
         constraint.priority = .defaultLow
@@ -47,6 +48,10 @@ internal class ExperienceContainerViewController: UIViewController, ExperienceSt
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.addSubview(stepContainerView)
+        stepContainerView.pin(to: view)
+
         navigate(to: targetPageIndex ?? 0, animated: false)
     }
 
@@ -84,12 +89,8 @@ internal class ExperienceContainerViewController: UIViewController, ExperienceSt
     }
 
     func navigate(to pageIndex: Int, animated: Bool) {
-        // The new controller needs to be added at the same subview index as the previous one
-        // so that any container decorations from traits are maintained.
-        let subviewIndex = view.subviews.firstIndex(of: stepControllers[pageMonitor.currentPage].view) ?? 0
-
         unembedChildViewController(stepControllers[pageMonitor.currentPage])
-        embedChildViewController(stepControllers[pageIndex], inSuperview: view, atIndex: subviewIndex)
+        embedChildViewController(stepControllers[pageIndex], inSuperview: stepContainerView)
 
         preferredHeightConstraint.constant = stepControllers[pageIndex].preferredContentSize.height
         pageMonitor.set(currentPage: pageIndex)

@@ -9,13 +9,9 @@
 import UIKit
 
 extension UIViewController {
-    func embedChildViewController(_ childVC: UIViewController, inSuperview superview: UIView, atIndex index: Int? = nil) {
+    func embedChildViewController(_ childVC: UIViewController, inSuperview superview: UIView) {
         addChild(childVC)
-        if let index = index {
-            superview.insertSubview(childVC.view, at: index)
-        } else {
-            superview.addSubview(childVC.view)
-        }
+        superview.addSubview(childVC.view)
         childVC.view.pin(to: superview)
         childVC.didMove(toParent: self)
     }
