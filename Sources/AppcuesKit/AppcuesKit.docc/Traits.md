@@ -14,12 +14,6 @@ Traits operate on the following view controller hierarchy, providing the ability
 
 An experience trait must adopt at least one of the following capabilities to have any effect, and may adopt more than one for more complex functionality.
 
-Trait capabilities are applied in a defined sequence, and a trait with multiple capabilities will have its capabilities applied piecewise.
-
-![Begin Step X -> Grouping -> Create Step View -> Step Decorating -> Container Creating -> Container Decorating -> Wrapper Creating -> Backdrop Decorating -> Presenting](trait-flow.png)
-
-> A trait with multiple capabilities may, in certain circumstances, not have all its capabilities applied. A ``BackdropDecoratingTrait`` will not be applied if no ``WrapperCreatingTrait`` is present. Additionally, single trait capabilities will ignore subsequent traits providing the capability once the first has been applied. 
-
 ### Step Decorating
 
 A ``StepDecoratingTrait`` modifies the `UIViewController` that encapsulates the contents of a specific step in the experience.
@@ -28,7 +22,7 @@ A ``StepDecoratingTrait`` modifies the `UIViewController` that encapsulates the 
 
 A ``ContainerCreatingTrait`` is responsible for creating the `UIViewController` (specifically a ``ExperienceStepContainer``) that holds the experience step(s) being presented. The returned controller must call the ``ExperienceContainerLifecycleHandler`` methods at the appropriate times.
 
-> Only a single ``ContainerCreatingTrait`` will be applied in the process of displaying an experience step even if multiple are defined. The order of precedence is experience-level traits and then step-level traits, in their order in the experience object. 
+> Only a single ``ContainerCreatingTrait`` will be applied in the process of displaying an experience step even if multiple are defined.
 
 ### Container Decorating
 
@@ -44,13 +38,13 @@ A  ``BackdropDecoratingTrait`` modifies the backdrop `UIView` that may be includ
 
 A ``WrapperCreatingTrait`` creates a `UIViewController` that wraps the ``ExperienceStepContainer``. This trait is also responsible for adding the backdrop view to the appropriate (if any) place.
 
-> Only a single ``WrapperCreatingTrait`` will be applied in the process of displaying an experience step even if multiple are defined. The order of precedence is experience-level traits and then step-level traits, in their order in the experience object. 
+> Only a single ``WrapperCreatingTrait`` will be applied in the process of displaying an experience step even if multiple are defined.
 
 ### Presenting
 
 A ``PresentingTrait`` is responsible for providing the ability to show and hide the experience.
 
-> Only a single ``PresentingTrait`` will be applied in the process of displaying an experience step even if multiple are defined. The order of precedence is experience-level traits and then step-level traits, in their order in the experience object. 
+> Only a single ``PresentingTrait`` will be applied in the process of displaying an experience step even if multiple are defined.
 
 ## Experience-Level and Step-Level Traits
 
@@ -81,11 +75,19 @@ In practice this distinction looks like this in the experience data model:
 }
 ```
 
+## Trait Application Sequence
+
+Trait capabilities are applied in a defined sequence, and a trait with multiple capabilities will have its capabilities applied piecewise.
+
+![Begin Step X -> Grouping -> Create Step View -> Step Decorating -> Container Creating -> Container Decorating -> Wrapper Creating -> Backdrop Decorating -> Presenting](trait-flow.png)
+
+> A trait with multiple capabilities may, in certain circumstances, not have all its capabilities applied. A ``BackdropDecoratingTrait`` will not be applied if no ``WrapperCreatingTrait`` is present. Additionally, single trait capabilities (i.e. ``ContainerCreatingTrait``, ``WrapperCreatingTrait``, and ``PresentingTrait``) will ignore all but the first trait model providing the capabilitity. The order of precedence is experience-level traits and then step-level traits, in their order in the experience object. 
+
 ## Trait Grouping Behavior
 
 There are scenarios where experience-level traits may be intended to modify only a subset of the steps in an experience. For example, an experience with a single, full-screen modal followed by a standard dialog-style modal displaying as a carousel with two steps.
 
-To accomplish this, the Appcues iOS SDK includes two special traits, `@appcues/group` and `@appcues/group-item`. `@appcues/group` is an experience-level trait that defines a `groupID`, and `@appcues/group-item` is a step-level trait that references a `groupID` to identify the step as being part of the defined group. Other experience-level traits may also reference the `groupID` from their `config` object to identify themselves as only applying when a step from that group is being displayed to a user. 
+To accomplish this, the Appcues mobile experience model includes two special traits, `@appcues/group` and `@appcues/group-item`. `@appcues/group` is an experience-level trait that defines a `groupID`, and `@appcues/group-item` is a step-level trait that references a `groupID` to identify the step as being part of the defined group. Other experience-level traits may also reference the `groupID` from their `config` object to identify themselves as only applying when a step from that group is being displayed to a user. 
 
 The experience model for this example would include the following:
 
