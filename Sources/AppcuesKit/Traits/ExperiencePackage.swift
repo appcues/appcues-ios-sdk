@@ -10,7 +10,7 @@ import UIKit
 
 internal struct ExperiencePackage {
     let steps: [Experience.Step]
-    let containerController: ExperienceStepContainer
+    let containerController: ExperienceContainerViewController
     let wrapperController: UIViewController
     let presenter: () throws -> Void
     let dismisser: () -> Void

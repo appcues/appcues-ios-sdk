@@ -49,8 +49,9 @@ public protocol StepDecoratingTrait: ExperienceTrait {
     func decorate(stepController: UIViewController) throws
 }
 
-/// A trait responsible for creating the `UIViewController` (specifically a ``ExperienceStepContainer``) that holds the experience step(s)
-/// being presented. The returned controller must call the ``ExperienceContainerLifecycleHandler`` methods at the appropriate times.
+/// A trait responsible for creating the `UIViewController` (specifically a ``ExperienceContainerViewController``) that holds the
+/// experience step(s) being presented. The returned controller must call the ``ExperienceContainerLifecycleHandler``
+/// methods at the appropriate times.
 public protocol ContainerCreatingTrait: ExperienceTrait {
 
     /// Create the container controller for experience step(s).
@@ -62,7 +63,7 @@ public protocol ContainerCreatingTrait: ExperienceTrait {
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
     /// ending the attempt to display the experience.
-    func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceStepContainer
+    func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController
 }
 
 /// A trait that modifies the container view controller created by an ``ContainerCreatingTrait``.
@@ -73,7 +74,7 @@ public protocol ContainerDecoratingTrait: ExperienceTrait {
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
     /// ending the attempt to display the experience.
-    func decorate(containerController: ExperienceStepContainer) throws
+    func decorate(containerController: ExperienceContainerViewController) throws
 }
 
 /// A trait that modifies the backdrop `UIView` that may be included in the presented experience.
@@ -90,7 +91,7 @@ public protocol BackdropDecoratingTrait: ExperienceTrait {
     func decorate(backdropView: UIView) throws
 }
 
-/// A trait that creates a `UIViewController` that wraps the ``ExperienceStepContainer``.
+/// A trait that creates a `UIViewController` that wraps the ``ExperienceContainerViewController``.
 public protocol WrapperCreatingTrait: ExperienceTrait {
 
     /// Create a wrapper controller around a container controller.
@@ -99,7 +100,7 @@ public protocol WrapperCreatingTrait: ExperienceTrait {
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
     /// ending the attempt to display the experience.
-    func createWrapper(around containerController: ExperienceStepContainer) throws -> UIViewController
+    func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController
 
     /// Add the decorated backdrop view to the wrapper.
     /// - Parameter backdropView: The backdrop.

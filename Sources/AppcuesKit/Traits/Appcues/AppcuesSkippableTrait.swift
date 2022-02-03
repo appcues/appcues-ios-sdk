@@ -19,7 +19,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
         self.groupID = config?["groupID"] as? String
     }
 
-    func decorate(containerController: ExperienceStepContainer) {
+    func decorate(containerController: ExperienceContainerViewController) {
         self.containerController = containerController
         containerController.addDismissButton()
 

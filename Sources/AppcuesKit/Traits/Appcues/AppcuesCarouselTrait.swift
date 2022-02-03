@@ -17,14 +17,15 @@ internal struct AppcuesCarouselTrait: ContainerCreatingTrait {
         self.groupID = config?["groupID"] as? String
     }
 
-    func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceStepContainer {
+    func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {
         CarouselContainerViewController(stepControllers: stepControllers, targetPageIndex: targetPageIndex)
     }
 }
 
 extension AppcuesCarouselTrait {
 
-    class CarouselContainerViewController: UIViewController, ExperienceStepContainer, UICollectionViewDataSource, UICollectionViewDelegate {
+    class CarouselContainerViewController: UIViewController, ExperienceContainerViewController,
+                                           UICollectionViewDataSource, UICollectionViewDelegate {
 
         weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
         let pageMonitor: PageMonitor
