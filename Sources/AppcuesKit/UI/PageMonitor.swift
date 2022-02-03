@@ -8,24 +8,39 @@
 
 import Foundation
 
+/// Maintains page state metadata for an ``ExperienceStepContainer``.
 public class PageMonitor {
+
     // Using closures as observers is ok from a memory management perspective because the lifecycle of any Trait
     // observing the experience controller and the experience controller itself should be the same.
     private var observers: [(Int, Int) -> Void] = []
 
-    let numberOfPages: Int
-    private(set) var currentPage: Int
+    /// The number of pages in the ``ExperienceStepContainer``.
+    public let numberOfPages: Int
 
-    init(numberOfPages: Int, currentPage: Int) {
+    /// The current page in the ``ExperienceStepContainer``.
+    public private(set) var currentPage: Int
+
+    /// Creates an instance of a page monitor.
+    /// - Parameters:
+    ///   - numberOfPages: The total number of pages
+    ///   - currentPage: The initial page
+    public init(numberOfPages: Int, currentPage: Int) {
         self.numberOfPages = numberOfPages
         self.currentPage = currentPage
     }
 
-    func addObserver(closure: @escaping (Int, Int) -> Void) {
+    /// Adds the specified closure to the list of closures to invoke whent he ``currentPage`` value changes.
+    /// - Parameter closure: The closure to invoke.
+    public func addObserver(closure: @escaping (_ currentIndex: Int, _ oldIndex: Int) -> Void) {
         observers.append(closure)
     }
 
-    func set(currentPage: Int) {
+    /// Update the ``currentPage`` value and notify all observers of the change.
+    /// - Parameter currentPage: Page index
+    ///
+    /// Setting a value equal to the current state wil not notify observers.
+    public func set(currentPage: Int) {
         let previousPage = self.currentPage
         guard currentPage != previousPage else { return }
         self.currentPage = currentPage
