@@ -8,17 +8,17 @@
 
 import Foundation
 
-/// Maintains page state metadata for an ``ExperienceStepContainer``.
+/// Maintains page state metadata for an ``ExperienceContainerViewController``.
 public class PageMonitor {
 
     // Using closures as observers is ok from a memory management perspective because the lifecycle of any Trait
     // observing the experience controller and the experience controller itself should be the same.
     private var observers: [(Int, Int) -> Void] = []
 
-    /// The number of pages in the ``ExperienceStepContainer``.
+    /// The number of pages in the ``ExperienceContainerViewController``.
     public let numberOfPages: Int
 
-    /// The current page in the ``ExperienceStepContainer``.
+    /// The current page in the ``ExperienceContainerViewController``.
     public private(set) var currentPage: Int
 
     /// Creates an instance of a page monitor.

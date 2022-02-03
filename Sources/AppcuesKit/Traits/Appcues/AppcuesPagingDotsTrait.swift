@@ -13,14 +13,14 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
     let groupID: String?
     let style: ExperienceComponent.Style?
 
-    var containerController: ExperienceStepContainer?
+    var containerController: ExperienceContainerViewController?
 
     required init?(config: [String: Any]?) {
         self.groupID = config?["groupID"] as? String
         self.style = config?["style", decodedAs: ExperienceComponent.Style.self]
     }
 
-    func decorate(containerController: ExperienceStepContainer) {
+    func decorate(containerController: ExperienceContainerViewController) {
         let pageControl = UIPageControl()
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         pageControl.currentPageIndicatorTintColor = UIColor(dynamicColor: style?.foregroundColor) ?? .secondaryLabel

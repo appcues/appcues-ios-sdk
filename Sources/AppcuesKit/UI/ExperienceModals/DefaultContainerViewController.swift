@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class DefaultContainerViewController: UIViewController, ExperienceStepContainer {
+internal class DefaultContainerViewController: UIViewController, ExperienceContainerViewController {
 
     weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
     let pageMonitor: PageMonitor

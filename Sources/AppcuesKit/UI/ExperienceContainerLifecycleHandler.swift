@@ -8,7 +8,7 @@
 
 import UIKit
 
-/// A protocol that defines the methods to adopt to respond to changes in an ``ExperienceStepContainer``.
+/// A protocol that defines the methods to adopt to respond to changes in an ``ExperienceContainerViewController``.
 public protocol ExperienceContainerLifecycleHandler: AnyObject {
 
     /// Tells the delegate that the container will appear.

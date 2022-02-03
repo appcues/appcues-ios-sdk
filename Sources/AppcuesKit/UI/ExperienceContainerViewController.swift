@@ -1,5 +1,5 @@
 //
-//  ExperienceStepContainer.swift
+//  ExperienceContainerViewController.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2022-01-31.
@@ -9,10 +9,12 @@
 import UIKit
 
 /// A `UIViewController` which contains step view controllers to display an `Experience`.
-public protocol ExperienceStepContainer: UIViewController {
+public protocol ExperienceContainerViewController: UIViewController {
 
     /// The delegate object for the experience step container.
     var lifecycleHandler: ExperienceContainerLifecycleHandler? { get set }
+
+    /// The object maintaining current page state and observers.
     var pageMonitor: PageMonitor { get }
 
     /// Update the step controller in focus.

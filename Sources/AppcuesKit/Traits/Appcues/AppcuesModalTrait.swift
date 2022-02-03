@@ -29,7 +29,7 @@ internal struct AppcuesModalTrait: WrapperCreatingTrait, PresentingTrait {
         self.modalStyle = config?["style", decodedAs: ExperienceComponent.Style.self]
     }
 
-    func createWrapper(around containerController: ExperienceStepContainer) -> UIViewController {
+    func createWrapper(around containerController: ExperienceContainerViewController) -> UIViewController {
         containerController.modalPresentationStyle = presentationStyle.modalPresentationStyle
 
         if presentationStyle == .dialog {

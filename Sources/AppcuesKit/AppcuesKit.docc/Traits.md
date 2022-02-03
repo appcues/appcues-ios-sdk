@@ -20,7 +20,7 @@ A ``StepDecoratingTrait`` modifies the `UIViewController` that encapsulates the 
 
 ### Container Creating
 
-A ``ContainerCreatingTrait`` is responsible for creating the `UIViewController` (specifically a ``ExperienceStepContainer``) that holds the experience step(s) being presented. The returned controller must call the ``ExperienceContainerLifecycleHandler`` methods at the appropriate times.
+A ``ContainerCreatingTrait`` is responsible for creating the `UIViewController` (specifically a ``ExperienceContainerViewController``) that holds the experience step(s) being presented. The returned controller must call the ``ExperienceContainerLifecycleHandler`` methods at the appropriate times.
 
 > Only a single ``ContainerCreatingTrait`` will be applied in the process of displaying an experience step even if multiple are defined.
 
@@ -36,7 +36,7 @@ A  ``BackdropDecoratingTrait`` modifies the backdrop `UIView` that may be includ
 
 ### Wrapper Creating
 
-A ``WrapperCreatingTrait`` creates a `UIViewController` that wraps the ``ExperienceStepContainer``. This trait is also responsible for adding the backdrop view to the appropriate (if any) place.
+A ``WrapperCreatingTrait`` creates a `UIViewController` that wraps the ``ExperienceContainerViewController``. This trait is also responsible for adding the backdrop view to the appropriate (if any) place.
 
 > Only a single ``WrapperCreatingTrait`` will be applied in the process of displaying an experience step even if multiple are defined.
 
@@ -179,8 +179,9 @@ For example, a ``ContainerCreatingTrait`` that is unable to create a proper cont
 
 ### Containers
 
-- ``ExperienceStepContainer``
+- ``ExperienceContainerViewController``
 - ``ExperienceContainerLifecycleHandler``
+- ``PageMonitor``
 
 ### Error Handing
 

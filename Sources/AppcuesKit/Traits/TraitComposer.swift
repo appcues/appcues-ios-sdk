@@ -113,7 +113,7 @@ private extension TraitComposer {
         init() {}
         init?(config: [String: Any]?) {}
 
-        func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceStepContainer {
+        func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {
             DefaultContainerViewController(stepControllers: stepControllers, targetPageIndex: targetPageIndex)
         }
     }
