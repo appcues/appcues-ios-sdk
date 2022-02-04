@@ -27,9 +27,11 @@ internal struct TraitComposer {
             $0.groupID == nil || $0.groupID == experience.steps[stepIndex].traits.groupID
         }
 
-        if let joiner = experienceTraitInstances.compactMapFirst({ $0 as? GroupingTrait }) {
-            stepModels = joiner.join(initialStep: stepIndex, in: experience)
-            targetPageIndex = stepModels.firstIndex { $0.id == experience.steps[stepIndex].id } ?? targetPageIndex
+        if let grouper = experienceTraitInstances.compactMapFirst({ $0 as? GroupingTrait }) {
+            stepModels = grouper.group(initialStep: stepIndex, in: experience)
+            if let pageIndex = stepModels.firstIndex(where: { $0.id == experience.steps[stepIndex].id }) {
+                targetPageIndex = pageIndex
+            }
         }
 
         // Decompose all experience-level traits
@@ -104,7 +106,7 @@ internal struct TraitComposer {
     }
 }
 
-private extension TraitComposer {
+extension TraitComposer {
     struct DefaultContainerCreatingTrait: ContainerCreatingTrait {
         static var type: String = "_defaultContainerCreatingTrait"
 
