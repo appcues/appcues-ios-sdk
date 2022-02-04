@@ -17,7 +17,7 @@ internal class AppcuesGroupTrait: GroupingTrait {
         self.groupID = config?["groupID"] as? String
     }
 
-    func join(initialStep stepIndex: Int, in experience: Experience) -> [Experience.Step] {
+    func group(initialStep stepIndex: Int, in experience: Experience) -> [Experience.Step] {
         let modalGroupID = experience.steps[stepIndex].traits.groupID
         return experience.steps.filter { $0.traits.groupID == modalGroupID }
     }

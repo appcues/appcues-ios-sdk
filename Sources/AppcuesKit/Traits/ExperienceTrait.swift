@@ -35,7 +35,7 @@ public protocol ExperienceTrait {
 }
 
 internal protocol GroupingTrait: ExperienceTrait {
-    func join(initialStep stepIndex: Int, in experience: Experience) -> [Experience.Step]
+    func group(initialStep stepIndex: Int, in experience: Experience) -> [Experience.Step]
 }
 
 /// A trait that modifies the `UIViewController` that encapsulates the contents of a specific step in the experience.
