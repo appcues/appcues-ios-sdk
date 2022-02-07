@@ -62,8 +62,10 @@ internal struct AppcuesModalTrait: WrapperCreatingTrait, PresentingTrait {
         UIApplication.shared.topViewController()?.present(viewController, animated: true)
     }
 
-    func remove(viewController: UIViewController) {
-        viewController.dismiss(animated: true)
+    func remove(viewController: UIViewController, completion: (() -> Void)?) {
+        viewController.dismiss(animated: true) {
+            completion?()
+        }
     }
 }
 

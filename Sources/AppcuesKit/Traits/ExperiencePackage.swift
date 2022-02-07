@@ -13,5 +13,5 @@ internal struct ExperiencePackage {
     let containerController: ExperienceContainerViewController
     let wrapperController: UIViewController
     let presenter: () throws -> Void
-    let dismisser: () -> Void
+    let dismisser: (_ completion: (() -> Void)?) -> Void
 }
