@@ -178,6 +178,7 @@ public class Appcues {
         container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
         container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
         container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
+        container.registerLazy(TraitComposing.self, initializer: TraitComposer.init)
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
         container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
         container.registerLazy(ActivityStoring.self, initializer: ActivityFileStorage.init)

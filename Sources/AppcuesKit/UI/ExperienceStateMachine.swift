@@ -21,8 +21,7 @@ internal class ExperienceStateMachine {
     }
 
     private let config: Appcues.Config
-    private let traitRegistry: TraitRegistry
-    private let actionRegistry: ActionRegistry
+    private let traitComposer: TraitComposing
     private let storage: DataStoring
 
     private(set) var currentState: ExperienceState
@@ -33,8 +32,7 @@ internal class ExperienceStateMachine {
 
     init(container: DIContainer) {
         config = container.resolve(Appcues.Config.self)
-        traitRegistry = container.resolve(TraitRegistry.self)
-        actionRegistry = container.resolve(ActionRegistry.self)
+        traitComposer = container.resolve(TraitComposing.self)
         storage = container.resolve(DataStoring.self)
 
         currentState = .empty
@@ -134,9 +132,7 @@ internal class ExperienceStateMachine {
     private func handleBeginStep(_ experience: Experience, _ stepIndex: Int, isFirst: Bool = false) {
         DispatchQueue.main.async {
             do {
-                let traitComposer = try TraitComposer(experience: experience, stepIndex: stepIndex, traitRegistry: self.traitRegistry)
-
-                let package = try traitComposer.package(actionRegistry: self.actionRegistry)
+                let package = try self.traitComposer.package(experience: experience, stepIndex: stepIndex)
                 self.transition(to: .renderStep(
                     experience,
                     stepIndex,

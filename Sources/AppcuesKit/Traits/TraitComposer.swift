@@ -8,17 +8,21 @@
 
 import UIKit
 
-internal struct TraitComposer {
+internal protocol TraitComposing: AnyObject {
+    func package(experience: Experience, stepIndex: Int) throws -> ExperiencePackage
+}
 
-    private let targetPageIndex: Int
-    private let stepModelsWithDecorators: [(Experience.Step, [StepDecoratingTrait])]
-    private let containerCreating: ContainerCreatingTrait
-    private let containerDecorating: [ContainerDecoratingTrait]
-    private let backdropDecorating: [BackdropDecoratingTrait]
-    private let wrapperCreating: WrapperCreatingTrait?
-    private let presenting: PresentingTrait
+internal class TraitComposer: TraitComposing {
 
-    init(experience: Experience, stepIndex: Int, traitRegistry: TraitRegistry) throws {
+    private let traitRegistry: TraitRegistry
+    private let actionRegistry: ActionRegistry
+
+    init(container: DIContainer) {
+        traitRegistry = container.resolve(TraitRegistry.self)
+        actionRegistry = container.resolve(ActionRegistry.self)
+    }
+
+    func package(experience: Experience, stepIndex: Int) throws -> ExperiencePackage {
         var stepModels = [experience.steps[stepIndex]]
         var targetPageIndex = 0
 
@@ -68,16 +72,6 @@ internal struct TraitComposer {
             stepModelsWithDecorators.append((stepModel, stepDecoratingTraits))
         }
 
-        self.targetPageIndex = targetPageIndex
-        self.stepModelsWithDecorators = stepModelsWithDecorators
-        self.containerCreating = containerCreating ?? DefaultContainerCreatingTrait()
-        self.containerDecorating = containerDecorating
-        self.backdropDecorating = backdropDecorating
-        self.wrapperCreating = wrapperCreating
-        self.presenting = try presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
-    }
-
-    func package(actionRegistry: ActionRegistry) throws -> ExperiencePackage {
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithDecorators.map { step, decorators in
             let viewModel = ExperienceStepViewModel(step: step, actionRegistry: actionRegistry)
             let stepViewController = ExperienceStepViewController(viewModel: viewModel)
@@ -85,7 +79,8 @@ internal struct TraitComposer {
             return stepViewController
         }
 
-        let containerController = try containerCreating.createContainer(for: stepControllers, targetPageIndex: targetPageIndex)
+        let containerController = try (containerCreating ?? DefaultContainerCreatingTrait())
+            .createContainer(for: stepControllers, targetPageIndex: targetPageIndex)
         try containerDecorating.forEach { try $0.decorate(containerController: containerController) }
 
         let wrappedContainerViewController = try wrapperCreating?.createWrapper(around: containerController) ?? containerController
@@ -96,12 +91,14 @@ internal struct TraitComposer {
             wrapperCreating.addBackdrop(backdropView: backdropView, to: wrappedContainerViewController)
         }
 
+        let unwrappedPresenting = try presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
+
         return ExperiencePackage(
             steps: stepModelsWithDecorators.map { $0.0 },
             containerController: containerController,
             wrapperController: wrappedContainerViewController,
-            presenter: { try self.presenting.present(viewController: wrappedContainerViewController) },
-            dismisser: { self.presenting.remove(viewController: wrappedContainerViewController) }
+            presenter: { try unwrappedPresenting.present(viewController: wrappedContainerViewController) },
+            dismisser: { unwrappedPresenting.remove(viewController: wrappedContainerViewController) }
         )
     }
 }
