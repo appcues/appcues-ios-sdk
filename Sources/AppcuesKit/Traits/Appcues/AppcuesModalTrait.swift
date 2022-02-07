@@ -59,7 +59,11 @@ internal struct AppcuesModalTrait: WrapperCreatingTrait, PresentingTrait {
     }
 
     func present(viewController: UIViewController) throws {
-        UIApplication.shared.topViewController()?.present(viewController, animated: true)
+        guard let topViewController = UIApplication.shared.topViewController() else {
+            throw TraitError(description: "No top VC found")
+        }
+
+        topViewController.present(viewController, animated: true)
     }
 
     func remove(viewController: UIViewController, completion: (() -> Void)?) {
