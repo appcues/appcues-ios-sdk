@@ -314,6 +314,29 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
     }
 }
 
+extension ExperienceStateMachine.ExperienceState: Equatable {
+    static func == (lhs: ExperienceStateMachine.ExperienceState, rhs: ExperienceStateMachine.ExperienceState) -> Bool {
+        switch (lhs, rhs) {
+        case (.empty, .empty):
+            return true
+        case let (.begin(experience1), .begin(experience2)):
+            return experience1.id == experience2.id
+        case let (.beginStep(stepRef1), .beginStep(stepRef2)):
+            return stepRef1 == stepRef2
+        case let (.renderStep(experience1, stepIndex1, _, isFirst1), .renderStep(experience2, stepIndex2, _, isFirst2)):
+            return experience1.id == experience2.id && stepIndex1 == stepIndex2 && isFirst1 == isFirst2
+        case let (.endStep(experience1, stepIndex1, _), .endStep(experience2, stepIndex2, _)):
+            return experience1.id == experience2.id && stepIndex1 == stepIndex2
+        case let (.stepError(experience1, stepIndex1, message1), .stepError(experience2, stepIndex2, message2)):
+            return experience1.id == experience2.id && stepIndex1 == stepIndex2 && message1 == message2
+        case let (.end(experience1), .end(experience2)):
+            return experience1.id == experience2.id
+        default:
+            return false
+        }
+    }
+}
+
 extension ExperienceStateMachine.ExperienceState: CustomStringConvertible {
     var description: String {
         switch self {
