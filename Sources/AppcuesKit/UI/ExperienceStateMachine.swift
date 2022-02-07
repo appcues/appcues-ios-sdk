@@ -15,7 +15,7 @@ internal class ExperienceStateMachine {
         case begin(Experience)
         case beginStep(StepReference)
         case renderStep(Experience, Int, ExperiencePackage, isFirst: Bool)
-        case endStep(Experience, Int, UIViewController)
+        case endStep(Experience, Int, ExperiencePackage)
         case stepError(Experience, Int, String)
         case end(Experience)
     }
@@ -68,12 +68,13 @@ internal class ExperienceStateMachine {
                 package.containerController.navigate(to: pageIndex, animated: true)
             } else {
                 // If currently rendering, but trying to begin a new step, go through post-render first
-                currentState = .endStep(experience, currentIndex, package.wrapperController)
-                handleEndStep(experience, stepIndex, package.wrapperController, nextState: newState)
+                currentState = .endStep(experience, currentIndex, package)
+                handleEndStep(experience, stepIndex, package, nextState: newState)
             }
-        case let (.renderStep, .endStep(experience, stepIndex, controller)):
+        case let (.renderStep, .endStep(experience, stepIndex, package)):
+            // Note: this transition is supported even if it's not currently in use.
             currentState = newState
-            handleEndStep(experience, stepIndex, controller, nextState: .end(experience))
+            handleEndStep(experience, stepIndex, package, nextState: .end(experience))
         case let (.endStep(experience, currentIndex, _), .beginStep(stepRef)):
             let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex)
             if experience.steps.indices.contains(stepIndex) {
@@ -94,10 +95,10 @@ internal class ExperienceStateMachine {
 
         // MARK: Special cases
         case let (.renderStep(_, _, package, _), .empty):
-            // If currently rendering, but trying to dismiss the entire experience, call `UIViewController.dismiss()`
+            // If currently rendering, but trying to dismiss the entire experience, call the dismisser
             // to trigger the `ExperienceContainerLifecycleHandler` handling of the dismissal.
-            // Don't set `currentState` here because the lifecycle handler will take care of it
-            package.dismisser()
+            // Don't set `currentState` here because the lifecycle handler will take care of it.
+            package.dismisser(nil)
         // MARK: Errors
         case let (_, .stepError(experience, stepIndex, reason)):
             // any state can transition to error
@@ -174,12 +175,10 @@ internal class ExperienceStateMachine {
     }
 
     private func handleEndStep(
-        _ experience: Experience, _ stepIndex: Int, _ controller: UIViewController, nextState: ExperienceState
+        _ experience: Experience, _ stepIndex: Int, _ package: ExperiencePackage, nextState: ExperienceState
     ) {
-        DispatchQueue.main.async {
-            controller.dismiss(animated: true) {
-                self.transition(to: nextState)
-            }
+        package.dismisser {
+            self.transition(to: nextState)
         }
     }
 
@@ -222,8 +221,8 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
 
     func containerWillDisappear() {
         switch currentState {
-        case let .endStep(_, _, controller):
-            guard controller.isBeingDismissed == true else { return }
+        case let .endStep(_, _, package):
+            guard package.wrapperController.isBeingDismissed == true else { return }
         case let .renderStep(_, _, package, _):
             guard package.wrapperController.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
@@ -235,8 +234,8 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
 
     func containerDidDisappear() {
         switch currentState {
-        case let .endStep(experience, stepIndex, controller):
-            guard controller.isBeingDismissed == true else { return }
+        case let .endStep(experience, stepIndex, package):
+            guard package.wrapperController.isBeingDismissed == true else { return }
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
         case let .renderStep(experience, stepIndex, package, _):

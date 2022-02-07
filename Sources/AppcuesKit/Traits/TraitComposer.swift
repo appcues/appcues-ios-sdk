@@ -98,7 +98,7 @@ internal class TraitComposer: TraitComposing {
             containerController: containerController,
             wrapperController: wrappedContainerViewController,
             presenter: { try unwrappedPresenting.present(viewController: wrappedContainerViewController) },
-            dismisser: { unwrappedPresenting.remove(viewController: wrappedContainerViewController) }
+            dismisser: { unwrappedPresenting.remove(viewController: wrappedContainerViewController, completion: $0) }
         )
     }
 }

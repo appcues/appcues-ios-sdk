@@ -120,5 +120,7 @@ public protocol PresentingTrait: ExperienceTrait {
 
     /// Removes the view controller for an experience.
     /// - Parameter viewController: The view controller to remove.
-    func remove(viewController: UIViewController)
+    /// - Parameter completion: The block to execute after the removal is completed.
+    /// This block has no return value and takes no parameters. You may specify nil for this parameter.
+    func remove(viewController: UIViewController, completion: (() -> Void)?)
 }
