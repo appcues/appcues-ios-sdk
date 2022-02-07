@@ -71,7 +71,9 @@ internal class ExperienceRenderer: ExperienceRendering {
         // only listen to experience lifecycle events and track analytics on published experiences (not previews)
         stateMachine.experienceLifecycleEventDelegate = published ? analyticsTracker : nil
         stateMachine.clientAppcuesDelegate = appcues.delegate
-        stateMachine.transition(to: .begin(experience))
+        DispatchQueue.main.async {
+            self.stateMachine.transition(to: .begin(experience))
+        }
     }
 
     func show(stepInCurrentExperience stepRef: StepReference) {
