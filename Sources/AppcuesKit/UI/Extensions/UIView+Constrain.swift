@@ -21,6 +21,17 @@ extension UIView {
         ])
     }
 
+    func pin(to guide: UILayoutGuide) {
+       self.translatesAutoresizingMaskIntoConstraints = false
+
+       NSLayoutConstraint.activate([
+           self.topAnchor.constraint(equalTo: guide.topAnchor),
+           self.leadingAnchor.constraint(equalTo: guide.leadingAnchor),
+           self.trailingAnchor.constraint(equalTo: guide.trailingAnchor),
+           self.bottomAnchor.constraint(equalTo: guide.bottomAnchor)
+       ])
+   }
+
     func center(in view: UIView) {
        self.translatesAutoresizingMaskIntoConstraints = false
 

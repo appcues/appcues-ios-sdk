@@ -13,6 +13,10 @@ internal class ExperienceStepViewController: UIViewController {
     let viewModel: ExperienceStepViewModel
 
     lazy var stepView = ExperienceStepView()
+    var padding: NSDirectionalEdgeInsets {
+        get { stepView.contentView.directionalLayoutMargins }
+        set { stepView.contentView.directionalLayoutMargins = newValue }
+    }
 
     private let contentViewController: UIViewController
 
@@ -38,16 +42,16 @@ internal class ExperienceStepViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        embedChildViewController(contentViewController, inSuperview: stepView.scrollView)
-        NSLayoutConstraint.activate([
-            contentViewController.view.widthAnchor.constraint(equalTo: stepView.scrollView.widthAnchor)
-        ])
+        addChild(contentViewController)
+        stepView.contentView.addSubview(contentViewController.view)
+        contentViewController.view.pin(to: stepView.contentView.layoutMarginsGuide)
+        contentViewController.didMove(toParent: self)
     }
 
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
         super.preferredContentSizeDidChange(forChildContentContainer: container)
 
-        preferredContentSize = contentViewController.view.frame.size
+        preferredContentSize = stepView.contentView.frame.size
     }
 
 }
@@ -61,11 +65,22 @@ extension ExperienceStepViewController {
             return view
         }()
 
+        lazy var contentView: UIView = {
+            let view = UIView()
+            view.directionalLayoutMargins = .zero
+            return view
+        }()
+
         init() {
             super.init(frame: .zero)
 
             addSubview(scrollView)
+            scrollView.addSubview(contentView)
             scrollView.pin(to: self)
+            contentView.pin(to: scrollView)
+            NSLayoutConstraint.activate([
+                contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
+            ])
         }
 
         @available(*, unavailable)

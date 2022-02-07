@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal struct AppcuesModalTrait: WrapperCreatingTrait, PresentingTrait {
+internal struct AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
     static let type = "@appcues/modal"
 
     let groupID: String?
@@ -27,6 +27,16 @@ internal struct AppcuesModalTrait: WrapperCreatingTrait, PresentingTrait {
 
         self.backdropColor = UIColor(dynamicColor: config?["backdropColor", decodedAs: ExperienceComponent.Style.DynamicColor.self])
         self.modalStyle = config?["style", decodedAs: ExperienceComponent.Style.self]
+    }
+
+    func decorate(stepController: UIViewController) throws {
+        // Need to cast for access to the padding property.
+        guard let stepController = stepController as? ExperienceStepViewController else { return }
+        stepController.padding = NSDirectionalEdgeInsets(
+            top: modalStyle?.paddingTop ?? 0,
+            leading: modalStyle?.paddingLeading ?? 0,
+            bottom: modalStyle?.paddingBottom ?? 0,
+            trailing: modalStyle?.paddingTrailing ?? 0)
     }
 
     func createWrapper(around containerController: ExperienceContainerViewController) -> UIViewController {
