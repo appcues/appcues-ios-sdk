@@ -131,33 +131,27 @@ internal class ExperienceStateMachine {
     }
 
     private func handleBeginStep(_ experience: Experience, _ stepIndex: Int, isFirst: Bool = false) {
-        DispatchQueue.main.async {
-            do {
-                let package = try self.traitComposer.package(experience: experience, stepIndex: stepIndex)
-                self.transition(to: .renderStep(
-                    experience,
-                    stepIndex,
-                    package,
-                    isFirst: isFirst))
-            } catch {
-                self.transition(to: .stepError(experience, stepIndex, "\(error)"))
-            }
+        do {
+            let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
+            self.transition(to: .renderStep(
+                experience,
+                stepIndex,
+                package,
+                isFirst: isFirst))
+        } catch {
+            self.transition(to: .stepError(experience, stepIndex, "\(error)"))
         }
     }
 
     private func handleRenderStep(_ experience: Experience, _ stepIndex: Int, _ package: ExperiencePackage) {
         experienceLifecycleEventDelegate?.lifecycleEvent(.stepAttempted(experience, stepIndex))
 
-        guard let topController = UIApplication.shared.topViewController() else {
-            transition(to: .stepError(experience, stepIndex, "No top VC found"))
-            return
-        }
-
-        clientControllerDelegate = topController as? AppcuesExperienceDelegate
-
-        guard canDisplay(experience: experience) else {
-            transition(to: .stepError(experience, stepIndex, "Step blocked by app"))
-            return
+        if let topController = UIApplication.shared.topViewController() {
+            clientControllerDelegate = topController as? AppcuesExperienceDelegate
+            if !canDisplay(experience: experience) {
+                transition(to: .stepError(experience, stepIndex, "Step blocked by app"))
+                return
+            }
         }
 
         package.containerController.lifecycleHandler = self
