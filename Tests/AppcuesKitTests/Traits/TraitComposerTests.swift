@@ -12,13 +12,13 @@ import XCTest
 class TraitComposerTests: XCTestCase {
 
     var appcues: MockAppcues!
+    var traitComposer: TraitComposer!
     var traitRegistry: TraitRegistry!
-    var actionRegistry: ActionRegistry!
 
     override func setUpWithError() throws {
         appcues = MockAppcues()
-        traitRegistry = TraitRegistry(container: appcues.container)
-        actionRegistry = ActionRegistry(container: appcues.container)
+        traitComposer = TraitComposer(container: appcues.container)
+        traitRegistry = appcues.container.resolve(TraitRegistry.self)
     }
 
     func testInitStepGroupingIncluded() throws {
@@ -46,11 +46,7 @@ class TraitComposerTests: XCTestCase {
             backdropDecoratingExpectation: backdropDecoratingExpectation)
 
         // Act
-        let traitComposer = try TraitComposer(
-            experience: experience,
-            stepIndex: 0,
-            traitRegistry: traitRegistry)
-        _ = try traitComposer.package(actionRegistry: actionRegistry)
+        _ = try traitComposer.package(experience: experience, stepIndex: 0)
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -72,11 +68,7 @@ class TraitComposerTests: XCTestCase {
             backdropDecoratingExpectation: expectation(description: "Backdrop decorate called"))
 
         // Act
-        let traitComposer = try TraitComposer(
-            experience: experience,
-            stepIndex: 1,
-            traitRegistry: traitRegistry)
-        _ = try traitComposer.package(actionRegistry: actionRegistry)
+        _ = try traitComposer.package(experience: experience, stepIndex: 1)
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -92,10 +84,7 @@ class TraitComposerTests: XCTestCase {
         let experience = makeTestExperience()
 
         // Act/Assert
-        XCTAssertThrowsError(try TraitComposer(
-            experience: experience,
-            stepIndex: 0,
-            traitRegistry: traitRegistry))
+        XCTAssertThrowsError(try traitComposer.package(experience: experience, stepIndex: 0))
     }
 
     func testPackagePresenter() throws {
@@ -124,14 +113,10 @@ class TraitComposerTests: XCTestCase {
 
 
         // Act
-        let traitComposer = try TraitComposer(
-            experience: experience,
-            stepIndex: 0,
-            traitRegistry: traitRegistry)
-        let package = try traitComposer.package(actionRegistry: actionRegistry)
+        let package = try traitComposer.package(experience: experience, stepIndex: 0)
 
         try package.presenter()
-        package.dismisser()
+        package.dismisser(nil)
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -220,7 +205,7 @@ class TraitComposerTests: XCTestCase {
     }
 }
 
-private extension TraitComposerTests {
+extension TraitComposerTests {
     struct TestTrait: StepDecoratingTrait, ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait, BackdropDecoratingTrait {
         static let type = "@test/trait"
 
@@ -306,8 +291,9 @@ private extension TraitComposerTests {
             presentExpectation?.fulfill()
         }
 
-        func remove(viewController: UIViewController) {
+        func remove(viewController: UIViewController, completion: (() -> Void)?) {
             removeExpectation?.fulfill()
+            completion?()
         }
     }
 }

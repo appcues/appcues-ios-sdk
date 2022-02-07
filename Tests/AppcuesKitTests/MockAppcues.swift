@@ -32,6 +32,9 @@ class MockAppcues: Appcues {
         container.register(UIDebugging.self, value: debugger)
         container.register(DeeplinkHandling.self, value: deeplinkHandler)
         container.register(SessionMonitoring.self, value: sessionMonitor)
+        container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
+        container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
+        container.register(TraitComposing.self, value: traitComposer)
         container.register(ActivityProcessing.self, value: activityProcessor)
         container.register(ActivityStoring.self, value: activityStorage)
 
@@ -67,6 +70,7 @@ class MockAppcues: Appcues {
     var activityProcessor = MockActivityProcessor()
     var debugger = MockDebugger()
     var deeplinkHandler = MockDeeplinkHandler()
+    var traitComposer = MockTraitComposer()
     var activityStorage = MockActivityStorage()
     var networking = MockNetworking()
 }
@@ -149,6 +153,18 @@ class MockDeeplinkHandler: DeeplinkHandling {
     var onDidHandleURL: ((URL) -> Bool)?
     func didHandleURL(_ url: URL) -> Bool {
         return onDidHandleURL?(url) ?? false
+    }
+}
+
+class MockTraitComposer: TraitComposing {
+
+    var onPackage: ((Experience, Int) throws -> ExperiencePackage)?
+    func package(experience: Experience, stepIndex: Int) throws -> ExperiencePackage {
+        if let onPackage = onPackage {
+            return try onPackage(experience, stepIndex)
+        } else {
+            throw TraitError(description: "no mock set")
+        }
     }
 }
 
