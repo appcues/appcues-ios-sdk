@@ -14,7 +14,11 @@ internal class AppcuesGroupTrait: GroupingTrait {
     let groupID: String?
 
     required init?(config: [String: Any]?) {
-        self.groupID = config?["groupID"] as? String
+        if let groupID = config?["groupID"] as? String {
+            self.groupID = groupID
+        } else {
+            return nil
+        }
     }
 
     func group(initialStep stepIndex: Int, in experience: Experience) -> [Experience.Step] {

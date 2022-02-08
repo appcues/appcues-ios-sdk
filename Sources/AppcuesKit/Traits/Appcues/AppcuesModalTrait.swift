@@ -13,7 +13,6 @@ internal struct AppcuesModalTrait: WrapperCreatingTrait, PresentingTrait {
 
     let groupID: String?
     let presentationStyle: PresentationStyle
-    let backdropColor: UIColor?
     let modalStyle: ExperienceComponent.Style?
 
     init?(config: [String: Any]?) {
@@ -25,7 +24,6 @@ internal struct AppcuesModalTrait: WrapperCreatingTrait, PresentingTrait {
             return nil
         }
 
-        self.backdropColor = UIColor(dynamicColor: config?["backdropColor", decodedAs: ExperienceComponent.Style.DynamicColor.self])
         self.modalStyle = config?["style", decodedAs: ExperienceComponent.Style.self]
     }
 
