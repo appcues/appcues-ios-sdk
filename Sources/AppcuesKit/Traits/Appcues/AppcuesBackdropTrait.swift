@@ -16,7 +16,12 @@ internal class AppcuesBackdropTrait: BackdropDecoratingTrait {
 
     required init?(config: [String: Any]?) {
         self.groupID = config?["groupID"] as? String
-        self.backgroundColor = UIColor(dynamicColor: config?["backgroundColor", decodedAs: ExperienceComponent.Style.DynamicColor.self])
+
+        if let dynamicColor = config?["backgroundColor", decodedAs: ExperienceComponent.Style.DynamicColor.self] {
+            self.backgroundColor = UIColor(dynamicColor: dynamicColor)
+        } else {
+            return nil
+        }
     }
 
     func decorate(backdropView: UIView) throws {
