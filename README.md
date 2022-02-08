@@ -72,7 +72,7 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
     accountID: <#APPCUES_ACCOUNT_ID#>,
     applicationID: <#APPCUES_APPLICATION_ID#>)
     
-  appcues = Analytics(configuration: configuration)
+  appcues = Appcues(config: appcuesConfig)
 }
 ```
 
