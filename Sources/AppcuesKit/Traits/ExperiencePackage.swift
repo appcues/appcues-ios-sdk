@@ -9,9 +9,27 @@
 import UIKit
 
 internal struct ExperiencePackage {
+    // References to the trait instances are held here to ensure they persist the lifetime of the experience being rendered.
+    private let traitInstances: [ExperienceTrait]
     let steps: [Experience.Step]
     let containerController: ExperienceContainerViewController
     let wrapperController: UIViewController
     let presenter: () throws -> Void
     let dismisser: (_ completion: (() -> Void)?) -> Void
+
+    internal init(
+        traitInstances: [ExperienceTrait],
+        steps: [Experience.Step],
+        containerController: ExperienceContainerViewController,
+        wrapperController: UIViewController,
+        presenter: @escaping () throws -> Void,
+        dismisser: @escaping ((() -> Void)?) -> Void
+    ) {
+        self.traitInstances = traitInstances
+        self.steps = steps
+        self.containerController = containerController
+        self.wrapperController = wrapperController
+        self.presenter = presenter
+        self.dismisser = dismisser
+    }
 }

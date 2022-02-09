@@ -30,6 +30,7 @@ internal class TraitComposer: TraitComposing {
             // Only apply experience-level traits if the trait isn't grouped or target step is part of the group.
             $0.groupID == nil || $0.groupID == experience.steps[stepIndex].traits.groupID
         }
+        var allTraitInstances = experienceTraitInstances
 
         if let grouper = experienceTraitInstances.compactMapFirst({ $0 as? GroupingTrait }) {
             stepModels = grouper.group(initialStep: stepIndex, in: experience)
@@ -50,6 +51,7 @@ internal class TraitComposer: TraitComposing {
 
         stepModels.forEach { stepModel in
             let stepTraitInstances = traitRegistry.instances(for: stepModel.traits)
+            allTraitInstances.append(contentsOf: stepTraitInstances)
             var stepDecoratingTraits = stepDecorators
 
             // Decompose step level traits
@@ -94,6 +96,7 @@ internal class TraitComposer: TraitComposing {
         let unwrappedPresenting = try presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
 
         return ExperiencePackage(
+            traitInstances: allTraitInstances,
             steps: stepModelsWithDecorators.map { $0.0 },
             containerController: containerController,
             wrapperController: wrappedContainerViewController,
