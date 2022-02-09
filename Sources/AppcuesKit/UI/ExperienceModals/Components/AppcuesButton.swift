@@ -20,9 +20,15 @@ internal struct AppcuesButton: View {
             // handle tap in `.setupActions`
         } label: {
             model.content.view
+                // Applying the Button padding and frame to the label ensures the proper button highlight effect
+                // on touchDown everywhere within the button frame.
+                .applyInternalLayout(style)
         }
+        .applyForegroundStyle(style)
+        .applyBackgroundStyle(style)
+        .applyBorderStyle(style)
+        .applyExternalLayout(style)
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
-        .applyAllAppcues(style)
     }
 }
 
