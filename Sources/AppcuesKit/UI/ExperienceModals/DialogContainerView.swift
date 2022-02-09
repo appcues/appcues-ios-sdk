@@ -38,7 +38,8 @@ internal class DialogContainerView: UIView {
 
         NSLayoutConstraint.activate([
             // ensure the dialog can't exceed the container height (it should scroll instead).
-            dialogView.topAnchor.constraint(greaterThanOrEqualTo: readableContentGuide.topAnchor),
+            dialogView.topAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.topAnchor),
+            dialogView.bottomAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.bottomAnchor),
             dialogView.centerYAnchor.constraint(equalTo: centerYAnchor),
             // this is required so the dialogView has an initial non-zero height, after which it can start sizing to the content.
             dialogView.heightAnchor.constraint(greaterThanOrEqualToConstant: 1),
