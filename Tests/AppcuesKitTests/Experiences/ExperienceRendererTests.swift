@@ -122,6 +122,7 @@ private extension Experience {
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
         let containerController = DefaultContainerViewController(stepControllers: [UIViewController()])
         return ExperiencePackage(
+            traitInstances: [],
             steps: [self.steps[0]],
             containerController: containerController,
             wrapperController: containerController,
