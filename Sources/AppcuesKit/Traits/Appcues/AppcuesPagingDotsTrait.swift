@@ -21,9 +21,9 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
     }
 
     func decorate(containerController: ExperienceContainerViewController) {
-        let pageContainerView = UIView()
-        pageContainerView.translatesAutoresizingMaskIntoConstraints = false
-        pageContainerView.directionalLayoutMargins = NSDirectionalEdgeInsets(
+        let pageWrapView = UIView()
+        pageWrapView.translatesAutoresizingMaskIntoConstraints = false
+        pageWrapView.directionalLayoutMargins = NSDirectionalEdgeInsets(
             top: style?.marginTop ?? 0,
             leading: style?.marginLeading ?? 0,
             bottom: style?.marginBottom ?? 0,
@@ -33,29 +33,29 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
         pageControl.currentPageIndicatorTintColor = UIColor(dynamicColor: style?.foregroundColor) ?? .secondaryLabel
         pageControl.pageIndicatorTintColor = UIColor(dynamicColor: style?.backgroundColor) ?? .tertiaryLabel
 
-        containerController.view.addSubview(pageContainerView)
-        pageContainerView.addSubview(pageControl)
+        containerController.view.addSubview(pageWrapView)
+        pageWrapView.addSubview(pageControl)
 
-        pageControl.pin(to: pageContainerView.layoutMarginsGuide)
+        pageControl.pin(to: pageWrapView.layoutMarginsGuide)
 
         var constraints: [NSLayoutConstraint] = []
 
         switch style?.verticalAlignment {
         case "top":
-            constraints.append(pageContainerView.topAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.topAnchor))
+            constraints.append(pageWrapView.topAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.topAnchor))
         case "center":
-            constraints.append(pageContainerView.centerYAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.centerYAnchor))
+            constraints.append(pageWrapView.centerYAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.centerYAnchor))
         default:
-            constraints.append(pageContainerView.bottomAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.bottomAnchor))
+            constraints.append(pageWrapView.bottomAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.bottomAnchor))
         }
 
         switch style?.horizontalAlignment {
         case "leading":
-            constraints.append(pageContainerView.leadingAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.leadingAnchor))
+            constraints.append(pageWrapView.leadingAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.leadingAnchor))
         case "trailing":
-            constraints.append(pageContainerView.trailingAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.trailingAnchor))
+            constraints.append(pageWrapView.trailingAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.trailingAnchor))
         default:
-            constraints.append(pageContainerView.centerXAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.centerXAnchor))
+            constraints.append(pageWrapView.centerXAnchor.constraint(equalTo: containerController.view.safeAreaLayoutGuide.centerXAnchor))
         }
 
         NSLayoutConstraint.activate(constraints)
