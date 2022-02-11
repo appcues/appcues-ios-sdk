@@ -19,8 +19,8 @@ class OneTimeEventDelegateTests: XCTestCase {
         delegate.add(instance)
 
         // Act
-        delegate.invoke { $0.lifecycleEvent(.stepStarted(Experience.dummy, 0)) }
-        delegate.invoke { $0.lifecycleEvent(.stepStarted(Experience.dummy, 0)) }
+        delegate.invoke { $0.lifecycleEvent(.stepSeen(Experience.dummy, 0)) }
+        delegate.invoke { $0.lifecycleEvent(.stepSeen(Experience.dummy, 0)) }
 
         // Assert
         XCTAssertEqual(completionCallCount, 1)
