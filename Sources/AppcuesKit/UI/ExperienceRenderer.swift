@@ -125,13 +125,11 @@ extension ExperienceRenderer {
         func lifecycleEvent(_ event: ExperienceLifecycleEvent) {
             guard completion != nil else { return }
             switch event {
-            case .flowAttempted, .stepAttempted:
-                return
-            case .stepStarted, .flowStarted:
+            case .stepSeen, .experienceStarted:
                 guard triggerEvent == .displayedStep else { return }
-            case .stepInteracted, .stepCompleted, .stepSkipped, .flowCompleted, .flowSkipped:
+            case .stepInteraction, .stepCompleted, .experienceCompleted, .experienceDismissed:
                 guard triggerEvent == .completedStep else { return }
-            case .stepError, .stepAborted, .flowError, .flowAborted:
+            case .stepError, .experienceError:
                 // continue on to call completion even if it failed so we don't get stuck
                 break
             }
