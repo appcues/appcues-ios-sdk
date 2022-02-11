@@ -21,7 +21,14 @@ internal struct AppcuesLaunchExperienceAction: ExperienceAction {
         }
     }
 
-    func execute(inContext appcues: Appcues) {
+    func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
+        // Set an observer for when the experience is eventually shown
+        let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
+        experienceRenderer.add(eventDelegate: ExperienceRenderer.OneTimeEventDelegate(on: .displayedStep, completion: completion))
+
+        // TODO: there's a scenario here where `completion` doesn't get called:
+        // If the experience fails to load, the ExperienceRenderer never gets involved and we get stuck on this action.
+
         appcues.show(experienceID: experienceID)
     }
 }

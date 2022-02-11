@@ -21,7 +21,8 @@ internal struct AppcuesTrackAction: ExperienceAction {
         }
     }
 
-    func execute(inContext appcues: Appcues) {
+    func execute(inContext appcues: Appcues, completion: () -> Void) {
         appcues.track(name: eventName)
+        completion()
     }
 }

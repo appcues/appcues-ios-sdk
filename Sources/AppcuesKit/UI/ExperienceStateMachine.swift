@@ -26,7 +26,8 @@ internal class ExperienceStateMachine {
 
     private(set) var currentState: ExperienceState
 
-    weak var experienceLifecycleEventDelegate: ExperienceEventDelegate?
+    // swiftlint:disable:next weak_delegate
+    let experienceLifecycleEventDelegate = MulticastDelegate<ExperienceEventDelegate>()
     weak var clientAppcuesDelegate: AppcuesExperienceDelegate?
     weak var clientControllerDelegate: AppcuesExperienceDelegate?
 
@@ -41,7 +42,7 @@ internal class ExperienceStateMachine {
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func transition(to newState: ExperienceState) {
         if case let .begin(experience) = newState {
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowAttempted(experience))
+            experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.flowAttempted(experience)) }
         }
 
         switch (currentState, newState) {
@@ -106,14 +107,14 @@ internal class ExperienceStateMachine {
             handleStepError(experience, stepIndex, reason)
         case let (.stepError(_, _, message), .end(experience)):
             currentState = newState
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowError(experience, message))
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowAborted(experience))
+            experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.flowError(experience, message)) }
+            experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.flowAborted(experience)) }
             handleEnd(experience)
 
         // MARK: Invalid state transitions
         case let (_, .begin(experience)):
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowError(experience, "experience already active"))
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowAborted(experience))
+            experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.flowError(experience, "experience already active")) }
+            experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.flowAborted(experience)) }
         case (.empty, _):
             config.logger.error("Trying to show experience step when no experience is active")
         default:
@@ -144,7 +145,7 @@ internal class ExperienceStateMachine {
     }
 
     private func handleRenderStep(_ experience: Experience, _ stepIndex: Int, _ package: ExperiencePackage) {
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepAttempted(experience, stepIndex))
+        experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepAttempted(experience, stepIndex)) }
 
         if let topController = UIApplication.shared.topViewController() {
             clientControllerDelegate = topController as? AppcuesExperienceDelegate
@@ -181,8 +182,8 @@ internal class ExperienceStateMachine {
     }
 
     private func handleStepError(_ experience: Experience, _ stepIndex: Int, _ message: String) {
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepError(experience, stepIndex, message))
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepAborted(experience, stepIndex))
+        experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepError(experience, stepIndex, message)) }
+        experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepAborted(experience, stepIndex)) }
         transition(to: .end(experience))
     }
 }
@@ -206,11 +207,11 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         guard package.wrapperController.isBeingPresented else { return }
 
         if isFirst {
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowStarted(experience))
+            experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.flowStarted(experience)) }
             experienceDidAppear()
         }
 
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepStarted(experience, stepIndex))
+        experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepStarted(experience, stepIndex)) }
     }
 
     func containerWillDisappear() {
@@ -230,19 +231,19 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         switch currentState {
         case let .endStep(experience, stepIndex, package):
             guard package.wrapperController.isBeingDismissed == true else { return }
-            experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
-            experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
+            experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepInteracted(experience, stepIndex)) }
+            experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepCompleted(experience, stepIndex)) }
         case let .renderStep(experience, stepIndex, package, _):
             guard package.wrapperController.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
             experienceDidDisappear()
             if stepIndex == experience.steps.count - 1 {
-                experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
-                experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
-                experienceLifecycleEventDelegate?.lifecycleEvent(.flowCompleted(experience))
+                experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepInteracted(experience, stepIndex)) }
+                experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepCompleted(experience, stepIndex)) }
+                experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.flowCompleted(experience)) }
             } else {
-                experienceLifecycleEventDelegate?.lifecycleEvent(.stepSkipped(experience, stepIndex))
-                experienceLifecycleEventDelegate?.lifecycleEvent(.flowSkipped(experience))
+                experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepSkipped(experience, stepIndex)) }
+                experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.flowSkipped(experience)) }
             }
 
             transition(to: .end(experience))
@@ -257,12 +258,12 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         let targetStepId = package.steps[newPageIndex].id
 
         // Analytics for completed step
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
+        experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepInteracted(experience, stepIndex)) }
+        experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepCompleted(experience, stepIndex)) }
 
         // Analytics for new step
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepAttempted(experience, stepIndex))
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepStarted(experience, stepIndex))
+        experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepAttempted(experience, stepIndex)) }
+        experienceLifecycleEventDelegate.invoke { $0.lifecycleEvent(.stepStarted(experience, stepIndex)) }
 
         if let newStepIndex = experience.steps.firstIndex(where: { $0.id == targetStepId }) {
             // We don't want the state machine to generally support a .renderStep->.renderStep transition,

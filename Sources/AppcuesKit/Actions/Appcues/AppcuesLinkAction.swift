@@ -31,11 +31,11 @@ internal struct AppcuesLinkAction: ExperienceAction {
         }
     }
 
-    func execute(inContext appcues: Appcues) {
+    func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
         if openExternally {
-            urlOpener.open(url, options: [:], completionHandler: nil)
+            urlOpener.open(url, options: [:]) { _ in completion() }
         } else {
-            urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true)
+            urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true) { completion() }
         }
     }
 }

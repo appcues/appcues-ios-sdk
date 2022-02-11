@@ -14,8 +14,9 @@ internal protocol ExperienceEventDelegate: AnyObject {
 
 internal protocol ExperienceRendering {
     func show(experience: Experience, published: Bool)
-    func show(stepInCurrentExperience stepRef: StepReference)
-    func dismissCurrentExperience()
+    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
+    func dismissCurrentExperience(completion: (() -> Void)?)
+    func add(eventDelegate: ExperienceEventDelegate)
 }
 
 internal enum StepReference: Equatable {
@@ -69,19 +70,78 @@ internal class ExperienceRenderer: ExperienceRendering {
 
     func show(experience: Experience, published: Bool) {
         // only listen to experience lifecycle events and track analytics on published experiences (not previews)
-        stateMachine.experienceLifecycleEventDelegate = published ? analyticsTracker : nil
+        if published {
+            stateMachine.experienceLifecycleEventDelegate.add(analyticsTracker)
+        } else {
+            stateMachine.experienceLifecycleEventDelegate.remove(analyticsTracker)
+        }
+
         stateMachine.clientAppcuesDelegate = appcues.delegate
         DispatchQueue.main.async {
             self.stateMachine.transition(to: .begin(experience))
         }
     }
 
-    func show(stepInCurrentExperience stepRef: StepReference) {
+    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
+        if let completion = completion {
+            stateMachine.experienceLifecycleEventDelegate.add(OneTimeEventDelegate(on: .displayedStep, completion: completion))
+        }
+
         stateMachine.transition(to: .beginStep(stepRef))
     }
 
-    func dismissCurrentExperience() {
+    func dismissCurrentExperience(completion: (() -> Void)?) {
+        if let completion = completion {
+            stateMachine.experienceLifecycleEventDelegate.add(OneTimeEventDelegate(on: .completedStep, completion: completion))
+        }
+
         stateMachine.transition(to: .empty)
+    }
+
+    func add(eventDelegate: ExperienceEventDelegate) {
+        stateMachine.experienceLifecycleEventDelegate.add(eventDelegate)
+    }
+}
+
+extension ExperienceRenderer {
+    class OneTimeEventDelegate: ExperienceEventDelegate {
+        enum SimplifiedLifecycleEvent {
+            case displayedStep
+            case completedStep
+            case error
+        }
+
+        private let triggerEvent: SimplifiedLifecycleEvent
+        private var completion: (() -> Void)?
+        private var strongReference: OneTimeEventDelegate?
+
+        init(on triggerEvent: SimplifiedLifecycleEvent, completion: @escaping () -> Void) {
+
+            self.triggerEvent = triggerEvent
+            self.completion = completion
+            self.strongReference = self
+        }
+
+        func lifecycleEvent(_ event: ExperienceLifecycleEvent) {
+            guard completion != nil else { return }
+            switch event {
+            case .flowAttempted, .stepAttempted:
+                return
+            case .stepStarted, .flowStarted:
+                guard triggerEvent == .displayedStep else { return }
+            case .stepInteracted, .stepCompleted, .stepSkipped, .flowCompleted, .flowSkipped:
+                guard triggerEvent == .completedStep else { return }
+            case .stepError, .stepAborted, .flowError, .flowAborted:
+                // continue on to call completion even if it failed so we don't get stuck
+                break
+            }
+
+            completion?()
+            // clear the completion handler after it's called in case this instance isn't garbage collected quickly enough
+            completion = nil
+            // remove the circular ref so this instance will deinit
+            strongReference = nil
+        }
     }
 
 }
