@@ -29,15 +29,19 @@ class AppcuesCloseActionTests: XCTestCase {
     func testExecute() throws {
         // Arrange
         var dismissCalled = false
+        var completionCalled = false
         appcues.experienceRenderer.onDismissCurrentExperience = {
             dismissCalled = true
         }
         let action = AppcuesCloseAction(config: nil)
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues) {
+            completionCalled = true
+        }
 
         // Assert
         XCTAssertTrue(dismissCalled)
+        XCTAssertTrue(completionCalled)
     }
 }

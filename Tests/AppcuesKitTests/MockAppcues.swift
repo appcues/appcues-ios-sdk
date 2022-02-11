@@ -95,19 +95,25 @@ class MockExperienceLoader: ExperienceLoading {
 class MockExperienceRenderer: ExperienceRendering {
 
     var onShowExperience: ((Experience, Bool) -> Void)?
-    var onShowStep: ((StepReference) -> Void)?
-    var onDismissCurrentExperience: (() -> Void)?
-
     func show(experience: Experience, published: Bool) {
         onShowExperience?(experience, published)
     }
 
-    func show(stepInCurrentExperience stepRef: StepReference) {
+    var onShowStep: ((StepReference) -> Void)?
+    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
         onShowStep?(stepRef)
+        completion?()
     }
 
-    func dismissCurrentExperience() {
+    var onDismissCurrentExperience: (() -> Void)?
+    func dismissCurrentExperience(completion: (() -> Void)?) {
         onDismissCurrentExperience?()
+        completion?()
+    }
+
+    var onAdd: ((ExperienceEventDelegate) -> Void)?
+    func add(eventDelegate: ExperienceEventDelegate) {
+        onAdd?(eventDelegate)
     }
 }
 

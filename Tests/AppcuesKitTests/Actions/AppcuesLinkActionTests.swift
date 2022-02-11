@@ -34,6 +34,7 @@ class AppcuesLinkActionTests: XCTestCase {
     func testExecute() throws {
         // Arrange
         var presentCalled = false
+        let completionExpectation = expectation(description: "action completed")
         let mockURLOpener = MockURLOpener()
         mockURLOpener.onPresent = { vc in
             XCTAssertTrue(vc is SFSafariViewController)
@@ -43,15 +44,19 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues) {
+            completionExpectation.fulfill()
+        }
 
         // Assert
         XCTAssertTrue(presentCalled)
+        waitForExpectations(timeout: 1)
     }
 
     func testExecuteExternal() throws {
         // Arrange
         var openCalled = false
+        let completionExpectation = expectation(description: "action completed")
         let mockURLOpener = MockURLOpener()
         mockURLOpener.onOpen = { url in
             XCTAssertEqual(url.absoluteString, "https://appcues.com")
@@ -61,10 +66,13 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues) {
+            completionExpectation.fulfill()
+        }
 
         // Assert
         XCTAssertTrue(openCalled)
+        waitForExpectations(timeout: 1)
     }
 }
 
@@ -75,6 +83,7 @@ extension AppcuesLinkActionTests {
 
         func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey : Any], completionHandler: ((Bool) -> Void)?) {
             onOpen?(url)
+            completionHandler?(true)
         }
 
         func topViewController() -> UIViewController? {
@@ -89,7 +98,8 @@ extension AppcuesLinkActionTests {
 
         override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
             onPresent?(viewControllerToPresent)
-            super.present(viewControllerToPresent, animated: flag, completion: completion)
+            completion?()
+            super.present(viewControllerToPresent, animated: flag, completion: nil)
         }
     }
 }

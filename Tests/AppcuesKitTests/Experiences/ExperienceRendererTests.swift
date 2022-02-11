@@ -71,7 +71,8 @@ class ExperienceRendererTests: XCTestCase {
         preconditionPackage = experience.package(presentExpectation: presentExpectation)
 
         // Act
-        experienceRenderer.show(stepInCurrentExperience: .index(1))
+        // Note: testing completion doesnt work because the mock experience package doesn't trigger the view controller lifecycle events
+        experienceRenderer.show(stepInCurrentExperience: .index(1), completion: nil)
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -88,7 +89,31 @@ class ExperienceRendererTests: XCTestCase {
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
-        experienceRenderer.dismissCurrentExperience()
+        // Note: testing completion doesnt work because the mock experience package doesn't trigger the view controller lifecycle events
+        experienceRenderer.dismissCurrentExperience(completion: nil)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testAdd() throws {
+        // This is a roundabout way of testing that the delegate is added, but there's no simpler way
+
+        // Arrange
+        let preconditionPresentExpectation = expectation(description: "Experience presented")
+        let experience = Experience.mock
+        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+        experienceRenderer.show(experience: experience, published: true)
+        wait(for: [preconditionPresentExpectation], timeout: 1)
+
+        let addedDelegateExpectation = expectation(description: "Delegate called")
+
+        // Act
+        experienceRenderer.add(eventDelegate: ExperienceRenderer.OneTimeEventDelegate(on: .error, completion: { addedDelegateExpectation.fulfill() }))
+
+        // Try to show while already showing, should trigger an error and let us validate the one time delegate was added
+        experienceRenderer.show(experience: Experience.mock, published: true)
 
         // Assert
         waitForExpectations(timeout: 1)

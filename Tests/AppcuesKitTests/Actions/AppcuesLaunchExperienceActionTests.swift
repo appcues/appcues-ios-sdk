@@ -39,7 +39,9 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
         let action = AppcuesLaunchExperienceAction(config: ["experienceID": "123"])
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues) {
+            // Note: this doesn't test completion because it's too indirect
+        }
 
         // Assert
         XCTAssertTrue(loadCalled)
