@@ -22,7 +22,7 @@ public extension Appcues {
 
         let applicationID: String
 
-        var apiHost: String = NetworkClient.defaultAPIHost
+        var apiHost: URLComponents = NetworkClient.defaultAPIHost
 
         var urlSession: URLSession = NetworkClient.defaultURLSession
 
@@ -60,7 +60,7 @@ public extension Appcues {
         /// - Parameter apiHost: Domain of the API host.
         /// - Returns: The `Configuration` object.
         @discardableResult
-        public func apiHost(_ apiHost: String) -> Self {
+        public func apiHost(_ apiHost: URLComponents) -> Self {
             self.apiHost = apiHost
             return self
         }
