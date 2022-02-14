@@ -87,7 +87,12 @@ internal class NetworkClient: Networking {
 }
 
 extension NetworkClient {
-    static let defaultAPIHost = "api.appcues.com"
+    static let defaultAPIHost: URLComponents = {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "api.appcues.com"
+        return components
+    }()
 
     static var defaultURLSession: URLSession {
         let configuration = URLSessionConfiguration.ephemeral
