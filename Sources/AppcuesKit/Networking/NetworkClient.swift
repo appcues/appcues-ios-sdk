@@ -87,12 +87,8 @@ internal class NetworkClient: Networking {
 }
 
 extension NetworkClient {
-    static let defaultAPIHost: URLComponents = {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = "api.appcues.com"
-        return components
-    }()
+    // swiftlint:disable:next force_unwrapping
+    static let defaultAPIHost = URL(string: "https://api.appcues.com")!
 
     static var defaultURLSession: URLSession {
         let configuration = URLSessionConfiguration.ephemeral
