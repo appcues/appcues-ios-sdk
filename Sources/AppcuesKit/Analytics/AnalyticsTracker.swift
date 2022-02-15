@@ -34,7 +34,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     }
 
     func track(update: TrackingUpdate) {
-        guard let activity = Activity(from: update, config: config, storage: storage) else { return }
+        let activity = Activity(from: update, config: config, storage: storage)
 
         switch update.policy {
         case .queueThenFlush:
@@ -96,7 +96,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 }
 
 extension Activity {
-    init?(from update: TrackingUpdate, config: Appcues.Config, storage: DataStoring) {
+    init(from update: TrackingUpdate, config: Appcues.Config, storage: DataStoring) {
         switch update.type {
         case let .event(name, _):
             self.init(accountID: config.accountID,
@@ -105,13 +105,9 @@ extension Activity {
                       groupID: storage.groupID)
 
         case let .screen(title):
-            guard let urlString = generatePseudoURL(screenName: title) else {
-                config.logger.error("Could not construct url for page %s", title)
-                return nil
-            }
             self.init(accountID: config.accountID,
                       userID: storage.userID,
-                      events: [Event(pageView: urlString, attributes: update.properties, context: update.context)],
+                      events: [Event(screen: title, attributes: update.properties, context: update.context)],
                       groupID: storage.groupID)
 
         case .profile:
@@ -155,13 +151,4 @@ private extension Array where Element == Activity {
         }
         return merged
     }
-}
-
-// TODO: Temporary solution to piggyback on the web page views. A proper mobile screen solution is still needed.
-private func generatePseudoURL(screenName: String) -> String? {
-    var components = URLComponents()
-    components.scheme = "https"
-    components.host = Bundle.main.bundleIdentifier
-    components.path = "/" + screenName.asURLSlug
-    return components.string
 }
