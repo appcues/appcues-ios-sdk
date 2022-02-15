@@ -45,9 +45,8 @@ internal enum ExperienceLifecycleEvent {
         case .stepSeen(let experience, _),
                 .stepInteraction(let experience, _),
                 .stepCompleted(let experience, _),
-                .stepError(let experience, _, _):
-            return experience
-        case .experienceStarted(let experience),
+                .stepError(let experience, _, _),
+                .experienceStarted(let experience),
                 .experienceCompleted(let experience),
                 .experienceDismissed(let experience, _),
                 .experienceError(let experience, _):
