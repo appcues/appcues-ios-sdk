@@ -81,7 +81,7 @@ class AnalyticsTrackerTests: XCTestCase {
     func testTrackScreenRequestBody() throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
-        let expectedEvents = [Event(pageView: "https://com.apple.dt.xctest.tool/my-test-page", attributes: ["my_key":"my_value", "another_key": 33])]
+        let expectedEvents = [Event(screen: "My test page", attributes: ["my_key":"my_value", "another_key": 33])]
 
         // In the case of a tracked screen, verify the update is sent to the activity processor as
         // an Activity with the expected screen event structure, synchronous (sync=true)
