@@ -26,11 +26,6 @@ class ExperienceRendererTests: XCTestCase {
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
-        let eventExpectation = expectation(description: "event tracked")
-        // Expecting: appcues:flow_attempted, appcues:step_attempted
-        eventExpectation.expectedFulfillmentCount = 2
-        appcues.register(subscriber: MockSubscriber { _ in eventExpectation.fulfill() })
-
         // Act
         experienceRenderer.show(experience: Experience.mock, published: true)
 
