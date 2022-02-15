@@ -22,12 +22,12 @@ internal struct Event {
         self.context = context
     }
 
-    init(pageView url: String, attributes: [String: Any]? = nil, context: [String: Any]? = nil) {
-        name = "appcues:page_view"
+    init(screen screenTitle: String, attributes: [String: Any]? = nil, context: [String: Any]? = nil) {
+        name = "appcues:screen_view"
         timestamp = Date()
 
         var extendedAttributes = attributes ?? [:]
-        extendedAttributes["url"] = url
+        extendedAttributes["screenTitle"] = screenTitle
         self.attributes = extendedAttributes
         self.context = context
     }
