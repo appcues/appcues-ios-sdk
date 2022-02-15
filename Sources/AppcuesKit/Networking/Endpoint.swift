@@ -16,8 +16,7 @@ internal enum APIEndpoint: Endpoint {
 
     /// URL fragments that that are appended to the `Config.apiHost` to make the URL for a network request.
     func url(config: Appcues.Config, storage: DataStoring) -> URL? {
-        var components = config.apiHost
-        components.scheme = components.scheme ?? "https"
+        guard var components = URLComponents(url: config.apiHost, resolvingAgainstBaseURL: false) else { return nil }
 
         switch self {
         case let .activity(userID, sync):
