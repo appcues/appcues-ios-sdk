@@ -10,13 +10,18 @@ import UIKit
 
 internal class ExperienceStateMachine {
 
+    enum ErrorType: Equatable {
+        case experience
+        case step(Int)
+    }
+
     enum ExperienceState {
         case empty
         case begin(Experience)
         case beginStep(StepReference)
         case renderStep(Experience, Int, ExperiencePackage, isFirst: Bool)
         case endStep(Experience, Int, ExperiencePackage)
-        case stepError(Experience, Int, String)
+        case error(Experience, ErrorType, String)
         case end(Experience)
     }
 
@@ -40,10 +45,6 @@ internal class ExperienceStateMachine {
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func transition(to newState: ExperienceState) {
-        if case let .begin(experience) = newState {
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowAttempted(experience))
-        }
-
         switch (currentState, newState) {
 
         // MARK: Standard flow
@@ -60,7 +61,7 @@ internal class ExperienceStateMachine {
             // Check if the target step is in the current container, and handle that scenario
             let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex)
             guard experience.steps.indices.contains(stepIndex) else {
-                transition(to: .stepError(experience, currentIndex, "Flow error: step index \(stepIndex) does not exist"))
+                transition(to: .error(experience, .experience, "Step index \(stepIndex) does not exist"))
                 break
             }
             let targetStepID = experience.steps[stepIndex].id
@@ -81,7 +82,7 @@ internal class ExperienceStateMachine {
                 currentState = newState
                 handleBeginStep(experience, stepIndex)
             } else {
-                transition(to: .stepError(experience, currentIndex, "Flow error: step index \(stepIndex) does not exist"))
+                transition(to: .error(experience, .experience, "Step index \(stepIndex) does not exist"))
             }
         case let (.endStep, .end(experience)):
             currentState = newState
@@ -100,20 +101,17 @@ internal class ExperienceStateMachine {
             // Don't set `currentState` here because the lifecycle handler will take care of it.
             package.dismisser(nil)
         // MARK: Errors
-        case let (_, .stepError(experience, stepIndex, reason)):
+        case let (_, .error(experience, errorType, reason)):
             // any state can transition to error
             currentState = newState
-            handleStepError(experience, stepIndex, reason)
-        case let (.stepError(_, _, message), .end(experience)):
+            handleStepError(experience, errorType, reason)
+        case let (.error, .end(experience)):
             currentState = newState
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowError(experience, message))
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowAborted(experience))
             handleEnd(experience)
 
         // MARK: Invalid state transitions
         case let (_, .begin(experience)):
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowError(experience, "experience already active"))
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowAborted(experience))
+            experienceLifecycleEventDelegate?.lifecycleEvent(.experienceError(experience, "experience already active"))
         case (.empty, _):
             config.logger.error("Trying to show experience step when no experience is active")
         default:
@@ -139,17 +137,15 @@ internal class ExperienceStateMachine {
                 package,
                 isFirst: isFirst))
         } catch {
-            self.transition(to: .stepError(experience, stepIndex, "\(error)"))
+            self.transition(to: .error(experience, .step(stepIndex), "\(error)"))
         }
     }
 
     private func handleRenderStep(_ experience: Experience, _ stepIndex: Int, _ package: ExperiencePackage) {
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepAttempted(experience, stepIndex))
-
         if let topController = UIApplication.shared.topViewController() {
             clientControllerDelegate = topController as? AppcuesExperienceDelegate
             if !canDisplay(experience: experience) {
-                transition(to: .stepError(experience, stepIndex, "Step blocked by app"))
+                transition(to: .error(experience, .step(stepIndex), "Step blocked by app"))
                 return
             }
         }
@@ -162,7 +158,7 @@ internal class ExperienceStateMachine {
         do {
             try package.presenter()
         } catch {
-            self.transition(to: .stepError(experience, stepIndex, "\(error)"))
+            self.transition(to: .error(experience, .step(stepIndex), "\(error)"))
         }
 
         storage.lastContentShownAt = Date()
@@ -180,9 +176,13 @@ internal class ExperienceStateMachine {
         transition(to: .empty)
     }
 
-    private func handleStepError(_ experience: Experience, _ stepIndex: Int, _ message: String) {
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepError(experience, stepIndex, message))
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepAborted(experience, stepIndex))
+    private func handleStepError(_ experience: Experience, _ errorType: ErrorType, _ message: String) {
+        switch errorType {
+        case .experience:
+            experienceLifecycleEventDelegate?.lifecycleEvent(.experienceError(experience, message))
+        case .step(let stepIndex):
+            experienceLifecycleEventDelegate?.lifecycleEvent(.stepError(experience, stepIndex, message))
+        }
         transition(to: .end(experience))
     }
 }
@@ -206,11 +206,11 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         guard package.wrapperController.isBeingPresented else { return }
 
         if isFirst {
-            experienceLifecycleEventDelegate?.lifecycleEvent(.flowStarted(experience))
+            experienceLifecycleEventDelegate?.lifecycleEvent(.experienceStarted(experience))
             experienceDidAppear()
         }
 
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepStarted(experience, stepIndex))
+        experienceLifecycleEventDelegate?.lifecycleEvent(.stepSeen(experience, stepIndex))
     }
 
     func containerWillDisappear() {
@@ -230,19 +230,18 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         switch currentState {
         case let .endStep(experience, stepIndex, package):
             guard package.wrapperController.isBeingDismissed == true else { return }
-            experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
+            experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteraction(experience, stepIndex))
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
         case let .renderStep(experience, stepIndex, package, _):
             guard package.wrapperController.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
             experienceDidDisappear()
             if stepIndex == experience.steps.count - 1 {
-                experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
+                experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteraction(experience, stepIndex))
                 experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
-                experienceLifecycleEventDelegate?.lifecycleEvent(.flowCompleted(experience))
+                experienceLifecycleEventDelegate?.lifecycleEvent(.experienceCompleted(experience))
             } else {
-                experienceLifecycleEventDelegate?.lifecycleEvent(.stepSkipped(experience, stepIndex))
-                experienceLifecycleEventDelegate?.lifecycleEvent(.flowSkipped(experience))
+                experienceLifecycleEventDelegate?.lifecycleEvent(.experienceDismissed(experience, stepIndex))
             }
 
             transition(to: .end(experience))
@@ -257,12 +256,11 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         let targetStepId = package.steps[newPageIndex].id
 
         // Analytics for completed step
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteracted(experience, stepIndex))
+        experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteraction(experience, stepIndex))
         experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
 
         // Analytics for new step
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepAttempted(experience, stepIndex))
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepStarted(experience, stepIndex))
+        experienceLifecycleEventDelegate?.lifecycleEvent(.stepSeen(experience, stepIndex))
 
         if let newStepIndex = experience.steps.firstIndex(where: { $0.id == targetStepId }) {
             // We don't want the state machine to generally support a .renderStep->.renderStep transition,
@@ -321,8 +319,8 @@ extension ExperienceStateMachine.ExperienceState: Equatable {
             return experience1.id == experience2.id && stepIndex1 == stepIndex2 && isFirst1 == isFirst2
         case let (.endStep(experience1, stepIndex1, _), .endStep(experience2, stepIndex2, _)):
             return experience1.id == experience2.id && stepIndex1 == stepIndex2
-        case let (.stepError(experience1, stepIndex1, message1), .stepError(experience2, stepIndex2, message2)):
-            return experience1.id == experience2.id && stepIndex1 == stepIndex2 && message1 == message2
+        case let (.error(experience1, errorType1, message1), .error(experience2, errorType2, message2)):
+            return experience1.id == experience2.id && errorType1 == errorType2 && message1 == message2
         case let (.end(experience1), .end(experience2)):
             return experience1.id == experience2.id
         default:
@@ -344,8 +342,8 @@ extension ExperienceStateMachine.ExperienceState: CustomStringConvertible {
             return ".renderStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .endStep(experience, stepIndex, _):
             return ".endStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
-        case let .stepError(experience, stepIndex, _):
-            return ".stepError(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
+        case let .error(experience, _, _):
+            return ".error(experienceID: \(experience.id.uuidString))"
         case let .end(experience):
             return ".end(experienceID: \(experience.id.uuidString))"
         }

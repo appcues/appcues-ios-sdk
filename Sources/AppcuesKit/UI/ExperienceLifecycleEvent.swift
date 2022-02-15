@@ -9,75 +9,55 @@
 import Foundation
 
 internal enum ExperienceLifecycleEvent {
-    case stepAttempted(Experience, Int)
-    case stepStarted(Experience, Int)
-    case stepInteracted(Experience, Int)
+    case stepSeen(Experience, Int)
+    case stepInteraction(Experience, Int)
     case stepCompleted(Experience, Int)
-    case stepSkipped(Experience, Int)
     case stepError(Experience, Int, String)
-    case stepAborted(Experience, Int)
 
-    case flowAttempted(Experience)
-    case flowStarted(Experience)
-    case flowCompleted(Experience)
-    case flowSkipped(Experience)
-    case flowError(Experience, String)
-    case flowAborted(Experience)
+    case experienceStarted(Experience)
+    case experienceCompleted(Experience)
+    case experienceDismissed(Experience, Int)
+    case experienceError(Experience, String)
 
     var name: String {
         switch self {
-        case .stepAttempted:
-            return "appcues:step_attempted"
-        case .stepStarted:
-            return "appcues:step_started"
-        case .stepInteracted:
-            return "appcues:step_interacted"
+        case .stepSeen:
+            return "appcues:v2:step_seen"
+        case .stepInteraction:
+            return "appcues:v2:step_interaction"
         case .stepCompleted:
-            return "appcues:step_completed"
-        case .stepSkipped:
-            return "appcues:step_skipped"
+            return "appcues:v2:step_completed"
         case .stepError:
-            return "appcues:step_error"
-        case .stepAborted:
-            return "appcues:step_aborted"
-        case .flowAttempted:
-            return "appcues:flow_attempted"
-        case .flowStarted:
-            return "appcues:flow_started"
-        case .flowCompleted:
-            return "appcues:flow_completed"
-        case .flowSkipped:
-            return "appcues:flow_skipped"
-        case .flowError:
-            return "appcues:flow_error"
-        case .flowAborted:
-            return "appcues:flow_aborted"
+            return "appcues:v2:step_error"
+        case .experienceStarted:
+            return "appcues:v2:experience_started"
+        case .experienceCompleted:
+            return "appcues:v2:experience_completed"
+        case .experienceDismissed:
+            return "appcues:v2:experience_dismissed"
+        case .experienceError:
+            return "appcues:v2:experience_error"
         }
     }
 
     private var experience: Experience {
         switch self {
-        case .stepAttempted(let experience, _),
-                .stepStarted(let experience, _),
-                .stepInteracted(let experience, _),
+        case .stepSeen(let experience, _),
+                .stepInteraction(let experience, _),
                 .stepCompleted(let experience, _),
-                .stepSkipped(let experience, _),
-                .stepError(let experience, _, _),
-                .stepAborted(let experience, _):
+                .stepError(let experience, _, _):
             return experience
-        case .flowAttempted(let experience),
-                .flowStarted(let experience),
-                .flowCompleted(let experience),
-                .flowSkipped(let experience),
-                .flowError(let experience, _),
-                .flowAborted(let experience):
+        case .experienceStarted(let experience),
+                .experienceCompleted(let experience),
+                .experienceDismissed(let experience, _),
+                .experienceError(let experience, _):
             return experience
         }
     }
 
     var message: String? {
         switch self {
-        case let .stepError(_, _, message), let .flowError(_, message):
+        case let .stepError(_, _, message), let .experienceError(_, message):
             return message
         default: return nil
         }
@@ -87,32 +67,26 @@ internal enum ExperienceLifecycleEvent {
         let experience = self.experience
 
         var properties: [String: Any] = [
-            "flowId": experience.id.uuidString.lowercased(),
-            "flowName": experience.name,
-            "flowType": "journey"
+            "experienceId": experience.id.uuidString.lowercased(),
+            "experienceName": experience.name
         ]
 
         switch self {
-        case .stepAttempted(_, let index),
-                .stepStarted(_, let index),
-                .stepInteracted(_, let index),
+        case .stepSeen(_, let index),
+                .stepInteraction(_, let index),
                 .stepCompleted(_, let index),
-                .stepSkipped(_, let index),
                 .stepError(_, let index, _),
-                .stepAborted(_, let index):
+                .experienceDismissed(_, let index):
             if experience.steps.indices.contains(index) {
                 let step = experience.steps[index]
                 properties["stepId"] = step.id.uuidString.lowercased()
-                properties["stepType"] = "modal"
-                properties["stepNumber"] = index
             }
-        case .flowAttempted, .flowStarted, .flowCompleted, .flowSkipped, .flowError, .flowAborted:
+        case .experienceStarted, .experienceCompleted, .experienceError:
             break
         }
 
         if let message = message {
-            properties["error"] = message
-            properties["detail"] = message
+            properties["message"] = message
         }
 
         return properties
