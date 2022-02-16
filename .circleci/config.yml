@@ -1,14 +1,29 @@
 version: 2.1
+
+# -------------------------
+#          ORBS
+# -------------------------
 orbs:
   slack: circleci/slack@4.4.4
-jobs:
-  validate_code:
+
+# -------------------------
+#        EXECUTORS
+# -------------------------
+executors:
+  xcode_13_2_1:
     macos:
-      xcode: 13.0.0
+      xcode: 13.2.1
     working_directory: /Users/distiller/project
     shell: /bin/bash --login -o pipefail
     environment:
       HOMEBREW_NO_AUTO_UPDATE: 1
+
+# -------------------------
+#          COMMANDS
+# -------------------------
+commands:
+  install_with_cache:
+    description: 'Checkout from git and install gem and mint dependencies'
     steps:
       - checkout
       - restore_cache:
@@ -36,6 +51,15 @@ jobs:
           key: 3-mint-{{ checksum "Mintfile" }}
           paths:
             - /usr/local/lib/mint
+
+# -------------------------
+#          JOBS
+# -------------------------
+jobs:
+  validate_code:
+    executor: xcode_13_2_1
+    steps:
+      - install_with_cache
       - run:
           name: Run fastlane tests
           command: bundle exec fastlane validate_code
@@ -47,14 +71,18 @@ jobs:
           event: fail
           template: basic_fail_1
           channel: team-mobile-bots
+
+# -------------------------
+#        WORKFLOWS
+# -------------------------
 workflows:
   version: 2
   pr_validation:
+    when:
+      branches:
+        ignore:
+          - main
     jobs:
       - validate_code:
-          filters:
-            branches:
-              ignore:
-                - main
           context:
             - Appcues
