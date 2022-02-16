@@ -10,9 +10,9 @@ orbs:
 #        EXECUTORS
 # -------------------------
 executors:
-  xcode_13_2_1:
+  xcode_13:
     macos:
-      xcode: 13.2.1
+      xcode: 13.0.0
     working_directory: /Users/distiller/project
     shell: /bin/bash --login -o pipefail
     environment:
@@ -51,22 +51,22 @@ commands:
           command: brew install mint
       - restore_cache:
           name: Restore swift build package cache
-          key: 5-mint-{{ checksum "Mintfile" }}
+          key: 3-mint-{{ checksum "Mintfile" }}
       - run:
           name: Install swift build packages
           command: mint bootstrap
       - save_cache:
           name: Save swift build package cache
-          key: 5-mint-{{ checksum "Mintfile" }}
+          key: 3-mint-{{ checksum "Mintfile" }}
           paths:
-            - ~/.mint/packages
+            - /usr/local/lib/mint
 
 # -------------------------
 #          JOBS
 # -------------------------
 jobs:
   validate_code:
-    executor: xcode_13_2_1
+    executor: xcode_13
     steps:
       - install_with_cache
       - run:
@@ -82,7 +82,7 @@ jobs:
           channel: team-mobile-bots
 
   deploy_example:
-    executor: xcode_13_2_1
+    executor: xcode_13
     steps:
       - install_with_cache
       - run:
