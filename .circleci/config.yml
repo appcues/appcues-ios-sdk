@@ -19,6 +19,15 @@ executors:
       HOMEBREW_NO_AUTO_UPDATE: 1
 
 # -------------------------
+#        REFERENCES
+# -------------------------
+references:
+  is_main: &is_main
+    matches:
+      pattern: '^main$'
+      value: << pipeline.git.branch >>
+
+# -------------------------
 #          COMMANDS
 # -------------------------
 commands:
@@ -90,19 +99,14 @@ jobs:
 workflows:
   version: 2
   pr_validation:
-    when:
-      branches:
-        ignore:
-          - main
+    unless: *is_main
     jobs:
       - validate_code:
           context:
             - Appcues
 
   build_and_deploy:
-    when:
-      branches:
-        only: main
+    when: *is_main
     jobs:
       - deploy_example:
           context:
