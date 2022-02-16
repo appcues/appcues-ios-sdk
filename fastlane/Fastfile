@@ -40,4 +40,10 @@ platform :ios do
       skip_archive: true,
       skip_codesigning: true)
   end
+
+  desc "Push example app to Testflight beta"
+  lane :beta_example do | options |
+    sh("sh", "./replace-placeholders.sh", "DeveloperCocoapodsExample/CocoapodsExample", options[:appcuesID], options[:applicationID])
+    # TODO: actual build and deploy to TestFlight
+  end
 end

@@ -72,6 +72,18 @@ jobs:
           template: basic_fail_1
           channel: team-mobile-bots
 
+  deploy_example:
+    executor: xcode_13_2_1
+    steps:
+      - install_with_cache
+      - run:
+          name: Run beta build
+          command: bundle exec fastlane beta_example appcuesID:$EX_APPCUES_ACCOUNT_ID applicationID:$EX_APPCUES_APPLICATION_ID
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+          channel: team-mobile-bots
+
 # -------------------------
 #        WORKFLOWS
 # -------------------------
@@ -84,5 +96,14 @@ workflows:
           - main
     jobs:
       - validate_code:
+          context:
+            - Appcues
+
+  build_and_deploy:
+    when:
+      branches:
+        only: main
+    jobs:
+      - deploy_example:
           context:
             - Appcues
