@@ -36,6 +36,11 @@ Sanity check to make sure the cocoapods example app compiles
 fastlane ios compile_spm_example
 ```
 Sanity check to make sure the spm example app compiles
+### ios prep_match
+```
+fastlane ios prep_match
+```
+Setup code signing
 ### ios beta_example
 ```
 fastlane ios beta_example
