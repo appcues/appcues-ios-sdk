@@ -87,7 +87,7 @@ jobs:
       - install_with_cache
       - run:
           name: Run beta build
-          command: bundle exec fastlane beta_example appcuesID:$EX_APPCUES_ACCOUNT_ID applicationID:$EX_APPCUES_APPLICATION_ID
+          command: bundle exec fastlane beta_example
       - slack/notify:
           event: fail
           template: basic_fail_1
