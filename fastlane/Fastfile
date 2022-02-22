@@ -94,8 +94,15 @@ platform :ios do
       export_method: "app-store",
       workspace: "Examples/DeveloperCocoapodsExample/AppcuesCocoapodsExample.xcworkspace")
         
+    git_log = changelog_from_git_commits(
+      commits_count: 5,
+      pretty: "- [%as] %s"
+    )
+    changelog = "Latest commits on #{CIRCLE_BRANCH}:\n" + git_log + "\n\nCircleCI Build: #{ENV["CIRCLE_BUILD_NUM"]}"
+    
     upload_to_testflight(
       api_key: ENV["APP_STORE_CONNECT_API_KEY"],
+      changelog: changelog,
       skip_submission: true)
   end
 end
