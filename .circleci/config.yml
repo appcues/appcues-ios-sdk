@@ -100,6 +100,10 @@ jobs:
           event: fail
           template: basic_fail_1
           channel: team-mobile-bots
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
+          channel: team-mobile-bots
 
 # -------------------------
 #        WORKFLOWS
