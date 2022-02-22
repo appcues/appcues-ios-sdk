@@ -1,6 +1,14 @@
 version: 2.1
 
 # -------------------------
+#       PARAMETERS
+# -------------------------
+parameters:
+  deploy-beta:
+    type: boolean
+    default: false
+
+# -------------------------
 #          ORBS
 # -------------------------
 orbs:
@@ -106,7 +114,10 @@ workflows:
             - Appcues
 
   build_and_deploy:
-    when: *is_main
+    when:
+      and:
+        - *is_main
+        - << pipeline.parameters.deploy-beta >>
     jobs:
       - deploy_example:
           context:
