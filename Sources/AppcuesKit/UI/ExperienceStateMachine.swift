@@ -50,6 +50,9 @@ internal class ExperienceStateMachine {
         // MARK: Standard flow
         case let (.empty, .begin(experience)):
             currentState = newState
+            guard !experience.steps.isEmpty else {
+                return transition(to: .error(experience, .experience, "No steps"))
+            }
             handleBegin(experience)
         case let (.begin(experience), .beginStep(.index(0))):
             currentState = newState
