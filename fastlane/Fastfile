@@ -46,6 +46,7 @@ platform :ios do
     app_store_connect_api_key
 
     sync_code_signing(
+      storage_mode: "s3",
       s3_region: ENV["AWS_REGION"],
       s3_bucket: ENV["AWS_S3_BUCKET"],
       s3_access_key: ENV["AWS_ACCESS_KEY_ID"],
