@@ -46,6 +46,10 @@ extension LoopingVideoPlayer {
                     self?.playLoopingAsset(with: asset)
                 }
             }
+
+            // Fix the tiny border that shows around the video (http://www.openradar.me/35158514)
+            playerLayer?.shouldRasterize = true
+            playerLayer?.rasterizationScale = UIScreen.main.scale
         }
 
         @available(*, unavailable)
