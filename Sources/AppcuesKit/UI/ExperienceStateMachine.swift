@@ -262,10 +262,10 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteraction(experience, stepIndex))
         experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
 
-        // Analytics for new step
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepSeen(experience, stepIndex))
-
         if let newStepIndex = experience.steps.firstIndex(where: { $0.id == targetStepId }) {
+            // Analytics for new step
+            experienceLifecycleEventDelegate?.lifecycleEvent(.stepSeen(experience, newStepIndex))
+
             // We don't want the state machine to generally support a .renderStep->.renderStep transition,
             // so we're shortcutting it internally here by setting currentState directly.
             currentState = .renderStep(experience, newStepIndex, package, isFirst: false)
