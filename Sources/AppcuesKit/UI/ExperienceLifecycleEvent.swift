@@ -10,8 +10,10 @@ import Foundation
 
 internal enum ExperienceLifecycleEvent {
     case stepSeen(Experience, Int)
+    case stepInteraction(Experience, Int)
     case stepCompleted(Experience, Int)
     case stepError(Experience, Int, ErrorBody)
+    case stepRecovered(Experience, Int, ErrorBody)
 
     case experienceStarted(Experience)
     case experienceCompleted(Experience)
@@ -22,10 +24,14 @@ internal enum ExperienceLifecycleEvent {
         switch self {
         case .stepSeen:
             return "appcues:v2:step_seen"
+        case .stepInteraction:
+            return "appcues:v2:step_interaction"
         case .stepCompleted:
             return "appcues:v2:step_completed"
         case .stepError:
             return "appcues:v2:step_error"
+        case .stepRecovered:
+            return "appcues:v2:step_recovered"
         case .experienceStarted:
             return "appcues:v2:experience_started"
         case .experienceCompleted:
@@ -40,8 +46,10 @@ internal enum ExperienceLifecycleEvent {
     private var experience: Experience {
         switch self {
         case .stepSeen(let experience, _),
+                .stepInteraction(let experience, _),
                 .stepCompleted(let experience, _),
                 .stepError(let experience, _, _),
+                .stepRecovered(let experience, _, _),
                 .experienceStarted(let experience),
                 .experienceCompleted(let experience),
                 .experienceDismissed(let experience, _),
@@ -52,7 +60,7 @@ internal enum ExperienceLifecycleEvent {
 
     var error: ErrorBody? {
         switch self {
-        case let .stepError(_, _, error), let .experienceError(_, error):
+        case let .stepError(_, _, error), let .stepRecovered(_, _, error), let .experienceError(_, error):
             return error
         default: return nil
         }
@@ -73,8 +81,10 @@ internal enum ExperienceLifecycleEvent {
 
         switch self {
         case .stepSeen(_, let index),
+                .stepInteraction(_, let index),
                 .stepCompleted(_, let index),
                 .stepError(_, let index, _),
+                .stepRecovered(_, let index, _),
                 .experienceDismissed(_, let index):
             if experience.steps.indices.contains(index) {
                 let step = experience.steps[index]
