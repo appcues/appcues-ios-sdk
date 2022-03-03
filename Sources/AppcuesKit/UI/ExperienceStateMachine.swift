@@ -182,9 +182,9 @@ internal class ExperienceStateMachine {
     private func handleStepError(_ experience: Experience, _ errorType: ErrorType, _ message: String) {
         switch errorType {
         case .experience:
-            experienceLifecycleEventDelegate?.lifecycleEvent(.experienceError(experience, message))
+            experienceLifecycleEventDelegate?.lifecycleEvent(.experienceError(experience, "\(message)"))
         case .step(let stepIndex):
-            experienceLifecycleEventDelegate?.lifecycleEvent(.stepError(experience, stepIndex, message))
+            experienceLifecycleEventDelegate?.lifecycleEvent(.stepError(experience, stepIndex, "\(message)"))
         }
         transition(to: .end(experience))
     }
@@ -233,14 +233,12 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         switch currentState {
         case let .endStep(experience, stepIndex, package):
             guard package.wrapperController.isBeingDismissed == true else { return }
-            experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteraction(experience, stepIndex))
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
         case let .renderStep(experience, stepIndex, package, _):
             guard package.wrapperController.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
             experienceDidDisappear()
             if stepIndex == experience.steps.count - 1 {
-                experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteraction(experience, stepIndex))
                 experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
                 experienceLifecycleEventDelegate?.lifecycleEvent(.experienceCompleted(experience))
             } else {
@@ -259,7 +257,6 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         let targetStepId = package.steps[newPageIndex].id
 
         // Analytics for completed step
-        experienceLifecycleEventDelegate?.lifecycleEvent(.stepInteraction(experience, stepIndex))
         experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
 
         if let newStepIndex = experience.steps.firstIndex(where: { $0.id == targetStepId }) {

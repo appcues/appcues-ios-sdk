@@ -10,21 +10,18 @@ import Foundation
 
 internal enum ExperienceLifecycleEvent {
     case stepSeen(Experience, Int)
-    case stepInteraction(Experience, Int)
     case stepCompleted(Experience, Int)
-    case stepError(Experience, Int, String)
+    case stepError(Experience, Int, ErrorBody)
 
     case experienceStarted(Experience)
     case experienceCompleted(Experience)
     case experienceDismissed(Experience, Int)
-    case experienceError(Experience, String)
+    case experienceError(Experience, ErrorBody)
 
     var name: String {
         switch self {
         case .stepSeen:
             return "appcues:v2:step_seen"
-        case .stepInteraction:
-            return "appcues:v2:step_interaction"
         case .stepCompleted:
             return "appcues:v2:step_completed"
         case .stepError:
@@ -43,7 +40,6 @@ internal enum ExperienceLifecycleEvent {
     private var experience: Experience {
         switch self {
         case .stepSeen(let experience, _),
-                .stepInteraction(let experience, _),
                 .stepCompleted(let experience, _),
                 .stepError(let experience, _, _),
                 .experienceStarted(let experience),
@@ -54,10 +50,10 @@ internal enum ExperienceLifecycleEvent {
         }
     }
 
-    var message: String? {
+    var error: ErrorBody? {
         switch self {
-        case let .stepError(_, _, message), let .experienceError(_, message):
-            return message
+        case let .stepError(_, _, error), let .experienceError(_, error):
+            return error
         default: return nil
         }
     }
@@ -68,26 +64,50 @@ internal enum ExperienceLifecycleEvent {
         var properties: [String: Any] = [
             "experienceId": experience.id.uuidString.lowercased(),
             "experienceName": experience.name
+            // TODO: The experience object does not current include version
+//            "version": experience.version
+            // TODO: Add locale values to analytics for localized experiences
+//            "localeName": "",
+//            "localeId": ""
         ]
 
         switch self {
         case .stepSeen(_, let index),
-                .stepInteraction(_, let index),
                 .stepCompleted(_, let index),
                 .stepError(_, let index, _),
                 .experienceDismissed(_, let index):
             if experience.steps.indices.contains(index) {
                 let step = experience.steps[index]
                 properties["stepId"] = step.id.uuidString.lowercased()
+                properties["stepNumber"] = index
             }
         case .experienceStarted, .experienceCompleted, .experienceError:
             break
         }
 
-        if let message = message {
-            properties["message"] = message
+        if let error = error {
+            properties["message"] = error.message
+            properties["errorId"] = error.id
         }
 
         return properties
+    }
+}
+
+extension ExperienceLifecycleEvent {
+    struct ErrorBody: ExpressibleByStringInterpolation {
+        let message: String
+        let id: UUID
+
+        init(message: String, id: UUID = UUID()) {
+            self.message = message
+            self.id = id
+        }
+
+        // Conveniently init with `"message"` or `"\(messageVar)"` instead of `ExperienceLifecycleEvent.Error(message: messageVar)`.
+        init(stringLiteral value: String) {
+            message = value
+            id = UUID()
+        }
     }
 }
