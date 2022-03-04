@@ -97,7 +97,7 @@ internal enum ExperienceLifecycleEvent {
 
         if let error = error {
             properties["message"] = error.message
-            properties["errorId"] = error.id
+            properties["errorId"] = error.id.uuidString
         }
 
         return properties
