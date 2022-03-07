@@ -21,10 +21,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // (see `application:configurationForConnectingSceneSession` instead).
 
         // Handle Appcues deeplinks.
-        Appcues.shared.didHandleURL(connectionOptions.urlContexts)
+        let unhandledURLContexts = Appcues.shared.filterAndHandle(connectionOptions.urlContexts)
 
         // Handle app-specific deeplinks.
-        deeplinkNavigator.handle(scene, openURLContexts: connectionOptions.urlContexts)
+        deeplinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -58,9 +58,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         // Handle Appcues deeplinks.
-        guard !Appcues.shared.didHandleURL(URLContexts) else { return }
+        let unhandledURLContexts = Appcues.shared.filterAndHandle(URLContexts)
 
         // Handle app-specific deeplinks.
-        deeplinkNavigator.handle(scene, openURLContexts: URLContexts)
+        deeplinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
     }
 }
