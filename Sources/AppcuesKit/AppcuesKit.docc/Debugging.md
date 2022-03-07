@@ -30,19 +30,23 @@ Update your `Info.plist` to register the custom URL scheme. Replace `APPCUES_APP
 
 ### Handle the Custom URL Scheme
 
-Custom URL's should be handled with a call to ``Appcues/didHandleURL(_:)-2o09x``. If the URL being opened is an Appcues URL, the URL will be handled, and the functionn will return `true`. If the URL is not an Appcues URL, the function will return `false`.
+Custom URL's should be handled with a call to ``Appcues/filterAndHandle(_:)`` or ``Appcues/didHandleURL(_:)``. If the URL being opened is an Appcues URL, the URL will be handled, and the functionn will return `true`. If the URL is not an Appcues URL, the function will return `false`.
 
 If your app uses a Scene delegate, add the following:
 
 ```swift
 func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
     // Handle Appcues deeplinks.
-    appcues.didHandleURL(connectionOptions.urlContexts)
+    let unhandledURLContexts = appcues.filterAndHandle(connectionOptions.urlContexts)
+
+    // Handle any links remaining in unhandledURLContexts.
 }
 
 func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
     // Handle Appcues deeplinks.
-    guard !appcues.didHandleURL(URLContexts) else { return }
+    let unhandledURLContexts = appcues.filterAndHandle(URLContexts)
+
+    // Handle any links remaining in unhandledURLContexts.
 }
 ```
 
@@ -52,6 +56,8 @@ If your app uses only an App delegate, add the following:
 func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
     // Handle Appcues deeplinks.
     guard !appcues.didHandleURL(url) else { return true }
+
+    // Handle a non-Appcues URL.
     return false
 }
 ```

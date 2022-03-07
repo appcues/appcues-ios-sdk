@@ -14,12 +14,14 @@ internal protocol DeeplinkHandling {
 
 internal class DeeplinkHandler: DeeplinkHandling {
 
-    enum Action {
+    enum Action: Hashable {
         case preview(experienceID: String) // preview for draft content
         case show(experienceID: String)    // published content
         case debugger
 
         init?(url: URL, isSessionActive: Bool) {
+            guard url.absoluteString.starts(with: "appcues"), url.host == "sdk" else { return nil }
+
             // supported paths:
             // appcues-{app_id}://sdk/experience_preview/{experience_id}
             // appcues-{app_id}://sdk/experience_content/{experience_id}
@@ -43,36 +45,36 @@ internal class DeeplinkHandler: DeeplinkHandling {
     private let container: DIContainer
     private lazy var sessionMonitor = container.resolve(SessionMonitoring.self)
 
-    private var action: Action?
+    // This is a set because a `SceneDelegate` has a `Set<UIOpenURLContext>` to handle.
+    private var actionsToHandle: Set<Action> = []
 
     init(container: DIContainer) {
         self.container = container
     }
 
     func didHandleURL(_ url: URL) -> Bool {
-        action = Action(url: url, isSessionActive: sessionMonitor.isActive)
+        guard let action = Action(url: url, isSessionActive: sessionMonitor.isActive) else { return false }
 
-        guard UIApplication.shared.topViewController() == nil else {
+        if UIApplication.shared.topViewController() != nil {
             // UIScene is already active and we can handle the action immediately.
-            sceneDidActivate()
-            return action != nil
-        }
+            handle(action: action)
+        } else if actionsToHandle.isEmpty {
+            actionsToHandle.insert(action)
 
-        if action != nil {
+            // Set up a single observer to trigger handling any action(s).
             NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(sceneDidActivate),
                 name: UIScene.didActivateNotification,
                 object: nil)
+        } else {
+            actionsToHandle.insert(action)
         }
 
-        return action != nil
+        return true
     }
 
-    @objc
-    private func sceneDidActivate() {
-        guard let action = action else { return }
-
+    private func handle(action: Action) {
         switch action {
         case .preview(let experienceID):
             container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: false)
@@ -81,9 +83,14 @@ internal class DeeplinkHandler: DeeplinkHandling {
         case .debugger:
             container.resolve(UIDebugging.self).show()
         }
+    }
+
+    @objc
+    private func sceneDidActivate() {
+        actionsToHandle.forEach(handle(action:))
 
         // Reset after handling to avoid handling notifications multiple times.
-        self.action = nil
+        self.actionsToHandle.removeAll()
         NotificationCenter.default.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
     }
 }
@@ -94,18 +101,17 @@ public extension Appcues {
     /// Verifies if an incoming URL is intended for the Appcues SDK.
     /// - Parameter URLContexts: One or more `UIOpenURLContext` objects.
     /// Each object contains one URL to open and any additional information needed to open that URL.
-    /// - Returns: `true` if the URL matches the Appcues URL Scheme or `false` if the URL is not known by the Appcues SDK.
+    /// - Returns: The set of `UIOpenURLContext` objects that were not intended for the Appcues SDK.
     ///
     /// If the `url` is an Appcues URL, this function may launch a flow preview or otherwise alter the UI state.
     ///
     /// This function is intended to be called added at the top of your `UISceneDelegate`'s `scene(_:openURLContexts:)` function:
     /// ```swift
-    /// guard !<#appcuesInstance#>.didHandleURL(URLContexts) else { return }
+    /// guard !<#appcuesInstance#>.filterAndHandle(URLContexts) else { return }
     /// ```
     @discardableResult
-    func didHandleURL(_ URLContexts: Set<UIOpenURLContext>) -> Bool {
-        guard let url = URLContexts.first(where: { $0.url.absoluteString.starts(with: "appcues") })?.url else { return false }
-        return didHandleURL(url)
+    func filterAndHandle(_ URLContexts: Set<UIOpenURLContext>) -> Set<UIOpenURLContext> {
+        URLContexts.filter { !didHandleURL($0.url) }
     }
 }
 
