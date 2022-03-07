@@ -17,6 +17,7 @@
 		AB4DA4AF52B5BC21308C439B /* AppcuesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 781D0ABDB3436955E4EA34B9 /* AppcuesKit */; };
 		B3CE09A940E9DD0DF6CA96A4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ED2A2106A39811D89703AE5F /* LaunchScreen.storyboard */; };
 		BF24A197BFEAF23D84AC3462 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6901798B6E99F34ACF2F707B /* SceneDelegate.swift */; };
+		C977C89B27D69B6A00C99D06 /* DeeplinkNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C977C89A27D69B6A00C99D06 /* DeeplinkNavigator.swift */; };
 		DD6A303F8B4B0A8075C32454 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 288554133C93206378D963AB /* SignInViewController.swift */; };
 		F897157F45696443B145C383 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723869D8744D77D8EC9B55F1 /* ProfileViewController.swift */; };
 		FAD74CCC7D11B9407A5162D7 /* Lato-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F46FEDAF7B878A4794848F30 /* Lato-Regular.ttf */; };
@@ -37,6 +38,7 @@
 		8F18BFFBC809004FCDB520DF /* appcues-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "appcues-ios-sdk"; path = ../..; sourceTree = SOURCE_ROOT; };
 		AF7C790690C785694C7F24F8 /* EventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsViewController.swift; sourceTree = "<group>"; };
 		C77616FC1B7BAE52C91F4FBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C977C89A27D69B6A00C99D06 /* DeeplinkNavigator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeeplinkNavigator.swift; sourceTree = "<group>"; };
 		F46FEDAF7B878A4794848F30 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -101,6 +103,7 @@
 				6901798B6E99F34ACF2F707B /* SceneDelegate.swift */,
 				288554133C93206378D963AB /* SignInViewController.swift */,
 				1A711F372767A58D0099D732 /* GroupViewController.swift */,
+				C977C89A27D69B6A00C99D06 /* DeeplinkNavigator.swift */,
 			);
 			path = SPMExample;
 			sourceTree = "<group>";
@@ -201,6 +204,7 @@
 				64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */,
 				F897157F45696443B145C383 /* ProfileViewController.swift in Sources */,
 				BF24A197BFEAF23D84AC3462 /* SceneDelegate.swift in Sources */,
+				C977C89B27D69B6A00C99D06 /* DeeplinkNavigator.swift in Sources */,
 				DD6A303F8B4B0A8075C32454 /* SignInViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
