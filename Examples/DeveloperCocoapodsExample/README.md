@@ -53,7 +53,7 @@ The app supports the following deeplinks.
 
 | Screen  | Link              |
 | ------- | ----------------- |
-| Sign In | testapp://signin  |
-| Events  | testapp://events  |
-| Profile | testapp://profile |
-| Group   | testapp://group   |
+| Sign In | appcues-example://signin  |
+| Events  | appcues-example://events  |
+| Profile | appcues-example://profile |
+| Group   | appcues-example://group   |

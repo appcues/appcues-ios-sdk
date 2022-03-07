@@ -86,7 +86,7 @@ class DeeplinkNavigator {
     func handle(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         guard
             let url = URLContexts.first?.url,
-            url.scheme == "testapp",
+            url.scheme == "appcues-example",
             let target = Deeplink(host: url.host)
         else { return }
 
