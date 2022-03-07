@@ -69,7 +69,7 @@ class AppcuesLinkActionTests: XCTestCase {
 }
 
 extension AppcuesLinkActionTests {
-    class MockURLOpener: URLOpening {
+    class MockURLOpener: TopControllerGetting, URLOpening {
         var onOpen: ((URL) -> Void)?
         var onPresent: ((UIViewController) -> Void)?
 

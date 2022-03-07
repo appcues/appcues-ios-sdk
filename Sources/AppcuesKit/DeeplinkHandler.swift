@@ -48,6 +48,8 @@ internal class DeeplinkHandler: DeeplinkHandling {
     // This is a set because a `SceneDelegate` has a `Set<UIOpenURLContext>` to handle.
     private var actionsToHandle: Set<Action> = []
 
+    var topControllerGetting: TopControllerGetting = UIApplication.shared
+
     init(container: DIContainer) {
         self.container = container
     }
@@ -55,7 +57,7 @@ internal class DeeplinkHandler: DeeplinkHandling {
     func didHandleURL(_ url: URL) -> Bool {
         guard let action = Action(url: url, isSessionActive: sessionMonitor.isActive) else { return false }
 
-        if UIApplication.shared.topViewController() != nil {
+        if topControllerGetting.topViewController() != nil {
             // UIScene is already active and we can handle the action immediately.
             handle(action: action)
         } else if actionsToHandle.isEmpty {
@@ -112,11 +114,5 @@ public extension Appcues {
     @discardableResult
     func filterAndHandle(_ URLContexts: Set<UIOpenURLContext>) -> Set<UIOpenURLContext> {
         URLContexts.filter { !didHandleURL($0.url) }
-    }
-}
-
-extension URLComponents {
-    func valueOf(_ queryItemName: String) -> String? {
-        return queryItems?.first { $0.name == queryItemName }?.value
     }
 }
