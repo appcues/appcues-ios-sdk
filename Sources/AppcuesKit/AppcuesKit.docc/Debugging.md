@@ -30,7 +30,7 @@ Update your `Info.plist` to register the custom URL scheme. Replace `APPCUES_APP
 
 ### Handle the Custom URL Scheme
 
-Custom URL's should be handled with a call to ``Appcues/filterAndHandle(_:)`` or ``Appcues/didHandleURL(_:)``. If the URL being opened is an Appcues URL, the URL will be handled, and the functionn will return `true`. If the URL is not an Appcues URL, the function will return `false`.
+Custom URL's should be handled with a call to ``Appcues/filterAndHandle(_:)`` or ``Appcues/didHandleURL(_:)``. If the URL being opened is an Appcues URL, the URL will be handled.
 
 If your app uses a Scene delegate, add the following:
 
