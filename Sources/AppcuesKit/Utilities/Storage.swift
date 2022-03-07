@@ -31,8 +31,6 @@ internal class Storage: DataStoring {
         case deviceID
         case userID
         case isAnonymous
-        case applicationVersion
-        case applicationBuild
         case lastContentShownAt
         case groupID
     }
