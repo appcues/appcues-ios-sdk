@@ -151,7 +151,7 @@ public class Appcues {
     /// - Parameter url: The URL being opened.
     /// - Returns: `true` if the URL matches the Appcues URL Scheme or `false` if the URL is not known by the Appcues SDK.
     ///
-    /// If the `url` is an Appcues URL, this function may launch a flow preview or otherwise alter the UI state.
+    /// If the `url` is an Appcues URL, this function may launch an experience or otherwise alter the UI state.
     ///
     /// This function is intended to be called added at the top of your `UIApplicationDelegate`'s `application(_:open:options:)` function:
     /// ```swift

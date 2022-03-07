@@ -22,13 +22,16 @@
 - ``Appcues/screen(title:properties:)``
 - ``Appcues/trackScreens()``
 
+### Showing Experiences
+
+- ``Appcues/show(experienceID:)``
+
 ### Debugging
 
 - <doc:Debugging>
 - ``Appcues/debug()``
-- ``Appcues/show(experienceID:)``
-- ``Appcues/didHandleURL(_:)-2o09x``
-- ``Appcues/didHandleURL(_:)-5273o``
+- ``Appcues/filterAndHandle(_:)``
+- ``Appcues/didHandleURL(_:)``
 
 ### Customizing and Extending
 
