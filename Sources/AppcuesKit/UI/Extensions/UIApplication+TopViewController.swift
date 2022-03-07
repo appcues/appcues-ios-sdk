@@ -8,7 +8,14 @@
 
 import UIKit
 
-extension UIApplication {
+internal protocol TopControllerGetting {
+    func topViewController() -> UIViewController?
+}
+internal protocol URLOpening {
+    func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey: Any], completionHandler: ((Bool) -> Void)?)
+}
+
+extension UIApplication: TopControllerGetting, URLOpening {
 
     var activeWindowScenes: [UIWindowScene] {
         self.connectedScenes
