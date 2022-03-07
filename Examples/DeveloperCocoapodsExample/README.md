@@ -51,8 +51,8 @@ A textfield is included to set the group for the current user using `Appcues.gro
 
 The app supports the following deeplinks.
 
-| Screen  | Link              |
-| ------- | ----------------- |
+| Screen  | Link                      |
+| ------- | ------------------------- |
 | Sign In | appcues-example://signin  |
 | Events  | appcues-example://events  |
 | Profile | appcues-example://profile |
