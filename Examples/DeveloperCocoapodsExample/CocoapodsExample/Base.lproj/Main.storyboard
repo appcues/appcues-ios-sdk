@@ -147,7 +147,7 @@
                                         <buttonConfiguration key="configuration" style="filled" title="Sign In"/>
                                         <connections>
                                             <action selector="signInTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="oeq-MC-Z8c"/>
-                                            <segue destination="EKa-1M-EaW" kind="presentation" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="Jyl-aa-X5t"/>
+                                            <segue destination="EKa-1M-EaW" kind="presentation" identifier="signin" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="Jyl-aa-X5t"/>
                                         </connections>
                                     </button>
                                 </subviews>
