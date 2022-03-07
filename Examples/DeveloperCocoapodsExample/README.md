@@ -46,3 +46,14 @@ The navigation bar also includes a button to sign out and navigate back to the S
 This screen is identified as `Update Group` for screen targeting.
 
 A textfield is included to set the group for the current user using `Appcues.group()`.
+
+## Deeplinks
+
+The app supports the following deeplinks.
+
+| Screen  | Link              |
+| ------- | ----------------- |
+| Sign In | testapp://signin  |
+| Events  | testapp://events  |
+| Profile | testapp://profile |
+| Group   | testapp://group   |
