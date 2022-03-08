@@ -11,10 +11,7 @@ import UIKit
 internal struct AppcuesCarouselTrait: ContainerCreatingTrait {
     static let type = "@appcues/carousel"
 
-    let groupID: String?
-
     init?(config: [String: Any]?) {
-        self.groupID = config?["groupID"] as? String
     }
 
     func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {
