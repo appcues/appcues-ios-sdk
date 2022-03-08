@@ -12,15 +12,15 @@ internal class ExperienceStateMachine {
 
     enum ErrorType: Equatable {
         case experience
-        case step(Int)
+        case step(Experience.StepIndex)
     }
 
     enum ExperienceState {
         case empty
         case begin(Experience)
         case beginStep(StepReference)
-        case renderStep(Experience, Int, ExperiencePackage, isFirst: Bool)
-        case endStep(Experience, Int, ExperiencePackage)
+        case renderStep(Experience, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
+        case endStep(Experience, Experience.StepIndex, ExperiencePackage)
         case error(Experience, ErrorType, String)
         case end(Experience)
     }
@@ -56,37 +56,33 @@ internal class ExperienceStateMachine {
             handleBegin(experience)
         case let (.begin(experience), .beginStep(.index(0))):
             currentState = newState
-            handleBeginStep(experience, 0, isFirst: true)
+            handleBeginStep(experience, .initial, isFirst: true)
         case let (.beginStep, .renderStep(experience, stepIndex, package, _)):
             currentState = newState
             handleRenderStep(experience, stepIndex, package)
         case let (.renderStep(experience, currentIndex, package, _), .beginStep(stepRef)):
-            // Check if the target step is in the current container, and handle that scenario
-            let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex)
-            guard experience.steps.indices.contains(stepIndex) else {
-                transition(to: .error(experience, .experience, "Step index \(stepIndex) does not exist"))
+            guard let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex) else {
+                transition(to: .error(experience, .experience, "Step at \(stepRef) does not exist"))
                 break
             }
-            let targetStepID = experience.steps[stepIndex].id
-            if let pageIndex = package.steps.firstIndex(where: { $0.id == targetStepID }) {
+            // Check if the target step is in the current container, and handle that scenario
+            if let targetID = experience.step(at: stepIndex)?.id, let pageIndex = package.steps.firstIndex(where: { $0.id == targetID }) {
                 package.containerController.navigate(to: pageIndex, animated: true)
             } else {
                 // If currently rendering, but trying to begin a new step, go through post-render first
                 currentState = .endStep(experience, currentIndex, package)
-                handleEndStep(experience, stepIndex, package, nextState: newState)
+                handleEndStep(package, nextState: newState)
             }
-        case let (.renderStep, .endStep(experience, stepIndex, package)):
+        case let (.renderStep, .endStep(experience, _, package)):
             // Note: this transition is supported even if it's not currently in use.
             currentState = newState
-            handleEndStep(experience, stepIndex, package, nextState: .end(experience))
+            handleEndStep(package, nextState: .end(experience))
         case let (.endStep(experience, currentIndex, _), .beginStep(stepRef)):
-            let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex)
-            if experience.steps.indices.contains(stepIndex) {
-                currentState = newState
-                handleBeginStep(experience, stepIndex)
-            } else {
-                transition(to: .error(experience, .experience, "Step index \(stepIndex) does not exist"))
+            guard let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex) else {
+                return transition(to: .error(experience, .experience, "Step at \(stepRef) does not exist"))
             }
+            currentState = newState
+            handleBeginStep(experience, stepIndex)
         case let (.endStep, .end(experience)):
             currentState = newState
             handleEnd(experience)
@@ -131,7 +127,7 @@ internal class ExperienceStateMachine {
         transition(to: .beginStep(.index(0)))
     }
 
-    private func handleBeginStep(_ experience: Experience, _ stepIndex: Int, isFirst: Bool = false) {
+    private func handleBeginStep(_ experience: Experience, _ stepIndex: Experience.StepIndex, isFirst: Bool = false) {
         do {
             let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
             self.transition(to: .renderStep(
@@ -144,7 +140,7 @@ internal class ExperienceStateMachine {
         }
     }
 
-    private func handleRenderStep(_ experience: Experience, _ stepIndex: Int, _ package: ExperiencePackage) {
+    private func handleRenderStep(_ experience: Experience, _ stepIndex: Experience.StepIndex, _ package: ExperiencePackage) {
         if let topController = UIApplication.shared.topViewController() {
             clientControllerDelegate = topController as? AppcuesExperienceDelegate
             if !canDisplay(experience: experience) {
@@ -167,9 +163,7 @@ internal class ExperienceStateMachine {
         storage.lastContentShownAt = Date()
     }
 
-    private func handleEndStep(
-        _ experience: Experience, _ stepIndex: Int, _ package: ExperiencePackage, nextState: ExperienceState
-    ) {
+    private func handleEndStep(_ package: ExperiencePackage, nextState: ExperienceState) {
         package.dismisser {
             self.transition(to: nextState)
         }
@@ -238,7 +232,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
             guard package.wrapperController.isBeingDismissed == true else { return }
             // Dismissed outside state machine post-render
             experienceDidDisappear()
-            if stepIndex == experience.steps.count - 1 {
+            if stepIndex == experience.stepIndices.last {
                 experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
                 experienceLifecycleEventDelegate?.lifecycleEvent(.experienceCompleted(experience))
             } else {
@@ -259,7 +253,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         // Analytics for completed step
         experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
 
-        if let newStepIndex = experience.steps.firstIndex(where: { $0.id == targetStepId }) {
+        if let newStepIndex = experience.stepIndex(for: targetStepId) {
             // Analytics for new step
             experienceLifecycleEventDelegate?.lifecycleEvent(.stepSeen(experience, newStepIndex))
 

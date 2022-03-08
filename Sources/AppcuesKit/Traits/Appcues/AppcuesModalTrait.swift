@@ -11,13 +11,10 @@ import UIKit
 internal struct AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
     static let type = "@appcues/modal"
 
-    let groupID: String?
     let presentationStyle: PresentationStyle
     let modalStyle: ExperienceComponent.Style?
 
     init?(config: [String: Any]?) {
-        self.groupID = config?["groupID"] as? String
-
         if let presentationStyle = PresentationStyle(rawValue: config?["presentationStyle"] as? String ?? "") {
             self.presentationStyle = presentationStyle
         } else {

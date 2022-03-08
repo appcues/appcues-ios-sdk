@@ -9,7 +9,7 @@
 import UIKit
 
 internal protocol TraitComposing: AnyObject {
-    func package(experience: Experience, stepIndex: Int) throws -> ExperiencePackage
+    func package(experience: Experience, stepIndex: Experience.StepIndex) throws -> ExperiencePackage
 }
 
 internal class TraitComposer: TraitComposing {
@@ -22,32 +22,31 @@ internal class TraitComposer: TraitComposing {
         actionRegistry = container.resolve(ActionRegistry.self)
     }
 
-    func package(experience: Experience, stepIndex: Int) throws -> ExperiencePackage {
-        var stepModels = [experience.steps[stepIndex]]
-        var targetPageIndex = 0
+    func package(experience: Experience, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
+        let stepModels: [Experience.Step.Child] = experience.steps[stepIndex.group].items
+        let targetPageIndex = stepIndex.item
 
-        let experienceTraitInstances: [ExperienceTrait] = traitRegistry.instances(for: experience.traits).filter {
-            // Only apply experience-level traits if the trait isn't grouped or target step is part of the group.
-            $0.groupID == nil || $0.groupID == experience.steps[stepIndex].traits.groupID
-        }
-        var allTraitInstances = experienceTraitInstances
+        // Experience-level traits
+        var allTraitInstances: [ExperienceTrait] = traitRegistry.instances(for: experience.traits)
 
-        if let grouper = experienceTraitInstances.compactMapFirst({ $0 as? GroupingTrait }) {
-            stepModels = grouper.group(initialStep: stepIndex, in: experience)
-            if let pageIndex = stepModels.firstIndex(where: { $0.id == experience.steps[stepIndex].id }) {
-                targetPageIndex = pageIndex
-            }
+        // Add step-group-level traits
+        switch experience.steps[stepIndex.group] {
+        case .group(let stepGroup):
+            allTraitInstances.append(contentsOf: traitRegistry.instances(for: stepGroup.traits))
+        case .child:
+            // Traits for a single step are handled below with the stepModels.
+            break
         }
 
         // Decompose all experience-level traits
-        let stepDecorators = experienceTraitInstances.compactMap { ($0 as? StepDecoratingTrait) }
-        var containerCreating = experienceTraitInstances.compactMapFirst { ($0 as? ContainerCreatingTrait) }
-        var containerDecorating = experienceTraitInstances.compactMap { ($0 as? ContainerDecoratingTrait) }
-        var backdropDecorating = experienceTraitInstances.compactMap { ($0 as? BackdropDecoratingTrait) }
-        var wrapperCreating = experienceTraitInstances.compactMapFirst { ($0 as? WrapperCreatingTrait) }
-        var presenting = experienceTraitInstances.compactMapFirst { ($0 as? PresentingTrait) }
+        let stepDecorators = allTraitInstances.compactMap { ($0 as? StepDecoratingTrait) }
+        var containerCreating = allTraitInstances.compactMapFirst { ($0 as? ContainerCreatingTrait) }
+        var containerDecorating = allTraitInstances.compactMap { ($0 as? ContainerDecoratingTrait) }
+        var backdropDecorating = allTraitInstances.compactMap { ($0 as? BackdropDecoratingTrait) }
+        var wrapperCreating = allTraitInstances.compactMapFirst { ($0 as? WrapperCreatingTrait) }
+        var presenting = allTraitInstances.compactMapFirst { ($0 as? PresentingTrait) }
 
-        var stepModelsWithDecorators: [(Experience.Step, [StepDecoratingTrait])] = []
+        var stepModelsWithDecorators: [(Experience.Step.Child, [StepDecoratingTrait])] = []
 
         stepModels.forEach { stepModel in
             let stepTraitInstances = traitRegistry.instances(for: stepModel.traits)

@@ -9,15 +9,15 @@
 import Foundation
 
 internal enum ExperienceLifecycleEvent {
-    case stepSeen(Experience, Int)
-    case stepInteraction(Experience, Int)
-    case stepCompleted(Experience, Int)
-    case stepError(Experience, Int, ErrorBody)
-    case stepRecovered(Experience, Int, ErrorBody)
+    case stepSeen(Experience, Experience.StepIndex)
+    case stepInteraction(Experience, Experience.StepIndex)
+    case stepCompleted(Experience, Experience.StepIndex)
+    case stepError(Experience, Experience.StepIndex, ErrorBody)
+    case stepRecovered(Experience, Experience.StepIndex, ErrorBody)
 
     case experienceStarted(Experience)
     case experienceCompleted(Experience)
-    case experienceDismissed(Experience, Int)
+    case experienceDismissed(Experience, Experience.StepIndex)
     case experienceError(Experience, ErrorBody)
 
     var name: String {
@@ -86,10 +86,8 @@ internal enum ExperienceLifecycleEvent {
                 .stepError(_, let index, _),
                 .stepRecovered(_, let index, _),
                 .experienceDismissed(_, let index):
-            if experience.steps.indices.contains(index) {
-                let step = experience.steps[index]
+            if let step = experience.step(at: index) {
                 properties["stepId"] = step.id.uuidString.lowercased()
-                properties["stepNumber"] = index
             }
         case .experienceStarted, .experienceCompleted, .experienceError:
             break

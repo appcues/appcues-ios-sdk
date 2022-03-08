@@ -8,14 +8,34 @@
 
 import Foundation
 
+internal protocol StepModel {
+    var id: UUID { get }
+    var traits: [Experience.Trait] { get }
+    var actions: [String: [Experience.Action]] { get }
+}
+
 internal struct Experience: Decodable {
 
-    struct Step: Decodable {
-        let id: UUID
-        let contentType: String
-        let content: ExperienceComponent
-        let traits: [Trait]
-        let actions: [String: [Action]]
+    @dynamicMemberLookup
+    enum Step {
+        case group(Group)
+        case child(Child)
+
+        var items: [Child] {
+            switch self {
+            case .group(let stepGroup):
+                return stepGroup.children
+            case .child(let stepChild):
+                return [stepChild]
+            }
+        }
+
+        subscript<T>(dynamicMember keyPath: KeyPath<StepModel, T>) -> T {
+            switch self {
+            case .group(let group): return group[keyPath: keyPath]
+            case .child(let child): return child[keyPath: keyPath]
+            }
+        }
     }
 
     struct Trait {
@@ -37,9 +57,37 @@ internal struct Experience: Decodable {
     let steps: [Step]
 }
 
-extension Array where Element == Experience.Trait {
-    var groupID: String? {
-        self.first { $0.type == "@appcues/group-item" }?.config?["groupID"] as? String
+extension Experience.Step: Decodable {
+    struct Group: StepModel, Decodable {
+        let id: UUID
+        let children: [Child]
+        let traits: [Experience.Trait]
+        let actions: [String: [Experience.Action]]
+    }
+
+    struct Child: StepModel, Decodable {
+        let id: UUID
+        let contentType: String
+        let content: ExperienceComponent
+        let traits: [Experience.Trait]
+        let actions: [String: [Experience.Action]]
+    }
+
+    private enum CodingKeys: CodingKey {
+        case steps
+        case contentType
+        case content
+    }
+
+    init(from decoder: Decoder) throws {
+        let modelContainer = try decoder.singleValueContainer()
+
+        // Try decoding a step item first, and if that fails, try a group. If the group also fails, fail the decoding.
+        do {
+            self = .child(try modelContainer.decode(Child.self))
+        } catch {
+            self = .group(try modelContainer.decode(Group.self))
+        }
     }
 }
 

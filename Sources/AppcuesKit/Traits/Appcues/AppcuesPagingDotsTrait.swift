@@ -10,13 +10,11 @@ import UIKit
 internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
     static let type = "@appcues/paging-dots"
 
-    let groupID: String?
     let style: ExperienceComponent.Style?
 
     var containerController: ExperienceContainerViewController?
 
     required init?(config: [String: Any]?) {
-        self.groupID = config?["groupID"] as? String
         self.style = config?["style", decodedAs: ExperienceComponent.Style.self]
     }
 

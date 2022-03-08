@@ -18,24 +18,10 @@ public protocol ExperienceTrait {
     /// Must be unique and should be formatted `@org/name` (e.g. `@appcues/modal`).
     static var type: String { get }
 
-    /// `@appcues/group` ID reference for experience-level traits.
-    ///
-    /// This value is ignored for step-level traits.
-    ///
-    /// Any trait wishing to be groupable as an experience-level trait **must** map this value in its ``ExperienceTrait/init(config:)`` with
-    /// ```swift
-    /// self.groupID = config?["groupID"] as? String
-    /// ```
-    var groupID: String? { get }
-
     /// Initializer from an `Experience.Trait` data model.
     ///
     /// This initializer should verify the config has any required properties and return `nil` if not.
     init?(config: [String: Any]?)
-}
-
-internal protocol GroupingTrait: ExperienceTrait {
-    func group(initialStep stepIndex: Int, in experience: Experience) -> [Experience.Step]
 }
 
 /// A trait that modifies the `UIViewController` that encapsulates the contents of a specific step in the experience.

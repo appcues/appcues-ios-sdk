@@ -18,36 +18,6 @@ internal protocol ExperienceRendering {
     func dismissCurrentExperience()
 }
 
-internal enum StepReference: Equatable {
-    case index(Int)
-    case offset(Int)
-    case stepID(UUID)
-
-    static func == (lhs: StepReference, rhs: StepReference) -> Bool {
-        switch (lhs, rhs) {
-        case let (.index(index1), .index(index2)):
-            return index1 == index2
-        case let (.offset(offset1), .offset(offset2)):
-            return offset1 == offset2
-        case let (.stepID(id1), .stepID(id2)):
-            return id1 == id2
-        default:
-            return false
-        }
-    }
-
-    func resolve(experience: Experience, currentIndex: Int) -> Int {
-        switch self {
-        case .index(let index):
-            return index
-        case .offset(let offset):
-            return currentIndex + offset
-        case .stepID(let stepID):
-            return experience.steps.firstIndex { $0.id == stepID } ?? -1
-        }
-    }
-}
-
 internal class ExperienceRenderer: ExperienceRendering {
 
     private let stateMachine: ExperienceStateMachine
