@@ -208,7 +208,7 @@ public class Appcues {
         storage.userID = userID
         storage.isAnonymous = isAnonymous
         if userChanged {
-            // when the idenfied use changes from last known value, we must start a new session
+            // when the idenfied user changes from last known value, we must start a new session
             sessionMonitor.start()
 
             // and clear any stored group information - will have to be reset as needed
