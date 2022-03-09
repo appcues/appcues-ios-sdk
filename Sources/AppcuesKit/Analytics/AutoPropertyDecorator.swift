@@ -66,8 +66,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_localId": storage.deviceID,
             "_sessionPageviews": sessionPageviews,
             "_sessionRandomizer": sessionRandomizer,
-            "_currentPageTitle": currentScreen,
-            "_lastPageTitle": previousScreen,
+            "_currentScreenTitle": currentScreen,
+            "_lastScreenTitle": previousScreen,
             "_updatedAt": Date(),
             "_lastContentShownAt": storage.lastContentShownAt,
             "_sessionId": sessionMonitor.sessionID?.uuidString
