@@ -109,8 +109,8 @@ private extension Experience {
             name: "test",
             traits: [],
             steps: [
-                Experience.Step(fixedID: "fb529214-3c78-4d6d-ba93-b55d22497ca1"),
-                Experience.Step(fixedID: "e03ae132-91b7-4cb0-9474-7d4a0e308a07")
+                .child(Step.Child(fixedID: "fb529214-3c78-4d6d-ba93-b55d22497ca1")),
+                .child(Step.Child(fixedID: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"))
             ])
     }
 
@@ -118,7 +118,7 @@ private extension Experience {
         let containerController = DefaultContainerViewController(stepControllers: [UIViewController()])
         return ExperiencePackage(
             traitInstances: [],
-            steps: [self.steps[0]],
+            steps: self.steps[0].items,
             containerController: containerController,
             wrapperController: containerController,
             presenter: { presentExpectation?.fulfill() },

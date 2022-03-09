@@ -21,7 +21,46 @@ class TraitComposerTests: XCTestCase {
         traitRegistry = appcues.container.resolve(TraitRegistry.self)
     }
 
-    func testInitStepGroupingIncluded() throws {
+    func testExperienceLevelTraitsApplied() throws {
+        // Arrange
+        traitRegistry.register(trait: TestTrait.self)
+        traitRegistry.register(trait: TestPresentingTrait.self)
+
+        let stepDecoratingExpectation = expectation(description: "Step decorate called")
+        let containerCreatingExpectation = expectation(description: "Create container called")
+        let containerDecoratingExpectation = expectation(description: "Container decorate called")
+        let wrapperCreatingExpectation = expectation(description: "Create wrapper called")
+        let backdropDecoratingExpectation = expectation(description: "Backdrop decorate called")
+
+        let experience = Experience(
+            id: UUID(),
+            name: "test",
+            traits: [
+                Experience.Trait(
+                    type: "@test/presenting",
+                    config: [:]),
+                Experience.Trait(
+                    type: "@test/trait",
+                    config: [
+                        "stepDecoratingExpectation": stepDecoratingExpectation as Any,
+                        "containerCreatingExpectation": containerCreatingExpectation as Any,
+                        "containerDecoratingExpectation": containerDecoratingExpectation as Any,
+                        "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
+                        "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
+                    ])
+            ],
+            steps: [
+                .child(Experience.Step.Child(traits: []))
+            ])
+
+        // Act
+        _ = try traitComposer.package(experience: experience, stepIndex: Experience.StepIndex(group: 0, item: 0))
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testStepGroupLevelTraitsApplied() throws {
         // Verify that a trait grouping properly includes traits from the group.
 
         // Arrange
@@ -46,7 +85,7 @@ class TraitComposerTests: XCTestCase {
             backdropDecoratingExpectation: backdropDecoratingExpectation)
 
         // Act
-        _ = try traitComposer.package(experience: experience, stepIndex: 0)
+        _ = try traitComposer.package(experience: experience, stepIndex: Experience.StepIndex(group: 0, item: 0))
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -68,7 +107,7 @@ class TraitComposerTests: XCTestCase {
             backdropDecoratingExpectation: expectation(description: "Backdrop decorate called"))
 
         // Act
-        _ = try traitComposer.package(experience: experience, stepIndex: 1)
+        _ = try traitComposer.package(experience: experience, stepIndex: Experience.StepIndex(group: 1, item: 0))
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -84,7 +123,7 @@ class TraitComposerTests: XCTestCase {
         let experience = makeTestExperience()
 
         // Act/Assert
-        XCTAssertThrowsError(try traitComposer.package(experience: experience, stepIndex: 0))
+        XCTAssertThrowsError(try traitComposer.package(experience: experience, stepIndex: Experience.StepIndex(group: 0, item: 0)))
     }
 
     func testPackagePresenter() throws {
@@ -108,12 +147,12 @@ class TraitComposerTests: XCTestCase {
                     ]),
             ],
             steps: [
-                makeStep(traits: [])
+                .child(Experience.Step.Child(traits: []))
             ])
 
 
         // Act
-        let package = try traitComposer.package(experience: experience, stepIndex: 0)
+        let package = try traitComposer.package(experience: experience, stepIndex: Experience.StepIndex(group: 0, item: 0))
 
         try package.presenter()
         package.dismisser(nil)
@@ -140,45 +179,39 @@ class TraitComposerTests: XCTestCase {
         Experience(
             id: UUID(),
             name: "test",
-            traits: [
-                Experience.Trait(
-                    type: "@appcues/group",
-                    config: [
-                        "groupID": "05ac8561-e429-455e-8f49-1dae7c46733f"
-                    ]),
-                Experience.Trait(
-                    type: "@test/presenting",
-                    config: [
-                        "groupID": "05ac8561-e429-455e-8f49-1dae7c46733f"
-                    ]),
-                Experience.Trait(
-                    type: "@test/trait",
-                    config: [
-                        "groupID": "05ac8561-e429-455e-8f49-1dae7c46733f",
-                        "stepDecoratingExpectation": stepDecoratingExpectation as Any,
-                        "containerCreatingExpectation": containerCreatingExpectation as Any,
-                        "containerDecoratingExpectation": containerDecoratingExpectation as Any,
-                        "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
-                        "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
-                    ]),
-                Experience.Trait(
-                    type: "@test/trait",
-                    config: [
-                        "groupID": "05ac8561-e429-455e-8f49-1dae7c46733f",
-                        "stepDecoratingExpectation": stepDecoratingExpectation as Any,
-                        "containerCreatingExpectation": containerCreatingExpectation as Any,
-                        "containerDecoratingExpectation": containerDecoratingExpectation as Any,
-                        "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
-                        "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
-                    ])
-            ],
+            traits: [],
             steps: [
-                makeStep(traits: [
-                    Experience.Trait(
-                        type: "@appcues/group-item",
-                        config: ["groupID": "05ac8561-e429-455e-8f49-1dae7c46733f"])
-                ]),
-                makeStep(traits: [
+                .group(Experience.Step.Group(
+                    id: UUID(),
+                    children: [
+                        Experience.Step.Child(traits: [])
+                    ],
+                    traits: [
+                        Experience.Trait(
+                            type: "@test/presenting",
+                            config: [:]),
+                        Experience.Trait(
+                            type: "@test/trait",
+                            config: [
+                                "stepDecoratingExpectation": stepDecoratingExpectation as Any,
+                                "containerCreatingExpectation": containerCreatingExpectation as Any,
+                                "containerDecoratingExpectation": containerDecoratingExpectation as Any,
+                                "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
+                                "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
+                            ]),
+                        Experience.Trait(
+                            type: "@test/trait",
+                            config: [
+                                "stepDecoratingExpectation": stepDecoratingExpectation as Any,
+                                "containerCreatingExpectation": containerCreatingExpectation as Any,
+                                "containerDecoratingExpectation": containerDecoratingExpectation as Any,
+                                "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
+                                "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
+                            ])
+                    ],
+                    actions: [:]
+                )),
+                .child(Experience.Step.Child(traits: [
                     Experience.Trait(
                         type: "@test/presenting",
                         config: [:]),
@@ -191,19 +224,23 @@ class TraitComposerTests: XCTestCase {
                             "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
                             "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
                         ])
-                ])
+                ]))
             ])
     }
+}
 
-    private func makeStep(traits: [Experience.Trait]) -> Experience.Step {
-        Experience.Step(
+private extension Experience.Step.Child {
+    init(traits: [Experience.Trait]) {
+        self.init(
             id: UUID(),
             contentType: "application/json",
             content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil)),
             traits: traits,
-            actions: [:])
+            actions: [:]
+        )
     }
 }
+
 
 extension TraitComposerTests {
     struct TestTrait: StepDecoratingTrait, ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait, BackdropDecoratingTrait {
