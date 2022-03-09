@@ -43,7 +43,13 @@ internal struct AppcuesImage: View {
             if model.animated == true, let videoURL = model.imageUrl.toMP4() {
                 LoopingVideoPlayer(url: videoURL)
             } else {
-                RemoteImage(url: model.imageUrl, cache: imageCache) { placeholder ?? Color(UIColor.secondarySystemBackground) }
+                RemoteImage(url: model.imageUrl, cache: imageCache) {
+                    if let blurImage = Image(blurHash: model.blurHash) {
+                        blurImage.resizable()
+                    } else {
+                        placeholder ?? Color(UIColor.secondarySystemBackground)
+                    }
+                }
             }
         }
     }
