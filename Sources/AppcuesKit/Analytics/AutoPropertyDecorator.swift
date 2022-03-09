@@ -46,7 +46,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             previousScreen = currentScreen
             currentScreen = title
             sessionPageviews += 1
-            context["screen"] = title
+            context["screen_title"] = title
         case .event(SessionEvents.sessionStarted.rawValue, _):
             sessionPageviews = 0
             sessionRandomizer = Int.random(in: 1...100)
