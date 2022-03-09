@@ -46,9 +46,9 @@ A ``PresentingTrait`` is responsible for providing the ability to show and hide 
 
 > Only a single ``PresentingTrait`` will be applied in the process of displaying an experience step even if multiple are defined.
 
-## Experience-Level and Step-Level Traits
+## Experience-Level, Group-Level, and Step-Level Traits
 
-The Appcues mobile experience data model allows for traits to be specified at the experience level or at the step level. Experience-level traits modify the entire experience and apply to all steps in the experience (with the exception of grouped traits; see below). Step-level traits are scoped to be applied only when the specific step is being displayed.
+The Appcues mobile experience data model allows for traits to be specified at the experience level, at the step-group level, or at the step level. Experience-level traits modify the entire experience and are applied when any step of the experience is being displayed. Group-level traits apply when any of child steps of the group is being displayed. Step-level traits are scoped to be applied only when the specific step is being displayed.
 
 In practice this distinction looks like this in the experience data model:
 
@@ -62,11 +62,21 @@ In practice this distinction looks like this in the experience data model:
         {
             ...
             "traits": [
-                // Step-level traits for the first step
+                // Group-level traits
+            ],
+            "children": [
+                {
+                    ...
+                    "content": { ... },
+                    "traits": [
+                        // Step-level traits for the first step
+                    ]
+                }
             ]
         },
         {
             ...
+            "content": { ... },
             "traits": [
                 // Step-level traits for the second step
             ]
@@ -79,86 +89,9 @@ In practice this distinction looks like this in the experience data model:
 
 Trait capabilities are applied in a defined sequence, and a trait with multiple capabilities will have its capabilities applied piecewise.
 
-![Begin Step X -> Grouping -> Create Step View -> Step Decorating -> Container Creating -> Container Decorating -> Wrapper Creating -> Backdrop Decorating -> Presenting](trait-flow.png)
+![Begin Step X -> Create Step View -> Step Decorating -> Container Creating -> Container Decorating -> Wrapper Creating -> Backdrop Decorating -> Presenting](trait-flow.png)
 
 > A trait with multiple capabilities may, in certain circumstances, not have all its capabilities applied. A ``BackdropDecoratingTrait`` will not be applied if no ``WrapperCreatingTrait`` is present. Additionally, single trait capabilities (i.e. ``ContainerCreatingTrait``, ``WrapperCreatingTrait``, and ``PresentingTrait``) will ignore all but the first trait model providing the capabilitity. The order of precedence is experience-level traits and then step-level traits, in their order in the experience object. 
-
-## Trait Grouping Behavior
-
-There are scenarios where experience-level traits may be intended to modify only a subset of the steps in an experience. For example, an experience with a single, full-screen modal followed by a standard dialog-style modal displaying as a carousel with two steps.
-
-To accomplish this, the Appcues mobile experience model includes two special traits, `@appcues/group` and `@appcues/group-item`. `@appcues/group` is an experience-level trait that defines a `groupID`, and `@appcues/group-item` is a step-level trait that references a `groupID` to identify the step as being part of the defined group. Other experience-level traits may also reference the `groupID` from their `config` object to identify themselves as only applying when a step from that group is being displayed to a user. 
-
-The experience model for this example would include the following:
-
-```json
-{
-    ...
-    "traits": [
-        // 1. Define the group
-        {
-            "type": "@appcues/group",
-            "config": {
-                "groupID": "11eef82d-f2df-4aeb-a085-07f6c0b92663"
-            }
-        },
-        {
-            "type": "@appcues/modal",
-            "config": {
-                // 2. Identify this modal trait as being part of the defined group
-                "groupID": "11eef82d-f2df-4aeb-a085-07f6c0b92663",
-                "presentationStyle": "dialog"
-            }
-        }
-    ],
-    "steps": [
-        {
-            // Step 1
-            ...
-            "traits": [
-                {
-                    "type": "@appcues/modal",
-                    "config": {
-                        "presentationStyle": "fullScreen"
-                    }
-                }
-            ]
-        },
-        {
-            // Step 2
-            ...
-            "traits": [
-                // 3. Indicate this step is part of the group
-                {
-                    "type": "@appcues/group-item",
-                    "config": {
-                        "groupID": "11eef82d-f2df-4aeb-a085-07f6c0b92663"
-                    }
-                }
-            ]
-        },
-        {
-            // Step 3
-            ...
-            "traits": [
-                // 3. Indicate this step is part of the group
-                {
-                    "type": "@appcues/group-item",
-                    "config": {
-                        "groupID": "11eef82d-f2df-4aeb-a085-07f6c0b92663"
-                    }
-                }
-            ]
-        }
-    ]
-}
-```
-
-> Any custom trait wishing to be groupable as an experience-level trait **must** map the `groupID` value in its ``ExperienceTrait/init(config:)`` with the following: `self.groupID = config?["groupID"] as? String`
-
-Use of `@appcues/group` and `@appcues/group-item` is how an ``ContainerCreatingTrait`` can be give more than one step to include. When any step in the group is being prepared to be shown, all other steps in the group are prepared as well. Note that all step-level traits from the group will be applied to the group as a whole.  
-
-> An experience may have multiple groups (i.e. have multiple experience-level `@appcues/group` traits), but each step may only be part of a single group (i.e. a step may only have a single `@appcues/group-item` trait).
 
 ## Error Handling
 
