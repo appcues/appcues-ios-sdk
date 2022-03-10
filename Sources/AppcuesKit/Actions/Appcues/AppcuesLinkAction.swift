@@ -27,10 +27,11 @@ internal struct AppcuesLinkAction: ExperienceAction {
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
-        if openExternally {
-            urlOpener.open(url, options: [:]) { _ in completion() }
-        } else {
+        // SFSafariViewController only supports HTTP and HTTPS URLs and crashes otherwise, so check to be safe.
+        if !openExternally && ["http", "https"].contains(url.scheme?.lowercased()) {
             urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true, completion: completion)
+        } else {
+            urlOpener.open(url, options: [:]) { _ in completion() }
         }
     }
 }
