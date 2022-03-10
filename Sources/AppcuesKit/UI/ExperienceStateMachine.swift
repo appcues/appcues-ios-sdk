@@ -154,7 +154,7 @@ internal class ExperienceStateMachine {
         objc_setAssociatedObject(package.wrapperController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
 
         do {
-            try package.presenter()
+            try package.presenter(nil)
         } catch {
             self.transition(to: .error(experience, .step(stepIndex), "\(error)"))
         }

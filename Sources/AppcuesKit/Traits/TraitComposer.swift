@@ -99,7 +99,7 @@ internal class TraitComposer: TraitComposing {
             steps: stepModelsWithDecorators.map { $0.0 },
             containerController: containerController,
             wrapperController: wrappedContainerViewController,
-            presenter: { try unwrappedPresenting.present(viewController: wrappedContainerViewController) },
+            presenter: { try unwrappedPresenting.present(viewController: wrappedContainerViewController, completion: $0) },
             dismisser: { unwrappedPresenting.remove(viewController: wrappedContainerViewController, completion: $0) }
         )
     }

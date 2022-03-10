@@ -99,10 +99,11 @@ public protocol PresentingTrait: ExperienceTrait {
 
     /// Shows the view controller for an experience.
     /// - Parameter viewController: The view controller to present.
+    /// - Parameter completion: The block to execute after the presentation is completed.
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
     /// ending the attempt to display the experience.
-    func present(viewController: UIViewController) throws
+    func present(viewController: UIViewController, completion: (() -> Void)?) throws
 
     /// Removes the view controller for an experience.
     /// - Parameter viewController: The view controller to remove.
