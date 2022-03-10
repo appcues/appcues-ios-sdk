@@ -29,7 +29,17 @@ internal class ExperienceStateMachine {
     private let traitComposer: TraitComposing
     private let storage: DataStoring
 
-    private(set) var currentState: ExperienceState
+    private var stateObservers: [StateObserver] = []
+    private(set) var currentState: ExperienceState {
+        didSet {
+            // Call each observers and filter out ones that been satisfied
+            stateObservers = stateObservers.filter { !$0.evaluateIfSatisfied(currentState) }
+            // Remove all observers when the state machine resets
+            if currentState == .empty {
+                stateObservers.removeAll()
+            }
+        }
+    }
 
     weak var experienceLifecycleEventDelegate: ExperienceEventDelegate?
     weak var clientAppcuesDelegate: AppcuesExperienceDelegate?
@@ -43,8 +53,29 @@ internal class ExperienceStateMachine {
         currentState = .empty
     }
 
+    /// Transition to a new state.
+    /// - Parameters:
+    ///   - newState: `ExperienceState` to attempt a transition to.
+    ///   - observer: Block that's called on each state change, or if no state change occurs (represented by a `nil` value).
+    ///   Must return `true` iff the observer is complete and should be removed.
+    func transitionAndObserve(to newState: ExperienceState, observer: @escaping (ExperienceState?) -> Bool) {
+        let observer = StateObserver(observer)
+        stateObservers.append(observer)
+
+        let didStateChange = transition(to: newState)
+
+        if !didStateChange {
+            let observerIsSatisfiedByFailure = observer.evaluateIfSatisfied(nil)
+            if observerIsSatisfiedByFailure {
+                stateObservers = stateObservers.filter { $0 !== observer }
+            }
+        }
+    }
+
+    /// Returns `false`if no change to the state occured.
+    @discardableResult
     // swiftlint:disable:next cyclomatic_complexity function_body_length
-    func transition(to newState: ExperienceState) {
+    func transition(to newState: ExperienceState) -> Bool {
         switch (currentState, newState) {
 
         // MARK: Standard flow
@@ -110,14 +141,19 @@ internal class ExperienceStateMachine {
         // MARK: Invalid state transitions
         case let (_, .begin(experience)):
             experienceLifecycleEventDelegate?.lifecycleEvent(.experienceError(experience, "experience already active"))
+            return false
         case (.empty, _):
             config.logger.error("Trying to show experience step when no experience is active")
+            return false
         default:
             config.logger.error(
                 "Unhandled state machine transition from %{public}s to %{public}s",
                 currentState.description,
                 newState.description)
+            return false
         }
+
+        return true
     }
 
     // MARK: - Transition Handlers
@@ -296,6 +332,16 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
     private func experienceDidDisappear() {
         clientControllerDelegate?.experienceDidDisappear()
         clientAppcuesDelegate?.experienceDidDisappear()
+    }
+}
+
+private extension ExperienceStateMachine {
+    class StateObserver {
+        let evaluateIfSatisfied: (ExperienceState?) -> Bool
+
+        init(_ evaluateIfSatisfied: @escaping (ExperienceState?) -> Bool) {
+            self.evaluateIfSatisfied = evaluateIfSatisfied
+        }
     }
 }
 
