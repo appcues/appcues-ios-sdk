@@ -21,8 +21,9 @@ internal struct AppcuesUpdateProfileAction: ExperienceAction {
         }
     }
 
-    func execute(inContext appcues: Appcues) {
+    func execute(inContext appcues: Appcues, completion: ActionRegistry.Completion) {
         let userID = appcues.container.resolve(DataStoring.self).userID
         appcues.identify(userID: userID, properties: properties)
+        completion()
     }
 }

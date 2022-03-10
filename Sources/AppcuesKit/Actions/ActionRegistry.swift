@@ -9,6 +9,8 @@
 import Foundation
 
 internal class ActionRegistry {
+    typealias Completion = () -> Void
+
     private var actions: [String: ExperienceAction.Type] = [:]
 
     private let appcues: Appcues
@@ -38,10 +40,12 @@ internal class ActionRegistry {
         actions[action.type] = action
     }
 
-    func actionClosures(for actionModels: [Experience.Action]) -> [() -> Void] {
+    func actionClosures(for actionModels: [Experience.Action]) -> [(@escaping Completion) -> Void] {
         actionModels.compactMap { [appcues] actionModel in
             if let actionInstance = actions[actionModel.type]?.init(config: actionModel.config) {
-                return { actionInstance.execute(inContext: appcues) }
+                return { completion in
+                    actionInstance.execute(inContext: appcues, completion: completion)
+                }
             }
             return nil
         }

@@ -26,8 +26,8 @@ internal struct AppcuesContinueAction: ExperienceAction {
         }
     }
 
-    func execute(inContext appcues: Appcues) {
+    func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.show(stepInCurrentExperience: stepReference)
+        experienceRenderer.show(stepInCurrentExperience: stepReference, completion: completion)
     }
 }

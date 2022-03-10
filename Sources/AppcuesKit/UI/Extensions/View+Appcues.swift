@@ -9,17 +9,27 @@
 import SwiftUI
 
 extension View {
-    func setupActions(_ actions: [ExperienceStepViewModel.ActionType: [() -> Void]]) -> some View {
+    // Recursively work through the sequence of actions in series.
+    private func process(_ actionHandlers: [(@escaping ActionRegistry.Completion) -> Void]) {
+        if let handler = actionHandlers.first {
+            handler {
+                // On completion, process the remaining action handlers.
+                process(Array(actionHandlers.dropFirst()))
+            }
+        }
+    }
+
+    func setupActions(_ actions: [ExperienceStepViewModel.ActionType: [(@escaping ActionRegistry.Completion) -> Void]]) -> some View {
         // simultaneousGesture is needed to make a Button support any of these gestures.
         self
             .ifLet(actions[.tap]) { view, actionHandlers in
                 view.simultaneousGesture(TapGesture().onEnded {
-                    actionHandlers.forEach { actionHandler in actionHandler() }
+                    process(actionHandlers)
                 })
             }
             .ifLet(actions[.longPress]) { view, actionHandlers in
                 view.simultaneousGesture(LongPressGesture().onEnded { _ in
-                    actionHandlers.forEach { actionHandler in actionHandler() }
+                    process(actionHandlers)
                 })
             }
     }
