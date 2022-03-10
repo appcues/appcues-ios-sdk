@@ -22,6 +22,6 @@ internal struct AppcuesLaunchExperienceAction: ExperienceAction {
     }
 
     func execute(inContext appcues: Appcues) {
-        appcues.show(experienceID: experienceID)
+        appcues.show(experienceID: experienceID, completion: nil)
     }
 }

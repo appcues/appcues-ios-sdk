@@ -13,7 +13,7 @@ internal protocol ExperienceEventDelegate: AnyObject {
 }
 
 internal protocol ExperienceRendering {
-    func show(experience: Experience, published: Bool)
+    func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
     func show(stepInCurrentExperience stepRef: StepReference)
     func dismissCurrentExperience()
 }
@@ -37,12 +37,25 @@ internal class ExperienceRenderer: ExperienceRendering {
         self.analyticsTracker = ExperienceAnalyticsTracker(container: container)
     }
 
-    func show(experience: Experience, published: Bool) {
+    func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
         // only listen to experience lifecycle events and track analytics on published experiences (not previews)
         stateMachine.experienceLifecycleEventDelegate = published ? analyticsTracker : nil
         stateMachine.clientAppcuesDelegate = appcues.delegate
         DispatchQueue.main.async {
-            self.stateMachine.transition(to: .begin(experience))
+            self.stateMachine.transitionAndObserve(to: .begin(experience)) { newState in
+                switch newState {
+                case .renderStep:
+                    completion?(.success(()))
+                    return true
+                case .none:
+                    completion?(.failure(AppcuesError.presentationFailure))
+                    return true
+                default:
+                    // Keep observing until we get to the target state
+                    return false
+                }
+            }
+
         }
     }
 

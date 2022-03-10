@@ -24,7 +24,7 @@
 
 ### Showing Experiences
 
-- ``Appcues/show(experienceID:)``
+- ``Appcues/show(experienceID:completion:)``
 
 ### Debugging
 

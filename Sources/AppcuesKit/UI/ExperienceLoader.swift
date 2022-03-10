@@ -9,7 +9,7 @@
 import Foundation
 
 internal protocol ExperienceLoading {
-    func load(experienceID: String, published: Bool)
+    func load(experienceID: String, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
 }
 
 internal class ExperienceLoader: ExperienceLoading {
@@ -22,7 +22,7 @@ internal class ExperienceLoader: ExperienceLoading {
         self.experienceRenderer = container.resolve(ExperienceRendering.self)
     }
 
-    func load(experienceID: String, published: Bool) {
+    func load(experienceID: String, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
 
         let endpoint = published ?
             APIEndpoint.content(experienceID: experienceID) :
@@ -33,9 +33,9 @@ internal class ExperienceLoader: ExperienceLoading {
         ) { [weak self] (result: Result<Experience, Error>) in
             switch result {
             case .success(let experience):
-                self?.experienceRenderer.show(experience: experience, published: published)
+                self?.experienceRenderer.show(experience: experience, published: published, completion: completion)
             case .failure(let error):
-                print(error)
+                completion?(.failure(error))
             }
         }
     }

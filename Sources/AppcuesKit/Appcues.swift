@@ -116,11 +116,16 @@ public class Appcues {
     /// Forces specific Appcues experience to appear for the current user by passing in the ID.
     /// - Parameters:
     ///   - experienceID: ID of the experience.
+    ///   - completion: The block to execute after the attempt to show the content has completed.
+    ///   This block has a `Result` parameter which indicates if the attempt to show the content succeeded.
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
-    public func show(experienceID: String) {
-        guard sessionMonitor.isActive else { return }
-        experienceLoader.load(experienceID: experienceID, published: true)
+    public func show(experienceID: String, completion: ((Result<Void, Error>) -> Void)? = nil) {
+        guard sessionMonitor.isActive else {
+            completion?(.failure(AppcuesError.noActiveSession))
+            return
+        }
+        experienceLoader.load(experienceID: experienceID, published: true, completion: completion)
     }
 
     /// Register a trait that modifies an `Experience`.
