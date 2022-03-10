@@ -49,10 +49,10 @@ internal class ExperienceStateMachine {
 
         // MARK: Standard flow
         case let (.empty, .begin(experience)):
-            currentState = newState
             guard !experience.steps.isEmpty else {
                 return transition(to: .error(experience, .experience, "No steps"))
             }
+            currentState = newState
             handleBegin(experience)
         case let (.begin(experience), .beginStep(.index(0))):
             currentState = newState
@@ -62,8 +62,7 @@ internal class ExperienceStateMachine {
             handleRenderStep(experience, stepIndex, package)
         case let (.renderStep(experience, currentIndex, package, _), .beginStep(stepRef)):
             guard let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex) else {
-                transition(to: .error(experience, .experience, "Step at \(stepRef) does not exist"))
-                break
+                return transition(to: .error(experience, .experience, "Step at \(stepRef) does not exist"))
             }
             // Check if the target step is in the current container, and handle that scenario
             if let targetID = experience.step(at: stepIndex)?.id, let pageIndex = package.steps.firstIndex(where: { $0.id == targetID }) {
