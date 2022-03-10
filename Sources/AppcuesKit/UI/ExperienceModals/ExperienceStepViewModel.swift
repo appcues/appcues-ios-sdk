@@ -30,7 +30,7 @@ internal class ExperienceStepViewModel: ObservableObject {
     }
 
     /// Returns the actions for the specific component grouped by `ActionType`.
-    func groupedActionHandlers(for id: UUID) -> [ActionType: [() -> Void]] {
+    func groupedActionHandlers(for id: UUID) -> [ActionType: [(@escaping ActionRegistry.Completion) -> Void]] {
         guard let componentActions = actions[id] else { return [:] }
 
         // (trailing closure in init would be less readable)

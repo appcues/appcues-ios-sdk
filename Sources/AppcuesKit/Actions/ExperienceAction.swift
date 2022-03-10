@@ -23,5 +23,8 @@ public protocol ExperienceAction {
 
     /// Execute the action.
     /// - Parameter appcues: The `Appcues` instance that displayed the instance triggering the action.
-    func execute(inContext appcues: Appcues)
+    /// - Parameter completion: A block to call after the execution is completed.
+    ///
+    /// The `completion` block must be called to ensure any additional actions are also executed.
+    func execute(inContext appcues: Appcues, completion: @escaping () -> Void)
 }

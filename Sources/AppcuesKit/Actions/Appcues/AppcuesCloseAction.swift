@@ -17,8 +17,8 @@ internal struct AppcuesCloseAction: ExperienceAction {
         // no config expected
     }
 
-    func execute(inContext appcues: Appcues) {
+    func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.dismissCurrentExperience()
+        experienceRenderer.dismissCurrentExperience(completion: completion)
     }
 }

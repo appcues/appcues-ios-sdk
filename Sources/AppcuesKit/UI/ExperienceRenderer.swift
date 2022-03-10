@@ -14,8 +14,8 @@ internal protocol ExperienceEventDelegate: AnyObject {
 
 internal protocol ExperienceRendering {
     func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
-    func show(stepInCurrentExperience stepRef: StepReference)
-    func dismissCurrentExperience()
+    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
+    func dismissCurrentExperience(completion: (() -> Void)?)
 }
 
 internal class ExperienceRenderer: ExperienceRendering {
@@ -59,12 +59,37 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func show(stepInCurrentExperience stepRef: StepReference) {
-        stateMachine.transition(to: .beginStep(stepRef))
+    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
+        stateMachine.transitionAndObserve(to: .beginStep(stepRef)) { newState in
+            switch newState {
+            case .renderStep:
+                completion?()
+                return true
+            case .none:
+                // Done observing, something went wrong
+                completion?()
+                return true
+            default:
+                // Keep observing until we get to the target state
+                return false
+            }
+        }
     }
 
-    func dismissCurrentExperience() {
-        stateMachine.transition(to: .empty)
+    func dismissCurrentExperience(completion: (() -> Void)?) {
+        stateMachine.transitionAndObserve(to: .empty) { newState in
+            switch newState {
+            case .empty:
+                completion?()
+                return true
+            case .none:
+                // Done observing, something went wrong
+                completion?()
+                return true
+            default:
+                // Keep observing until we get to the target state
+                return false
+            }
+        }
     }
-
 }
