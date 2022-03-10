@@ -89,7 +89,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 // prioritizes in order if there are more than one qualified experiences for a given response.
                 // however - it might be desirable in the future to allow for a fallback to seconde, third, etc
                 // should there be some issue preventing the first item from being valid for rendering at all.
-                experienceRenderer.show(experience: experience, published: true)
+                experienceRenderer.show(experience: experience, published: true, completion: nil)
             }
         }
     }

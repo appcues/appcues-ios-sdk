@@ -79,9 +79,9 @@ internal class DeeplinkHandler: DeeplinkHandling {
     private func handle(action: Action) {
         switch action {
         case .preview(let experienceID):
-            container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: false)
+            container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: false, completion: nil)
         case .show(let experienceID):
-            container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: true)
+            container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: true, completion: nil)
         case .debugger:
             container.resolve(UIDebugging.self).show()
         }
