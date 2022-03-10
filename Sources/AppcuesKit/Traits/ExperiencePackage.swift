@@ -14,7 +14,7 @@ internal struct ExperiencePackage {
     let steps: [Experience.Step.Child]
     let containerController: ExperienceContainerViewController
     let wrapperController: UIViewController
-    let presenter: () throws -> Void
+    let presenter: (_ completion: (() -> Void)?) throws -> Void
     let dismisser: (_ completion: (() -> Void)?) -> Void
 
     internal init(
@@ -22,7 +22,7 @@ internal struct ExperiencePackage {
         steps: [Experience.Step.Child],
         containerController: ExperienceContainerViewController,
         wrapperController: UIViewController,
-        presenter: @escaping () throws -> Void,
+        presenter: @escaping ((() -> Void)?) throws -> Void,
         dismisser: @escaping ((() -> Void)?) -> Void
     ) {
         self.traitInstances = traitInstances

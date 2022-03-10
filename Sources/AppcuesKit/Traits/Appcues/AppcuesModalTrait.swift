@@ -63,18 +63,16 @@ internal struct AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pr
         }
     }
 
-    func present(viewController: UIViewController) throws {
+    func present(viewController: UIViewController, completion: (() -> Void)?) throws {
         guard let topViewController = UIApplication.shared.topViewController() else {
             throw TraitError(description: "No top VC found")
         }
 
-        topViewController.present(viewController, animated: true)
+        topViewController.present(viewController, animated: true, completion: completion)
     }
 
     func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        viewController.dismiss(animated: true) {
-            completion?()
-        }
+        viewController.dismiss(animated: true, completion: completion)
     }
 }
 
