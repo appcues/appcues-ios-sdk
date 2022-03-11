@@ -31,17 +31,40 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
 
     func testExecute() throws {
         // Arrange
-        var loadCalled = false
-        appcues.experienceLoader.onLoad = { contentID, published in
+        var completionCount = 0
+        var loadCount = 0
+        appcues.experienceLoader.onLoad = { contentID, published, completion in
             XCTAssertEqual(contentID, "123")
-            loadCalled = true
+            loadCount += 1
+            completion?(.success(()))
         }
         let action = AppcuesLaunchExperienceAction(config: ["experienceID": "123"])
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
 
         // Assert
-        XCTAssertTrue(loadCalled)
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(loadCount, 1)
     }
+
+    func testExecuteWhenLoadFails() throws {
+        // Arrange
+        var completionCount = 0
+        var loadCount = 0
+        appcues.experienceLoader.onLoad = { contentID, published, completion in
+            XCTAssertEqual(contentID, "123")
+            loadCount += 1
+            completion?(.failure(AppcuesError.presentationFailure))
+        }
+        let action = AppcuesLaunchExperienceAction(config: ["experienceID": "123"])
+
+        // Act
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(loadCount, 1)
+    }
+
 }

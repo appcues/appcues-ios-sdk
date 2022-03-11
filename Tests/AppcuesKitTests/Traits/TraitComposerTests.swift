@@ -154,7 +154,7 @@ class TraitComposerTests: XCTestCase {
         // Act
         let package = try traitComposer.package(experience: experience, stepIndex: Experience.StepIndex(group: 0, item: 0))
 
-        try package.presenter()
+        try package.presenter(nil)
         package.dismisser(nil)
 
         // Assert
@@ -324,8 +324,9 @@ extension TraitComposerTests {
             removeExpectation = config?["removeExpectation"] as? XCTestExpectation
         }
 
-        func present(viewController: UIViewController) throws {
+        func present(viewController: UIViewController, completion: (() -> Void)?) throws {
             presentExpectation?.fulfill()
+            completion?()
         }
 
         func remove(viewController: UIViewController, completion: (() -> Void)?) {

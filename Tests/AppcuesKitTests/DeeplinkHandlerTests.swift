@@ -40,10 +40,11 @@ class DeeplinkHandlerTests: XCTestCase {
         let url = try XCTUnwrap(URL(string: "appcues-ID://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b"))
 
         var loaderCalled = false
-        appcues.experienceLoader.onLoad = { id, published in
+        appcues.experienceLoader.onLoad = { id, published, completion in
             XCTAssertEqual(id, "f0edab83-5257-47a5-81fc-80389d14905b")
             XCTAssertFalse(published)
             loaderCalled = true
+            completion?(.success(()))
         }
 
         // Act
@@ -59,10 +60,11 @@ class DeeplinkHandlerTests: XCTestCase {
         let url = try XCTUnwrap(URL(string: "appcues-ID://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b"))
 
         var loaderCalled = false
-        appcues.experienceLoader.onLoad = { id, published in
+        appcues.experienceLoader.onLoad = { id, published, completion in
             XCTAssertEqual(id, "f0edab83-5257-47a5-81fc-80389d14905b")
             XCTAssertTrue(published)
             loaderCalled = true
+            completion?(.success(()))
         }
 
         // Act

@@ -21,13 +21,19 @@ class ExperienceRendererTests: XCTestCase {
 
     func testShowPublished() throws {
         // Arrange
+        let completionExpectation = expectation(description: "Completion called")
+
         let presentExpectation = expectation(description: "Experience presented")
         let experience = Experience.mock
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
         // Act
-        experienceRenderer.show(experience: Experience.mock, published: true)
+        experienceRenderer.show(experience: Experience.mock, published: true) { result in
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -35,6 +41,8 @@ class ExperienceRendererTests: XCTestCase {
 
     func testShowUnpublished() throws {
         // Arrange
+        let completionExpectation = expectation(description: "Completion called")
+
         let presentExpectation = expectation(description: "Experience presented")
         let experience = Experience.mock
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
@@ -46,7 +54,11 @@ class ExperienceRendererTests: XCTestCase {
         appcues.register(subscriber: MockSubscriber { _ in eventExpectation.fulfill() })
 
         // Act
-        experienceRenderer.show(experience: Experience.mock, published: false)
+        experienceRenderer.show(experience: Experience.mock, published: false) { result in
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -54,11 +66,13 @@ class ExperienceRendererTests: XCTestCase {
 
     func testShowStepReference() throws {
         // Arrange
+        let completionExpectation = expectation(description: "Completion called")
+
         let preconditionPresentExpectation = expectation(description: "Experience presented")
         let experience = Experience.mock
         var preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
-        experienceRenderer.show(experience: experience, published: true)
+        experienceRenderer.show(experience: experience, published: true, completion: nil)
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Now that we've shown the first step, set the expectation for the 2nd step transition that we're testing
@@ -66,7 +80,9 @@ class ExperienceRendererTests: XCTestCase {
         preconditionPackage = experience.package(presentExpectation: presentExpectation)
 
         // Act
-        experienceRenderer.show(stepInCurrentExperience: .index(1))
+        experienceRenderer.show(stepInCurrentExperience: .index(1)) {
+            completionExpectation.fulfill()
+        }
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -74,16 +90,20 @@ class ExperienceRendererTests: XCTestCase {
 
     func testDismissExperience() throws {
         // Arrange
+        let completionExpectation = expectation(description: "Completion called")
+
         let preconditionPresentExpectation = expectation(description: "Experience presented")
         let dismissExpectation = expectation(description: "Experience dismissed")
         let experience = Experience.mock
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation, dismissExpectation: dismissExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
-        experienceRenderer.show(experience: experience, published: true)
+        experienceRenderer.show(experience: experience, published: true, completion: nil)
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
-        experienceRenderer.dismissCurrentExperience()
+        experienceRenderer.dismissCurrentExperience()  {
+            completionExpectation.fulfill()
+        }
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -115,13 +135,38 @@ private extension Experience {
     }
 
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
-        let containerController = DefaultContainerViewController(stepControllers: [UIViewController()])
+        let containerController = MockDefaultContainerViewController(stepControllers: [UIViewController()])
         return ExperiencePackage(
             traitInstances: [],
             steps: self.steps[0].items,
             containerController: containerController,
             wrapperController: containerController,
-            presenter: { presentExpectation?.fulfill() },
-            dismisser: { dismissExpectation?.fulfill(); $0?() })
+            presenter: {
+                containerController.mockIsBeingPresented = true
+                containerController.lifecycleHandler?.containerWillAppear()
+                containerController.lifecycleHandler?.containerDidAppear()
+                containerController.mockIsBeingPresented = false
+                presentExpectation?.fulfill()
+                $0?()
+            },
+            dismisser: {
+                containerController.mockIsBeingDismissed = true
+                containerController.lifecycleHandler?.containerWillDisappear()
+                containerController.lifecycleHandler?.containerDidDisappear()
+                containerController.mockIsBeingDismissed = false
+                dismissExpectation?.fulfill()
+                $0?()
+            })
     }
+}
+
+private class MockDefaultContainerViewController: DefaultContainerViewController {
+    // ExperienceStateMachine checks these values to avoid unnecessary lifecycle events,
+    // and so we need to mock them to trigger the correct events
+
+    var mockIsBeingPresented = false
+    override var isBeingPresented: Bool { mockIsBeingPresented }
+
+    var mockIsBeingDismissed = false
+    override var isBeingDismissed: Bool { mockIsBeingDismissed }
 }

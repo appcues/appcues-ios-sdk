@@ -31,20 +31,22 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
 
     func testExecute() throws {
         // Arrange
-        var identifyCalled = false
+        var completionCount = 0
+        var identifyCount = 0
         appcues.onIdentify = { userID, properties in
             XCTAssertEqual(userID, "user-id")
             XCTAssertEqual(properties?.count, 1)
             XCTAssertEqual(properties?["profile_attribute"] as? String, "value")
 
-            identifyCalled = true
+            identifyCount += 1
         }
         let action = AppcuesUpdateProfileAction(config: ["profile_attribute": "value"])
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
 
         // Assert
-        XCTAssertTrue(identifyCalled)
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(identifyCount, 1)
     }
 }
