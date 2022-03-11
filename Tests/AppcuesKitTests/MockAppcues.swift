@@ -85,29 +85,27 @@ class MockStorage: DataStoring {
 
 class MockExperienceLoader: ExperienceLoading {
 
-    var onLoad: ((String, Bool) -> Void)?
-
-    func load(experienceID: String, published: Bool) {
-        onLoad?(experienceID, published)
+    var onLoad: ((String, Bool, ((Result<Void, Error>) -> Void)?) -> Void)?
+    func load(experienceID: String, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+        onLoad?(experienceID, published, completion)
     }
 }
 
 class MockExperienceRenderer: ExperienceRendering {
 
-    var onShowExperience: ((Experience, Bool) -> Void)?
-    var onShowStep: ((StepReference) -> Void)?
-    var onDismissCurrentExperience: (() -> Void)?
-
-    func show(experience: Experience, published: Bool) {
-        onShowExperience?(experience, published)
+    var onShowExperience: ((Experience, Bool, ((Result<Void, Error>) -> Void)?) -> Void)?
+    func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+        onShowExperience?(experience, published, completion)
     }
 
-    func show(stepInCurrentExperience stepRef: StepReference) {
-        onShowStep?(stepRef)
+    var onShowStep: ((StepReference, (() -> Void)?) -> Void)?
+    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
+        onShowStep?(stepRef, completion)
     }
 
-    func dismissCurrentExperience() {
-        onDismissCurrentExperience?()
+    var onDismissCurrentExperience: (((() -> Void)?) -> Void)?
+    func dismissCurrentExperience(completion: (() -> Void)?) {
+        onDismissCurrentExperience?(completion)
     }
 }
 

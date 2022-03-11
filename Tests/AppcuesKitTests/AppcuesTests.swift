@@ -220,33 +220,47 @@ class AppcuesTests: XCTestCase {
 
     func testShowExperienceByID() throws {
         // Arrange
-        var experienceShown = false
-        appcues.experienceLoader.onLoad = { experienceID, published in
+        var completionCount = 0
+        var experienceShownCount = 0
+        appcues.experienceLoader.onLoad = { experienceID, published, completion in
             XCTAssertEqual(true, published)
             XCTAssertEqual("1234", experienceID)
-            experienceShown = true
+            experienceShownCount += 1
+            completion?(.success(()))
         }
 
         // Act
-        appcues.show(experienceID: "1234")
+        appcues.show(experienceID: "1234") { result in
+            if case .success = result {
+                completionCount += 1
+            }
+        }
 
         // Assert
-        XCTAssertTrue(experienceShown)
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(experienceShownCount, 1)
     }
 
     func testExperienceNotShownIfNoSession() throws {
         // Arrange
         appcues.sessionMonitor.isActive = false
-        var experienceShown = false
-        appcues.experienceLoader.onLoad = { experienceID, published in
-            experienceShown = true
+        var completionCount = 0
+        var experienceShownCount = 0
+        appcues.experienceLoader.onLoad = { experienceID, published, completion in
+            experienceShownCount += 1
+            completion?(.failure(AppcuesError.noActiveSession))
         }
 
         // Act
-        appcues.show(experienceID: "1234")
+        appcues.show(experienceID: "1234") { result in
+            if case .failure = result {
+                completionCount += 1
+            }
+        }
 
         // Assert
-        XCTAssertFalse(experienceShown)
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(experienceShownCount, 0)
     }
 
     func testAutomaticScreenTracking() throws {

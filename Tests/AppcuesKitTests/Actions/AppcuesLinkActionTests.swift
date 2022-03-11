@@ -33,38 +33,62 @@ class AppcuesLinkActionTests: XCTestCase {
 
     func testExecute() throws {
         // Arrange
-        var presentCalled = false
+        var completionCount = 0
+        var presentCount = 0
         let mockURLOpener = MockURLOpener()
         mockURLOpener.onPresent = { vc in
             XCTAssertTrue(vc is SFSafariViewController)
-            presentCalled = true
+            presentCount += 1
         }
         var action = AppcuesLinkAction(config: ["url": "https://appcues.com", "external": false])
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
 
         // Assert
-        XCTAssertTrue(presentCalled)
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(presentCount, 1)
     }
 
     func testExecuteExternal() throws {
         // Arrange
-        var openCalled = false
+        var completionCount = 0
+        var openCount = 0
         let mockURLOpener = MockURLOpener()
         mockURLOpener.onOpen = { url in
             XCTAssertEqual(url.absoluteString, "https://appcues.com")
-            openCalled = true
+            openCount += 1
         }
         var action = AppcuesLinkAction(config: ["url": "https://appcues.com", "external": true])
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
 
         // Assert
-        XCTAssertTrue(openCalled)
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(openCount, 1)
+    }
+
+    func testExecuteNonWebURL() throws {
+        // Arrange
+        var completionCount = 0
+        var openCount = 0
+        let mockURLOpener = MockURLOpener()
+        mockURLOpener.onOpen = { url in
+            XCTAssertEqual(url.absoluteString, "deeplink://test")
+            openCount += 1
+        }
+        var action = AppcuesLinkAction(config: ["url": "deeplink://test", "external": false])
+        action?.urlOpener = mockURLOpener
+
+        // Act
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(openCount, 1, "A non http(s) link must always open externally, even if that means overriding the config")
     }
 }
 
@@ -75,6 +99,7 @@ extension AppcuesLinkActionTests {
 
         func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey : Any], completionHandler: ((Bool) -> Void)?) {
             onOpen?(url)
+            completionHandler?(true)
         }
 
         func topViewController() -> UIViewController? {
@@ -89,7 +114,8 @@ extension AppcuesLinkActionTests {
 
         override func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
             onPresent?(viewControllerToPresent)
-            super.present(viewControllerToPresent, animated: flag, completion: completion)
+            completion?()
+            super.present(viewControllerToPresent, animated: flag)
         }
     }
 }

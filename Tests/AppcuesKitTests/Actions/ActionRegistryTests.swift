@@ -22,6 +22,7 @@ class ActionRegistryTests: XCTestCase {
     func testRegister() throws {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
+        let completionExpectation = expectation(description: "Completion called")
         let actionModel = Experience.Action(
             trigger: "tap",
             type: TestAction.type,
@@ -35,7 +36,7 @@ class ActionRegistryTests: XCTestCase {
         let actionClosures = actionRegistry.actionClosures(for: [actionModel])
         XCTAssertEqual(actionClosures.count, 1)
 
-        actionClosures[0]()
+        actionClosures[0]({ completionExpectation.fulfill() })
         waitForExpectations(timeout: 1)
     }
 
@@ -60,6 +61,7 @@ class ActionRegistryTests: XCTestCase {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
         let executionExpectation2 = expectation(description: "Second action executed")
+        let completionExpectation = expectation(description: "Completion called")
         executionExpectation2.isInverted = true
         let actionModel = Experience.Action(
             trigger: "tap",
@@ -79,7 +81,7 @@ class ActionRegistryTests: XCTestCase {
         let actionClosures = actionRegistry.actionClosures(for: [actionModel])
         XCTAssertEqual(actionClosures.count, 1)
 
-        actionClosures[0]()
+        actionClosures[0]({ completionExpectation.fulfill() })
         waitForExpectations(timeout: 1)
     }
 }
@@ -94,8 +96,9 @@ private extension ActionRegistryTests {
             executionExpectation = config?["executionExpectation"] as? XCTestExpectation
         }
 
-        func execute(inContext appcues: Appcues) {
+        func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
             executionExpectation?.fulfill()
+            completion()
         }
     }
 
@@ -108,8 +111,9 @@ private extension ActionRegistryTests {
             executionExpectation2 = config?["executionExpectation2"] as? XCTestExpectation
         }
 
-        func execute(inContext appcues: Appcues) {
+        func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
             executionExpectation2?.fulfill()
+            completion()
         }
     }
 }

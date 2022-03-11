@@ -40,18 +40,21 @@ class AppcuesContinueActionTests: XCTestCase {
 
     func testExecute() throws {
         // Arrange
-        var showStepCalled = false
-        appcues.experienceRenderer.onShowStep = { stepRef in
+        var completionCount = 0
+        var showStepCount = 0
+        appcues.experienceRenderer.onShowStep = { stepRef, completion in
             if case .offset(1) = stepRef {
-                showStepCalled = true
+                showStepCount += 1
             }
+            completion?()
         }
         let action = AppcuesContinueAction(config: nil)
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
 
         // Assert
-        XCTAssertTrue(showStepCalled)
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(showStepCount, 1)
     }
 }

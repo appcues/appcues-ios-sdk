@@ -31,18 +31,20 @@ class AppcuesTrackActionTests: XCTestCase {
 
     func testExecute() throws {
         // Arrange
-        var trackCalled = false
+        var completionCount = 0
+        var trackCount = 0
         appcues.onTrack = { name, properties in
             XCTAssertEqual(name, "My Custom Event")
             XCTAssertNil(properties)
-            trackCalled = true
+            trackCount += 1
         }
         let action = AppcuesTrackAction(config: ["eventName": "My Custom Event"])
 
         // Act
-        action?.execute(inContext: appcues)
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
 
         // Assert
-        XCTAssertTrue(trackCalled)
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(trackCount, 1)
     }
 }
