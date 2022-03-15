@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AppcuesKit
 
 // NOTE: This deeplink implementation should not be taken as an example of best practices. It's not particularly scalable,
 // it's coupled to the specific view controller hierarchy of the app, and uses segues which can cause runtime crashes.
@@ -114,12 +115,18 @@ class DeeplinkNavigator {
                     window.tabController?.selectedIndex = targetIndex
                 }
             }
+
+            // Show Appcues content by ID in the "experience" query parameter
+            let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            if let appcuesExperienceID = urlComponents?.queryItems?.first(where: { $0.name == "experience" })?.value {
+                Appcues.shared.show(experienceID: appcuesExperienceID)
+            }
         }
 
         switch scene.activationState {
-        case .foregroundActive, .foregroundInactive:
+        case .foregroundActive:
             handler()
-        case .background, .unattached:
+        case .foregroundInactive, .background, .unattached:
             fallthrough
         @unknown default:
             storedHandler = handler
