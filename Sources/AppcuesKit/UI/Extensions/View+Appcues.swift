@@ -13,8 +13,10 @@ extension View {
     private func process(_ actionHandlers: [(@escaping ActionRegistry.Completion) -> Void]) {
         if let handler = actionHandlers.first {
             handler {
-                // On completion, process the remaining action handlers.
-                process(Array(actionHandlers.dropFirst()))
+                DispatchQueue.main.async {
+                    // On completion, process the remaining action handlers.
+                    process(Array(actionHandlers.dropFirst()))
+                }
             }
         }
     }
