@@ -42,13 +42,13 @@ internal class ExperienceRenderer: ExperienceRendering {
         stateMachine.experienceLifecycleEventDelegate = published ? analyticsTracker : nil
         stateMachine.clientAppcuesDelegate = appcues.delegate
         DispatchQueue.main.async {
-            self.stateMachine.transitionAndObserve(to: .begin(experience)) { newState in
-                switch newState {
-                case .renderStep:
+            self.stateMachine.transitionAndObserve(.startExperience(experience)) { result, _ in
+                switch result {
+                case .success(.renderingStep):
                     completion?(.success(()))
                     return true
-                case .none:
-                    completion?(.failure(AppcuesError.presentationFailure))
+                case let .failure(error):
+                    completion?(.failure(error))
                     return true
                 default:
                     // Keep observing until we get to the target state
@@ -60,12 +60,12 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
-        stateMachine.transitionAndObserve(to: .beginStep(stepRef)) { newState in
-            switch newState {
-            case .renderStep:
+        stateMachine.transitionAndObserve(.startStep(stepRef)) { result, _ in
+            switch result {
+            case .success(.renderingStep):
                 completion?()
                 return true
-            case .none:
+            case .failure:
                 // Done observing, something went wrong
                 completion?()
                 return true
@@ -77,12 +77,12 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func dismissCurrentExperience(completion: (() -> Void)?) {
-        stateMachine.transitionAndObserve(to: .empty) { newState in
-            switch newState {
-            case .empty:
+        stateMachine.transitionAndObserve(.endExperience) { result, _ in
+            switch result {
+            case .success(.idling):
                 completion?()
                 return true
-            case .none:
+            case .failure:
                 // Done observing, something went wrong
                 completion?()
                 return true
