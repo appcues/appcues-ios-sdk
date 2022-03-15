@@ -10,5 +10,4 @@ import Foundation
 
 internal enum AppcuesError: Error {
     case noActiveSession
-    case presentationFailure
 }
