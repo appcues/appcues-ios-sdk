@@ -47,7 +47,7 @@ internal struct AppcuesImage: View {
                     if let blurImage = Image(blurHash: model.blurHash) {
                         blurImage.resizable()
                     } else {
-                        placeholder ?? Color(UIColor.secondarySystemBackground)
+                        placeholder ?? Color.clear
                     }
                 }
             }
