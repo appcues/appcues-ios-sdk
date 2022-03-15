@@ -55,7 +55,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
         appcues.experienceLoader.onLoad = { contentID, published, completion in
             XCTAssertEqual(contentID, "123")
             loadCount += 1
-            completion?(.failure(AppcuesError.presentationFailure))
+            completion?(.failure(AppcuesError.noActiveSession))
         }
         let action = AppcuesLaunchExperienceAction(config: ["experienceID": "123"])
 
