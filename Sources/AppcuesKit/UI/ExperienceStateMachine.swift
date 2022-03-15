@@ -78,10 +78,6 @@ internal class ExperienceStateMachine {
 
         return Output(fromState: state, action: action, toState: transition.toState ?? state, sideEffect: transition.sideEffect)
     }
-
-    func startObserving(callback: @escaping Callback) {
-        stateObservers.append(StateObserver(callback))
-    }
 }
 
 // MARK: - ExperienceContainerLifecycleHandler
