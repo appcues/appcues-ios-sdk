@@ -20,7 +20,7 @@ extension ExperienceStateMachine {
         func transition(for action: Action, traitComposer: TraitComposing) -> Transition? {
             switch (self, action) {
             case let (.idling, .startExperience(experience)):
-                return Transition.fromIdlingToStartExperience(experience)
+                return Transition.fromIdlingToBeginningExperience(experience)
             case let (.beginningExperience(experience), .startStep(.index(0))):
                 return Transition.fromBeginningExperienceToBeginningStep(experience, traitComposer)
             case let (.beginningStep(experience, stepIndex, package, _), .renderStep):
@@ -97,7 +97,7 @@ extension ExperienceStateMachine.State: CustomStringConvertible {
 // MARK: - Complex Transitions
 
 extension ExperienceStateMachine.Transition {
-    static func fromIdlingToStartExperience(_ experience: Experience) -> Self {
+    static func fromIdlingToBeginningExperience(_ experience: Experience) -> Self {
         guard !experience.steps.isEmpty else {
             return .init(toState: nil, sideEffect: .error(.experience(experience, "Experience has 0 steps")))
         }
