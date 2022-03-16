@@ -8,10 +8,6 @@
 
 import UIKit
 
-internal protocol ExperienceEventDelegate: AnyObject {
-    func lifecycleEvent(_ event: ExperienceLifecycleEvent)
-}
-
 internal protocol ExperienceRendering {
     func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
@@ -21,7 +17,7 @@ internal protocol ExperienceRendering {
 internal class ExperienceRenderer: ExperienceRendering {
 
     private let stateMachine: ExperienceStateMachine
-    private let analyticsTracker: ExperienceAnalyticsTracker
+    private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
     private let appcues: Appcues
     private let config: Appcues.Config
     private let storage: DataStoring
@@ -34,12 +30,15 @@ internal class ExperienceRenderer: ExperienceRendering {
         // two items below are not registered/resolved directly from container as they
         // are considered private implementation details of the ExperienceRenderer - helpers.
         self.stateMachine = ExperienceStateMachine(container: container)
-        self.analyticsTracker = ExperienceAnalyticsTracker(container: container)
+        self.analyticsObserver = ExperienceStateMachine.AnalyticsObserver(container: container)
     }
 
     func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-        // only listen to experience lifecycle events and track analytics on published experiences (not previews)
-        stateMachine.experienceLifecycleEventDelegate = published ? analyticsTracker : nil
+        // only track analytics on published experiences (not previews)
+        // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
+        if published && stateMachine.state == .idling {
+            stateMachine.addObserver(analyticsObserver)
+        }
         stateMachine.clientAppcuesDelegate = appcues.delegate
         DispatchQueue.main.async {
             self.stateMachine.transitionAndObserve(.startExperience(experience)) { result, _ in
@@ -55,7 +54,6 @@ internal class ExperienceRenderer: ExperienceRendering {
                     return false
                 }
             }
-
         }
     }
 

@@ -29,34 +29,44 @@ extension ExperienceStateMachine {
     }
 
     class AnalyticsObserver: ExperienceStateObserver {
+        private let analyticsPublisher: AnalyticsPublishing
+
+        init(container: DIContainer) {
+            self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
+        }
+
         func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult, machine: ExperienceStateMachine) -> Bool {
             switch result {
             case .success(.idling):
                 break
             case let .success(.beginningExperience(experience)):
-                machine.experienceLifecycleEventDelegate?.lifecycleEvent(.experienceStarted(experience))
+                trackLifecycleEvent(.experienceStarted(experience))
             case .success(.beginningStep):
                 break
             case let .success(.renderingStep(experience, stepIndex, _)):
-                machine.experienceLifecycleEventDelegate?.lifecycleEvent(.stepSeen(experience, stepIndex))
+                trackLifecycleEvent(.stepSeen(experience, stepIndex))
             case let .success(.endingStep(experience, stepIndex, _)):
-                machine.experienceLifecycleEventDelegate?.lifecycleEvent(.stepCompleted(experience, stepIndex))
+                trackLifecycleEvent(.stepCompleted(experience, stepIndex))
             case let .success(.endingExperience(experience, stepIndex)):
                 if stepIndex == experience.stepIndices.last {
-                    machine.experienceLifecycleEventDelegate?.lifecycleEvent(.experienceCompleted(experience))
+                    trackLifecycleEvent(.experienceCompleted(experience))
                 } else {
-                    machine.experienceLifecycleEventDelegate?.lifecycleEvent(.experienceDismissed(experience, stepIndex))
+                    trackLifecycleEvent(.experienceDismissed(experience, stepIndex))
                 }
             case let .failure(.experience(experience, message)):
-                machine.experienceLifecycleEventDelegate?.lifecycleEvent(.experienceError(experience, "\(message)"))
+                trackLifecycleEvent(.experienceError(experience, "\(message)"))
             case let .failure(.step(experience, stepIndex, message)):
-                machine.experienceLifecycleEventDelegate?.lifecycleEvent(.stepError(experience, stepIndex, "\(message)"))
+                trackLifecycleEvent(.stepError(experience, stepIndex, "\(message)"))
             case .failure(.noTransition):
                 break
             }
 
             // Always continue observing
             return false
+        }
+
+        func trackLifecycleEvent(_ event: ExperienceLifecycleEvent) {
+            analyticsPublisher.track(name: event.name, properties: event.properties, sync: false)
         }
     }
 }

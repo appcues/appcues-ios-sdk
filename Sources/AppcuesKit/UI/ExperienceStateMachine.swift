@@ -23,12 +23,10 @@ internal class ExperienceStateMachine {
             // Remove all observers when the state machine resets
             if state == .idling {
                 stateObservers.removeAll()
-                stateObservers.append(AnalyticsObserver())
             }
         }
     }
 
-    weak var experienceLifecycleEventDelegate: ExperienceEventDelegate?
     weak var clientAppcuesDelegate: AppcuesExperienceDelegate?
     weak var clientControllerDelegate: AppcuesExperienceDelegate?
 
@@ -38,7 +36,6 @@ internal class ExperienceStateMachine {
         storage = container.resolve(DataStoring.self)
 
         state = .idling
-        stateObservers.append(AnalyticsObserver())
     }
 
     /// Transition to a new state.
@@ -77,6 +74,10 @@ internal class ExperienceStateMachine {
         }
 
         return Output(fromState: state, action: action, toState: transition.toState ?? state, sideEffect: transition.sideEffect)
+    }
+
+    func addObserver(_ observer: ExperienceStateObserver) {
+        stateObservers.append(observer)
     }
 }
 
