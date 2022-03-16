@@ -19,7 +19,7 @@ internal class ExperienceStateMachine {
     private(set) var state: State {
         didSet {
             // Call each observer and filter out ones that been satisfied
-            stateObservers = stateObservers.filter { !$0.evaluateIfSatisfied(result: .success(state), machine: self) }
+            stateObservers = stateObservers.filter { !$0.evaluateIfSatisfied(result: .success(state)) }
             // Remove all observers when the state machine resets
             if state == .idling {
                 stateObservers.removeAll()
@@ -43,14 +43,14 @@ internal class ExperienceStateMachine {
     ///   - newState: `ExperienceState` to attempt a transition to.
     ///   - observer: Block that's called on each state change, or if no state change occurs (represented by a `nil` value).
     ///   Must return `true` iff the observer is complete and should be removed.
-    func transitionAndObserve(_ action: Action, observer: @escaping (ExperienceStateObserver.StateResult, ExperienceStateMachine) -> Bool) {
+    func transitionAndObserve(_ action: Action, observer: @escaping (ExperienceStateObserver.StateResult) -> Bool) {
         let observer = StateObserver(observer)
         stateObservers.append(observer)
 
         do {
             try transition(action)
         } catch {
-            let observerIsSatisfiedByFailure = observer.evaluateIfSatisfied(result: .failure(ExperienceError.noTransition), machine: self)
+            let observerIsSatisfiedByFailure = observer.evaluateIfSatisfied(result: .failure(ExperienceError.noTransition))
             if observerIsSatisfiedByFailure {
                 stateObservers = stateObservers.filter { $0 !== observer }
             }
@@ -230,7 +230,7 @@ extension ExperienceStateMachine {
             case let .error(error):
                 // Call each observer with the error as a failure and filter out ones that been satisfied
                 machine.stateObservers = machine.stateObservers.filter {
-                    !$0.evaluateIfSatisfied(result: .failure(error), machine: machine)
+                    !$0.evaluateIfSatisfied(result: .failure(error))
                 }
             }
 

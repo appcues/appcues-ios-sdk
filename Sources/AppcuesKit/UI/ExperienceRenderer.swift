@@ -41,7 +41,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
         stateMachine.clientAppcuesDelegate = appcues.delegate
         DispatchQueue.main.async {
-            self.stateMachine.transitionAndObserve(.startExperience(experience)) { result, _ in
+            self.stateMachine.transitionAndObserve(.startExperience(experience)) { result in
                 switch result {
                 case .success(.renderingStep):
                     completion?(.success(()))
@@ -58,7 +58,7 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
-        stateMachine.transitionAndObserve(.startStep(stepRef)) { result, _ in
+        stateMachine.transitionAndObserve(.startStep(stepRef)) { result in
             switch result {
             case .success(.renderingStep):
                 completion?()
@@ -75,7 +75,7 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func dismissCurrentExperience(completion: (() -> Void)?) {
-        stateMachine.transitionAndObserve(.endExperience) { result, _ in
+        stateMachine.transitionAndObserve(.endExperience) { result in
             switch result {
             case .success(.idling):
                 completion?()
