@@ -10,11 +10,11 @@ import Foundation
 
 internal protocol ExperienceStateObserver: AnyObject {
     typealias StateResult = Result<ExperienceStateMachine.State, ExperienceStateMachine.ExperienceError>
-    func evaluateIfSatisfied(result: StateResult, machine: ExperienceStateMachine) -> Bool
+    func evaluateIfSatisfied(result: StateResult) -> Bool
 }
 
 extension ExperienceStateMachine {
-    typealias Callback = (ExperienceStateObserver.StateResult, ExperienceStateMachine) -> Bool
+    typealias Callback = (ExperienceStateObserver.StateResult) -> Bool
 
     class StateObserver: ExperienceStateObserver {
         private let callback: Callback
@@ -23,8 +23,8 @@ extension ExperienceStateMachine {
             self.callback = evaluateIfSatisfied
         }
 
-        func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult, machine: ExperienceStateMachine) -> Bool {
-            callback(result, machine)
+        func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
+            callback(result)
         }
     }
 
@@ -35,7 +35,7 @@ extension ExperienceStateMachine {
             self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
         }
 
-        func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult, machine: ExperienceStateMachine) -> Bool {
+        func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
             switch result {
             case .success(.idling):
                 break
