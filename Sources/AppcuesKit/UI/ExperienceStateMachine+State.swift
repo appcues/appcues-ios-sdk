@@ -42,8 +42,11 @@ extension ExperienceStateMachine {
             case (.endingExperience, .reset):
                 return Transition(toState: .idling)
 
+            // Error cases
             case let (_, .startExperience(experience)):
                 return Transition(toState: nil, sideEffect: .error(.experience(experience, "Experience already active")))
+            case let (_, .error(error)):
+                return Transition(toState: nil, sideEffect: .error(error))
             default:
                 return nil
             }
