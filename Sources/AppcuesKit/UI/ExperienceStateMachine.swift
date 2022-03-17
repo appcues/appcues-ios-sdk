@@ -138,9 +138,12 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
                 state = .beginningStep(experience, stepIndex, package, isFirst: false)
                 state = .renderingStep(experience, newStepIndex, package)
             }
-        case let .endingStep(experience, stepIndex, package):
-            state = .beginningStep(experience, stepIndex, package, isFirst: false)
-            state = .renderingStep(experience, stepIndex, package)
+        case let .endingStep(experience, _, package):
+            let targetStepId = package.steps[newPageIndex].id
+            if let newStepIndex = experience.stepIndex(for: targetStepId) {
+                state = .beginningStep(experience, newStepIndex, package, isFirst: false)
+                state = .renderingStep(experience, newStepIndex, package)
+            }
         default:
             break
         }
