@@ -243,12 +243,10 @@ extension ExperienceStateMachine {
         private func executePresentContainer(
             machine: ExperienceStateMachine, experience: Experience, stepIndex: Experience.StepIndex, package: ExperiencePackage
         ) {
-            if let topController = UIApplication.shared.topViewController() {
-                machine.clientControllerDelegate = topController as? AppcuesExperienceDelegate
-                if !machine.canDisplay(experience: experience) {
-                    _ = try? machine.transition(.reportError(.step(experience, stepIndex, "Step blocked by app")))
-                    return
-                }
+            machine.clientControllerDelegate = UIApplication.shared.topViewController() as? AppcuesExperienceDelegate
+            if !machine.canDisplay(experience: experience) {
+                _ = try? machine.transition(.reportError(.step(experience, stepIndex, "Step blocked by app")))
+                return
             }
 
             package.containerController.lifecycleHandler = machine
