@@ -245,7 +245,7 @@ extension ExperienceStateMachine {
         ) {
             machine.clientControllerDelegate = UIApplication.shared.topViewController() as? AppcuesExperienceDelegate
             if !machine.canDisplay(experience: experience) {
-                _ = try? machine.transition(.reportError(.step(experience, stepIndex, "Step blocked by app")))
+                _ = try? machine.transition(.reportError(.step(experience, stepIndex, "Step blocked by app"), fatal: true))
                 return
             }
 
@@ -261,7 +261,7 @@ extension ExperienceStateMachine {
 
                 machine.storage.lastContentShownAt = Date()
             } catch {
-                _ = try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)")))
+                _ = try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)"), fatal: true))
             }
         }
     }
