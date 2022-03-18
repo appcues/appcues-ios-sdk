@@ -15,7 +15,7 @@ extension ExperienceStateMachine {
         case renderStep
         case endExperience
         case reset
-        case error(ExperienceError)
+        case reportError(ExperienceError)
     }
 }
 
@@ -30,7 +30,7 @@ extension ExperienceStateMachine.Action: Equatable {
             (.endExperience, .endExperience),
             (.reset, .reset):
             return true
-        case let (.error(error1), .error(error2)):
+        case let (.reportError(error1), .reportError(error2)):
             return error1 == error2
         default:
             return false
