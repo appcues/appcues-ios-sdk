@@ -45,7 +45,9 @@ extension ExperienceStateMachine {
             // Error cases
             case let (_, .startExperience(experience)):
                 return Transition(toState: nil, sideEffect: .error(.experience(experience, "Experience already active")))
-            case let (_, .reportError(error)):
+            case let (_, .reportError(error, fatal: true)):
+                return Transition(toState: .idling, sideEffect: .error(error))
+            case let (_, .reportError(error, fatal: false)):
                 return Transition(toState: nil, sideEffect: .error(error))
             default:
                 return nil
@@ -117,7 +119,7 @@ extension ExperienceStateMachine.Transition {
                 sideEffect: .presentContainer(experience, stepIndex, package)
             )
         } catch {
-            return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "\(error)")))
+            return .init(toState: .idling, sideEffect: .error(.step(experience, stepIndex, "\(error)")))
         }
     }
 
@@ -154,7 +156,7 @@ extension ExperienceStateMachine.Transition {
                 sideEffect: .presentContainer(experience, stepIndex, package)
             )
         } catch {
-            return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "\(error)")))
+            return .init(toState: .idling, sideEffect: .error(.step(experience, stepIndex, "\(error)")))
         }
     }
 }

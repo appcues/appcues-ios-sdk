@@ -15,7 +15,7 @@ extension ExperienceStateMachine {
         case renderStep
         case endExperience
         case reset
-        case reportError(ExperienceError)
+        case reportError(ExperienceError, fatal: Bool)
     }
 }
 
