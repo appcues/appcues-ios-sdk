@@ -10,7 +10,7 @@ import Foundation
 
 internal struct TrackingUpdate {
 
-    enum TrackingType {
+    enum TrackingType: Equatable {
         case event(name: String, sync: Bool)
         case screen(String)
         case profile
