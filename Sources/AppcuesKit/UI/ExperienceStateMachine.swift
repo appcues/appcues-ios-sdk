@@ -30,12 +30,12 @@ internal class ExperienceStateMachine {
     weak var clientAppcuesDelegate: AppcuesExperienceDelegate?
     weak var clientControllerDelegate: AppcuesExperienceDelegate?
 
-    init(container: DIContainer) {
+    init(container: DIContainer, initialState: State = .idling) {
         config = container.resolve(Appcues.Config.self)
         traitComposer = container.resolve(TraitComposing.self)
         storage = container.resolve(DataStoring.self)
 
-        state = .idling
+        state = initialState
     }
 
     /// Transition to a new state.
@@ -45,7 +45,7 @@ internal class ExperienceStateMachine {
     ///   Must return `true` iff the observer is complete and should be removed.
     func transitionAndObserve(_ action: Action, observer: @escaping (ExperienceStateObserver.StateResult) -> Bool) {
         let observer = StateObserver(observer)
-        stateObservers.append(observer)
+        addObserver(observer)
 
         do {
             try transition(action)
@@ -57,8 +57,7 @@ internal class ExperienceStateMachine {
         }
     }
 
-    @discardableResult
-    func transition(_ action: Action) throws -> Output {
+    func transition(_ action: Action) throws {
         guard let transition = state.transition(for: action, traitComposer: traitComposer) else {
             throw InvalidTransition(fromState: state, action: action)
         }
@@ -68,12 +67,8 @@ internal class ExperienceStateMachine {
         }
 
         if let sideEffect = transition.sideEffect {
-            if let newStateOutput = try sideEffect.execute(in: self) {
-                return newStateOutput
-            }
+            try sideEffect.execute(in: self)
         }
-
-        return Output(fromState: state, action: action, toState: transition.toState ?? state, sideEffect: transition.sideEffect)
     }
 
     func addObserver(_ observer: ExperienceStateObserver) {
@@ -189,13 +184,6 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
 // MARK: - State Machine Types
 
 extension ExperienceStateMachine {
-    struct Output: Equatable {
-        let fromState: State
-        let action: Action
-        let toState: State
-        let sideEffect: SideEffect?
-    }
-
     struct Transition {
         let toState: State?
         let sideEffect: SideEffect?
@@ -206,7 +194,7 @@ extension ExperienceStateMachine {
         }
     }
 
-    struct InvalidTransition: Error, Equatable {
+    struct InvalidTransition: Error {
         let fromState: State
         let action: Action
     }
@@ -220,10 +208,10 @@ extension ExperienceStateMachine {
         case dismissContainer(ExperiencePackage, continuation: Action)
         case error(ExperienceError)
 
-        func execute(in machine: ExperienceStateMachine) throws -> Output? {
+        func execute(in machine: ExperienceStateMachine) throws {
             switch self {
             case .continuation(let action):
-                return try machine.transition(action)
+                try machine.transition(action)
             case let .presentContainer(experience, stepIndex, package):
                 executePresentContainer(machine: machine, experience: experience, stepIndex: stepIndex, package: package)
             case let .navigateInContainer(package, pageIndex):
@@ -236,8 +224,6 @@ extension ExperienceStateMachine {
                     !$0.evaluateIfSatisfied(result: .failure(error))
                 }
             }
-
-            return nil
         }
 
         private func executePresentContainer(
@@ -263,23 +249,6 @@ extension ExperienceStateMachine {
             } catch {
                 _ = try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)"), fatal: true))
             }
-        }
-    }
-}
-
-extension ExperienceStateMachine.SideEffect: Equatable {
-    static func == (lhs: ExperienceStateMachine.SideEffect, rhs: ExperienceStateMachine.SideEffect) -> Bool {
-        switch (lhs, rhs) {
-        case let (.continuation(action1), .continuation(action2)):
-            return action1 == action2
-        case let (.presentContainer(experience1, stepIndex1, _), .presentContainer(experience2, stepIndex2, _)):
-            return experience1.id == experience2.id && stepIndex1 == stepIndex2
-        case let (.navigateInContainer(_, pageIndex1), .navigateInContainer(_, pageIndex2)):
-            return pageIndex1 == pageIndex2
-        case let (.dismissContainer(_, action1), .dismissContainer(_, action2)):
-            return action1 == action2
-        default:
-            return false
         }
     }
 }
