@@ -28,6 +28,11 @@ class ExperienceRendererTests: XCTestCase {
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
+        let eventExpectation = expectation(description: "event tracked")
+        // expect some number of analytics events (events/states are tested elsewhere)
+        eventExpectation.assertForOverFulfill = false
+        appcues.register(subscriber: Mocks.HandlingSubscriber { _ in eventExpectation.fulfill() })
+
         // Act
         experienceRenderer.show(experience: Experience.mock, published: true) { result in
             if case .success = result {
@@ -51,7 +56,7 @@ class ExperienceRendererTests: XCTestCase {
         let eventExpectation = expectation(description: "event tracked")
         // no analytics events should be tracked because this is an unpublished flow
         eventExpectation.isInverted = true
-        appcues.register(subscriber: MockSubscriber { _ in eventExpectation.fulfill() })
+        appcues.register(subscriber: Mocks.HandlingSubscriber { _ in eventExpectation.fulfill() })
 
         // Act
         experienceRenderer.show(experience: Experience.mock, published: false) { result in
@@ -79,8 +84,11 @@ class ExperienceRendererTests: XCTestCase {
         let presentExpectation = expectation(description: "Experience presented")
         preconditionPackage = experience.package(presentExpectation: presentExpectation)
 
+        // Step ID in a different container
+        let targetID = try XCTUnwrap(UUID(uuidString: "03652bd5-f0cb-44f0-9274-e95b4441d857"))
+
         // Act
-        experienceRenderer.show(stepInCurrentExperience: .index(1)) {
+        experienceRenderer.show(stepInCurrentExperience: .stepID(targetID)) {
             completionExpectation.fulfill()
         }
 
@@ -108,65 +116,4 @@ class ExperienceRendererTests: XCTestCase {
         // Assert
         waitForExpectations(timeout: 1)
     }
-}
-
-private class MockSubscriber: AnalyticsSubscribing {
-    var handler: (TrackingUpdate) -> Void
-
-    init(handler: @escaping (TrackingUpdate) -> Void) {
-        self.handler = handler
-    }
-
-    func track(update: TrackingUpdate) {
-        handler(update)
-    }
-}
-
-private extension Experience {
-    static var mock: Experience {
-        Experience(
-            id: UUID(),
-            name: "test",
-            traits: [],
-            steps: [
-                .child(Step.Child(fixedID: "fb529214-3c78-4d6d-ba93-b55d22497ca1")),
-                .child(Step.Child(fixedID: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"))
-            ])
-    }
-
-    func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
-        let containerController = MockDefaultContainerViewController(stepControllers: [UIViewController()])
-        return ExperiencePackage(
-            traitInstances: [],
-            steps: self.steps[0].items,
-            containerController: containerController,
-            wrapperController: containerController,
-            presenter: {
-                containerController.mockIsBeingPresented = true
-                containerController.lifecycleHandler?.containerWillAppear()
-                containerController.lifecycleHandler?.containerDidAppear()
-                containerController.mockIsBeingPresented = false
-                presentExpectation?.fulfill()
-                $0?()
-            },
-            dismisser: {
-                containerController.mockIsBeingDismissed = true
-                containerController.lifecycleHandler?.containerWillDisappear()
-                containerController.lifecycleHandler?.containerDidDisappear()
-                containerController.mockIsBeingDismissed = false
-                dismissExpectation?.fulfill()
-                $0?()
-            })
-    }
-}
-
-private class MockDefaultContainerViewController: DefaultContainerViewController {
-    // ExperienceStateMachine checks these values to avoid unnecessary lifecycle events,
-    // and so we need to mock them to trigger the correct events
-
-    var mockIsBeingPresented = false
-    override var isBeingPresented: Bool { mockIsBeingPresented }
-
-    var mockIsBeingDismissed = false
-    override var isBeingDismissed: Bool { mockIsBeingDismissed }
 }

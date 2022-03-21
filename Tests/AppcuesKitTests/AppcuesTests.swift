@@ -24,7 +24,7 @@ class AppcuesTests: XCTestCase {
         // and (2) validate that activity does begin flowing through once the user is known (anon or auth)
 
         // Arrange
-        let subscriber = TestSubscriber()
+        let subscriber = Mocks.TestSubscriber()
         appcues.register(subscriber: subscriber)
         appcues.sessionMonitor.isActive = false //start out with Appcues disabled - no user
 
@@ -51,7 +51,7 @@ class AppcuesTests: XCTestCase {
 
     func testIdentifyWithEmptyUserIsNotTracked() throws {
         // Arrange
-        let subscriber = TestSubscriber()
+        let subscriber = Mocks.TestSubscriber()
         appcues.register(subscriber: subscriber)
 
         // Act
@@ -63,7 +63,7 @@ class AppcuesTests: XCTestCase {
 
     func testSetGroup() throws {
         // Arrange
-        let subscriber = TestSubscriber()
+        let subscriber = Mocks.TestSubscriber()
         appcues.register(subscriber: subscriber)
 
         // Act
@@ -78,7 +78,7 @@ class AppcuesTests: XCTestCase {
 
     func testNilGroupIDRemovesGroup() throws {
         // Arrange
-        let subscriber = TestSubscriber()
+        let subscriber = Mocks.TestSubscriber()
         appcues.register(subscriber: subscriber)
 
         // Act
@@ -93,7 +93,7 @@ class AppcuesTests: XCTestCase {
 
     func testEmptyStringGroupIDRemovesGroup() throws {
         // Arrange
-        let subscriber = TestSubscriber()
+        let subscriber = Mocks.TestSubscriber()
         appcues.register(subscriber: subscriber)
 
         // Act
@@ -108,7 +108,7 @@ class AppcuesTests: XCTestCase {
 
     func testRegisterDecorator() throws {
         // Arrange
-        let decorator = TestDecorator()
+        let decorator = Mocks.TestDecorator()
 
         // Act
         appcues.register(decorator: decorator)
@@ -120,7 +120,7 @@ class AppcuesTests: XCTestCase {
 
     func testRemoveDecorator() throws {
         // Arrange
-        let decorator = TestDecorator()
+        let decorator = Mocks.TestDecorator()
         appcues.register(decorator: decorator)
         appcues.track(name: "custom event", properties: nil)
 
@@ -134,9 +134,9 @@ class AppcuesTests: XCTestCase {
 
     func testClearDecorators() throws {
         // Arrange
-        let decorator1 = TestDecorator()
+        let decorator1 = Mocks.TestDecorator()
         appcues.register(decorator: decorator1)
-        let decorator2 = TestDecorator()
+        let decorator2 = Mocks.TestDecorator()
         appcues.register(decorator: decorator2)
         appcues.track(name: "custom event", properties: nil)
 
@@ -151,7 +151,7 @@ class AppcuesTests: XCTestCase {
 
     func testRegisterSubscriber() throws {
         // Arrange
-        let subscriber = TestSubscriber()
+        let subscriber = Mocks.TestSubscriber()
 
         // Act
         appcues.register(subscriber: subscriber)
@@ -163,7 +163,7 @@ class AppcuesTests: XCTestCase {
 
     func testRemoveSubscriber() throws {
         // Arrange
-        let subscriber = TestSubscriber()
+        let subscriber = Mocks.TestSubscriber()
         appcues.register(subscriber: subscriber)
         appcues.track(name: "custom event", properties: nil)
 
@@ -177,9 +177,9 @@ class AppcuesTests: XCTestCase {
 
     func testClearSubscribers() throws {
         // Arrange
-        let subscriber1 = TestSubscriber()
+        let subscriber1 = Mocks.TestSubscriber()
         appcues.register(subscriber: subscriber1)
-        let subscriber2 = TestSubscriber()
+        let subscriber2 = Mocks.TestSubscriber()
         appcues.register(subscriber: subscriber2)
         appcues.track(name: "custom event", properties: nil)
 
@@ -295,24 +295,5 @@ class AppcuesTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(result)
-    }
-}
-
-private class TestSubscriber: AnalyticsSubscribing {
-    var trackedUpdates = 0
-    var lastUpdate: TrackingUpdate?
-
-    func track(update: TrackingUpdate) {
-        trackedUpdates += 1
-        lastUpdate = update
-    }
-}
-
-private class TestDecorator: AnalyticsDecorating {
-    var decorations = 0
-
-    func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {
-        decorations += 1
-        return tracking
     }
 }
