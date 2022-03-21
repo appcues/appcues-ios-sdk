@@ -37,9 +37,9 @@ extension ExperienceStateMachine.ExperienceError: CustomStringConvertible {
         case .noTransition:
             return ".noTransition"
         case let .experience(experience, message):
-            return ".experience(experienceID: \(experience.id.uuidString), message: \(message)"
+            return ".experience(experienceID: \(experience.id.uuidString), message: \(message))"
         case let .step(experience, stepIndex, message):
-            return ".experience(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex), message: \(message)"
+            return ".step(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex), message: \(message))"
         }
     }
 }
