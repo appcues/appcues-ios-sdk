@@ -14,7 +14,7 @@ internal class ExperienceStateMachine {
     private let traitComposer: TraitComposing
     private let storage: DataStoring
 
-    private var stateObservers: [ExperienceStateObserver] = []
+    private(set) var stateObservers: [ExperienceStateObserver] = []
 
     private(set) var state: State {
         didSet {
