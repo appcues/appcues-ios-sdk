@@ -311,6 +311,34 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(stateMachine.state, .idling)
     }
 
+    func testFatalExperienceErrorNotifiesObserver() throws {
+        // Arrange
+        let experience = Experience.mock
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package())
+        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition, fatal: true)
+        let stateMachine = givenState(is: initialState)
+        let listingObserver = ListingObserver()
+        stateMachine.addObserver(listingObserver)
+
+        // Act
+        try stateMachine.transition(action)
+
+        // Assert
+        XCTAssertEqual(
+            stateMachine.state,
+            .idling
+        )
+        XCTExpectFailure {
+            XCTAssertEqual(
+                listingObserver.results,
+                [
+                    .failure(.noTransition),
+                    .success(.idling)
+                ]
+            )
+        }
+        XCTAssertEqual(stateMachine.stateObservers.count, 0, "observer is removed when reset to idling")
+    }
 
     func test_stateIsRenderingStep_whenReset_noTransition() throws {
         // Invalid action for given state
@@ -336,7 +364,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
 }
 
-class MockAppcuesExperienceDelegate: AppcuesExperienceDelegate {
+private class MockAppcuesExperienceDelegate: AppcuesExperienceDelegate {
     var canDisplay: Bool
 
     init(canDisplay: Bool) {
@@ -345,5 +373,13 @@ class MockAppcuesExperienceDelegate: AppcuesExperienceDelegate {
 
     func canDisplayExperience(experienceID: String) -> Bool {
         canDisplay
+    }
+}
+
+private class ListingObserver: ExperienceStateObserver {
+    var results: [StateResult] = []
+    func evaluateIfSatisfied(result: StateResult) -> Bool {
+        results.append(result)
+        return false
     }
 }
