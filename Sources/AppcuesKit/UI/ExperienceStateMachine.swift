@@ -206,7 +206,7 @@ extension ExperienceStateMachine {
         case presentContainer(Experience, Experience.StepIndex, ExperiencePackage)
         case navigateInContainer(ExperiencePackage, pageIndex: Int)
         case dismissContainer(ExperiencePackage, continuation: Action)
-        case error(ExperienceError)
+        case error(ExperienceError, reset: Bool)
 
         func execute(in machine: ExperienceStateMachine) throws {
             switch self {
@@ -218,10 +218,13 @@ extension ExperienceStateMachine {
                 package.containerController.navigate(to: pageIndex, animated: true)
             case let .dismissContainer(package, action):
                 package.dismisser { _ = try? machine.transition(action) }
-            case let .error(error):
+            case let .error(error, reset):
                 // Call each observer with the error as a failure and filter out ones that been satisfied
                 machine.stateObservers = machine.stateObservers.filter {
                     !$0.evaluateIfSatisfied(result: .failure(error))
+                }
+                if reset {
+                    machine.state = .idling
                 }
             }
         }
