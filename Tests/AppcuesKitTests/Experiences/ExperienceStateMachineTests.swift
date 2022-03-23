@@ -328,15 +328,13 @@ class ExperienceStateMachineTests: XCTestCase {
             stateMachine.state,
             .idling
         )
-        XCTExpectFailure {
-            XCTAssertEqual(
-                listingObserver.results,
-                [
-                    .failure(.noTransition),
-                    .success(.idling)
-                ]
-            )
-        }
+        XCTAssertEqual(
+            listingObserver.results,
+            [
+                .failure(.noTransition),
+                .success(.idling)
+            ]
+        )
         XCTAssertEqual(stateMachine.stateObservers.count, 0, "observer is removed when reset to idling")
     }
 
