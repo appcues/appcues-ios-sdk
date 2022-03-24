@@ -31,9 +31,6 @@ class ExperienceStateMachineTests: XCTestCase {
     // MARK: Standard Transitions
 
     func test_stateIsIdling_whenStartExperience_transitionsToRenderingStep() throws {
-        // Precondition
-        XCTAssertNil(appcues.storage.lastContentShownAt)
-
         // Arrange
         let presentExpectation = expectation(description: "Experience presented")
         let experience = Experience.mock
@@ -56,7 +53,6 @@ class ExperienceStateMachineTests: XCTestCase {
             stateMachine.state,
             .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
         )
-        XCTAssertNotNil(appcues.storage.lastContentShownAt)
         XCTAssertTrue(package.containerController.lifecycleHandler === stateMachine)
     }
 

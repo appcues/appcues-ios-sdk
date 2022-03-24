@@ -50,6 +50,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
     }
 
     func testEvaluateRenderingFirstStepState() throws {
+        // Precondition
+        XCTAssertNil(appcues.storage.lastContentShownAt)
+
         // Act
         let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(Experience.mock, .initial, Experience.mock.package(), isFirst: true)))
 
@@ -57,6 +60,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 2)
         XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", sync: false))
+        XCTAssertNotNil(appcues.storage.lastContentShownAt)
     }
 
     func testEvaluateRenderingStepState() throws {
