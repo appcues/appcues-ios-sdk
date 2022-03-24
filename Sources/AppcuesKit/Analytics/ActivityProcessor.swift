@@ -26,6 +26,8 @@ internal class ActivityProcessor: ActivityProcessing {
     // keep this list so they can be ignored when gathering up the stored files to attempt a retry with
     private var processingItems: Set<String> = []
 
+    private let syncQueue = DispatchQueue(label: "appcues-activity-processor")
+
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
         self.networking = container.resolve(Networking.self)
@@ -35,24 +37,28 @@ internal class ActivityProcessor: ActivityProcessing {
     func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
         guard let activity = ActivityStorage(activity) else { return }
 
-        // mark current item as processing - before saving to storage - so no other activity
-        // on other threads could possibly pickup and include
-        processingItems.insert(activity.requestID)
+        var itemsToFlush: [ActivityStorage] = []
 
-        // store this item to a file - so we can retry later should anything go wrong, app killed, etc
-        activityStorage.save(activity)
+        syncQueue.sync {
+            // mark current item as processing - before saving to storage - so no other activity
+            // on other threads could possibly pickup and include
+            processingItems.insert(activity.requestID)
 
-        // get the set of other items in storage that previously failed and need retry
-        // exclude any items that are currently in flight already
-        let stored = activityStorage.read().filter { !processingItems.contains($0.requestID) }
+            // store this item to a file - so we can retry later should anything go wrong, app killed, etc
+            activityStorage.save(activity)
 
-        var itemsToFlush = prepareForRetry(available: stored)
+            // get the set of other items in storage that previously failed and need retry
+            // exclude any items that are currently in flight already
+            let stored = activityStorage.read().filter { !processingItems.contains($0.requestID) }
 
-        // add the current item (since it was marked as processing already)
-        itemsToFlush.append(activity)
+            itemsToFlush = prepareForRetry(available: stored)
 
-        // mark them all as requests in process
-        processingItems.formUnion(itemsToFlush.map { $0.requestID })
+            // add the current item (since it was marked as processing already)
+            itemsToFlush.append(activity)
+
+            // mark them all as requests in process
+            processingItems.formUnion(itemsToFlush.map { $0.requestID })
+        }
 
         post(activities: itemsToFlush, current: activity, sync: sync, completion: completion)
     }
