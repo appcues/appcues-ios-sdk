@@ -121,7 +121,7 @@ internal class ActivityProcessor: ActivityProcessing {
         let isCurrent = activity.requestID == current.requestID
 
         // if so, make sure its completion gets passed along.  any other retry attempts will not have completion blocks
-        let completion = isCurrent ? completion : nil
+        let itemCompletion = isCurrent ? completion : nil
 
         // similarly, pass along the `sync` value (synchronous qualification flag) for the current activity
         let syncRequest = isCurrent ? sync : false
@@ -147,7 +147,7 @@ internal class ActivityProcessor: ActivityProcessing {
             // a later retry to run, if it was needed
             self.processingItems.remove(activity.requestID)
 
-            completion?(result)
+            itemCompletion?(result)
 
             // recurse on remainder of the queue
             self.post(activities: activities, current: current, sync: sync, completion: completion)
