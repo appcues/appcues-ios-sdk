@@ -20,11 +20,9 @@ internal class ExperienceRenderer: ExperienceRendering {
     private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
     private let appcues: Appcues
     private let config: Appcues.Config
-    private let storage: DataStoring
 
     init(container: DIContainer) {
         self.appcues = container.resolve(Appcues.self)
-        self.storage = container.resolve(DataStoring.self)
         self.config = container.resolve(Appcues.Config.self)
 
         // two items below are not registered/resolved directly from container as they
