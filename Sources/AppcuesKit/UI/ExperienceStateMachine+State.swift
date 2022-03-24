@@ -146,7 +146,9 @@ extension ExperienceStateMachine.Transition {
         _ experience: Experience, _ currentIndex: Experience.StepIndex, _ stepRef: StepReference, _ traitComposer: TraitComposing
     ) -> Self {
         guard let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex) else {
-            return .init(toState: nil, sideEffect: .error(.step(experience, currentIndex, "Step at \(stepRef) does not exist"), reset: false))
+            return .init(
+                toState: nil,
+                sideEffect: .error(.step(experience, currentIndex, "Step at \(stepRef) does not exist"), reset: false))
         }
 
         do {
