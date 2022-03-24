@@ -12,7 +12,6 @@ internal class ExperienceStateMachine {
 
     private let config: Appcues.Config
     private let traitComposer: TraitComposing
-    private let storage: DataStoring
 
     private(set) var stateObservers: [ExperienceStateObserver] = []
 
@@ -33,7 +32,6 @@ internal class ExperienceStateMachine {
     init(container: DIContainer, initialState: State = .idling) {
         config = container.resolve(Appcues.Config.self)
         traitComposer = container.resolve(TraitComposing.self)
-        storage = container.resolve(DataStoring.self)
 
         state = initialState
     }
@@ -247,8 +245,6 @@ extension ExperienceStateMachine {
                 try package.presenter {
                     _ = try? machine.transition(.renderStep)
                 }
-
-                machine.storage.lastContentShownAt = Date()
             } catch {
                 _ = try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)"), fatal: true))
             }
