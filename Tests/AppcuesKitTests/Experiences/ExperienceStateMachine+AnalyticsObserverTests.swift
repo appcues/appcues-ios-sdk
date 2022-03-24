@@ -37,7 +37,6 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTExpectFailure("appcues:v2:experience_started event shouldnt be tracked until a step in the experience is fully rendered.")
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 0)
     }
 
@@ -50,9 +49,19 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 0)
     }
 
+    func testEvaluateRenderingFirstStepState() throws {
+        // Act
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(Experience.mock, .initial, Experience.mock.package(), isFirst: true)))
+
+        // Assert
+        XCTAssertFalse(isCompleted)
+        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 2)
+        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", sync: false))
+    }
+
     func testEvaluateRenderingStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(Experience.mock, .initial, Experience.mock.package())))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(Experience.mock, .initial, Experience.mock.package(), isFirst: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
