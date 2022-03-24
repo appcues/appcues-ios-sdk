@@ -54,7 +54,7 @@ class ExperienceStateMachineTests: XCTestCase {
         waitForExpectations(timeout: 1)
         XCTAssertEqual(
             stateMachine.state,
-            .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package)
+            .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
         )
         XCTAssertNotNil(appcues.storage.lastContentShownAt)
         XCTAssertTrue(package.containerController.lifecycleHandler === stateMachine)
@@ -69,7 +69,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let experience = Experience.mock
         let package: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
 
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: false)
         let action: Action = .startStep(StepReference.offset(1))
         let stateMachine = givenState(is: initialState)
 
@@ -86,7 +86,7 @@ class ExperienceStateMachineTests: XCTestCase {
         waitForExpectations(timeout: 1)
         XCTAssertEqual(
             stateMachine.state,
-            .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package)
+            .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
         )
     }
 
@@ -102,7 +102,7 @@ class ExperienceStateMachineTests: XCTestCase {
             return package
         }
 
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 2), package)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 2), package, isFirst: false)
         let action: Action = .startStep(StepReference.offset(1))
         let stateMachine = givenState(is: initialState)
 
@@ -113,7 +113,7 @@ class ExperienceStateMachineTests: XCTestCase {
         waitForExpectations(timeout: 1)
         XCTAssertEqual(
             stateMachine.state,
-            .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package)
+            .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: false)
         )
     }
 
@@ -125,7 +125,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let experience = Experience.mock
         let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
 
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
         let action: Action = .endExperience
         let stateMachine = givenState(is: initialState)
 
@@ -145,7 +145,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let experience = Experience.mock
         let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
 
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
         let stateMachine = givenState(is: initialState)
         package.containerController.lifecycleHandler = stateMachine
 
@@ -222,7 +222,7 @@ class ExperienceStateMachineTests: XCTestCase {
             throw TraitError(description: "Presenting capability trait required")
         }
 
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package())
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
         // Step ID in a different container
         let targetID = try XCTUnwrap(UUID(uuidString: "03652bd5-f0cb-44f0-9274-e95b4441d857"))
         let action: Action = .startStep(.stepID(targetID))
@@ -242,7 +242,7 @@ class ExperienceStateMachineTests: XCTestCase {
     func test_stateIsRenderingStep_whenStartExperience_noTransition() throws {
         // Arrange
         let experience = Experience.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), experience.package())
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), experience.package(), isFirst: false)
         let action: Action = .startExperience(Experience.mock)
         let stateMachine = givenState(is: initialState)
 
@@ -256,7 +256,7 @@ class ExperienceStateMachineTests: XCTestCase {
     func test_stateIsRenderingStep_whenStartStepInvalid_noTransition() throws {
         // Arrange
         let experience = Experience.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), experience.package())
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), experience.package(), isFirst: false)
         let action: Action = .startStep(StepReference.index(1000))
         let stateMachine = givenState(is: initialState)
 
@@ -286,7 +286,7 @@ class ExperienceStateMachineTests: XCTestCase {
     func test_stateIsRenderingStep_whenReportNonFatalError_noTransition() throws {
         // Arrange
         let experience = Experience.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package())
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
         let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition, fatal: false)
         let stateMachine = givenState(is: initialState)
 
@@ -300,7 +300,7 @@ class ExperienceStateMachineTests: XCTestCase {
     func test_stateIsRenderingStep_whenReportFatalError_transitionsToIdling() throws {
         // Arrange
         let experience = Experience.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package())
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
         let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition, fatal: true)
         let stateMachine = givenState(is: initialState)
 
@@ -314,7 +314,7 @@ class ExperienceStateMachineTests: XCTestCase {
     func testFatalExperienceErrorNotifiesObserver() throws {
         // Arrange
         let experience = Experience.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package())
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
         let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition, fatal: true)
         let stateMachine = givenState(is: initialState)
         let listingObserver = ListingObserver()
@@ -343,7 +343,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
         // Arrange
         let experience = Experience.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package())
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
         let action: Action = .reset
         let stateMachine = givenState(is: initialState)
 
