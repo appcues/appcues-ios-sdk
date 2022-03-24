@@ -13,7 +13,7 @@ extension ExperienceStateMachine {
         case idling
         case beginningExperience(Experience)
         case beginningStep(Experience, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
-        case renderingStep(Experience, Experience.StepIndex, ExperiencePackage)
+        case renderingStep(Experience, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
         case endingStep(Experience, Experience.StepIndex, ExperiencePackage)
         case endingExperience(Experience, Experience.StepIndex)
 
@@ -23,11 +23,11 @@ extension ExperienceStateMachine {
                 return Transition.fromIdlingToBeginningExperience(experience)
             case let (.beginningExperience(experience), .startStep(.index(0))):
                 return Transition.fromBeginningExperienceToBeginningStep(experience, traitComposer)
-            case let (.beginningStep(experience, stepIndex, package, _), .renderStep):
-                return Transition(toState: .renderingStep(experience, stepIndex, package))
-            case let (.renderingStep(experience, stepIndex, package), .startStep(stepRef)):
+            case let (.beginningStep(experience, stepIndex, package, isFirst), .renderStep):
+                return Transition(toState: .renderingStep(experience, stepIndex, package, isFirst: isFirst))
+            case let (.renderingStep(experience, stepIndex, package, _), .startStep(stepRef)):
                 return Transition.fromRenderingStepToEndingStep(experience, stepIndex, package, stepRef)
-            case let (.renderingStep(experience, stepIndex, package), .endExperience):
+            case let (.renderingStep(experience, stepIndex, package, _), .endExperience):
                 return Transition(
                     toState: .endingStep(experience, stepIndex, package),
                     sideEffect: .continuation(.endExperience)
@@ -65,8 +65,8 @@ extension ExperienceStateMachine.State: Equatable {
             return experience1.id == experience2.id
         case let (.beginningStep(experience1, stepIndex1, _, isFirst1), .beginningStep(experience2, stepIndex2, _, isFirst2)):
             return experience1.id == experience2.id && stepIndex1 == stepIndex2 && isFirst1 == isFirst2
-        case let (.renderingStep(experience1, stepIndex1, _), .renderingStep(experience2, stepIndex2, _)):
-            return experience1.id == experience2.id && stepIndex1 == stepIndex2
+        case let (.renderingStep(experience1, stepIndex1, _, isFirst1), .renderingStep(experience2, stepIndex2, _, isFirst2)):
+            return experience1.id == experience2.id && stepIndex1 == stepIndex2 && isFirst1 == isFirst2
         case let (.endingStep(experience1, stepIndex1, _), .endingStep(experience2, stepIndex2, _)):
             return experience1.id == experience2.id && stepIndex1 == stepIndex2
         case let (.endingExperience(experience1, stepIndex1), .endingExperience(experience2, stepIndex2)):
@@ -86,7 +86,7 @@ extension ExperienceStateMachine.State: CustomStringConvertible {
             return ".beginningExperience(experienceID: \(experience.id.uuidString))"
         case let .beginningStep(experience, stepIndex, _, _):
             return ".beginningStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
-        case let .renderingStep(experience, stepIndex, _):
+        case let .renderingStep(experience, stepIndex, _, _):
             return ".renderingStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .endingStep(experience, stepIndex, _):
             return ".endingStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"

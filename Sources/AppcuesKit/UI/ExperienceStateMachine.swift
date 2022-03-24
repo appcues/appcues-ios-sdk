@@ -103,7 +103,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         switch state {
         case .endingExperience:
             experienceWillDisappear()
-        case let .renderingStep(_, _, package) where package.wrapperController.isBeingDismissed:
+        case let .renderingStep(_, _, package, _) where package.wrapperController.isBeingDismissed:
             experienceWillDisappear()
         default:
             break
@@ -114,7 +114,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         switch state {
         case .endingExperience:
             experienceDidDisappear()
-        case let .renderingStep(_, _, package) where package.wrapperController.isBeingDismissed:
+        case let .renderingStep(_, _, package, _) where package.wrapperController.isBeingDismissed:
             experienceDidDisappear()
             // Update state in response to UI changes that have happened already (a call to UIViewController.dismiss).
             _ = try? transition(.endExperience)
@@ -126,18 +126,18 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
     func containerNavigated(from oldPageIndex: Int, to newPageIndex: Int) {
         // Set state directly in response to UI changes that have happened already
         switch state {
-        case let .renderingStep(experience, stepIndex, package):
+        case let .renderingStep(experience, stepIndex, package, _):
             let targetStepId = package.steps[newPageIndex].id
             if let newStepIndex = experience.stepIndex(for: targetStepId) {
                 state = .endingStep(experience, stepIndex, package)
                 state = .beginningStep(experience, stepIndex, package, isFirst: false)
-                state = .renderingStep(experience, newStepIndex, package)
+                state = .renderingStep(experience, newStepIndex, package, isFirst: false)
             }
         case let .endingStep(experience, _, package):
             let targetStepId = package.steps[newPageIndex].id
             if let newStepIndex = experience.stepIndex(for: targetStepId) {
                 state = .beginningStep(experience, newStepIndex, package, isFirst: false)
-                state = .renderingStep(experience, newStepIndex, package)
+                state = .renderingStep(experience, newStepIndex, package, isFirst: false)
             }
         default:
             break
