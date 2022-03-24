@@ -192,7 +192,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which mint >/dev/null; then\nxcrun --sdk macosx mint run swiftlint\nelse\necho \"warning: Mint not installed, install from https://github.com/yonaskolb/Mint\"\nfi ";
+			shellScript = "if which mint >/dev/null; then\nxcrun --sdk macosx mint run swiftlint@0.44.0\nelse\necho \"warning: Mint not installed, install from https://github.com/yonaskolb/Mint\"\nfi ";
 		};
 /* End PBXShellScriptBuildPhase section */
 
