@@ -138,7 +138,7 @@ class ActivityProcessorTests: XCTestCase {
         // verify that the config value for max size is respected, and items beyond this are not retried, and get cleaned out
 
         // Arrange
-        appcues.config.activityStorageMaxSize = 1
+        appcues.config.activityStorageMaxSize = 0
         let onPostExpectation1 = expectation(description: "Activity request 1")
         let onPostExpectation2 = expectation(description: "Activity request 2")
         let resultCallbackExpectation1 = expectation(description: "Process result 1")
