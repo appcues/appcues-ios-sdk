@@ -64,9 +64,6 @@ internal class SessionMonitor: SessionMonitoring {
 
         sessionID = UUID()
         publisher.track(SessionEvents.sessionStarted, properties: nil, sync: true)
-
-        // flush any backed up analytics cache
-        processor.flush()
     }
 
     // called on reset(), user sign-out
@@ -87,9 +84,6 @@ internal class SessionMonitor: SessionMonitoring {
         } else {
             publisher.track(SessionEvents.sessionResumed, properties: nil, sync: false)
         }
-
-        // flush any backed up analytics cache
-        processor.flush()
     }
 
     @objc
@@ -97,8 +91,5 @@ internal class SessionMonitor: SessionMonitoring {
         guard sessionID != nil else { return }
         applicationBackgrounded = Date()
         publisher.track(SessionEvents.sessionSuspended, properties: nil, sync: false)
-
-        // ensure any pending in-memory analytics get processed asap
-        tracker.flushAsync()
     }
 }
