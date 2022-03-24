@@ -39,11 +39,14 @@ extension ExperienceStateMachine {
             switch result {
             case .success(.idling):
                 break
-            case let .success(.beginningExperience(experience)):
-                trackLifecycleEvent(.experienceStarted(experience))
+            case .success(.beginningExperience):
+                break
             case .success(.beginningStep):
                 break
-            case let .success(.renderingStep(experience, stepIndex, _)):
+            case let .success(.renderingStep(experience, stepIndex, _, isFirst: true)):
+                trackLifecycleEvent(.experienceStarted(experience))
+                trackLifecycleEvent(.stepSeen(experience, stepIndex))
+            case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
                 trackLifecycleEvent(.stepSeen(experience, stepIndex))
             case let .success(.endingStep(experience, stepIndex, _)):
                 trackLifecycleEvent(.stepCompleted(experience, stepIndex))
