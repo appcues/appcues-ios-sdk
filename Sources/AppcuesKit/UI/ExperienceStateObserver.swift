@@ -30,9 +30,11 @@ extension ExperienceStateMachine {
 
     class AnalyticsObserver: ExperienceStateObserver {
         private let analyticsPublisher: AnalyticsPublishing
+        private let storage: DataStoring
 
         init(container: DIContainer) {
             self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
+            self.storage = container.resolve(DataStoring.self)
         }
 
         func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
@@ -44,6 +46,7 @@ extension ExperienceStateMachine {
             case .success(.beginningStep):
                 break
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: true)):
+                storage.lastContentShownAt = Date()
                 trackLifecycleEvent(.experienceStarted(experience))
                 trackLifecycleEvent(.stepSeen(experience, stepIndex))
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
