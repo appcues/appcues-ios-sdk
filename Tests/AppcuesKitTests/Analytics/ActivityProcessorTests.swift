@@ -192,51 +192,6 @@ class ActivityProcessorTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    func testFlush() throws {
-        // Arrange
-        let onPostExpectation = expectation(description: "Activity request 1")
-        let retryExpectation = expectation(description: "Activity retry request")
-        let resultCallbackExpectation1 = expectation(description: "Process result 1")
-        let activity1 = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
-        var postCount = 0
-
-        appcues.networking.onPost = { endpoint, body, completion in
-            do {
-                postCount += 1
-                if postCount == 1 {
-                    // first attempt we'll simulate failure
-                    completion(.failure(URLError(URLError.notConnectedToInternet)))
-                    onPostExpectation.fulfill()
-                } else if postCount == 2 {
-                    // this should be the flush/retry attempt - non synchronous for activity 1
-                    // the callback will not be forward back to caller (happens in background retry)
-                    let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                    guard case let .activity(userID, sync) = apiEndpoint else { return XCTFail() }
-                    XCTAssertEqual("user1", userID)
-                    XCTAssertFalse(sync)
-                    let data = try NetworkClient.encoder.encode(activity1)
-                    XCTAssertEqual(data, body)
-                    completion(.success(Taco(experiences: [], performedQualification: false)))
-                    retryExpectation.fulfill()
-                } else {
-                    XCTFail()
-                }
-            } catch {
-                XCTFail()
-            }
-        }
-
-        // Act
-        processor.process(activity1, sync: true) { result in
-            guard case .failure = result else { return XCTFail() }
-            resultCallbackExpectation1.fulfill()
-        }
-        processor.flush()
-
-        // Assert
-        waitForExpectations(timeout: 1)
-    }
-
     func testClientNetworkIssuesTriggerRetry() throws {
         let resultCallbackExpectation = expectation(description: "Process result")
         let networkIssues = [URLError.notConnectedToInternet, URLError.timedOut, URLError.dataNotAllowed, URLError.internationalRoamingOff]
