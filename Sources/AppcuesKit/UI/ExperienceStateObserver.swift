@@ -13,18 +13,42 @@ internal protocol ExperienceStateObserver: AnyObject {
     func evaluateIfSatisfied(result: StateResult) -> Bool
 }
 
+extension Result where Success == ExperienceStateMachine.State, Failure == ExperienceStateMachine.ExperienceError {
+    /// Check if the result pertains to a specific experience ID.
+    func matches(instanceID: UUID?) -> Bool {
+        guard let instanceID = instanceID else { return true }
+
+        switch self {
+        case .success(.idling), .failure(.noTransition):
+            return true
+        case let .success(.beginningExperience(experience)),
+            let .success(.beginningStep(experience, _, _, _)),
+            let .success(.renderingStep(experience, _, _, _)),
+            let .success(.endingStep(experience, _, _)),
+            let .success(.endingExperience(experience, _)),
+            let .failure(.step(experience, _, _)),
+            let .failure(.experience(experience, _)):
+            return experience.instanceID == instanceID
+        }
+    }
+}
+
 extension ExperienceStateMachine {
     typealias Callback = (ExperienceStateObserver.StateResult) -> Bool
 
     class StateObserver: ExperienceStateObserver {
+        private let instanceID: UUID?
         private let callback: Callback
 
-        init(_ evaluateIfSatisfied: @escaping Callback) {
+        init(filter: UUID?, _ evaluateIfSatisfied: @escaping Callback) {
+            self.instanceID = filter
             self.callback = evaluateIfSatisfied
         }
 
         func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
-            callback(result)
+            guard result.matches(instanceID: instanceID) else { return false }
+
+            return callback(result)
         }
     }
 

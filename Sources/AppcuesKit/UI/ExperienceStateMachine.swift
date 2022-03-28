@@ -41,8 +41,8 @@ internal class ExperienceStateMachine {
     ///   - newState: `ExperienceState` to attempt a transition to.
     ///   - observer: Block that's called on each state change, or if no state change occurs (represented by a `nil` value).
     ///   Must return `true` iff the observer is complete and should be removed.
-    func transitionAndObserve(_ action: Action, observer: @escaping (ExperienceStateObserver.StateResult) -> Bool) {
-        let observer = StateObserver(observer)
+    func transitionAndObserve(_ action: Action, filter: UUID? = nil, observer: @escaping (ExperienceStateObserver.StateResult) -> Bool) {
+        let observer = StateObserver(filter: filter, observer)
         addObserver(observer)
 
         do {

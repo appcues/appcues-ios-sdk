@@ -14,7 +14,7 @@ internal protocol StepModel {
     var actions: [String: [Experience.Action]] { get }
 }
 
-internal struct Experience: Decodable {
+internal struct Experience {
 
     @dynamicMemberLookup
     enum Step {
@@ -55,6 +55,15 @@ internal struct Experience: Decodable {
     // TODO: Handle experience-level actions
     let traits: [Trait]
     let steps: [Step]
+
+    /// Unique ID to disambiguate the same experience flowing through the system from different origins.
+    let instanceID = UUID()
+}
+
+extension Experience: Decodable {
+    private enum CodingKeys: CodingKey {
+        case id, name, traits, steps
+    }
 }
 
 extension Experience.Step: Decodable {
