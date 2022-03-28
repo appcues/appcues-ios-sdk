@@ -116,4 +116,65 @@ class ExperienceRendererTests: XCTestCase {
         // Assert
         waitForExpectations(timeout: 1)
     }
+
+    func testShowSameExperienceFromTwoSources() throws {
+        // Test that the state machine observers can properly distingush between the same experience ID.
+
+        // Arrange
+        let completionExpectation = expectation(description: "First experience: success called")
+        let failureExpectation = expectation(description: "Second experience: failure called")
+
+        let presentExpectation = expectation(description: "Experience presented")
+        let firstExperienceInstance = Experience.mock
+        let secondExperienceInstance = Experience.mock
+        let preconditionPackage: ExperiencePackage = firstExperienceInstance.packageWithDelay(presentExpectation: presentExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+
+        // Act
+        experienceRenderer.show(experience: firstExperienceInstance, published: true) { result in
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
+
+        experienceRenderer.show(experience: secondExperienceInstance, published: true) { result in
+            if case let .failure(error) = result {
+                XCTAssertEqual(
+                    error as! ExperienceStateMachine.ExperienceError,
+                    ExperienceStateMachine.ExperienceError.experience(secondExperienceInstance, "Experience already active")
+                )
+                failureExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        XCTAssertEqual(firstExperienceInstance.id, secondExperienceInstance.id)
+        XCTExpectFailure {
+            // First show() call receives an error instead of success
+            waitForExpectations(timeout: 2)
+        }
+    }
+}
+
+private extension Experience {
+    func packageWithDelay(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
+        let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()])
+        return ExperiencePackage(
+            traitInstances: [],
+            steps: self.steps[0].items,
+            containerController: containerController,
+            wrapperController: containerController,
+            presenter: { completion in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    presentExpectation?.fulfill()
+                    completion?()
+                }
+            },
+            dismisser: { completion in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    dismissExpectation?.fulfill()
+                    completion?()
+                }
+            })
+    }
 }
