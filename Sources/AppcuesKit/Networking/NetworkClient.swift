@@ -92,7 +92,7 @@ extension NetworkClient {
 
     static var defaultURLSession: URLSession {
         let configuration = URLSessionConfiguration.ephemeral
-        configuration.timeoutIntervalForResource = 30
+        configuration.timeoutIntervalForResource = 5
         configuration.httpAdditionalHeaders = [
             "Content-Type": "application/json; charset=utf-8"
         ]
