@@ -88,7 +88,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             case .success(let taco):
                 experienceRenderer.show(qualifiedExperiences: taco.experiences, completion: nil)
             case .failure(let error):
-                print(error)
+                self?.config.logger.error("%{public}s", "\(error)")
             }
         }
     }
