@@ -69,6 +69,38 @@ class ExperienceRendererTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testShowQualifiedExperiences() throws {
+        // Arrange
+        let completionExpectation = expectation(description: "Completion called")
+
+        let presentExpectation = expectation(description: "Experience presented")
+        let brokenExperience = Experience.mock
+        let validExperience = Experience.mock
+        let preconditionPackage: ExperiencePackage = validExperience.package(presentExpectation: presentExpectation)
+        appcues.traitComposer.onPackage = { experience, _ in
+            if experience.instanceID == validExperience.instanceID {
+                return preconditionPackage
+            } else {
+                throw TraitError(description: "Presenting capability trait required")
+            }
+        }
+
+        let eventExpectation = expectation(description: "event tracked")
+        // expect some number of analytics events (events/states are tested elsewhere)
+        eventExpectation.assertForOverFulfill = false
+        appcues.register(subscriber: Mocks.HandlingSubscriber { _ in eventExpectation.fulfill() })
+
+        // Act
+        experienceRenderer.show(qualifiedExperiences: [brokenExperience, validExperience]) { result in
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
     func testShowStepReference() throws {
         // Arrange
         let completionExpectation = expectation(description: "Completion called")

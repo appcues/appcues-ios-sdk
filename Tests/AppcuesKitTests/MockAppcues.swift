@@ -103,6 +103,11 @@ class MockExperienceRenderer: ExperienceRendering {
         onShowStep?(stepRef, completion)
     }
 
+    var onShowQualifiedExperiences: (([Experience], ((Result<Void, Error>) -> Void)?) -> Void)?
+    func show(qualifiedExperiences: [Experience], completion: ((Result<Void, Error>) -> Void)?) {
+        onShowQualifiedExperiences?(qualifiedExperiences, completion)
+    }
+
     var onDismissCurrentExperience: (((() -> Void)?) -> Void)?
     func dismissCurrentExperience(completion: (() -> Void)?) {
         onDismissCurrentExperience?(completion)
