@@ -10,6 +10,7 @@ import UIKit
 
 internal protocol ExperienceRendering {
     func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
+    func show(qualifiedExperiences: [Experience], completion: ((Result<Void, Error>) -> Void)?)
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
     func dismissCurrentExperience(completion: (() -> Void)?)
 }
@@ -50,6 +51,29 @@ internal class ExperienceRenderer: ExperienceRendering {
                 default:
                     // Keep observing until we get to the target state
                     return false
+                }
+            }
+        }
+    }
+
+    func show(qualifiedExperiences: [Experience], completion: ((Result<Void, Error>) -> Void)?) {
+        guard let experience = qualifiedExperiences.first else {
+            // If given an empty list of qualified experiences, complete with a success because this function has completed without error.
+            // This function only recurses on a non-empty case, so this block only applies to the initial external call.
+            completion?(.success(()))
+            return
+        }
+
+        show(experience: experience, published: true) { result in
+            switch result {
+            case .success:
+                completion?(result)
+            case .failure:
+                let remainingExperiences = qualifiedExperiences.dropFirst()
+                if remainingExperiences.isEmpty {
+                    completion?(result)
+                } else {
+                    self.show(qualifiedExperiences: Array(remainingExperiences), completion: completion)
                 }
             }
         }
