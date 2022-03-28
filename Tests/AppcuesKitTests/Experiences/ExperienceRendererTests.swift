@@ -149,10 +149,8 @@ class ExperienceRendererTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(firstExperienceInstance.id, secondExperienceInstance.id)
-        XCTExpectFailure {
-            // First show() call receives an error instead of success
-            waitForExpectations(timeout: 2)
-        }
+        XCTAssertNotEqual(firstExperienceInstance.instanceID, secondExperienceInstance.instanceID)
+        waitForExpectations(timeout: 2)
     }
 }
 
