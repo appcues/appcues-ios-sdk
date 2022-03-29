@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 internal protocol AnalyticsTracking {
-    func flushAsync()
+    func flush()
 }
 
 internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
@@ -69,8 +69,10 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
     // to be called when any pending activity should immediately be flushed to cache, and network if possible
     // i.e. app going to background / being killed
-    func flushAsync() {
-        flushPendingActivity(sync: false)
+    func flush() {
+        syncQueue.sync {
+            flushPendingActivity(sync: false)
+        }
     }
 
     private func flushPendingActivity(sync: Bool) {
@@ -101,12 +103,14 @@ extension Activity {
             self.init(accountID: config.accountID,
                       userID: storage.userID,
                       events: [Event(name: name, attributes: update.properties, context: update.context)],
+                      profileUpdate: update.eventAutoProperties,
                       groupID: storage.groupID)
 
         case let .screen(title):
             self.init(accountID: config.accountID,
                       userID: storage.userID,
                       events: [Event(screen: title, attributes: update.properties, context: update.context)],
+                      profileUpdate: update.eventAutoProperties,
                       groupID: storage.groupID)
 
         case .profile:
@@ -136,6 +140,13 @@ extension Activity {
         if let newEvents = activity.events {
             let existingEvents = events ?? []
             events = existingEvents + newEvents
+
+            // additional events can also cause autoproperty updates, merge those in
+            newEvents.forEach {
+                if let autoProps = $0.autoProperties {
+                    profileUpdate = (profileUpdate ?? [:]).merging(autoProps) { _, new in new }
+                }
+            }
         }
     }
 }

@@ -91,5 +91,8 @@ internal class SessionMonitor: SessionMonitoring {
         guard sessionID != nil else { return }
         applicationBackgrounded = Date()
         publisher.track(SessionEvents.sessionSuspended, properties: nil, sync: false)
+
+        // ensure any pending in-memory analytics get processed asap
+        tracker.flush()
     }
 }
