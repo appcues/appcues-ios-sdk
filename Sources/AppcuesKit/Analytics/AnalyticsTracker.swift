@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 internal protocol AnalyticsTracking {
-    func flushAsync()
+    func flushPendingActivity()
 }
 
 internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
@@ -41,14 +41,14 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             syncQueue.sync {
                 flushWorkItem?.cancel()
                 pendingActivity.append(activity)
-                flushPendingActivity(sync: true)
+                flushPendingActivity()
             }
 
         case .flushThenSend:
             syncQueue.sync {
                 flushWorkItem?.cancel()
-                flushPendingActivity(sync: false)
-                flush(activity, sync: true)
+                flushPendingActivity()
+                flush(activity)
             }
 
         case .queue:
@@ -57,7 +57,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 if flushWorkItem == nil {
                     let workItem = DispatchWorkItem { [weak self] in
                         self?.syncQueue.sync {
-                            self?.flushPendingActivity(sync: false)
+                            self?.flushPendingActivity()
                         }
                     }
                     flushWorkItem = workItem
@@ -69,21 +69,17 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
     // to be called when any pending activity should immediately be flushed to cache, and network if possible
     // i.e. app going to background / being killed
-    func flushAsync() {
-        flushPendingActivity(sync: false)
-    }
-
-    private func flushPendingActivity(sync: Bool) {
+    func flushPendingActivity() {
         flushWorkItem = nil
         let merged = pendingActivity.merge()
         pendingActivity = []
-        flush(merged, sync: sync)
+        flush(merged)
     }
 
-    private func flush(_ activity: Activity?, sync: Bool) {
+    private func flush(_ activity: Activity?) {
         guard let activity = activity else { return }
-        activityProcessor.process(activity, sync: sync) { [weak self] result in
-            guard sync, let experienceRenderer = self?.experienceRenderer else { return }
+        activityProcessor.process(activity) { [weak self] result in
+            guard let experienceRenderer = self?.experienceRenderer else { return }
             switch result {
             case .success(let taco):
                 experienceRenderer.show(qualifiedExperiences: taco.experiences, completion: nil)
@@ -101,12 +97,14 @@ extension Activity {
             self.init(accountID: config.accountID,
                       userID: storage.userID,
                       events: [Event(name: name, attributes: update.properties, context: update.context)],
+                      profileUpdate: update.eventAutoProperties,
                       groupID: storage.groupID)
 
         case let .screen(title):
             self.init(accountID: config.accountID,
                       userID: storage.userID,
                       events: [Event(screen: title, attributes: update.properties, context: update.context)],
+                      profileUpdate: update.eventAutoProperties,
                       groupID: storage.groupID)
 
         case .profile:
@@ -136,6 +134,13 @@ extension Activity {
         if let newEvents = activity.events {
             let existingEvents = events ?? []
             events = existingEvents + newEvents
+
+            // additional events can also cause autoproperty updates, merge those in
+            newEvents.forEach {
+                if let autoProps = $0.autoProperties {
+                    profileUpdate = (profileUpdate ?? [:]).merging(autoProps) { _, new in new }
+                }
+            }
         }
     }
 }

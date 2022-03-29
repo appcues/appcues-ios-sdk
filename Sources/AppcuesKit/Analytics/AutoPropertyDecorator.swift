@@ -50,6 +50,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
         case .event(SessionEvents.sessionStarted.rawValue, _):
             sessionPageviews = 0
             sessionRandomizer = Int.random(in: 1...100)
+            currentScreen = nil
+            previousScreen = nil
         case .group:
             // group updates do not have autoprops, don't manipulate anything in the properties
             return tracking
@@ -57,7 +59,6 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             break
         }
 
-        var properties = tracking.properties ?? [:]
         var decorated = tracking
 
         var sessionProperties: [String: Any?] = [
@@ -66,8 +67,10 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_localId": storage.deviceID,
             "_sessionPageviews": sessionPageviews,
             "_sessionRandomizer": sessionRandomizer,
-            "_currentScreenTitle": currentScreen,
-            "_lastScreenTitle": previousScreen,
+            // "_currentScreenTitle": currentScreen,
+            // "_lastScreenTitle": previousScreen,
+            // TODO: remove line below and restore two above once API change is done
+            "_lastScreenTitle": currentScreen,
             "_updatedAt": Date(),
             "_lastContentShownAt": storage.lastContentShownAt,
             "_sessionId": sessionMonitor.sessionID?.uuidString
@@ -81,12 +84,12 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
 
         if case .profile = tracking.type {
             // profile updates have auto props merged in at root level
-            properties = properties.merging(merged) { _, new in new }
+            decorated.properties = (tracking.properties ?? [:]).merging(merged) { _, new in new }
         } else {
-            // events have auto props nested inside an _identity object
-            properties["_identity"] = merged
+            // all other events have auto props within attributes._identity
+            decorated.eventAutoProperties = merged
         }
-        decorated.properties = properties
+
         decorated.context = context
 
         return decorated
@@ -139,5 +142,25 @@ private extension UIDevice {
             guard let value = element.value as? Int8, value != 0 else { return }
             identifier += String(UnicodeScalar(UInt8(value)))
         }
+    }
+}
+
+extension TrackingUpdate {
+    // events have auto props nested inside an _identity object
+    var eventAutoProperties: [String: Any]? {
+        get {
+            return properties?["_identity"] as? [String: Any]
+        }
+        set {
+            var newProps = properties ?? [:]
+            newProps["_identity"] = newValue
+            properties = newProps
+        }
+    }
+}
+
+extension Event {
+    var autoProperties: [String: Any]? {
+        return attributes?["_identity"] as? [String: Any]
     }
 }

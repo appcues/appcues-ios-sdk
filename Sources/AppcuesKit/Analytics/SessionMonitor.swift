@@ -63,12 +63,12 @@ internal class SessionMonitor: SessionMonitoring {
         guard !storage.userID.isEmpty else { return }
 
         sessionID = UUID()
-        publisher.track(SessionEvents.sessionStarted, properties: nil, sync: true)
+        publisher.track(SessionEvents.sessionStarted, properties: nil, interactive: true)
     }
 
     // called on reset(), user sign-out
     func reset() {
-        publisher.track(SessionEvents.sessionReset, properties: nil, sync: false)
+        publisher.track(SessionEvents.sessionReset, properties: nil, interactive: false)
         sessionID = nil
     }
 
@@ -80,9 +80,9 @@ internal class SessionMonitor: SessionMonitoring {
         self.applicationBackgrounded = nil
 
         if elapsed >= sessionTimeout {
-            publisher.track(SessionEvents.sessionStarted, properties: nil, sync: true)
+            publisher.track(SessionEvents.sessionStarted, properties: nil, interactive: true)
         } else {
-            publisher.track(SessionEvents.sessionResumed, properties: nil, sync: false)
+            publisher.track(SessionEvents.sessionResumed, properties: nil, interactive: false)
         }
     }
 
@@ -90,6 +90,9 @@ internal class SessionMonitor: SessionMonitoring {
     func didEnterBackground(notification: Notification) {
         guard sessionID != nil else { return }
         applicationBackgrounded = Date()
-        publisher.track(SessionEvents.sessionSuspended, properties: nil, sync: false)
+        publisher.track(SessionEvents.sessionSuspended, properties: nil, interactive: false)
+
+        // ensure any pending in-memory analytics get processed asap
+        tracker.flushPendingActivity()
     }
 }
