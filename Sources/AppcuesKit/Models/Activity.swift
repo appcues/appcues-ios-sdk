@@ -12,7 +12,7 @@ import Foundation
 internal struct Activity {
     let requestID = UUID()
     var events: [Event]?
-    let profileUpdate: [String: Any]?
+    var profileUpdate: [String: Any]?
     let userID: String
     let accountID: String
     let groupID: String?
