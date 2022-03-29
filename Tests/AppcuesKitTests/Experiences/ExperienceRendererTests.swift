@@ -173,7 +173,7 @@ class ExperienceRendererTests: XCTestCase {
             if case let .failure(error) = result {
                 XCTAssertEqual(
                     error as! ExperienceStateMachine.ExperienceError,
-                    ExperienceStateMachine.ExperienceError.experience(secondExperienceInstance, "Experience already active")
+                    ExperienceStateMachine.ExperienceError.experienceAlreadyActive(ignoredExperience: secondExperienceInstance)
                 )
                 failureExpectation.fulfill()
             }
