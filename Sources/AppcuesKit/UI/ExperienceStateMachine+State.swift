@@ -44,7 +44,7 @@ extension ExperienceStateMachine {
 
             // Error cases
             case let (_, .startExperience(experience)):
-                return Transition(toState: nil, sideEffect: .error(.experience(experience, "Experience already active"), reset: false))
+                return Transition(toState: nil, sideEffect: .error(.experienceAlreadyActive(ignoredExperience: experience), reset: false))
             case let (_, .reportError(error, fatal)):
                 // Don't transition directly to .idling for fatal errors because that removes
                 // obsevers before they're notified of the error by the side effect.

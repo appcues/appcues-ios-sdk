@@ -26,6 +26,7 @@ extension Result where Success == ExperienceStateMachine.State, Failure == Exper
             let .success(.renderingStep(experience, _, _, _)),
             let .success(.endingStep(experience, _, _)),
             let .success(.endingExperience(experience, _)),
+            let .failure(.experienceAlreadyActive(ignoredExperience: experience)),
             let .failure(.step(experience, _, _)),
             let .failure(.experience(experience, _)):
             return experience.instanceID == instanceID
@@ -88,6 +89,8 @@ extension ExperienceStateMachine {
             case let .failure(.step(experience, stepIndex, message)):
                 trackLifecycleEvent(.stepError(experience, stepIndex, "\(message)"))
             case .failure(.noTransition):
+                break
+            case .failure(.experienceAlreadyActive):
                 break
             }
 
