@@ -102,7 +102,7 @@ public class Appcues {
     ///   - name: Name of the event.
     ///   - properties: Optional properties that provide additional context about the event.
     public func track(name: String, properties: [String: Any]? = nil) {
-        track(name: name, properties: properties, sync: true)
+        track(name: name, properties: properties, interactive: true)
     }
 
     /// Track an screen viewed by a user.
@@ -224,8 +224,8 @@ public class Appcues {
 }
 
 extension Appcues: AnalyticsPublishing {
-    func track(name: String, properties: [String: Any]?, sync: Bool) {
-        publish(TrackingUpdate(type: .event(name: name, sync: sync), properties: properties))
+    func track(name: String, properties: [String: Any]?, interactive: Bool) {
+        publish(TrackingUpdate(type: .event(name: name, interactive: interactive), properties: properties))
     }
 
     func register(subscriber: AnalyticsSubscribing) {

@@ -11,7 +11,7 @@ import Foundation
 internal struct TrackingUpdate {
 
     enum TrackingType: Equatable {
-        case event(name: String, sync: Bool)
+        case event(name: String, interactive: Bool)
         case screen(String)
         case profile
         case group
@@ -38,8 +38,8 @@ internal struct TrackingUpdate {
 
     var policy: Policy {
         switch type {
-        case let .event(_, sync):
-            return sync ? .queueThenFlush : .queue
+        case let .event(_, interactive):
+            return interactive ? .queueThenFlush : .queue
 
         case .screen:
             return .queueThenFlush

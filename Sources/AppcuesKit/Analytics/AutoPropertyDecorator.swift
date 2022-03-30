@@ -68,9 +68,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_sessionPageviews": sessionPageviews,
             "_sessionRandomizer": sessionRandomizer,
             "_currentScreenTitle": currentScreen,
-            "_lastScreenTitle": currentScreen,
-            // TODO: remove line above and restore line below after API changes
-            // "_lastScreenTitle": previousScreen,
+            "_lastScreenTitle": previousScreen,
             "_updatedAt": Date(),
             "_lastContentShownAt": storage.lastContentShownAt,
             "_sessionId": sessionMonitor.sessionID?.uuidString

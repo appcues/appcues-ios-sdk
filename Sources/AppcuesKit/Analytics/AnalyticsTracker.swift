@@ -41,14 +41,14 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             syncQueue.sync {
                 flushWorkItem?.cancel()
                 pendingActivity.append(activity)
-                flushPendingActivity(sync: true)
+                flushPendingActivity()
             }
 
         case .flushThenSend:
             syncQueue.sync {
                 flushWorkItem?.cancel()
-                flushPendingActivity(sync: false)
-                flush(activity, sync: true)
+                flushPendingActivity()
+                flush(activity)
             }
 
         case .queue:
@@ -57,7 +57,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 if flushWorkItem == nil {
                     let workItem = DispatchWorkItem { [weak self] in
                         self?.syncQueue.sync {
-                            self?.flushPendingActivity(sync: false)
+                            self?.flushPendingActivity()
                         }
                     }
                     flushWorkItem = workItem
@@ -71,21 +71,21 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     // i.e. app going to background / being killed
     func flush() {
         syncQueue.sync {
-            flushPendingActivity(sync: false)
+            flushPendingActivity()
         }
     }
 
-    private func flushPendingActivity(sync: Bool) {
+    private func flushPendingActivity() {
         flushWorkItem = nil
         let merged = pendingActivity.merge()
         pendingActivity = []
-        flush(merged, sync: sync)
+        flush(merged)
     }
 
-    private func flush(_ activity: Activity?, sync: Bool) {
+    private func flush(_ activity: Activity?) {
         guard let activity = activity else { return }
-        activityProcessor.process(activity, sync: sync) { [weak self] result in
-            guard sync, let experienceRenderer = self?.experienceRenderer else { return }
+        activityProcessor.process(activity) { [weak self] result in
+            guard let experienceRenderer = self?.experienceRenderer else { return }
             switch result {
             case .success(let taco):
                 experienceRenderer.show(qualifiedExperiences: taco.experiences, completion: nil)

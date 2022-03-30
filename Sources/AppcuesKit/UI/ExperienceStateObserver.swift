@@ -99,7 +99,7 @@ extension ExperienceStateMachine {
         }
 
         func trackLifecycleEvent(_ event: ExperienceLifecycleEvent) {
-            analyticsPublisher.track(name: event.name, properties: event.properties, sync: false)
+            analyticsPublisher.track(name: event.name, properties: event.properties, interactive: false)
         }
     }
 }

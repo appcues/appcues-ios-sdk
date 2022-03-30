@@ -31,10 +31,9 @@ class AnalyticsTrackerTests: XCTestCase {
 
         // In the case of a profile update, verify the update is sent to the activity processor as
         // an Activity with the expected properties, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, sync, completion in
+        appcues.activityProcessor.onProcess = { activity, completion in
             // Assert (do/catch necessary because the closure is non-throwing)
             do {
-                XCTAssertEqual(true, sync)
                 try ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(activity.profileUpdate)
                 onRequestExpectation.fulfill()
             } catch {
@@ -58,10 +57,9 @@ class AnalyticsTrackerTests: XCTestCase {
 
         // In the case of a tracked event, verify the update is sent to the activity processor as
         // an Activity with the expected event structure, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, sync, completion in
+        appcues.activityProcessor.onProcess = { activity, completion in
             // Assert (do/catch necessary because the closure is non-throwing)
             do {
-                XCTAssertEqual(true, sync)
                 try expectedEvents.verifyMatchingEvents(activity.events)
                 onRequestExpectation.fulfill()
             } catch {
@@ -69,7 +67,7 @@ class AnalyticsTrackerTests: XCTestCase {
             }
         }
 
-        let update = TrackingUpdate(type: .event(name: "eventName", sync: true), properties: ["my_key":"my_value", "another_key": 33])
+        let update = TrackingUpdate(type: .event(name: "eventName", interactive: true), properties: ["my_key":"my_value", "another_key": 33])
 
         // Act
         tracker.track(update: update)
@@ -85,10 +83,9 @@ class AnalyticsTrackerTests: XCTestCase {
 
         // In the case of a tracked screen, verify the update is sent to the activity processor as
         // an Activity with the expected screen event structure, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, sync, completion in
+        appcues.activityProcessor.onProcess = { activity, completion in
             // Assert (do/catch necessary because the closure is non-throwing)
             do {
-                XCTAssertEqual(true, sync)
                 try expectedEvents.verifyMatchingEvents(activity.events)
                 onRequestExpectation.fulfill()
             } catch {

@@ -29,8 +29,8 @@ extension Taco: Decodable {
         experiences = (try? container.decode([Experience].self, forKey: .experiences)) ?? []
 
         if container.allKeys.contains(.ok) {
-            // a reponse with only "ok" is the case when the `sync=1` param is not included - no
-            // syncronous qualification, just internal analytics data
+            // a reponse with only "ok" is returned when the /activity endpoint is used to send
+            // analytics but no qualification is ran by the server
             performedQualification = false
         } else {
             performedQualification = try container.decode(Bool.self, forKey: .performedQualification)
