@@ -59,7 +59,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 2)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", sync: false))
+        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", interactive: false))
         XCTAssertNotNil(appcues.storage.lastContentShownAt)
     }
 
@@ -70,7 +70,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", sync: false))
+        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", interactive: false))
     }
 
     func testEvaluateEndingStepState() throws {
@@ -80,7 +80,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_completed", sync: false))
+        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_completed", interactive: false))
     }
 
     func testEvaluateEndingExperienceState() throws {
@@ -90,7 +90,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_dismissed", sync: false))
+        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_dismissed", interactive: false))
     }
 
     func testEvaluateEndingExperienceLastStepState() throws {
@@ -100,7 +100,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_completed", sync: false))
+        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_completed", interactive: false))
     }
 
     func testEvaluateExperienceError() throws {
@@ -110,7 +110,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_error", sync: false))
+        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_error", interactive: false))
     }
 
     func testEvaluateStepError() throws {
@@ -120,7 +120,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_error", sync: false))
+        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_error", interactive: false))
     }
 
     func testEvaluateNoTransitionError() throws {

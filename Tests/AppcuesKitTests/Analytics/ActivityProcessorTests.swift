@@ -43,7 +43,7 @@ class ActivityProcessorTests: XCTestCase {
         appcues.networking.onPost = { endpoint, body, completion in
             do {
                 let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                guard case .activity(activity.userID, true) = apiEndpoint else { return XCTFail() }
+                guard case .qualify(activity.userID) = apiEndpoint else { return XCTFail() }
                 let data = try NetworkClient.encoder.encode(activity)
                 XCTAssertEqual(data, body)
                 onPostExpectation.fulfill()
@@ -54,7 +54,7 @@ class ActivityProcessorTests: XCTestCase {
         }
 
         // Act
-        processor.process(activity, sync: true) { result in
+        processor.process(activity) { result in
             guard case let .success(taco) = result else { return XCTFail() }
             XCTAssertEqual(true, taco.performedQualification)
             XCTAssertEqual(1, taco.experiences.count)
@@ -91,9 +91,8 @@ class ActivityProcessorTests: XCTestCase {
                     // this should be the retry attempt - non synchronous for activity 1
                     // the callback will not be forward back to caller (happens in background retry)
                     let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                    guard case let .activity(userID, sync) = apiEndpoint else { return XCTFail() }
+                    guard case let .activity(userID) = apiEndpoint else { return XCTFail() }
                     XCTAssertEqual("user1", userID)
-                    XCTAssertFalse(sync)
                     let data = try NetworkClient.encoder.encode(activity1)
                     XCTAssertEqual(data, body)
                     completion(.success(Taco(experiences: [], performedQualification: false)))
@@ -101,9 +100,8 @@ class ActivityProcessorTests: XCTestCase {
                 } else if postCount == 3 {
                     // this should be the synchronous attempt for activity 2
                     let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                    guard case let .activity(userID, sync) = apiEndpoint else { return XCTFail() }
+                    guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
                     XCTAssertEqual("user2", userID)
-                    XCTAssertTrue(sync)
                     let data = try NetworkClient.encoder.encode(activity2)
                     XCTAssertEqual(data, body)
                     completion(.success(Taco(experiences: [self.mockExperience], performedQualification: true)))
@@ -117,11 +115,11 @@ class ActivityProcessorTests: XCTestCase {
         }
 
         // Act
-        processor.process(activity1, sync: true) { result in
+        processor.process(activity1) { result in
             guard case .failure = result else { return XCTFail() }
             resultCallbackExpectation1.fulfill()
         }
-        processor.process(activity2, sync: true) { result in
+        processor.process(activity2) { result in
             guard case let .success(taco) = result else { return XCTFail() }
             XCTAssertEqual(true, taco.performedQualification)
             XCTAssertEqual(1, taco.experiences.count)
@@ -157,9 +155,8 @@ class ActivityProcessorTests: XCTestCase {
                 } else if postCount == 2 {
                     // this should be the synchronous attempt for activity 2 - no retry made
                     let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                    guard case let .activity(userID, sync) = apiEndpoint else { return XCTFail() }
+                    guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
                     XCTAssertEqual("user2", userID)
-                    XCTAssertTrue(sync)
                     let data = try NetworkClient.encoder.encode(activity2)
                     XCTAssertEqual(data, body)
                     completion(.success(Taco(experiences: [self.mockExperience], performedQualification: true)))
@@ -173,12 +170,12 @@ class ActivityProcessorTests: XCTestCase {
         }
 
         // Act
-        processor.process(activity1, sync: true) { result in
+        processor.process(activity1) { result in
             guard case .failure = result else { return XCTFail() }
             XCTAssertEqual(1, self.mockStorage.count) // failed item will stay around
             resultCallbackExpectation1.fulfill()
         }
-        processor.process(activity2, sync: true) { result in
+        processor.process(activity2) { result in
             guard case let .success(taco) = result else { return XCTFail() }
             XCTAssertEqual(true, taco.performedQualification)
             XCTAssertEqual(1, taco.experiences.count)
@@ -206,7 +203,7 @@ class ActivityProcessorTests: XCTestCase {
         for issue in networkIssues {
             let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
             currentError = URLError(issue)
-            processor.process(activity, sync: true) { result in
+            processor.process(activity) { result in
                 guard case .failure = result else { return XCTFail() }
                 resultCallbackExpectation.fulfill()
             }
@@ -231,7 +228,7 @@ class ActivityProcessorTests: XCTestCase {
         for issue in networkIssues {
             let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
             currentError = URLError(issue)
-            processor.process(activity, sync: true) { result in
+            processor.process(activity) { result in
                 guard case .failure = result else { return XCTFail() }
                 resultCallbackExpectation.fulfill()
             }
@@ -265,9 +262,8 @@ class ActivityProcessorTests: XCTestCase {
                 } else if postCount == 2 {
                     // this should be the synchronous attempt for activity 2 - no retry made
                     let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                    guard case let .activity(userID, sync) = apiEndpoint else { return XCTFail() }
+                    guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
                     XCTAssertEqual("user2", userID)
-                    XCTAssertTrue(sync)
                     let data = try NetworkClient.encoder.encode(activity2)
                     XCTAssertEqual(data, body)
                     completion(.success(Taco(experiences: [self.mockExperience], performedQualification: true)))
@@ -281,13 +277,13 @@ class ActivityProcessorTests: XCTestCase {
         }
 
         // Act
-        processor.process(activity1, sync: true) { result in
+        processor.process(activity1) { result in
             guard case .failure = result else { return XCTFail() }
             XCTAssertEqual(1, self.mockStorage.count) // failed item will stay around
             resultCallbackExpectation1.fulfill()
         }
         wait(for: 1.2)
-        processor.process(activity2, sync: true) { result in
+        processor.process(activity2) { result in
             guard case let .success(taco) = result else { return XCTFail() }
             XCTAssertEqual(true, taco.performedQualification)
             XCTAssertEqual(1, taco.experiences.count)
@@ -316,7 +312,7 @@ class ActivityProcessorTests: XCTestCase {
         }
 
         // Act
-        processor.process(activity, sync: true) { result in
+        processor.process(activity) { result in
             guard case .success = result else { return XCTFail() }
             resultCallbackExpectation.fulfill()
         }

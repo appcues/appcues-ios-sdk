@@ -9,7 +9,7 @@
 import Foundation
 
 internal protocol ActivityProcessing {
-    func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?)
+    func process(_ activity: Activity, completion: ((Result<Taco, Error>) -> Void)?)
 }
 
 /// This class is responsible for the network transport of analytics data to the /activity API endpoint.  This includes
@@ -34,7 +34,7 @@ internal class ActivityProcessor: ActivityProcessing {
         self.activityStorage = container.resolve(ActivityStoring.self)
     }
 
-    func process(_ activity: Activity, sync: Bool, completion: ((Result<Taco, Error>) -> Void)?) {
+    func process(_ activity: Activity, completion: ((Result<Taco, Error>) -> Void)?) {
         guard let activity = ActivityStorage(activity) else { return }
 
         var itemsToFlush: [ActivityStorage] = []
@@ -60,7 +60,7 @@ internal class ActivityProcessor: ActivityProcessing {
             processingItems.formUnion(itemsToFlush.map { $0.requestID })
         }
 
-        post(activities: itemsToFlush, current: activity, sync: sync, completion: completion)
+        post(activities: itemsToFlush, current: activity, completion: completion)
     }
 
     // this method returns the X (based on config) applicable items to flush from storage.
@@ -116,7 +116,6 @@ internal class ActivityProcessor: ActivityProcessing {
 
     private func post(activities: [ActivityStorage],
                       current: ActivityStorage,
-                      sync: Bool,
                       completion: ((Result<Taco, Error>) -> Void)?) {
         var activities = activities
         guard !activities.isEmpty else { return } // done - nothing in the queue
@@ -129,11 +128,12 @@ internal class ActivityProcessor: ActivityProcessing {
         // if so, make sure its completion gets passed along.  any other retry attempts will not have completion blocks
         let itemCompletion = isCurrent ? completion : nil
 
-        // similarly, pass along the `sync` value (synchronous qualification flag) for the current activity
-        let syncRequest = isCurrent ? sync : false
+        let endpoint = isCurrent ?
+            APIEndpoint.qualify(userID: activity.userID) :
+            APIEndpoint.activity(userID: activity.userID)
 
         networking.post(
-            to: APIEndpoint.activity(userID: activity.userID, sync: syncRequest),
+            to: endpoint,
             body: activity.data
         ) { [weak self] (result: Result<Taco, Error>) in
 
@@ -156,7 +156,7 @@ internal class ActivityProcessor: ActivityProcessing {
             itemCompletion?(result)
 
             // recurse on remainder of the queue
-            self.post(activities: activities, current: current, sync: sync, completion: completion)
+            self.post(activities: activities, current: current, completion: completion)
         }
     }
 }
