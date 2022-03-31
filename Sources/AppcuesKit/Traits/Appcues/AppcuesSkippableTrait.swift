@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecoratingTrait {
     static var type: String = "@appcues/skippable"
 
@@ -35,6 +36,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
     }
 }
 
+@available(iOS 13.0, *)
 private extension UIViewController {
     func addDismissButton() {
         let dismissButton = CloseButton()
@@ -55,6 +57,7 @@ private extension UIViewController {
     }
 }
 
+@available(iOS 13.0, *)
 private extension UIViewController {
     class CloseButton: UIButton {
         private static let size: CGFloat = 30

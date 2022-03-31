@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal struct AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
     static let type = "@appcues/modal"
 
@@ -76,6 +77,7 @@ internal struct AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pr
     }
 }
 
+@available(iOS 13.0, *)
 extension AppcuesModalTrait {
     enum PresentationStyle: String {
         case full

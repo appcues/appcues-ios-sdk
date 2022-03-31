@@ -8,6 +8,7 @@
 
 import Foundation
 
+@available(iOS 13.0, *)
 extension ExperienceStateMachine {
     enum ExperienceError: Error {
         case noTransition
@@ -17,6 +18,7 @@ extension ExperienceStateMachine {
     }
 }
 
+@available(iOS 13.0, *)
 extension ExperienceStateMachine.ExperienceError: Equatable {
     static func == (lhs: ExperienceStateMachine.ExperienceError, rhs: ExperienceStateMachine.ExperienceError) -> Bool {
         switch (lhs, rhs) {
@@ -34,6 +36,7 @@ extension ExperienceStateMachine.ExperienceError: Equatable {
     }
 }
 
+@available(iOS 13.0, *)
 extension ExperienceStateMachine.ExperienceError: CustomStringConvertible {
     var description: String {
         switch self {

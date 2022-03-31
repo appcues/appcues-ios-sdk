@@ -8,10 +8,12 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal protocol DeeplinkHandling {
     func didHandleURL(_ url: URL) -> Bool
 }
 
+@available(iOS 13.0, *)
 internal class DeeplinkHandler: DeeplinkHandling {
 
     enum Action: Hashable {
@@ -111,6 +113,7 @@ public extension Appcues {
     /// ```swift
     /// guard !<#appcuesInstance#>.filterAndHandle(URLContexts) else { return }
     /// ```
+    @available(iOS 13.0, *)
     @discardableResult
     func filterAndHandle(_ URLContexts: Set<UIOpenURLContext>) -> Set<UIOpenURLContext> {
         URLContexts.filter { !didHandleURL($0.url) }

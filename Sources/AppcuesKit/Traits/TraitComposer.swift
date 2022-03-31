@@ -8,10 +8,12 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal protocol TraitComposing: AnyObject {
     func package(experience: Experience, stepIndex: Experience.StepIndex) throws -> ExperiencePackage
 }
 
+@available(iOS 13.0, *)
 internal class TraitComposer: TraitComposing {
 
     private let traitRegistry: TraitRegistry
@@ -105,6 +107,7 @@ internal class TraitComposer: TraitComposing {
     }
 }
 
+@available(iOS 13.0, *)
 extension TraitComposer {
     struct DefaultContainerCreatingTrait: ContainerCreatingTrait {
         static var type: String = "_defaultContainerCreatingTrait"

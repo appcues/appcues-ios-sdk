@@ -8,10 +8,12 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 internal struct ImageCacheKey: EnvironmentKey {
     static let defaultValue = SessionImageCache()
 }
 
+@available(iOS 13.0, *)
 extension EnvironmentValues {
     var imageCache: SessionImageCache {
         get { self[ImageCacheKey.self] }

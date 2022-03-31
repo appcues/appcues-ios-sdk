@@ -13,6 +13,7 @@ internal struct LoopingVideoPlayer {
     let url: URL
 }
 
+@available(iOS 13.0, *)
 extension LoopingVideoPlayer: UIViewRepresentable {
 
     func makeUIView(context: Context) -> LoopingVideoView {

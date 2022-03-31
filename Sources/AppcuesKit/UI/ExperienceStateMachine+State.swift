@@ -8,6 +8,7 @@
 
 import Foundation
 
+@available(iOS 13.0, *)
 extension ExperienceStateMachine {
     enum State {
         case idling
@@ -56,6 +57,7 @@ extension ExperienceStateMachine {
     }
 }
 
+@available(iOS 13.0, *)
 extension ExperienceStateMachine.State: Equatable {
     static func == (lhs: ExperienceStateMachine.State, rhs: ExperienceStateMachine.State) -> Bool {
         switch (lhs, rhs) {
@@ -77,6 +79,7 @@ extension ExperienceStateMachine.State: Equatable {
     }
 }
 
+@available(iOS 13.0, *)
 extension ExperienceStateMachine.State: CustomStringConvertible {
     var description: String {
         switch self {
@@ -98,6 +101,7 @@ extension ExperienceStateMachine.State: CustomStringConvertible {
 
 // MARK: - Complex Transitions
 
+@available(iOS 13.0, *)
 extension ExperienceStateMachine.Transition {
     static func fromIdlingToBeginningExperience(_ experience: Experience) -> Self {
         guard !experience.steps.isEmpty else {

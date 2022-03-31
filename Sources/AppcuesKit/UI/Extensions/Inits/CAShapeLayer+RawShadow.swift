@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 extension CAShapeLayer {
 
     /// Init `CAShapeLayer` from an experience JSON model value.

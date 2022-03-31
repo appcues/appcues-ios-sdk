@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 
+@available(iOS 13.0, *)
 internal struct AppcuesCloseAction: ExperienceAction {
 
     static let type = "@appcues/close"

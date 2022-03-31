@@ -10,6 +10,7 @@ import UIKit
 
 // swiftlint:disable identifier_name
 
+@available(iOS 13.0, *)
 extension DebugView {
     struct GestureCalculator {
         /// Calculate a scaled damping value from an initial magnitude.

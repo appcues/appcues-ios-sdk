@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal class DialogContainerView: UIView {
 
     let dialogView: UIView = {

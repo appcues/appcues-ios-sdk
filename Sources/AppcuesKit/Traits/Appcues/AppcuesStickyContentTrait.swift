@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 internal struct AppcuesStickyContentTrait: StepDecoratingTrait {
     static let type = "@appcues/sticky-content"
 
@@ -83,6 +84,7 @@ internal struct AppcuesStickyContentTrait: StepDecoratingTrait {
     }
 }
 
+@available(iOS 13.0, *)
 extension AppcuesStickyContentTrait {
     /// HostingController that reports `frame` size changes.
     class StickyHostingController<Content: View>: AppcuesHostingController<Content> {

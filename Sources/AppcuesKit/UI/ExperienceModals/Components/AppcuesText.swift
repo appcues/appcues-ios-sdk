@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 internal struct AppcuesText: View {
     let model: ExperienceComponent.TextModel
 
@@ -24,6 +25,7 @@ internal struct AppcuesText: View {
 }
 
 #if DEBUG
+@available(iOS 13.0, *)
 internal struct AppcuesTextPreview: PreviewProvider {
     static var previews: some View {
         Group {

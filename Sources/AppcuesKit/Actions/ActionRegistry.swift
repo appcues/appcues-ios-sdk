@@ -8,6 +8,7 @@
 
 import Foundation
 
+@available(iOS 13.0, *)
 internal class ActionRegistry {
     typealias Completion = () -> Void
 

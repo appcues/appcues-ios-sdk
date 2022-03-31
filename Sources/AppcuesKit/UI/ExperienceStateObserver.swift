@@ -8,11 +8,13 @@
 
 import Foundation
 
+@available(iOS 13.0, *)
 internal protocol ExperienceStateObserver: AnyObject {
     typealias StateResult = Result<ExperienceStateMachine.State, ExperienceStateMachine.ExperienceError>
     func evaluateIfSatisfied(result: StateResult) -> Bool
 }
 
+@available(iOS 13.0, *)
 extension Result where Success == ExperienceStateMachine.State, Failure == ExperienceStateMachine.ExperienceError {
     /// Check if the result pertains to a specific experience ID.
     func matches(instanceID: UUID?) -> Bool {
@@ -34,6 +36,7 @@ extension Result where Success == ExperienceStateMachine.State, Failure == Exper
     }
 }
 
+@available(iOS 13.0, *)
 extension ExperienceStateMachine {
     typealias Callback = (ExperienceStateObserver.StateResult) -> Bool
 

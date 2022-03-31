@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal class ExperienceStepViewController: UIViewController {
 
     let viewModel: ExperienceStepViewModel
@@ -56,6 +57,7 @@ internal class ExperienceStepViewController: UIViewController {
 
 }
 
+@available(iOS 13.0, *)
 extension ExperienceStepViewController {
     class ExperienceStepView: UIView {
         lazy var scrollView: UIScrollView = {

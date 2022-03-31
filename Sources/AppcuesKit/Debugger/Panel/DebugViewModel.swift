@@ -8,6 +8,7 @@
 
 import Foundation
 
+@available(iOS 13.0, *)
 internal class DebugViewModel: ObservableObject {
     let accountID: String
     let applicationID: String
@@ -61,6 +62,7 @@ internal class DebugViewModel: ObservableObject {
     }
 }
 
+@available(iOS 13.0, *)
 extension DebugViewModel {
     struct StatusItem: Identifiable {
         let id = UUID()
@@ -138,6 +140,7 @@ extension DebugViewModel {
     }
 }
 
+@available(iOS 13.0, *)
 extension DebugViewModel.LoggedEvent {
     enum EventType: CustomStringConvertible {
         case screen

@@ -14,6 +14,7 @@ import Foundation
 // swiftlint:disable:next type_name
 internal typealias EC = ExperienceComponent
 
+@available(iOS 13.0, *)
 extension ExperienceComponent {
     static let textPlain = TextModel(
         id: UUID(),

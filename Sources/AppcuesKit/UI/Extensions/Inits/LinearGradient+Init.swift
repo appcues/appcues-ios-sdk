@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 extension LinearGradient {
 
     /// Init `LinearGradient` from an experience JSON model value.
@@ -24,6 +25,7 @@ extension LinearGradient {
     }
 }
 
+@available(iOS 13.0, *)
 extension UnitPoint {
 
     /// Init `UnitPoint` from an experience JSON model value.

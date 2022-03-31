@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 extension View {
     // Recursively work through the sequence of actions in series.
     private func process(_ actionHandlers: [(@escaping ActionRegistry.Completion) -> Void]) {
@@ -111,6 +112,7 @@ extension View {
     }
 }
 
+@available(iOS 13.0, *)
 extension Text {
     func applyTextStyle(_ style: AppcuesStyle) -> some View {
         self

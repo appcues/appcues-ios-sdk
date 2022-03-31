@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 extension Font {
 
     /// Init `Font` from an experience JSON model values.
@@ -21,6 +22,7 @@ extension Font {
     }
 }
 
+@available(iOS 13.0, *)
 extension Font.Weight {
 
     /// Init `Font.Weight` from an experience JSON model value.

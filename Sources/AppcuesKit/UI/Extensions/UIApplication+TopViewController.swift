@@ -17,6 +17,7 @@ internal protocol URLOpening {
 
 extension UIApplication: TopControllerGetting, URLOpening {
 
+    @available(iOS 13.0, *)
     var activeWindowScenes: [UIWindowScene] {
         self.connectedScenes
             .filter { $0.activationState == .foregroundActive }
@@ -26,9 +27,13 @@ extension UIApplication: TopControllerGetting, URLOpening {
     // Note: multitasking with two instances of the same app side by side will have both designated as `.foregroundActive`,
     // and as a result the returned window may not be the one expected.
     private var activeKeyWindow: UIWindow? {
-        self.activeWindowScenes
-            .flatMap { $0.windows }
-            .first { $0.isKeyWindow }
+        if #available(iOS 13.0, *) {
+            return self.activeWindowScenes
+                .flatMap { $0.windows }
+                .first { $0.isKeyWindow }
+        } else {
+            return keyWindow
+        }
     }
 
     func topViewController() -> UIViewController? {
