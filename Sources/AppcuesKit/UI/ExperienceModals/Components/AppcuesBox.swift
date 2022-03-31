@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 internal struct AppcuesBox: View {
     let model: ExperienceComponent.BoxModel
 
@@ -27,6 +28,7 @@ internal struct AppcuesBox: View {
 }
 
 #if DEBUG
+@available(iOS 13.0, *)
 internal struct AppcuesBoxPreview: PreviewProvider {
 
     static var previews: some View {

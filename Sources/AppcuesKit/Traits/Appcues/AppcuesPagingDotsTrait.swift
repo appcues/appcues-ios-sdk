@@ -7,6 +7,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
     static let type = "@appcues/paging-dots"
 

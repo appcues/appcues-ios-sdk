@@ -9,6 +9,7 @@
 import SwiftUI
 
 /// Namespaced Views used in the debug panel.
+@available(iOS 13.0, *)
 internal enum DebugUI {
     struct MainPanelView: View {
 

@@ -16,11 +16,17 @@ public class Appcues {
     let config: Appcues.Config
 
     private lazy var storage = container.resolve(DataStoring.self)
-    private lazy var uiDebugger = container.resolve(UIDebugging.self)
-    private lazy var traitRegistry = container.resolve(TraitRegistry.self)
-    private lazy var actionRegistry = container.resolve(ActionRegistry.self)
     private lazy var sessionMonitor = container.resolve(SessionMonitoring.self)
+
+    @available(iOS 13.0, *)
+    private lazy var uiDebugger = container.resolve(UIDebugging.self)
+    @available(iOS 13.0, *)
+    private lazy var traitRegistry = container.resolve(TraitRegistry.self)
+    @available(iOS 13.0, *)
+    private lazy var actionRegistry = container.resolve(ActionRegistry.self)
+    @available(iOS 13.0, *)
     private lazy var experienceLoader = container.resolve(ExperienceLoading.self)
+
     private lazy var notificationCenter = container.resolve(NotificationCenter.self)
 
     private var subscribers: [AnalyticsSubscribing] = []
@@ -121,27 +127,39 @@ public class Appcues {
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(experienceID: String, completion: ((Result<Void, Error>) -> Void)? = nil) {
+        guard #available(iOS 13.0, *) else {
+            completion?(.failure(AppcuesError.unsupportedOSVersion))
+            return
+        }
+
         guard sessionMonitor.isActive else {
             completion?(.failure(AppcuesError.noActiveSession))
             return
         }
+
         experienceLoader.load(experienceID: experienceID, published: true, completion: completion)
     }
 
     /// Register a trait that modifies an `Experience`.
     /// - Parameter trait: Trait to register.
     public func register(trait: ExperienceTrait.Type) {
+        guard #available(iOS 13.0, *) else { return }
+
         traitRegistry.register(trait: trait)
     }
 
     /// Register an action that can be activated in an `Experience`.
     /// - Parameter action: Action to register.
     public func register(action: ExperienceAction.Type) {
+        guard #available(iOS 13.0, *) else { return }
+
         actionRegistry.register(action: action)
     }
 
     /// Launches the Appcues debugger over your app's UI.
     public func debug() {
+        guard #available(iOS 13.0, *) else { return }
+
         uiDebugger.show()
     }
 
@@ -164,6 +182,8 @@ public class Appcues {
     /// ```
     @discardableResult
     public func didHandleURL(_ url: URL) -> Bool {
+        guard #available(iOS 13.0, *) else { return false }
+
         return container.resolve(DeeplinkHandling.self).didHandleURL(url)
     }
 
@@ -173,20 +193,23 @@ public class Appcues {
         container.register(AnalyticsPublishing.self, value: self)
         container.registerLazy(DataStoring.self, initializer: Storage.init)
         container.registerLazy(Networking.self, initializer: NetworkClient.init)
-        container.registerLazy(ExperienceLoading.self, initializer: ExperienceLoader.init)
-        container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
-        container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
-        container.registerLazy(DeeplinkHandling.self, initializer: DeeplinkHandler.init)
         container.registerLazy(AnalyticsTracking.self, initializer: AnalyticsTracker.init)
         container.registerLazy(SessionMonitoring.self, initializer: SessionMonitor.init)
         container.registerLazy(UIKitScreenTracker.self, initializer: UIKitScreenTracker.init)
         container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
-        container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
-        container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
-        container.registerLazy(TraitComposing.self, initializer: TraitComposer.init)
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
         container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
         container.registerLazy(ActivityStoring.self, initializer: ActivityFileStorage.init)
+
+        if #available(iOS 13.0, *) {
+            container.registerLazy(DeeplinkHandling.self, initializer: DeeplinkHandler.init)
+            container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
+            container.registerLazy(ExperienceLoading.self, initializer: ExperienceLoader.init)
+            container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
+            container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
+            container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
+            container.registerLazy(TraitComposing.self, initializer: TraitComposer.init)
+        }
 
         // anything that should happen at startup automatically is handled here
 

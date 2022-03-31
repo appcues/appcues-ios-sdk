@@ -21,8 +21,10 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
     private lazy var storage = container.resolve(DataStoring.self)
     private lazy var config = container.resolve(Appcues.Config.self)
-    private lazy var experienceRenderer = container.resolve(ExperienceRendering.self)
     private lazy var activityProcessor = container.resolve(ActivityProcessing.self)
+
+    @available(iOS 13.0, *)
+    private lazy var experienceRenderer = container.resolve(ExperienceRendering.self)
 
     // maintain a batch of asynchronous events that are waiting to be flushed to network
     private let syncQueue = DispatchQueue(label: "appcues-analytics")
@@ -85,10 +87,13 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     private func flush(_ activity: Activity?) {
         guard let activity = activity else { return }
         activityProcessor.process(activity) { [weak self] result in
-            guard let experienceRenderer = self?.experienceRenderer else { return }
             switch result {
             case .success(let taco):
-                experienceRenderer.show(qualifiedExperiences: taco.experiences, completion: nil)
+                if #available(iOS 13.0, *) {
+                    self?.experienceRenderer.show(qualifiedExperiences: taco.experiences, completion: nil)
+                } else {
+                    self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
+                }
             case .failure(let error):
                 self?.config.logger.error("%{public}s", "\(error)")
             }

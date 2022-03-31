@@ -8,10 +8,12 @@
 
 import Foundation
 
+@available(iOS 13.0, *)
 internal protocol ExperienceLoading {
     func load(experienceID: String, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
 }
 
+@available(iOS 13.0, *)
 internal class ExperienceLoader: ExperienceLoading {
 
     private let networking: Networking

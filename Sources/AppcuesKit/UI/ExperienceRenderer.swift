@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal protocol ExperienceRendering {
     func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
     func show(qualifiedExperiences: [Experience], completion: ((Result<Void, Error>) -> Void)?)
@@ -15,6 +16,7 @@ internal protocol ExperienceRendering {
     func dismissCurrentExperience(completion: (() -> Void)?)
 }
 
+@available(iOS 13.0, *)
 internal class ExperienceRenderer: ExperienceRendering {
 
     private let stateMachine: ExperienceStateMachine

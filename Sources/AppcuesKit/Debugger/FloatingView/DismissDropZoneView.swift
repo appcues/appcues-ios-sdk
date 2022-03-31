@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal class DismissDropZoneView: UIView {
 
     /// Distance from the snapPoint at which the floating view locks to the snapPoint.

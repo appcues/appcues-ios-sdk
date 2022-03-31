@@ -9,5 +9,6 @@
 import Foundation
 
 internal enum AppcuesError: Error {
+    case unsupportedOSVersion
     case noActiveSession
 }

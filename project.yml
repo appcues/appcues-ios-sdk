@@ -4,7 +4,7 @@ attributes:
 options:
   defaultConfig: Release
   deploymentTarget:
-    iOS: 13.0
+    iOS: 11.0
   groupSortPosition: top
 configs:
   Debug: debug
@@ -60,6 +60,7 @@ targets:
     platform: iOS
     settings:
       base:
+        IPHONEOS_DEPLOYMENT_TARGET: 13.0
         MARKETING_VERSION: 1.0.0
         CURRENT_PROJECT_VERSION: '1'
         GENERATE_INFOPLIST_FILE: 'YES'

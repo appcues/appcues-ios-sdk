@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 internal struct AppcuesImage: View {
     let model: ExperienceComponent.ImageModel
 
@@ -56,6 +57,7 @@ internal struct AppcuesImage: View {
 }
 
 #if DEBUG
+@available(iOS 13.0, *)
 internal struct AppcuesImagePreview: PreviewProvider {
     // swiftlint:disable:next force_unwrapping
     static let imageURL = URL(string: "https://res.cloudinary.com/dnjrorsut/image/upload/v1513187203/crx-assets/modal-slideout-hero-image.png")!

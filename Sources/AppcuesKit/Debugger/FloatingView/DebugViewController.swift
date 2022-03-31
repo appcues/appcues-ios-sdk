@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal class DebugViewController: UIViewController {
 
     private var debugView = DebugView()

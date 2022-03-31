@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 internal struct AppcuesStack: View {
     let model: ExperienceComponent.StackModel
 
@@ -54,6 +55,7 @@ internal struct AppcuesStack: View {
 }
 
 #if DEBUG
+@available(iOS 13.0, *)
 internal struct AppcuesStackPreview: PreviewProvider {
 
     static var previews: some View {

@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 extension NSCollectionLayoutSection {
     static func fullScreenCarousel() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(

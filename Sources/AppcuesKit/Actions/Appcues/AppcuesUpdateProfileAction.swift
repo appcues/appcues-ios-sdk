@@ -8,6 +8,7 @@
 
 import Foundation
 
+@available(iOS 13.0, *)
 internal struct AppcuesUpdateProfileAction: ExperienceAction {
     static let type = "@appcues/update-profile"
 

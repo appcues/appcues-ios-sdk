@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 internal class ExperienceStepViewModel: ObservableObject {
 
     enum ActionType: String {

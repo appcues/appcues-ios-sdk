@@ -8,6 +8,7 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal class DebugView: UIView {
 
     private let gestureCalculator = GestureCalculator()

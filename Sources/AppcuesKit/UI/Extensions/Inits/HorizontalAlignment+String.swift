@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+@available(iOS 13.0, *)
 extension HorizontalAlignment {
 
     /// Init `HorizontalAlignment` from an experience JSON model value.

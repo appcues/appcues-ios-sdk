@@ -9,10 +9,12 @@
 import UIKit
 import SwiftUI
 
+@available(iOS 13.0, *)
 internal protocol UIDebugging {
     func show()
 }
 
+@available(iOS 13.0, *)
 internal class UIDebugger: UIDebugging {
     private var debugWindow: UIWindow?
 
@@ -63,6 +65,7 @@ internal class UIDebugger: UIDebugging {
     }
 }
 
+@available(iOS 13.0, *)
 extension UIDebugger: AnalyticsSubscribing {
     func track(update: TrackingUpdate) {
         // Publishing changes must from the main thread.
