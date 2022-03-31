@@ -9,7 +9,7 @@
 import Foundation
 
 internal protocol ActivityProcessing {
-    func process(_ activity: Activity, completion: ((Result<Taco, Error>) -> Void)?)
+    func process(_ activity: Activity, completion: @escaping (Result<QualifyResponse, Error>) -> Void)
 }
 
 /// This class is responsible for the network transport of analytics data to the /activity API endpoint.  This includes
@@ -34,7 +34,7 @@ internal class ActivityProcessor: ActivityProcessing {
         self.activityStorage = container.resolve(ActivityStoring.self)
     }
 
-    func process(_ activity: Activity, completion: ((Result<Taco, Error>) -> Void)?) {
+    func process(_ activity: Activity, completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
         guard let activity = ActivityStorage(activity) else { return }
 
         var itemsToFlush: [ActivityStorage] = []
@@ -116,49 +116,59 @@ internal class ActivityProcessor: ActivityProcessing {
 
     private func post(activities: [ActivityStorage],
                       current: ActivityStorage,
-                      completion: ((Result<Taco, Error>) -> Void)?) {
+                      completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
         var activities = activities
         guard !activities.isEmpty else { return } // done - nothing in the queue
-
         let activity = activities.removeFirst()
 
         // check if this item in the list is the "current" activity that triggered this processing initially
-        let isCurrent = activity.requestID == current.requestID
-
-        // if so, make sure its completion gets passed along.  any other retry attempts will not have completion blocks
-        let itemCompletion = isCurrent ? completion : nil
-
-        let endpoint = isCurrent ?
-            APIEndpoint.qualify(userID: activity.userID) :
-            APIEndpoint.activity(userID: activity.userID)
-
-        networking.post(
-            to: endpoint,
-            body: activity.data
-        ) { [weak self] (result: Result<Taco, Error>) in
-
-            guard let self = self else { return }
-
-            var success = true
-            if case let .failure(error) = result, error.requiresRetry {
-                success = false
+        if activity.requestID == current.requestID {
+            // if so, it is a /qualify request and it is the end of the line for this queue process
+            handleQualify(activity: activity, completion: completion)
+        } else {
+            // otherwise, it is a retry item, use /activity endpoint, and recurse when done
+            handleActivity(activity: activity) { [weak self] in
+                // recurse on remainder of the queue
+                self?.post(activities: activities, current: current, completion: completion)
             }
-
-            // if it was successful (or retry not enabled), no retry needed - clean out the file
-            if success {
-                self.activityStorage.remove(activity)
-            }
-
-            // then, always remove it from the list of current items "in flight" - this allows
-            // a later retry to run, if it was needed
-            self.processingItems.remove(activity.requestID)
-
-            itemCompletion?(result)
-
-            // recurse on remainder of the queue
-            self.post(activities: activities, current: current, completion: completion)
         }
     }
+
+    private func handleActivity(activity: ActivityStorage, completion: @escaping () -> Void) {
+        networking.post(to: APIEndpoint.activity(userID: activity.userID),
+                        body: activity.data) { [weak self] (result: Result<ActivityResponse, Error>) in
+            guard let self = self else { return }
+            var success = true
+            if case let .failure(error) = result, error.requiresRetry { success = false }
+            self.postProcess(activity: activity, success: success)
+            completion()
+        }
+    }
+
+    private func handleQualify(activity: ActivityStorage, completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
+        networking.post(to: APIEndpoint.qualify(userID: activity.userID),
+                        body: activity.data) { [weak self] (result: Result<QualifyResponse, Error>) in
+            guard let self = self else { return }
+            var success = true
+            if case let .failure(error) = result, error.requiresRetry { success = false }
+            self.postProcess(activity: activity, success: success)
+
+            // the current activity sent for qualification is the end of processing, invoke completion
+            completion(result)
+        }
+    }
+
+    private func postProcess(activity: ActivityStorage, success: Bool) {
+        // if it was successful (or retry not enabled), no retry needed - clean out the file
+        if success {
+            self.activityStorage.remove(activity)
+        }
+
+        // then, always remove it from the list of current items "in flight" - this allows
+        // a later retry to run, if it was needed
+        self.processingItems.remove(activity.requestID)
+    }
+
 }
 
 private extension Error {

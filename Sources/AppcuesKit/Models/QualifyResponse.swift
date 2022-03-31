@@ -1,5 +1,5 @@
 //
-//  Taco.swift
+//  QualifyResponse.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-10-08.
@@ -8,32 +8,22 @@
 
 import Foundation
 
-/// API repsonse stucture for an `/activity` request and the `/taco` endpoint.
-internal struct Taco {
+/// API repsonse stucture for a `/qualify` request.
+internal struct QualifyResponse {
     /// Mobile experience JSON structure.
     let experiences: [Experience]
     let performedQualification: Bool
 }
 
-extension Taco: Decodable {
+extension QualifyResponse: Decodable {
     private enum CodingKeys: CodingKey {
-        case contents
         case experiences
         case performedQualification
-        case ok
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-
         experiences = (try? container.decode([Experience].self, forKey: .experiences)) ?? []
-
-        if container.allKeys.contains(.ok) {
-            // a reponse with only "ok" is returned when the /activity endpoint is used to send
-            // analytics but no qualification is ran by the server
-            performedQualification = false
-        } else {
-            performedQualification = try container.decode(Bool.self, forKey: .performedQualification)
-        }
+        performedQualification = try container.decode(Bool.self, forKey: .performedQualification)
     }
 }
