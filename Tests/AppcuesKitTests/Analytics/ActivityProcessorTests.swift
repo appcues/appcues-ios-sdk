@@ -47,7 +47,7 @@ class ActivityProcessorTests: XCTestCase {
                 let data = try NetworkClient.encoder.encode(activity)
                 XCTAssertEqual(data, body)
                 onPostExpectation.fulfill()
-                completion(.success(Taco(experiences: [self.mockExperience], performedQualification: true)))
+                completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true)))
             } catch {
                 XCTFail()
             }
@@ -95,7 +95,7 @@ class ActivityProcessorTests: XCTestCase {
                     XCTAssertEqual("user1", userID)
                     let data = try NetworkClient.encoder.encode(activity1)
                     XCTAssertEqual(data, body)
-                    completion(.success(Taco(experiences: [], performedQualification: false)))
+                    completion(.success(QualifyResponse(experiences: [], performedQualification: false)))
                     retryExpectation.fulfill()
                 } else if postCount == 3 {
                     // this should be the synchronous attempt for activity 2
@@ -104,7 +104,7 @@ class ActivityProcessorTests: XCTestCase {
                     XCTAssertEqual("user2", userID)
                     let data = try NetworkClient.encoder.encode(activity2)
                     XCTAssertEqual(data, body)
-                    completion(.success(Taco(experiences: [self.mockExperience], performedQualification: true)))
+                    completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true)))
                     onPostExpectation2.fulfill()
                 } else {
                     XCTFail()
@@ -159,7 +159,7 @@ class ActivityProcessorTests: XCTestCase {
                     XCTAssertEqual("user2", userID)
                     let data = try NetworkClient.encoder.encode(activity2)
                     XCTAssertEqual(data, body)
-                    completion(.success(Taco(experiences: [self.mockExperience], performedQualification: true)))
+                    completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true)))
                     onPostExpectation2.fulfill()
                 } else {
                     XCTFail()
@@ -266,7 +266,7 @@ class ActivityProcessorTests: XCTestCase {
                     XCTAssertEqual("user2", userID)
                     let data = try NetworkClient.encoder.encode(activity2)
                     XCTAssertEqual(data, body)
-                    completion(.success(Taco(experiences: [self.mockExperience], performedQualification: true)))
+                    completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true)))
                     onPostExpectation2.fulfill()
                 } else {
                     XCTFail()
@@ -307,7 +307,7 @@ class ActivityProcessorTests: XCTestCase {
         let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
 
         appcues.networking.onPost = { endpoint, body, completion in
-            completion(.success(Taco(experiences: [self.mockExperience], performedQualification: true)))
+            completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true)))
             onPostExpectation.fulfill()
         }
 

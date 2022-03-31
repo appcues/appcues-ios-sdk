@@ -131,10 +131,10 @@ class MockSessionMonitor: SessionMonitoring {
 
 class MockActivityProcessor: ActivityProcessing {
 
-    var onProcess: ((Activity, ((Result<Taco, Error>) -> Void)?) -> Void)?
+    var onProcess: ((Activity, (Result<QualifyResponse, Error>) -> Void) -> Void)?
     var onFlush: (() -> Void)?
 
-    func process(_ activity: Activity, completion: ((Result<Taco, Error>) -> Void)?) {
+    func process(_ activity: Activity, completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
         onProcess?(activity, completion)
     }
 
