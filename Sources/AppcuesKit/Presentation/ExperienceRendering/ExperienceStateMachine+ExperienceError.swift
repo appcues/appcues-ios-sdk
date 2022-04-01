@@ -37,8 +37,20 @@ extension ExperienceStateMachine.ExperienceError: Equatable {
 }
 
 @available(iOS 13.0, *)
-extension ExperienceStateMachine.ExperienceError: CustomStringConvertible {
+extension ExperienceStateMachine.ExperienceError: CustomStringConvertible, CustomDebugStringConvertible {
+
     var description: String {
+        switch self {
+        case .noTransition:
+            return "no transition in state machine"
+        case .experienceAlreadyActive:
+            return "experience already active"
+        case let .experience(_, message), let .step(_, _, message):
+            return message
+        }
+    }
+
+    var debugDescription: String {
         switch self {
         case .noTransition:
             return ".noTransition"
