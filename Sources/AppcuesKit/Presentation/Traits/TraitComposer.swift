@@ -28,6 +28,12 @@ internal class TraitComposer: TraitComposing {
         let stepModels: [Experience.Step.Child] = experience.steps[stepIndex.group].items
         let targetPageIndex = stepIndex.item
 
+        if !stepModels.indices.contains(targetPageIndex) {
+            let groupID = experience.steps[stepIndex.group].id.uuidString
+            let errorMessage = "step group \(groupID) doesn't contain a child step at index \(targetPageIndex)"
+            throw ExperienceStateMachine.ExperienceError.step(experience, stepIndex, errorMessage)
+        }
+
         // Experience-level traits
         var allTraitInstances: [ExperienceTrait] = traitRegistry.instances(for: experience.traits)
 
