@@ -33,7 +33,7 @@ TODO: Add long description of the pod here.
 
   s.source_files = 'Sources/AppcuesKit/**/*.swift'
   s.resource_bundles = {
-      'Appcues' => ['Sources/AppcuesKit/*.xcassets']
+      'Appcues' => ['Sources/AppcuesKit/**/*.xcassets']
   }
 
   # s.resource_bundles = {
