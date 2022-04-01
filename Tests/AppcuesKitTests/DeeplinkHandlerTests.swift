@@ -20,24 +20,26 @@ class DeeplinkHandlerTests: XCTestCase {
     }
 
     func testActionInits() throws {
-        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-ID://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true))
-        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-ID://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: false))
+        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true, applicationID: "abc"))
+        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: false, applicationID: "abc"))
 
-        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-ID://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true))
-        XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "appcues-ID://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: false))
+        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true, applicationID: "abc"))
+        XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: false, applicationID: "abc"))
 
-        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-ID://sdk/debugger")!, isSessionActive: true))
-        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-ID://sdk/debugger")!, isSessionActive: false))
+        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://sdk/debugger")!, isSessionActive: true, applicationID: "abc"))
+        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://sdk/debugger")!, isSessionActive: false, applicationID: "abc"))
 
-        XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "appcues-ID://sdk/bad-path")!, isSessionActive: false))
-        XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "appcues-ID://missing-host")!, isSessionActive: false))
-        XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "scheme://sdk/debugger")!, isSessionActive: false))
+        XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://sdk/bad-path")!, isSessionActive: false, applicationID: "abc"))
+        XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://missing-host")!, isSessionActive: false, applicationID: "abc"))
+        XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "scheme://sdk/debugger")!, isSessionActive: false, applicationID: "abc"))
+
+        XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://sdk/different-appid")!, isSessionActive: false, applicationID: "xyz"))
     }
 
     func testHandlePreviewURLWithActiveScene() throws {
         // Arrange
         deeplinkHandler.topControllerGetting = MockTopControllerGetting()
-        let url = try XCTUnwrap(URL(string: "appcues-ID://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b"))
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b"))
 
         var loaderCalled = false
         appcues.experienceLoader.onLoad = { id, published, completion in
@@ -57,7 +59,7 @@ class DeeplinkHandlerTests: XCTestCase {
 
     func testHandleContentURLWithInactiveScene() throws {
         // Arrange
-        let url = try XCTUnwrap(URL(string: "appcues-ID://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b"))
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b"))
 
         var loaderCalled = false
         appcues.experienceLoader.onLoad = { id, published, completion in
@@ -79,7 +81,7 @@ class DeeplinkHandlerTests: XCTestCase {
     func testHandleDebugURLWithActiveScene() throws {
         // Arrange
         deeplinkHandler.topControllerGetting = MockTopControllerGetting()
-        let url = try XCTUnwrap(URL(string: "appcues-ID://sdk/debugger"))
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/debugger"))
 
         var debuggerShown = false
         appcues.debugger.onShow = {
