@@ -167,6 +167,30 @@ class TraitComposerTests: XCTestCase {
         XCTAssertTrue(container is DefaultContainerViewController)
     }
 
+    func testErrorWhenEmptyStepGroup() throws {
+        // Arrange
+        let experience = Experience(
+            id: UUID(),
+            name: "test",
+            traits: [],
+            steps: [
+                .group(Experience.Step.Group(
+                    id: UUID(uuidString: "d9fbd360-2832-4c8e-a79e-c1731982f1f1")!,
+                    children: [],
+                    traits: [],
+                    actions: [:]
+                ))
+            ])
+
+        // Act
+        XCTAssertThrowsError(try traitComposer.package(experience: experience, stepIndex: Experience.StepIndex(group: 0, item: 0))) { error in
+            XCTAssertEqual(
+                error as? ExperienceStateMachine.ExperienceError,
+                ExperienceStateMachine.ExperienceError.step(experience, .initial, "step group D9FBD360-2832-4C8E-A79E-C1731982F1F1 doesn't contain a child step at index 0")
+            )
+        }
+    }
+
     // MARK: - Helpers
 
     private func makeTestExperience(
