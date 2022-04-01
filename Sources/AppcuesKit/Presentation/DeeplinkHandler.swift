@@ -21,8 +21,8 @@ internal class DeeplinkHandler: DeeplinkHandling {
         case show(experienceID: String)    // published content
         case debugger
 
-        init?(url: URL, isSessionActive: Bool) {
-            guard url.absoluteString.starts(with: "appcues"), url.host == "sdk" else { return nil }
+        init?(url: URL, isSessionActive: Bool, applicationID: String) {
+            guard url.scheme == "appcues-\(applicationID)", url.host == "sdk" else { return nil }
 
             // supported paths:
             // appcues-{app_id}://sdk/experience_preview/{experience_id}
@@ -46,6 +46,7 @@ internal class DeeplinkHandler: DeeplinkHandling {
 
     private let container: DIContainer
     private lazy var sessionMonitor = container.resolve(SessionMonitoring.self)
+    private lazy var config = container.resolve(Appcues.Config.self)
 
     // This is a set because a `SceneDelegate` has a `Set<UIOpenURLContext>` to handle.
     private var actionsToHandle: Set<Action> = []
@@ -57,7 +58,9 @@ internal class DeeplinkHandler: DeeplinkHandling {
     }
 
     func didHandleURL(_ url: URL) -> Bool {
-        guard let action = Action(url: url, isSessionActive: sessionMonitor.isActive) else { return false }
+        guard let action = Action(url: url,
+                                  isSessionActive: sessionMonitor.isActive,
+                                  applicationID: config.applicationID) else { return false }
 
         if topControllerGetting.topViewController() != nil {
             // UIScene is already active and we can handle the action immediately.
