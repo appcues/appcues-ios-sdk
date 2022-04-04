@@ -95,7 +95,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                     self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
                 }
             case .failure(let error):
-                self?.config.logger.error("%{public}s", "\(error)")
+                self?.config.logger.error("Failed processing qualify response: %{public}s", "\(error)")
             }
         }
     }
