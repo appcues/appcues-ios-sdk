@@ -37,6 +37,7 @@ class MockAppcues: Appcues {
         container.register(TraitComposing.self, value: traitComposer)
         container.register(ActivityProcessing.self, value: activityProcessor)
         container.register(ActivityStoring.self, value: activityStorage)
+        container.register(AnalyticsTracking.self, value: analyticsTracker)
 
 
         // dependencies that are not mocked
@@ -51,10 +52,10 @@ class MockAppcues: Appcues {
         super.identify(userID: userID, properties: properties)
     }
 
-    var onTrack: ((String, [String: Any]?) -> Void)?
-    override func track(name: String, properties: [String : Any]? = nil) {
-        onTrack?(name, properties)
-        super.track(name: name, properties: properties)
+    var onTrack: ((String, [String: Any]?, Bool) -> Void)?
+    override func track(name: String, properties: [String : Any]?, interactive: Bool) {
+        onTrack?(name, properties, interactive)
+        super.track(name: name, properties: properties, interactive: interactive)
     }
 
     var onScreen: ((String, [String: Any]?) -> Void)?
@@ -73,6 +74,7 @@ class MockAppcues: Appcues {
     var traitComposer = MockTraitComposer()
     var activityStorage = MockActivityStorage()
     var networking = MockNetworking()
+    var analyticsTracker = MockAnalyticsTracker()
 }
 
 class MockStorage: DataStoring {
@@ -132,14 +134,9 @@ class MockSessionMonitor: SessionMonitoring {
 class MockActivityProcessor: ActivityProcessing {
 
     var onProcess: ((Activity, (Result<QualifyResponse, Error>) -> Void) -> Void)?
-    var onFlush: (() -> Void)?
 
     func process(_ activity: Activity, completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
         onProcess?(activity, completion)
-    }
-
-    func flush() {
-        onFlush?()
     }
 }
 
@@ -237,4 +234,11 @@ class MockNetworking: Networking {
     }
 
 
+}
+
+class MockAnalyticsTracker: AnalyticsTracking {
+    var onFlush: (() -> Void)?
+    func flush() {
+        onFlush?()
+    }
 }

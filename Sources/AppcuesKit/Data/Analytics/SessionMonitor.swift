@@ -29,7 +29,6 @@ internal class SessionMonitor: SessionMonitoring {
     private let storage: DataStoring
     private let publisher: AnalyticsPublishing
     private let tracker: AnalyticsTracking
-    private let processor: ActivityProcessing
 
     private let sessionTimeout: UInt
 
@@ -43,7 +42,6 @@ internal class SessionMonitor: SessionMonitoring {
     init(container: DIContainer) {
         self.publisher = container.resolve(AnalyticsPublishing.self)
         self.tracker = container.resolve(AnalyticsTracking.self)
-        self.processor = container.resolve(ActivityProcessing.self)
         self.storage = container.resolve(DataStoring.self)
         self.sessionTimeout = container.resolve(Appcues.Config.self).sessionTimeout
 
