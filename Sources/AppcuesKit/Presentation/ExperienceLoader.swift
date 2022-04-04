@@ -16,10 +16,12 @@ internal protocol ExperienceLoading {
 @available(iOS 13.0, *)
 internal class ExperienceLoader: ExperienceLoading {
 
+    private let config: Appcues.Config
     private let networking: Networking
     private let experienceRenderer: ExperienceRendering
 
     init(container: DIContainer) {
+        self.config = container.resolve(Appcues.Config.self)
         self.networking = container.resolve(Networking.self)
         self.experienceRenderer = container.resolve(ExperienceRendering.self)
     }
@@ -37,6 +39,7 @@ internal class ExperienceLoader: ExperienceLoading {
             case .success(let experience):
                 self?.experienceRenderer.show(experience: experience, published: published, completion: completion)
             case .failure(let error):
+                self?.config.logger.error("Loading experience %{public}s failed with error %{public}s", experienceID, "\(error)")
                 completion?(.failure(error))
             }
         }

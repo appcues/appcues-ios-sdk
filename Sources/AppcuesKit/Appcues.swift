@@ -41,6 +41,8 @@ public class Appcues {
         self.config = config
 
         initializeContainer()
+
+        config.logger.info("Appcues SDK %{public}s initialized", version())
     }
 
     /// Get the current version of the Appcues SDK.
@@ -128,11 +130,13 @@ public class Appcues {
     /// This method ignores any targeting that is set on the flow or checklist.
     public func show(experienceID: String, completion: ((Result<Void, Error>) -> Void)? = nil) {
         guard #available(iOS 13.0, *) else {
+            config.logger.error("iOS 13 or above is required to show an Appcues experience")
             completion?(.failure(AppcuesError.unsupportedOSVersion))
             return
         }
 
         guard sessionMonitor.isActive else {
+            config.logger.error("An active Appcues session is required to show an Appcues experience")
             completion?(.failure(AppcuesError.noActiveSession))
             return
         }
@@ -158,7 +162,10 @@ public class Appcues {
 
     /// Launches the Appcues debugger over your app's UI.
     public func debug() {
-        guard #available(iOS 13.0, *) else { return }
+        guard #available(iOS 13.0, *) else {
+            config.logger.error("iOS 13 or above is required to use the Appcues inline debugger")
+            return
+        }
 
         uiDebugger.show()
     }

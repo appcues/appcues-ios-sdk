@@ -33,6 +33,8 @@ internal class UIKitScreenTracker {
                 new: #selector(UIViewController.appcues__viewDidAppear)
         )
 
+        container.resolve(Appcues.Config.self).logger.info("Automatic screen tracking enabled")
+
         NotificationCenter.appcues.addObserver(self, selector: #selector(screenTracked), name: .appcuesTrackedScreen, object: nil)
     }
 
