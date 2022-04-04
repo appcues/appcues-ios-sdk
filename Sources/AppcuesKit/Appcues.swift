@@ -244,12 +244,18 @@ public class Appcues {
         }
         publish(TrackingUpdate(type: .profile, properties: properties))
     }
-}
 
-extension Appcues: AnalyticsPublishing {
+    // internal implementation of AnalyticsPublishing that allows for the additional option to specify
+    // whether the event is `interactive` -- used to determine if it can be batched and sent later (i.e. experience
+    // analytics) or must be sent immeidately.
+    //
+    // this is not in the extension below so that it can be overriden in unit test
     func track(name: String, properties: [String: Any]?, interactive: Bool) {
         publish(TrackingUpdate(type: .event(name: name, interactive: interactive), properties: properties))
     }
+}
+
+extension Appcues: AnalyticsPublishing {
 
     func register(subscriber: AnalyticsSubscribing) {
         subscribers.append(subscriber)
