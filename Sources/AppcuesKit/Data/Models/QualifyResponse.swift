@@ -23,7 +23,7 @@ extension QualifyResponse: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        experiences = (try? container.decode([Experience].self, forKey: .experiences)) ?? []
+        experiences = try container.decode([Experience].self, forKey: .experiences)
         performedQualification = try container.decode(Bool.self, forKey: .performedQualification)
     }
 }
