@@ -50,6 +50,8 @@ public extension Appcues {
         /// Set the logging status for the configuration.
         /// - Parameter enabled: Whether logging is enabled.
         /// - Returns: The `Configuration` object.
+        ///
+        /// Refer to <doc:Logging> for details.
         @discardableResult
         public func logging(_ enabled: Bool) -> Self {
             logger = enabled ? OSLog(appcuesCategory: "general") : .disabled
