@@ -36,10 +36,12 @@ internal class FloatingView: UIView {
         addGestureRecognizer(tapRecognizer)
         tapRecognizer.addTarget(self, action: #selector(viewTapped))
 
-        layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.5
-        layer.shadowOffset = CGSize(width: 0, height: 4)
-        layer.shadowRadius = 16
+        layer.shadowColor = UIColor(hex: "#3923B7")?.cgColor
+        layer.shadowOpacity = 0.6
+        layer.shadowOffset = .zero
+        layer.shadowRadius = 12
+
+        setupParallax()
     }
 
     @available(*, unavailable)
@@ -130,6 +132,30 @@ internal class FloatingView: UIView {
             animations()
             completion(true)
         }
+    }
+
+    private func setupParallax() {
+        let amount = 20
+
+        let horizontalShift = UIInterpolatingMotionEffect(keyPath: "center.x", type: .tiltAlongHorizontalAxis)
+        horizontalShift.minimumRelativeValue = -amount
+        horizontalShift.maximumRelativeValue = amount
+
+        let verticalShift = UIInterpolatingMotionEffect(keyPath: "center.y", type: .tiltAlongVerticalAxis)
+        verticalShift.minimumRelativeValue = -amount
+        verticalShift.maximumRelativeValue = amount
+
+        let horizontalShadow = UIInterpolatingMotionEffect(keyPath: "layer.shadowOffset.width", type: .tiltAlongHorizontalAxis)
+        horizontalShadow.minimumRelativeValue = amount
+        horizontalShadow.maximumRelativeValue = -amount
+
+        let verticalShadow = UIInterpolatingMotionEffect(keyPath: "layer.shadowOffset.height", type: .tiltAlongVerticalAxis)
+        verticalShadow.minimumRelativeValue = amount
+        verticalShadow.maximumRelativeValue = -amount
+
+        let group = UIMotionEffectGroup()
+        group.motionEffects = [horizontalShift, verticalShift, horizontalShadow, verticalShadow]
+        self.addMotionEffect(group)
     }
 
     // MARK: Accessibility
