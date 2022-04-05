@@ -11,15 +11,18 @@ import UIKit
 @available(iOS 13.0, *)
 internal class DebugViewController: UIViewController {
 
+    var delegate: DebugViewDelegate? {
+        get { debugView.delegate }
+        set { debugView.delegate = newValue }
+    }
+
     private var debugView = DebugView()
 
     private let panelViewController: UIViewController
 
-    init(wrapping panelViewController: UIViewController, dismissHandler: @escaping () -> Void) {
+    init(wrapping panelViewController: UIViewController) {
         self.panelViewController = panelViewController
         super.init(nibName: nil, bundle: nil)
-
-        debugView.didDismiss = dismissHandler
     }
 
     @available(*, unavailable)

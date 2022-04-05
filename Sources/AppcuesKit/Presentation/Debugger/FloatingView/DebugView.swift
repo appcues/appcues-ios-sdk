@@ -9,11 +9,16 @@
 import UIKit
 
 @available(iOS 13.0, *)
+internal protocol DebugViewDelegate: AnyObject {
+    func debugView(did event: DebugView.Event)
+}
+
+@available(iOS 13.0, *)
 internal class DebugView: UIView {
 
     private let gestureCalculator = GestureCalculator()
 
-    var didDismiss: (() -> Void)?
+    weak var delegate: DebugViewDelegate?
 
     private let floatingViewPanRecognizer = UIPanGestureRecognizer()
     private let backgroundTapRecognizer = UITapGestureRecognizer()
@@ -175,14 +180,16 @@ internal class DebugView: UIView {
     // MARK: API
 
     func setFloatingView(visible isVisible: Bool, animated: Bool, programmatically: Bool) {
-        let completion = isVisible ? nil : didDismiss
-        floatingView.animateVisibility(visible: isVisible, animated: animated, haptics: !programmatically, completion: completion)
+        floatingView.animateVisibility(visible: isVisible, animated: animated, haptics: !programmatically) {
+            self.delegate?.debugView(did: isVisible ? .show : .hide)
+        }
     }
 
     func setPanelInterface(open isOpen: Bool, animated: Bool, programatically: Bool) {
         let center = isOpen ? floatingViewOpenCenter : floatingViewDockedCenter
         floatingView.animatePosition(to: center, animated: animated, haptics: !programatically)
         animatePanel(visible: isOpen, animated: animated, haptics: !programatically)
+        delegate?.debugView(did: isOpen ? .open : .close)
     }
 
     // MARK: Gesture Recognizers
@@ -276,6 +283,9 @@ internal class DebugView: UIView {
         animator.addAnimations {
             self.floatingViewDockedCenter = destinationPoint
             self.floatingView.center = destinationPoint
+            if shouldDock {
+                self.delegate?.debugView(did: .reposition)
+            }
         }
         animator.startAnimation()
     }
@@ -387,5 +397,16 @@ internal class DebugView: UIView {
             animations()
             completion(true)
         }
+    }
+}
+
+@available(iOS 13.0, *)
+extension DebugView {
+    enum Event {
+        case show
+        case hide
+        case open
+        case close
+        case reposition
     }
 }
