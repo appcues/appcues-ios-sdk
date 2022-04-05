@@ -120,11 +120,14 @@ extension DebugViewModel {
             self.properties = update.properties
 
             switch update.type {
-            case .event("appcues:flow_attempted", _):
-                self.type = .experience
-                self.name = (properties?["flowName"] as? String) ?? "Flow"
+            case let .event(name, _) where SessionEvents.allNames.contains(name):
+                self.type = .sessionEvent
+                self.name = name
+            case let .event(name, _) where name.starts(with: "appcues:v2:"):
+                self.type = .experienceEvent
+                self.name = name
             case let .event(name, _):
-                self.type = .event
+                self.type = .customEvent
                 self.name = name
             case let .screen(title):
                 self.type = .screen
@@ -144,7 +147,9 @@ extension DebugViewModel {
 extension DebugViewModel.LoggedEvent {
     enum EventType: CustomStringConvertible {
         case screen
-        case event
+        case sessionEvent
+        case experienceEvent
+        case customEvent
         case profile
         case experience
         case group
@@ -152,7 +157,9 @@ extension DebugViewModel.LoggedEvent {
         var description: String {
             switch self {
             case .screen: return "Screen"
-            case .event: return "Event"
+            case .sessionEvent: return "Session Event"
+            case .experienceEvent: return "Experience Event"
+            case .customEvent: return "Custom Event"
             case .profile: return "User Profile"
             case .experience: return "Experience"
             case .group: return "Group"
@@ -162,7 +169,9 @@ extension DebugViewModel.LoggedEvent {
         var symbolName: String {
             switch self {
             case .screen: return "rectangle.portrait.on.rectangle.portrait"
-            case .event: return "hand.tap"
+            case .sessionEvent: return "clock.arrow.2.circlepath"
+            case .experienceEvent: return "arrow.right.square"
+            case .customEvent: return "hand.tap"
             case .profile: return "person"
             case .experience: return "wand.and.stars"
             case .group: return "person.3.fill"
