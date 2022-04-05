@@ -25,7 +25,7 @@ internal enum DebugUI {
                     }
 
                     Section(header: Text("Recent Events")) {
-                        ForEach(viewModel.events.suffix(10).reversed()) { event in
+                        ForEach(viewModel.events.suffix(20).reversed()) { event in
                             NavigationLink(destination: EventDetailView(event: event)) {
                                 HStack {
                                     Image(systemName: event.type.symbolName)
@@ -71,8 +71,8 @@ internal enum DebugUI {
 
         var body: some View {
              HStack {
-                 Image(systemName: item.verified ? "checkmark" : "xmark")
-                     .foregroundColor(item.verified ? .green : .red )
+                 Image(systemName: item.status.symbolName)
+                     .foregroundColor(item.status.tintColor)
                      .font(.body.weight(.bold))
                  VStack(alignment: .leading) {
                      Text(item.title)

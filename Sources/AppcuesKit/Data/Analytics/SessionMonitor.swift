@@ -17,11 +17,13 @@ internal protocol SessionMonitoring {
     func reset()
 }
 
-internal enum SessionEvents: String {
+internal enum SessionEvents: String, CaseIterable {
     case sessionStarted = "appcues:session_started"
     case sessionSuspended = "appcues:session_suspended"
     case sessionResumed = "appcues:session_resumed"
     case sessionReset = "appcues:session_reset"
+
+    static var allNames: [String] { allCases.map { $0.rawValue } }
 }
 
 internal class SessionMonitor: SessionMonitoring {
