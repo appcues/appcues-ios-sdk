@@ -49,7 +49,8 @@ internal class UIDebugger: UIDebugging {
 
         analyticsPublisher.register(subscriber: self)
         let panelViewController = UIHostingController(rootView: DebugUI.MainPanelView(viewModel: viewModel))
-        let rootViewController = DebugViewController(wrapping: panelViewController, dismissHandler: hide)
+        let rootViewController = DebugViewController(wrapping: panelViewController)
+        rootViewController.delegate = self
         debugWindow = DebugUIWindow(windowScene: windowScene, rootViewController: rootViewController)
     }
 
@@ -62,6 +63,15 @@ internal class UIDebugger: UIDebugging {
     @objc
     private func appcuesReset(notification: Notification) {
         self.viewModel.reset()
+    }
+}
+
+@available(iOS 13.0, *)
+extension UIDebugger: DebugViewDelegate {
+    func debugView(did event: DebugView.Event) {
+        if case .hide = event {
+            hide()
+        }
     }
 }
 
