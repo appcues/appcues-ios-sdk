@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 @available(iOS 13.0, *)
 internal class DebugViewModel: ObservableObject {
@@ -24,21 +25,25 @@ internal class DebugViewModel: ObservableObject {
 
     var statusItems: [StatusItem] {
         return [
-            StatusItem(verified: true,
-                       title: "Installed",
-                       subtitle: "Account ID: \(accountID), Application ID: \(applicationID)",
+            StatusItem(status: .info,
+                       title: "\(UIDevice.current.modelName) iOS \(UIDevice.current.systemVersion)",
+                       subtitle: nil,
                        detailText: nil),
-            StatusItem(verified: true, title: "Connected to Appcues", subtitle: nil, detailText: nil),
-            StatusItem(verified: trackingPages, title: "Tracking Pages", subtitle: nil, detailText: nil),
-            StatusItem(verified: userIdentified, title: "User Identified", subtitle: userDescription, detailText: currentUserID)
+            StatusItem(status: .verified,
+                       title: "Installed SDK \(Appcues.version())",
+                       subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)",
+                       detailText: nil),
+            StatusItem(status: .verified, title: "Connected to Appcues", subtitle: nil, detailText: nil),
+            StatusItem(status: Status(from: trackingPages), title: "Tracking Pages", subtitle: nil, detailText: nil),
+            StatusItem(status: Status(from: userIdentified), title: "User Identified", subtitle: userDescription, detailText: currentUserID)
         ]
     }
 
-    private var userDescription: String? {
+    private var userDescription: String {
         if userIdentified, isAnonymous {
             return "Anonymous User"
         }
-        return nil
+        return currentUserID
     }
 
     init(accountID: String, applicationID: String, currentUserID: String, isAnonymous: Bool) {
@@ -64,9 +69,35 @@ internal class DebugViewModel: ObservableObject {
 
 @available(iOS 13.0, *)
 extension DebugViewModel {
+    enum Status {
+        case verified
+        case unverfied
+        case info
+
+        var symbolName: String {
+            switch self {
+            case .verified: return "checkmark"
+            case .unverfied: return "xmark"
+            case .info: return "info.circle"
+            }
+        }
+
+        var tintColor: Color {
+            switch self {
+            case .verified: return .green
+            case .unverfied: return .red
+            case .info: return .blue
+            }
+        }
+
+        init(from val: Bool) {
+            self = val ? .verified : .unverfied
+        }
+    }
+
     struct StatusItem: Identifiable {
         let id = UUID()
-        let verified: Bool
+        let status: Status
         let title: String
         let subtitle: String?
         let detailText: String?

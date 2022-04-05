@@ -131,7 +131,7 @@ private extension UIUserInterfaceIdiom {
     }
 }
 
-private extension UIDevice {
+extension UIDevice {
     var modelName: String {
         var systemInfo = utsname()
         uname(&systemInfo)
