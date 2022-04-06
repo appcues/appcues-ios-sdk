@@ -16,6 +16,11 @@ internal class DebugViewController: UIViewController {
         set { debugView.delegate = newValue }
     }
 
+    var unreadCount: Int {
+        get { debugView.floatingView.unreadIndicator.count }
+        set { debugView.floatingView.unreadIndicator.count = newValue }
+    }
+
     private var debugView = DebugView()
 
     private let panelViewController: UIViewController

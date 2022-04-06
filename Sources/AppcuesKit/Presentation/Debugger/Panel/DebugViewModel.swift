@@ -21,6 +21,7 @@ internal class DebugViewModel: ObservableObject {
     @Published private(set) var events: [LoggedEvent] = []
     @Published private(set) var trackingPages = false
     @Published private(set) var userIdentified = false
+    @Published var unreadCount: Int = 0
     @Published var isAnonymous = false
 
     var statusItems: [StatusItem] {
@@ -72,11 +73,15 @@ internal class DebugViewModel: ObservableObject {
         trackingPages = false
         currentUserID = ""
         isAnonymous = true
+        unreadCount = 0
         events.removeAll()
     }
 
     func addEvent(_ event: LoggedEvent) {
         trackingPages = trackingPages || event.type == .screen
+        if [.screen, .sessionEvent, .customEvent].contains(event.type) {
+            unreadCount += 1
+        }
         events.append(event)
     }
 }
