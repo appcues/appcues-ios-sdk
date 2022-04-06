@@ -8,6 +8,7 @@
 
 import UIKit
 import SwiftUI
+import Combine
 
 @available(iOS 13.0, *)
 internal protocol UIDebugging {
@@ -19,6 +20,7 @@ internal class UIDebugger: UIDebugging {
     private var debugWindow: UIWindow?
 
     private var viewModel: DebugViewModel
+    private var cancellables: Set<AnyCancellable> = []
 
     private let config: Appcues.Config
     private let storage: DataStoring
@@ -51,6 +53,12 @@ internal class UIDebugger: UIDebugging {
         let panelViewController = UIHostingController(rootView: DebugUI.MainPanelView(viewModel: viewModel))
         let rootViewController = DebugViewController(wrapping: panelViewController)
         rootViewController.delegate = self
+
+        viewModel.$unreadCount.sink {
+            rootViewController.unreadCount = $0
+        }
+        .store(in: &cancellables)
+
         debugWindow = DebugUIWindow(windowScene: windowScene, rootViewController: rootViewController)
     }
 
@@ -58,6 +66,7 @@ internal class UIDebugger: UIDebugging {
         analyticsPublisher.remove(subscriber: self)
         debugWindow?.isHidden = true
         debugWindow = nil
+        cancellables.removeAll()
     }
 
     @objc
@@ -69,8 +78,13 @@ internal class UIDebugger: UIDebugging {
 @available(iOS 13.0, *)
 extension UIDebugger: DebugViewDelegate {
     func debugView(did event: DebugView.Event) {
-        if case .hide = event {
+        switch event {
+        case .open:
+            viewModel.unreadCount = 0
+        case .hide:
             hide()
+        case .show, .close, .reposition:
+            break
         }
     }
 }

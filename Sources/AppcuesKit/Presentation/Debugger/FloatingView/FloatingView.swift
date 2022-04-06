@@ -23,6 +23,12 @@ internal class FloatingView: UIView {
         return imageView
     }()
 
+    var unreadIndicator: UnreadBadgeView = {
+        let view = UnreadBadgeView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -32,6 +38,13 @@ internal class FloatingView: UIView {
 
         addSubview(imageView)
         imageView.pin(to: self)
+
+        addSubview(unreadIndicator)
+
+        NSLayoutConstraint.activate([
+            unreadIndicator.topAnchor.constraint(equalTo: self.topAnchor),
+            unreadIndicator.trailingAnchor.constraint(equalTo: self.trailingAnchor, constant: -2)
+        ])
 
         addGestureRecognizer(tapRecognizer)
         tapRecognizer.addTarget(self, action: #selector(viewTapped))
