@@ -25,17 +25,31 @@ internal class DebugViewModel: ObservableObject {
 
     var statusItems: [StatusItem] {
         return [
-            StatusItem(status: .info,
-                       title: "\(UIDevice.current.modelName) iOS \(UIDevice.current.systemVersion)",
-                       subtitle: nil,
-                       detailText: nil),
-            StatusItem(status: .verified,
-                       title: "Installed SDK \(Appcues.version())",
-                       subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)",
-                       detailText: nil),
-            StatusItem(status: .verified, title: "Connected to Appcues", subtitle: nil, detailText: nil),
-            StatusItem(status: Status(from: trackingPages), title: "Tracking Pages", subtitle: nil, detailText: nil),
-            StatusItem(status: Status(from: userIdentified), title: "User Identified", subtitle: userDescription, detailText: currentUserID)
+            StatusItem(
+                status: .info,
+                title: "\(UIDevice.current.modelName) iOS \(UIDevice.current.systemVersion)",
+                subtitle: nil,
+                detailText: nil),
+            StatusItem(
+                status: .verified,
+                title: "Installed SDK \(Appcues.version())",
+                subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)",
+                detailText: nil),
+            StatusItem(
+                status: .verified,
+                title: "Connected to Appcues",
+                subtitle: nil,
+                detailText: nil),
+            StatusItem(
+                status: trackingPages ? .verified : .pending,
+                title: "Tracking Screens",
+                subtitle: trackingPages ? nil : "Navigate to another screen to test",
+                detailText: nil),
+            StatusItem(
+                status: userIdentified ? .verified : .unverfied,
+                title: "User Identified",
+                subtitle: userDescription,
+                detailText: currentUserID)
         ]
     }
 
@@ -71,12 +85,14 @@ internal class DebugViewModel: ObservableObject {
 extension DebugViewModel {
     enum Status {
         case verified
+        case pending
         case unverfied
         case info
 
         var symbolName: String {
             switch self {
             case .verified: return "checkmark"
+            case .pending: return "ellipsis"
             case .unverfied: return "xmark"
             case .info: return "info.circle"
             }
@@ -85,13 +101,10 @@ extension DebugViewModel {
         var tintColor: Color {
             switch self {
             case .verified: return .green
+            case .pending: return .gray
             case .unverfied: return .red
             case .info: return .blue
             }
-        }
-
-        init(from val: Bool) {
-            self = val ? .verified : .unverfied
         }
     }
 
