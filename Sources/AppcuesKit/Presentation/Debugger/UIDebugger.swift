@@ -59,6 +59,12 @@ internal class UIDebugger: UIDebugging {
         }
         .store(in: &cancellables)
 
+        viewModel.$latestEvent.sink {
+            guard let loggedEvent = $0 else { return }
+            rootViewController.logFleeting(message: loggedEvent.name, symbolName: loggedEvent.type.symbolName)
+        }
+        .store(in: &cancellables)
+
         debugWindow = DebugUIWindow(windowScene: windowScene, rootViewController: rootViewController)
     }
 

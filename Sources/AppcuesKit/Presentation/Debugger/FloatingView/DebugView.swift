@@ -31,6 +31,19 @@ internal class DebugView: UIView {
 
     private var panelViewHideAnimator: UIViewPropertyAnimator?
 
+    var fleetingLogView: FleetingLogView = {
+        let view = FleetingLogView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    // Constraints to activate/deactivate depending on the floating view position
+    private lazy var fleetingConstraints = (
+        top: fleetingLogView.topAnchor.constraint(equalTo: floatingView.bottomAnchor),
+        bottom: fleetingLogView.bottomAnchor.constraint(equalTo: floatingView.topAnchor),
+        leading: fleetingLogView.leadingAnchor.constraint(equalTo: floatingView.leadingAnchor),
+        trailing: fleetingLogView.trailingAnchor.constraint(equalTo: floatingView.trailingAnchor)
+    )
+
     var floatingView = FloatingView(frame: CGRect(origin: .zero, size: CGSize(width: 64, height: 64)))
 
     private var dismissView: DismissDropZoneView = {
@@ -142,6 +155,14 @@ internal class DebugView: UIView {
         // Set initial position and then animate in
         setFloatingView(visible: false, animated: false, programmatically: true)
         setFloatingView(visible: true, animated: true, programmatically: true)
+
+        addSubview(fleetingLogView)
+        NSLayoutConstraint.activate([
+            fleetingLogView.widthAnchor.constraint(equalToConstant: 150),
+            fleetingLogView.heightAnchor.constraint(equalToConstant: 150)
+            // Additional constraints are set depending on orientation
+        ])
+        updateFleetingLogViewOrientation()
     }
 
     @available(*, unavailable)
@@ -217,6 +238,8 @@ internal class DebugView: UIView {
     private func floatingViewActivated() {
         let isCurrentlyOpen = floatingView.center == floatingViewOpenCenter
         setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
+
+        fleetingLogView.clear()
     }
 
     @objc
@@ -236,6 +259,8 @@ internal class DebugView: UIView {
 
         let generator = UIImpactFeedbackGenerator(style: .light)
         generator.impactOccurred()
+
+        fleetingLogView.clear()
     }
 
     private func panChanged(_ recognizer: UIPanGestureRecognizer) {
@@ -284,6 +309,7 @@ internal class DebugView: UIView {
             self.floatingViewDockedCenter = destinationPoint
             self.floatingView.center = destinationPoint
             if shouldDock {
+                self.updateFleetingLogViewOrientation()
                 self.delegate?.debugView(did: .reposition)
             }
         }
@@ -371,6 +397,30 @@ internal class DebugView: UIView {
         }
 
         return isInDismissRange
+    }
+
+    // MARK: Fleeting Log View
+
+    private func updateFleetingLogViewOrientation() {
+        if floatingView.center.x < center.x {
+            fleetingLogView.orientation.x = .leading
+            fleetingConstraints.leading.isActive = true
+            fleetingConstraints.trailing.isActive = false
+        } else {
+            fleetingLogView.orientation.x = .trailing
+            fleetingConstraints.leading.isActive = false
+            fleetingConstraints.trailing.isActive = true
+        }
+
+        if floatingView.center.y < center.y {
+            fleetingLogView.orientation.y = .bottom
+            fleetingConstraints.top.isActive = true
+            fleetingConstraints.bottom.isActive = false
+        } else {
+            fleetingLogView.orientation.y = .top
+            fleetingConstraints.top.isActive = false
+            fleetingConstraints.bottom.isActive = true
+        }
     }
 
     // MARK: Animations
