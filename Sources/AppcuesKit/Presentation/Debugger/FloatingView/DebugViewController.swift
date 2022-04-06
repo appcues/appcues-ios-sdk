@@ -64,4 +64,8 @@ internal class DebugViewController: UIViewController {
     func close(animated: Bool) {
         debugView.setPanelInterface(open: false, animated: animated, programatically: true)
     }
+
+    func logFleeting(message: String, symbolName: String?) {
+        debugView.fleetingLogView.addMessage(message, symbolName: symbolName)
+    }
 }

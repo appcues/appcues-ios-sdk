@@ -19,6 +19,7 @@ internal class DebugViewModel: ObservableObject {
         }
     }
     @Published private(set) var events: [LoggedEvent] = []
+    @Published private(set) var latestEvent: LoggedEvent?
     @Published private(set) var trackingPages = false
     @Published private(set) var userIdentified = false
     @Published var unreadCount: Int = 0
@@ -81,6 +82,7 @@ internal class DebugViewModel: ObservableObject {
         trackingPages = trackingPages || event.type == .screen
         if [.screen, .sessionEvent, .customEvent].contains(event.type) {
             unreadCount += 1
+            latestEvent = event
         }
         events.append(event)
     }
