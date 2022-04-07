@@ -81,7 +81,7 @@ internal class DebugViewModel: ObservableObject {
 
     func addEvent(_ event: LoggedEvent) {
         trackingPages = trackingPages || event.type == .screen
-        if [.screen, .sessionEvent, .customEvent].contains(event.type) {
+        if [.screen, .session, .custom].contains(event.type) {
             unreadCount += 1
             latestEvent = event
         }
@@ -212,13 +212,13 @@ extension DebugViewModel {
 
             switch update.type {
             case let .event(name, _) where SessionEvents.allNames.contains(name):
-                self.type = .sessionEvent
+                self.type = .session
                 self.name = name
             case let .event(name, _) where name.starts(with: "appcues:v2:"):
-                self.type = .experienceEvent
+                self.type = .experience
                 self.name = name
             case let .event(name, _):
-                self.type = .customEvent
+                self.type = .custom
                 self.name = name
             case let .screen(title):
                 self.type = .screen
@@ -238,21 +238,19 @@ extension DebugViewModel {
 extension DebugViewModel.LoggedEvent {
     enum EventType: CustomStringConvertible {
         case screen
-        case sessionEvent
-        case experienceEvent
-        case customEvent
-        case profile
+        case session
         case experience
+        case custom
+        case profile
         case group
 
         var description: String {
             switch self {
             case .screen: return "Screen"
-            case .sessionEvent: return "Session Event"
-            case .experienceEvent: return "Experience Event"
-            case .customEvent: return "Custom Event"
-            case .profile: return "User Profile"
+            case .session: return "Session"
             case .experience: return "Experience"
+            case .custom: return "Custom"
+            case .profile: return "User Profile"
             case .group: return "Group"
             }
         }
@@ -260,11 +258,10 @@ extension DebugViewModel.LoggedEvent {
         var symbolName: String {
             switch self {
             case .screen: return "rectangle.portrait.on.rectangle.portrait"
-            case .sessionEvent: return "clock.arrow.2.circlepath"
-            case .experienceEvent: return "arrow.right.square"
-            case .customEvent: return "hand.tap"
+            case .session: return "clock.arrow.2.circlepath"
+            case .experience: return "arrow.right.square"
+            case .custom: return "hand.tap"
             case .profile: return "person"
-            case .experience: return "wand.and.stars"
             case .group: return "person.3.fill"
             }
         }
