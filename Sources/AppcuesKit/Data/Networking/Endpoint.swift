@@ -14,6 +14,7 @@ internal enum APIEndpoint: Endpoint {
     case qualify(userID: String)
     case content(experienceID: String)
     case preview(experienceID: String)
+    case health
 
     /// URL fragments that that are appended to the `Config.apiHost` to make the URL for a network request.
     func url(config: Appcues.Config, storage: DataStoring) -> URL? {
@@ -33,6 +34,8 @@ internal enum APIEndpoint: Endpoint {
             } else {
                 components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/experience_preview/\(experienceID)"
             }
+        case .health:
+            components.path = "/healthz"
         }
 
         return components.url

@@ -11,6 +11,8 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 internal class DebugViewModel: ObservableObject {
+    private let networking: Networking
+
     let accountID: String
     let applicationID: String
     @Published var currentUserID: String {
@@ -20,6 +22,7 @@ internal class DebugViewModel: ObservableObject {
     }
     @Published private(set) var events: [LoggedEvent] = []
     @Published private(set) var latestEvent: LoggedEvent?
+    @Published private(set) var connectedStatus = StatusItem(status: .pending, title: "Connected to Appcues")
     @Published private(set) var trackingPages = false
     @Published private(set) var userIdentified = false
     @Published var unreadCount: Int = 0
@@ -29,24 +32,16 @@ internal class DebugViewModel: ObservableObject {
         return [
             StatusItem(
                 status: .info,
-                title: "\(UIDevice.current.modelName) iOS \(UIDevice.current.systemVersion)",
-                subtitle: nil,
-                detailText: nil),
+                title: "\(UIDevice.current.modelName) iOS \(UIDevice.current.systemVersion)"),
             StatusItem(
                 status: .verified,
                 title: "Installed SDK \(Appcues.version())",
-                subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)",
-                detailText: nil),
-            StatusItem(
-                status: .verified,
-                title: "Connected to Appcues",
-                subtitle: nil,
-                detailText: nil),
+                subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)"),
+            connectedStatus,
             StatusItem(
                 status: trackingPages ? .verified : .pending,
                 title: "Tracking Screens",
-                subtitle: trackingPages ? nil : "Navigate to another screen to test",
-                detailText: nil),
+                subtitle: trackingPages ? nil : "Navigate to another screen to test"),
             StatusItem(
                 status: userIdentified ? .verified : .unverfied,
                 title: "User Identified",
@@ -62,12 +57,18 @@ internal class DebugViewModel: ObservableObject {
         return currentUserID
     }
 
-    init(accountID: String, applicationID: String, currentUserID: String, isAnonymous: Bool) {
+    init(networking: Networking, accountID: String, applicationID: String, currentUserID: String, isAnonymous: Bool) {
+        self.networking = networking
         self.accountID = accountID
         self.applicationID = applicationID
         self.currentUserID = currentUserID
         self.isAnonymous = isAnonymous
         self.userIdentified = !currentUserID.isEmpty
+
+        // Initial connectivity check
+        ping()
+
+        connectedStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { self.ping() }
     }
 
     func reset() {
@@ -85,6 +86,25 @@ internal class DebugViewModel: ObservableObject {
             latestEvent = event
         }
         events.append(event)
+    }
+
+    func ping() {
+        connectedStatus.status = .pending
+        connectedStatus.subtitle = nil
+        connectedStatus.detailText = nil
+
+        networking.get(from: APIEndpoint.health) { [weak self] (result: Result<ActivityResponse, Error>) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    self?.connectedStatus.status = .verified
+                case .failure(let error):
+                    self?.connectedStatus.status = .unverfied
+                    self?.connectedStatus.subtitle = error.localizedDescription
+                    self?.connectedStatus.detailText = "\(error)"
+                }
+            }
+        }
     }
 }
 
@@ -115,12 +135,32 @@ extension DebugViewModel {
         }
     }
 
+    struct Action {
+        let symbolName: String
+        let block: () -> Void
+    }
+
     struct StatusItem: Identifiable {
         let id = UUID()
-        let status: Status
+        var status: Status
         let title: String
-        let subtitle: String?
-        let detailText: String?
+        var subtitle: String?
+        var detailText: String?
+        var action: Action?
+
+        init(
+            status: DebugViewModel.Status,
+            title: String,
+            subtitle: String? = nil,
+            detailText: String? = nil,
+            action: DebugViewModel.Action? = nil
+        ) {
+            self.status = status
+            self.title = title
+            self.subtitle = subtitle
+            self.detailText = detailText
+            self.action = action
+        }
     }
 
     struct LoggedEvent: Identifiable {

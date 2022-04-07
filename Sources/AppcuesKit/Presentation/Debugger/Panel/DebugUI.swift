@@ -80,6 +80,16 @@ internal enum DebugUI {
                          Text(subtitle).font(.caption)
                      }
                  }
+                 if let action = item.action {
+                     Spacer()
+                     Button {
+                         action.block()
+                     } label: {
+                         Image(systemName: action.symbolName)
+                             .imageScale(.small)
+                     }
+                     .foregroundColor(.secondary)
+                 }
              }
              .ifLet(item.detailText) { view, detail in
                  view.contextMenu {
