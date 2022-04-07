@@ -15,6 +15,10 @@ internal enum DebugUI {
 
         @ObservedObject var viewModel: DebugViewModel
 
+        var filteredEvents: [DebugViewModel.LoggedEvent] {
+            viewModel.events.filter { viewModel.filter == nil || $0.type == viewModel.filter }
+        }
+
         var body: some View {
             NavigationView {
                 List {
@@ -24,8 +28,8 @@ internal enum DebugUI {
                         }
                     }
 
-                    Section(header: Text("Recent Events")) {
-                        ForEach(viewModel.events.suffix(20).reversed()) { event in
+                    Section(header: EventsSectionHeader(selection: $viewModel.filter)) {
+                        ForEach(filteredEvents.suffix(20).reversed()) { event in
                             NavigationLink(destination: EventDetailView(event: event)) {
                                 HStack {
                                     Image(systemName: event.type.symbolName)
@@ -35,8 +39,44 @@ internal enum DebugUI {
                         }
                     }
                 }
+                .accentColor(.blue)
                 .navigationBarTitle(Text("Debugger"))
                 .navigationBarHidden(true)
+            }
+        }
+    }
+
+    private struct EventsSectionHeader: View {
+        @Binding var selection: DebugViewModel.LoggedEvent.EventType?
+
+        let options: [DebugViewModel.LoggedEvent.EventType?] = [nil] + DebugViewModel.LoggedEvent.EventType.allCases
+
+        private var title: String {
+            if let description = selection?.description {
+                return "Recent \(description) Events"
+            } else {
+                return "All Recent Events"
+            }
+        }
+
+        var body: some View {
+            HStack {
+                Text(title)
+                Spacer()
+
+                if #available(iOS 14.0, *) {
+                    Menu {
+                        Picker(selection: $selection, label: Text("Filter")) {
+                            ForEach(options, id: \.self) {
+                                Label($0?.description ?? "All", systemImage: $0?.symbolName ?? "asterisk")
+                            }
+                        }
+                    } label: {
+                        Label("Filter", systemImage: "line.3.horizontal.decrease.circle")
+                            .labelStyle(.iconOnly)
+                    }
+                    .textCase(.none)
+                }
             }
         }
     }

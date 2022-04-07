@@ -20,6 +20,7 @@ internal class DebugViewModel: ObservableObject {
             userIdentified = !currentUserID.isEmpty
         }
     }
+    @Published var filter: DebugViewModel.LoggedEvent.EventType?
     @Published private(set) var events: [LoggedEvent] = []
     @Published private(set) var latestEvent: LoggedEvent?
     @Published private(set) var connectedStatus = StatusItem(status: .pending, title: "Connected to Appcues")
@@ -41,12 +42,14 @@ internal class DebugViewModel: ObservableObject {
             StatusItem(
                 status: trackingPages ? .verified : .pending,
                 title: "Tracking Screens",
-                subtitle: trackingPages ? nil : "Navigate to another screen to test"),
+                subtitle: trackingPages ? nil : "Navigate to another screen to test",
+                action: Action(symbolName: "line.3.horizontal.decrease.circle") { [weak self] in self?.filter = .screen }),
             StatusItem(
                 status: userIdentified ? .verified : .unverfied,
                 title: "User Identified",
                 subtitle: userDescription,
-                detailText: currentUserID)
+                detailText: currentUserID,
+                action: Action(symbolName: "line.3.horizontal.decrease.circle") { [weak self] in self?.filter = .profile })
         ]
     }
 
@@ -236,7 +239,7 @@ extension DebugViewModel {
 
 @available(iOS 13.0, *)
 extension DebugViewModel.LoggedEvent {
-    enum EventType: CustomStringConvertible {
+    enum EventType: CaseIterable, CustomStringConvertible {
         case screen
         case session
         case experience
@@ -262,7 +265,7 @@ extension DebugViewModel.LoggedEvent {
             case .experience: return "arrow.right.square"
             case .custom: return "hand.tap"
             case .profile: return "person"
-            case .group: return "person.3.fill"
+            case .group: return "person.3"
             }
         }
     }
