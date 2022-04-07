@@ -34,6 +34,7 @@ internal class UIDebugger: UIDebugging {
         self.notificationCenter = container.resolve(NotificationCenter.self)
 
         self.viewModel = DebugViewModel(
+            networking: container.resolve(Networking.self),
             accountID: config.accountID,
             applicationID: config.applicationID,
             currentUserID: storage.userID,
