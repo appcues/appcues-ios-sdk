@@ -216,10 +216,10 @@ extension DebugViewModel {
             switch update.type {
             case let .event(name, _) where SessionEvents.allNames.contains(name):
                 self.type = .session
-                self.name = name
+                self.name = name.prettifiedEventName
             case let .event(name, _) where name.starts(with: "appcues:v2:"):
                 self.type = .experience
-                self.name = name
+                self.name = name.prettifiedEventName
             case let .event(name, _):
                 self.type = .custom
                 self.name = name
@@ -234,6 +234,17 @@ extension DebugViewModel {
                 self.name = "Group Update"
             }
         }
+    }
+}
+
+private extension String {
+    var prettifiedEventName: String {
+        self
+            .split(separator: ":")
+            .last?
+            .split(separator: "_")
+            .map { $0.capitalized }
+            .joined(separator: " ") ?? self
     }
 }
 
