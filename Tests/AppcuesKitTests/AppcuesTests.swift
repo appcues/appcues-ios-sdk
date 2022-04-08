@@ -72,7 +72,7 @@ class AppcuesTests: XCTestCase {
         // Assert
         let lastUpdate = try XCTUnwrap(subscriber.lastUpdate)
         guard case .group = lastUpdate.type else { return XCTFail() }
-        try ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(lastUpdate.properties)
+        ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(lastUpdate.properties)
         XCTAssertEqual("group1", appcues.storage.groupID)
     }
 

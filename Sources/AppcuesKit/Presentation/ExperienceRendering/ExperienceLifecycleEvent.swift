@@ -107,7 +107,7 @@ extension ExperienceLifecycleEvent {
         let message: String
         let id: UUID
 
-        init(message: String, id: UUID = UUID()) {
+        init(message: String, id: UUID = UUID.create()) {
             self.message = message
             self.id = id
         }
@@ -115,7 +115,7 @@ extension ExperienceLifecycleEvent {
         // Conveniently init with `"message"` or `"\(messageVar)"` instead of `ExperienceLifecycleEvent.Error(message: messageVar)`.
         init(stringLiteral value: String) {
             message = value
-            id = UUID()
+            id = UUID.create()
         }
     }
 }

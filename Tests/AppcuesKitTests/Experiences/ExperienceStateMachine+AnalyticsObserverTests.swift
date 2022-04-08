@@ -22,6 +22,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         observer = ExperienceStateMachine.AnalyticsObserver(container: appcues.container)
     }
 
+    override func tearDownWithError() throws {
+        // Reset fixed UUID
+        UUID.generator = UUID.init
+    }
+
     func testEvaluateIdlingState() throws {
         // Act
         let isCompleted = observer.evaluateIfSatisfied(result: .success(.idling))
@@ -60,6 +65,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 2)
         XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07"
+        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
         XCTAssertNotNil(appcues.storage.lastContentShownAt)
     }
 
@@ -71,6 +81,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
         XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07"
+        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
     }
 
     func testEvaluateEndingStepState() throws {
@@ -81,6 +96,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
         XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_completed", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07"
+        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
     }
 
     func testEvaluateEndingExperienceState() throws {
@@ -91,6 +111,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
         XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_dismissed", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07"
+        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
     }
 
     func testEvaluateEndingExperienceLastStepState() throws {
@@ -101,9 +126,16 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
         XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_completed", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf"
+        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
     }
 
     func testEvaluateExperienceError() throws {
+        // Arrange
+        UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
+
         // Act
         let isCompleted = observer.evaluateIfSatisfied(result: .failure(.experience(Experience.mock, "error")))
 
@@ -111,9 +143,18 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
         XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_error", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "message": "error",
+            "errorId": "A6D6E248-FAFF-4789-A03C-BD7F520C1181"
+        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
     }
 
     func testEvaluateStepError() throws {
+        // Arrange
+        UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
+
         // Act
         let isCompleted = observer.evaluateIfSatisfied(result: .failure(.step(Experience.mock, .initial, "error")))
 
@@ -121,6 +162,13 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
         XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_error", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "message": "error",
+            "errorId": "A6D6E248-FAFF-4789-A03C-BD7F520C1181"
+        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
     }
 
     func testEvaluateNoTransitionError() throws {
