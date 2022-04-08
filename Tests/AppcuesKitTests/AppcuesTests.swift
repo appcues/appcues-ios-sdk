@@ -230,8 +230,8 @@ class AppcuesTests: XCTestCase {
         }
 
         // Act
-        appcues.show(experienceID: "1234") { result in
-            if case .success = result {
+        appcues.show(experienceID: "1234") { success, _ in
+            if success {
                 completionCount += 1
             }
         }
@@ -252,8 +252,8 @@ class AppcuesTests: XCTestCase {
         }
 
         // Act
-        appcues.show(experienceID: "1234") { result in
-            if case .failure = result {
+        appcues.show(experienceID: "1234") { success, _ in
+            if !success {
                 completionCount += 1
             }
         }

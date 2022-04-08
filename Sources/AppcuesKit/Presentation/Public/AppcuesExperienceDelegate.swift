@@ -23,30 +23,3 @@ public protocol AppcuesExperienceDelegate: AnyObject {
     /// Notifies the delegate after an Appcues experience is dismissed.
     func experienceDidDisappear()
 }
-
-public extension AppcuesExperienceDelegate {
-    /// Default implementation.
-    func canDisplayExperience(experienceID: String) -> Bool {
-        return true
-    }
-
-    /// Default implementation.
-    func experienceWillAppear() {
-        /* Default empty implementation */
-    }
-
-    /// Default implementation.
-    func experienceDidAppear() {
-        /* Default empty implementation */
-    }
-
-    /// Default implementation.
-    func experienceWillDisappear() {
-        /* Default empty implementation */
-    }
-
-    /// Default implementation.
-    func experienceDidDisappear() {
-        /* Default empty implementation */
-    }
-}
