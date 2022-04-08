@@ -32,6 +32,7 @@
 - ``Appcues/debug()``
 - ``Appcues/filterAndHandle(_:)``
 - ``Appcues/didHandleURL(_:)``
+- <doc:Logging>
 
 ### Customizing and Extending
 

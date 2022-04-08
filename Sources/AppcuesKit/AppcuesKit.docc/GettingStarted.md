@@ -39,4 +39,4 @@ For more detail about tracking screens and events, refer to <doc:Tracking>.
 
 ## Debugging
 
-See <doc:Debugging>.
+See <doc:URLSchemeConfiguring> for setup instructions and then refer to <doc:Debugging> for usage details.

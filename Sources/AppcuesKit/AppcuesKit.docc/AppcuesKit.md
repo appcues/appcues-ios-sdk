@@ -13,7 +13,7 @@ A Swift library for sending user properties and events to the Appcues API and re
 - <doc:GettingStarted>
 - <doc:Identifying>
 - <doc:Tracking>
-- <doc:Debugging>
+- <doc:URLSchemeConfiguring>
 - ``Appcues``
 
 ### Managing Experiences

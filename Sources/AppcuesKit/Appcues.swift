@@ -184,6 +184,8 @@ public class Appcues: NSObject {
     }
 
     /// Launches the Appcues debugger over your app's UI.
+    ///
+    /// See <doc:Debugging> for usage information.
     @objc
     public func debug() {
         guard #available(iOS 13.0, *) else {
