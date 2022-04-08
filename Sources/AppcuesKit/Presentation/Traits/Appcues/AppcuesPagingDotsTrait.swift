@@ -19,7 +19,7 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
         self.style = config?["style", decodedAs: ExperienceComponent.Style.self]
     }
 
-    func decorate(containerController: ExperienceContainerViewController) {
+    func decorate(containerController: ExperienceContainerViewController) throws {
         let pageWrapView = UIView()
         pageWrapView.translatesAutoresizingMaskIntoConstraints = false
         pageWrapView.directionalLayoutMargins = NSDirectionalEdgeInsets(

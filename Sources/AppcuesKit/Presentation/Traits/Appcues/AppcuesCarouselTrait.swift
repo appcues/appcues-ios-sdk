@@ -23,7 +23,7 @@ internal class AppcuesCarouselTrait: ContainerCreatingTrait {
 @available(iOS 13.0, *)
 extension AppcuesCarouselTrait {
 
-    class CarouselContainerViewController: UIViewController, ExperienceContainerViewController,
+    class CarouselContainerViewController: UIViewController, ExperienceContainer,
                                            UICollectionViewDataSource, UICollectionViewDelegate {
 
         weak var lifecycleHandler: ExperienceContainerLifecycleHandler?

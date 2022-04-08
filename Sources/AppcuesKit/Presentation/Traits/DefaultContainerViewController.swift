@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class DefaultContainerViewController: UIViewController, ExperienceContainerViewController {
+internal class DefaultContainerViewController: UIViewController, ExperienceContainer {
 
     weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
     let pageMonitor: PageMonitor

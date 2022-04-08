@@ -24,7 +24,7 @@ internal class AppcuesStickyContentTrait: StepDecoratingTrait {
         }
     }
 
-    func decorate(stepController viewController: UIViewController) {
+    func decorate(stepController viewController: UIViewController) throws {
         // Need to cast for access to the viewModel.
         guard let viewController = viewController as? ExperienceStepViewController else { return }
 

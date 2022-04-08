@@ -8,8 +8,11 @@
 
 import UIKit
 
+public typealias ExperienceContainerViewController = ExperienceContainer & UIViewController
+
 /// A `UIViewController` which contains step view controllers to display an `Experience`.
-public protocol ExperienceContainerViewController: UIViewController {
+@objc
+public protocol ExperienceContainer {
 
     /// The delegate object for the experience step container.
     var lifecycleHandler: ExperienceContainerLifecycleHandler? { get set }
