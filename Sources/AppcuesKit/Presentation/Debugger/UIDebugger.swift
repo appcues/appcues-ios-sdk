@@ -103,7 +103,7 @@ extension UIDebugger: AnalyticsSubscribing {
         DispatchQueue.main.async {
             self.viewModel.currentUserID = self.storage.userID
             self.viewModel.isAnonymous = self.storage.isAnonymous
-            self.viewModel.addEvent(DebugViewModel.LoggedEvent(from: update))
+            self.viewModel.addUpdate(update)
         }
     }
 }

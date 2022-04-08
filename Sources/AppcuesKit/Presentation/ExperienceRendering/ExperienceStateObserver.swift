@@ -75,22 +75,22 @@ extension ExperienceStateMachine {
                 break
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: true)):
                 storage.lastContentShownAt = Date()
-                trackLifecycleEvent(.experienceStarted(experience))
-                trackLifecycleEvent(.stepSeen(experience, stepIndex))
+                trackLifecycleEvent(.experienceStarted, LifecycleEvent.properties(experience))
+                trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
-                trackLifecycleEvent(.stepSeen(experience, stepIndex))
+                trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.endingStep(experience, stepIndex, _)):
-                trackLifecycleEvent(.stepCompleted(experience, stepIndex))
+                trackLifecycleEvent(.stepCompleted, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.endingExperience(experience, stepIndex)):
                 if stepIndex == experience.stepIndices.last {
-                    trackLifecycleEvent(.experienceCompleted(experience))
+                    trackLifecycleEvent(.experienceCompleted, LifecycleEvent.properties(experience))
                 } else {
-                    trackLifecycleEvent(.experienceDismissed(experience, stepIndex))
+                    trackLifecycleEvent(.experienceDismissed, LifecycleEvent.properties(experience, stepIndex))
                 }
             case let .failure(.experience(experience, message)):
-                trackLifecycleEvent(.experienceError(experience, "\(message)"))
+                trackLifecycleEvent(.experienceError, LifecycleEvent.properties(experience, error: "\(message)"))
             case let .failure(.step(experience, stepIndex, message)):
-                trackLifecycleEvent(.stepError(experience, stepIndex, "\(message)"))
+                trackLifecycleEvent(.stepError, LifecycleEvent.properties(experience, stepIndex, error: "\(message)"))
             case .failure(.noTransition):
                 break
             case .failure(.experienceAlreadyActive):
@@ -101,8 +101,8 @@ extension ExperienceStateMachine {
             return false
         }
 
-        func trackLifecycleEvent(_ event: ExperienceLifecycleEvent) {
-            analyticsPublisher.track(name: event.name, properties: event.properties, interactive: false)
+        func trackLifecycleEvent(_ name: LifecycleEvent, _ properties: [String: Any]) {
+            analyticsPublisher.track(name: name.rawValue, properties: properties, interactive: false)
         }
     }
 }

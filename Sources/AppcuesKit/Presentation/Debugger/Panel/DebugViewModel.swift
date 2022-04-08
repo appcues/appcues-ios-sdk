@@ -29,6 +29,9 @@ internal class DebugViewModel: ObservableObject {
     @Published var unreadCount: Int = 0
     @Published var isAnonymous = false
 
+    @Published var experienceStatuses: [StatusItem] = []
+    private let syncQueue = DispatchQueue(label: "appcues-status-listing")
+
     var statusItems: [StatusItem] {
         return [
             StatusItem(
@@ -50,7 +53,7 @@ internal class DebugViewModel: ObservableObject {
                 subtitle: userDescription,
                 detailText: currentUserID,
                 action: Action(symbolName: "line.3.horizontal.decrease.circle") { [weak self] in self?.filter = .profile })
-        ]
+        ] + experienceStatuses
     }
 
     private var userDescription: String {
@@ -82,13 +85,73 @@ internal class DebugViewModel: ObservableObject {
         events.removeAll()
     }
 
-    func addEvent(_ event: LoggedEvent) {
+    func addUpdate(_ update: TrackingUpdate) {
+        let event = LoggedEvent(from: update)
+
         trackingPages = trackingPages || event.type == .screen
-        if [.screen, .session, .custom].contains(event.type) {
-            unreadCount += 1
-            latestEvent = event
+
+        unreadCount += 1
+        latestEvent = event
+
+        if event.type == .experience, let properties = LifecycleEvent.restructure(update: update) {
+            // Perform updates sequentially to be safe because the order of the array can change.
+            syncQueue.async { [weak self] in
+                self?.handleExperienceEvent(properties: properties)
+            }
         }
+
         events.append(event)
+    }
+
+    private func handleExperienceEvent(properties: LifecycleEvent.EventProperties) {
+        let existingIndex = experienceStatuses.firstIndex { $0.id == properties.experienceID }
+
+        let status: Status
+        let title: String
+        var subtitle: String?
+        var action: Action?
+
+        switch properties.type {
+        case .experienceError, .stepError:
+            status = .unverfied
+            title = "Content Omitted: \(properties.experienceName)"
+            if let message = properties.message {
+                subtitle = message
+            }
+            // Add a dismiss button to remove the row. Non-error rows are automatically removed when the experience completes.
+            action = Action(symbolName: "xmark") { [weak self] in
+                guard let self = self else { return }
+                self.experienceStatuses = self.experienceStatuses.filter { $0.id != properties.experienceID }
+            }
+        case .stepSeen:
+            status = .verified
+            title = "Showing \(properties.experienceName)"
+            if let stepIndex = properties.stepIndex {
+                // Convert from zero-based to be human readable
+                subtitle = "Group \(stepIndex.group + 1) step \(stepIndex.item + 1)"
+            }
+        case .stepInteraction, .stepCompleted, .stepRecovered, .experienceStarted:
+            status = .verified
+            title = "Showing \(properties.experienceName)"
+        case .experienceCompleted, .experienceDismissed:
+            if let existingIndex = existingIndex {
+                experienceStatuses.remove(at: existingIndex)
+            }
+            return
+        }
+
+        let updatedStatus = StatusItem(status: status, title: title, subtitle: subtitle, id: properties.experienceID, action: action)
+
+        if let existingIndex = existingIndex {
+            experienceStatuses[existingIndex] = updatedStatus
+        } else {
+            experienceStatuses.append(updatedStatus)
+        }
+
+        DispatchQueue.main.async {
+            // Errors are listed last
+            self.experienceStatuses = self.experienceStatuses.sorted { $0.status == .verified && $1.status == .unverfied }
+        }
     }
 
     func ping() {
@@ -144,7 +207,7 @@ extension DebugViewModel {
     }
 
     struct StatusItem: Identifiable {
-        let id = UUID()
+        let id: UUID
         var status: Status
         let title: String
         var subtitle: String?
@@ -156,8 +219,10 @@ extension DebugViewModel {
             title: String,
             subtitle: String? = nil,
             detailText: String? = nil,
+            id: UUID = UUID(),
             action: DebugViewModel.Action? = nil
         ) {
+            self.id = id
             self.status = status
             self.title = title
             self.subtitle = subtitle
