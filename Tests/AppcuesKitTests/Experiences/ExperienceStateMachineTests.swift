@@ -368,6 +368,11 @@ private class MockAppcuesExperienceDelegate: AppcuesExperienceDelegate {
     func canDisplayExperience(experienceID: String) -> Bool {
         canDisplay
     }
+
+    func experienceWillAppear() {}
+    func experienceDidAppear() {}
+    func experienceWillDisappear() {}
+    func experienceDidDisappear() {}
 }
 
 private class ListingObserver: ExperienceStateObserver {
