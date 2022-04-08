@@ -1,84 +1,63 @@
-# Previewing and Debugging Appcues Experiences
-
-The Appcues iOS SDK supports previewing Appcues experiences in-app prior to publishing, triggered by a link with a custom URL scheme.
+# Using the Appcues Debugger
 
 The Appcues debugger is an in-app overlay that provides debug information in an accessible manner.
 
-> It is **strongly** recommended that you configure the custom URL scheme. It allows non-developer users of your Appcues instance to test Appcues experiences in a real setting. It's also valuable for future troubleshooting and support from Appcues via the debugger.
+## Overview
 
-## Configuring Your Custom URL Scheme
+The Appcues debugger can also be manually trigger apart from the custom URL scheme with a call to ``Appcues/debug()`` from within your app.
 
-### Register the Custom URL Scheme
+## Floating Button
 
-Update your `Info.plist` to register the custom URL scheme. Replace `APPCUES_APPLICATION_ID` in the snippet below with your app's Appcues Application ID. This value can be obtained from your [Appcues settings](https://studio.appcues.com/settings/account). 
+The Appcues debugger launches in its minimized state, represented as a floating button that initially appears in the bottom right corner of your screen. Tap the floating button to expand the debugger. Tap the floating button again to minimize.
 
-```
-<key>CFBundleURLTypes</key>
-<array>
-    <dict>
-        <key>CFBundleTypeRole</key>
-        <string>Editor</string>
-        <key>CFBundleURLName</key>
-        <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>appcues-APPCUES_APPLICATION_ID</string>
-        </array>
-    </dict>
-</array>
-```
+The floating button can be dragged around the screen and docked in an unobtrusive location While minimized, the floating button shows an unread indicator counting the number of events the Appcues SDK has tracked since the debugger was last expanded. As events pass through the SDK, the event names are momentarily displayed next to the floating button with an icon representing the event type.
 
-### Handle the Custom URL Scheme
+To dismiss the debugger entirely, drag the floating button to the center bottom of the screen where it will snap to the dismiss zone. Let it go and the debugger will be entirely gone.
 
-Custom URL's should be handled with a call to ``Appcues/filterAndHandle(_:)`` or ``Appcues/didHandleURL(_:)``. If the URL being opened is an Appcues URL, the URL will be handled.
+## Monitoring Status Details
 
-If your app uses a Scene delegate, add the following:
+The debugger include a section that provides an at-a-glimpse overview of Appcues status in your app.
 
-```swift
-func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-    // Handle Appcues deeplinks.
-    let unhandledURLContexts = appcues.filterAndHandle(connectionOptions.urlContexts)
+### Device Info
 
-    // Handle any links remaining in unhandledURLContexts.
-}
+The device info row includes the model identifier and iOS version of the device. 
 
-func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-    // Handle Appcues deeplinks.
-    let unhandledURLContexts = appcues.filterAndHandle(URLContexts)
+### SDK Info
 
-    // Handle any links remaining in unhandledURLContexts.
-}
-```
+The SDK version along with the Appcues Account ID and Appcues Application ID of the ``Appcues`` instance.
 
-If your app uses only an App delegate, add the following:
+### Connection Status
 
-```swift
-func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
-    // Handle Appcues deeplinks.
-    guard !appcues.didHandleURL(url) else { return true }
+Shows a checkmark if a connection has been made to the Appcues servers.
 
-    // Handle a non-Appcues URL.
-    return false
-}
-```
+Tap the row to re-check the connection status.
 
-A SwiftUI app can handle the custom URL scheme as part of the `onOpenURL` modifier associated with the `Scene` of your main `App`:
+> If there is a connection error, long-press the row to copy the detailed error information.
 
-```swift
-var body: some Scene {
-    WindowGroup {
-        MyApp()
-        .onOpenURL { url in
-            guard !appcues.didHandleURL(url) else { return }
-        }
-    }
-}
-```
+### Screen Tracking Status
 
-### Verifying the Custom URL Scheme
+Shows a checkmark if a screen event has been observed since the debugger was launched. You may need to navigate to another screen in your app for the debugger to observe a screen event.
 
-Test that the URL scheme handling is set up correctly by navigating to `appcues-APPCUES_APPLICATION_ID://debugger` in your browser on the device with the app installed.
+Tap the row to filter the Recent Events section to only show Screen events.
 
-## Manually Launching the Debugger
+### User Identity Status
 
-The Appcues debugger can also be manually trigger apart from the custom URL scheme with a call to ``Appcues/debug()``.
+Shows a checkmark if there is a user identified for the current session.
+
+Tap the row to filter the Recent Events section to only show User Profile events. There may not be an event to inspect if the user was identified before the debugger was launched.
+
+> Long-press the row to copy the user ID value.
+
+### Experience Status
+
+If there is an experience currently showing in your app, the debugger will the name of the experience as well as the current step.
+
+If an experience fails to show, the debugger will note it with "Content Omitted" and the error message describing why the experience was not presented.
+
+## Inspecting Events
+
+The Recent Events section of the debugger shows the list of all events that have passed through the Appcues SDK, with the most recent events at the top of the list. The list of events can be filtered by type by selecting the Filter icon in the header row and selecting an event type.
+
+Session and Experience events are automatically tracked by the SDK. Screen (``Appcues/screen(title:properties:)`` or ``Appcues/trackScreens()``), Custom (``Appcues/track(name:properties:)``), User Profile (``Appcues/identify(userID:properties:)`` or ``Appcues/anonymous(properties:)``), and Group (``Appcues/group(groupID:properties:)``) events are tracked by your app calling the Appcues DSK.
+
+Tap an event row to see the details of that event including all the properties associated with it.
