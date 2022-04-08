@@ -33,12 +33,8 @@ class AnalyticsTrackerTests: XCTestCase {
         // an Activity with the expected properties, synchronous (sync=true)
         appcues.activityProcessor.onProcess = { activity, completion in
             // Assert (do/catch necessary because the closure is non-throwing)
-            do {
-                try ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(activity.profileUpdate)
-                onRequestExpectation.fulfill()
-            } catch {
-                XCTFail(error.localizedDescription)
-            }
+            ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(activity.profileUpdate)
+            onRequestExpectation.fulfill()
         }
 
         let update = TrackingUpdate(type: .profile, properties: ["my_key":"my_value", "another_key": 33])
@@ -59,12 +55,8 @@ class AnalyticsTrackerTests: XCTestCase {
         // an Activity with the expected event structure, synchronous (sync=true)
         appcues.activityProcessor.onProcess = { activity, completion in
             // Assert (do/catch necessary because the closure is non-throwing)
-            do {
-                try expectedEvents.verifyMatchingEvents(activity.events)
-                onRequestExpectation.fulfill()
-            } catch {
-                XCTFail(error.localizedDescription)
-            }
+            expectedEvents.verifyMatchingEvents(activity.events)
+            onRequestExpectation.fulfill()
         }
 
         let update = TrackingUpdate(type: .event(name: "eventName", interactive: true), properties: ["my_key":"my_value", "another_key": 33])
@@ -85,12 +77,8 @@ class AnalyticsTrackerTests: XCTestCase {
         // an Activity with the expected screen event structure, synchronous (sync=true)
         appcues.activityProcessor.onProcess = { activity, completion in
             // Assert (do/catch necessary because the closure is non-throwing)
-            do {
-                try expectedEvents.verifyMatchingEvents(activity.events)
-                onRequestExpectation.fulfill()
-            } catch {
-                XCTFail(error.localizedDescription)
-            }
+            expectedEvents.verifyMatchingEvents(activity.events)
+            onRequestExpectation.fulfill()
         }
 
         let update = TrackingUpdate(type: .screen("My test page"), properties: ["my_key":"my_value", "another_key": 33])
@@ -106,7 +94,7 @@ class AnalyticsTrackerTests: XCTestCase {
 // Helpers to test an Activity request body is as expected
 extension Dictionary where Key == String, Value == Any {
 
-    func verifyPropertiesMatch(_ other: [String: Any]?) throws {
+    func verifyPropertiesMatch(_ other: [String: Any]?) {
         guard let other = other else {
             XCTFail("dictionary of actual values must not be nil")
             return
@@ -131,7 +119,7 @@ extension Dictionary where Key == String, Value == Any {
 
 private extension Array where Element == Event {
 
-    func verifyMatchingEvents(_ other: [Event]?) throws {
+    func verifyMatchingEvents(_ other: [Event]?) {
         guard let other = other else {
             XCTFail("array of events must not be nil")
             return
@@ -141,13 +129,9 @@ private extension Array where Element == Event {
         // Compare each event in order
         zip(self, other).forEach { expectEvent, actualEvent in
             XCTAssertEqual(actualEvent.name, expectEvent.name)
-            do {
-                let expectedAttrs = expectEvent.attributes ?? [:]
-                let acualAttrs = actualEvent.attributes ?? [:]
-                try expectedAttrs.verifyPropertiesMatch(acualAttrs)
-            } catch {
-                XCTFail(error.localizedDescription)
-            }
+            let expectedAttrs = expectEvent.attributes ?? [:]
+            let acualAttrs = actualEvent.attributes ?? [:]
+            expectedAttrs.verifyPropertiesMatch(acualAttrs)
         }
     }
 
