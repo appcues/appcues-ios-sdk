@@ -17,22 +17,25 @@ public class PageMonitor: NSObject {
     private var observers: [(Int, Int) -> Void] = []
 
     /// The number of pages in the ``ExperienceContainerViewController``.
-    public let numberOfPages: Int
+    @objc public let numberOfPages: Int
 
     /// The current page in the ``ExperienceContainerViewController``.
-    public private(set) var currentPage: Int
+    @objc public private(set) var currentPage: Int
 
     /// Creates an instance of a page monitor.
     /// - Parameters:
     ///   - numberOfPages: The total number of pages
     ///   - currentPage: The initial page
+    @objc
     public init(numberOfPages: Int, currentPage: Int) {
         self.numberOfPages = numberOfPages
         self.currentPage = currentPage
+        super.init()
     }
 
     /// Adds the specified closure to the list of closures to invoke whent he ``currentPage`` value changes.
     /// - Parameter closure: The closure to invoke.
+    @objc
     public func addObserver(closure: @escaping (_ currentIndex: Int, _ oldIndex: Int) -> Void) {
         observers.append(closure)
     }
@@ -41,6 +44,7 @@ public class PageMonitor: NSObject {
     /// - Parameter currentPage: Page index
     ///
     /// Setting a value equal to the current state wil not notify observers.
+    @objc
     public func set(currentPage: Int) {
         let previousPage = self.currentPage
         guard currentPage != previousPage else { return }

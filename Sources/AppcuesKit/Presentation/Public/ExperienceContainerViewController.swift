@@ -8,8 +8,6 @@
 
 import UIKit
 
-public typealias ExperienceContainerViewController = ExperienceContainer & UIViewController
-
 /// A `UIViewController` which contains step view controllers to display an `Experience`.
 @objc
 public protocol ExperienceContainer {
@@ -28,3 +26,6 @@ public protocol ExperienceContainer {
     /// ``ExperienceContainerLifecycleHandler/containerNavigated(from:to:)`` being called.
     func navigate(to pageIndex: Int, animated: Bool)
 }
+
+/// A convenience typealias for a `UIViewController` that is also an `ExperienceContainer`
+public typealias ExperienceContainerViewController = ExperienceContainer & UIViewController
