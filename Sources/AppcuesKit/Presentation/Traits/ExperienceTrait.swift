@@ -11,6 +11,7 @@ import UIKit
 // swiftlint:disable file_types_order
 
 /// A type that describes a trait of an `Experience`.
+@objc
 public protocol ExperienceTrait {
 
     /// The name of the trait.

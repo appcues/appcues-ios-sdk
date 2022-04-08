@@ -267,7 +267,7 @@ private extension Experience.Step.Child {
 
 
 extension TraitComposerTests {
-    struct TestTrait: StepDecoratingTrait, ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait, BackdropDecoratingTrait {
+    class TestTrait: StepDecoratingTrait, ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait, BackdropDecoratingTrait {
         static let type = "@test/trait"
 
         let groupID: String?
@@ -282,7 +282,7 @@ extension TraitComposerTests {
 
         var backdropDecoratingExpectation: XCTestExpectation?
 
-        init?(config: [String: Any]?) {
+        required init?(config: [String: Any]?) {
             self.groupID = config?["groupID"] as? String
 
             stepDecoratingExpectation = config?["stepDecoratingExpectation"] as? XCTestExpectation
@@ -333,7 +333,7 @@ extension TraitComposerTests {
         }
     }
 
-    struct TestPresentingTrait: PresentingTrait {
+    class TestPresentingTrait: PresentingTrait {
         static let type = "@test/presenting"
 
         let groupID: String?
@@ -341,7 +341,7 @@ extension TraitComposerTests {
         var presentExpectation: XCTestExpectation?
         var removeExpectation: XCTestExpectation?
 
-        init?(config: [String: Any]?) {
+        required init?(config: [String: Any]?) {
             self.groupID = config?["groupID"] as? String
 
             presentExpectation = config?["presentExpectation"] as? XCTestExpectation

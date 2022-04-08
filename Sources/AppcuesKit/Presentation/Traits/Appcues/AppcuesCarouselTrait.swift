@@ -9,10 +9,10 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal struct AppcuesCarouselTrait: ContainerCreatingTrait {
+internal class AppcuesCarouselTrait: ContainerCreatingTrait {
     static let type = "@appcues/carousel"
 
-    init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?) {
     }
 
     func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {

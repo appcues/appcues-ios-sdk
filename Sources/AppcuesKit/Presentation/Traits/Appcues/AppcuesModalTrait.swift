@@ -9,13 +9,13 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal struct AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
+internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
     static let type = "@appcues/modal"
 
     let presentationStyle: PresentationStyle
     let modalStyle: ExperienceComponent.Style?
 
-    init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?) {
         if let presentationStyle = PresentationStyle(rawValue: config?["presentationStyle"] as? String ?? "") {
             self.presentationStyle = presentationStyle
         } else {

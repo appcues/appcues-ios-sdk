@@ -9,12 +9,12 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal struct AppcuesContinueAction: ExperienceAction {
+internal class AppcuesContinueAction: ExperienceAction {
     static let type = "@appcues/continue"
 
     let stepReference: StepReference
 
-    init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?) {
         if let index = config?["index"] as? Int {
             stepReference = .index(index)
         } else if let offset = config?["offset"] as? Int {
