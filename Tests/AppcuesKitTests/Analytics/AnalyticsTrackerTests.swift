@@ -32,7 +32,6 @@ class AnalyticsTrackerTests: XCTestCase {
         // In the case of a profile update, verify the update is sent to the activity processor as
         // an Activity with the expected properties, synchronous (sync=true)
         appcues.activityProcessor.onProcess = { activity, completion in
-            // Assert (do/catch necessary because the closure is non-throwing)
             ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(activity.profileUpdate)
             onRequestExpectation.fulfill()
         }
@@ -54,7 +53,6 @@ class AnalyticsTrackerTests: XCTestCase {
         // In the case of a tracked event, verify the update is sent to the activity processor as
         // an Activity with the expected event structure, synchronous (sync=true)
         appcues.activityProcessor.onProcess = { activity, completion in
-            // Assert (do/catch necessary because the closure is non-throwing)
             expectedEvents.verifyMatchingEvents(activity.events)
             onRequestExpectation.fulfill()
         }
@@ -76,7 +74,6 @@ class AnalyticsTrackerTests: XCTestCase {
         // In the case of a tracked screen, verify the update is sent to the activity processor as
         // an Activity with the expected screen event structure, synchronous (sync=true)
         appcues.activityProcessor.onProcess = { activity, completion in
-            // Assert (do/catch necessary because the closure is non-throwing)
             expectedEvents.verifyMatchingEvents(activity.events)
             onRequestExpectation.fulfill()
         }
