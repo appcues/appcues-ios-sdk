@@ -20,6 +20,9 @@ internal class FleetingLogView: UIView {
         case top, bottom
     }
 
+    // Prevents messages from showing iff `true`.
+    var isLocked = false
+
     var maxItems: Int = 5
 
     var orientation: Orientation = (.trailing, .bottom) {
@@ -67,6 +70,8 @@ internal class FleetingLogView: UIView {
     }
 
     func addMessage(_ message: String, symbolName: String? = nil) {
+        guard !isLocked else { return }
+
         var translationX = stackView.frame.width
         if orientation.x == .leading {
             translationX *= -1

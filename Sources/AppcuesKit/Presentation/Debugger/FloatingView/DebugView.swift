@@ -211,6 +211,8 @@ internal class DebugView: UIView {
         floatingView.animatePosition(to: center, animated: animated, haptics: !programatically)
         animatePanel(visible: isOpen, animated: animated, haptics: !programatically)
         delegate?.debugView(did: isOpen ? .open : .close)
+
+        fleetingLogView.isLocked = isOpen
     }
 
     // MARK: Gesture Recognizers
@@ -425,7 +427,7 @@ internal class DebugView: UIView {
 
     // MARK: Animations
 
-    func animatePanel(visible isVisible: Bool, animated: Bool, haptics: Bool) {
+    private func animatePanel(visible isVisible: Bool, animated: Bool, haptics: Bool) {
 
         let animations: () -> Void = {
             self.panelWrapperView.alpha = isVisible ? 1 : 0
