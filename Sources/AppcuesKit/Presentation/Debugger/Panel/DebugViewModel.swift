@@ -317,31 +317,31 @@ private extension String {
 extension DebugViewModel.LoggedEvent {
     enum EventType: CaseIterable, CustomStringConvertible {
         case screen
-        case session
-        case experience
         case custom
         case profile
         case group
+        case session
+        case experience
 
         var description: String {
             switch self {
             case .screen: return "Screen"
-            case .session: return "Session"
-            case .experience: return "Experience"
             case .custom: return "Custom"
             case .profile: return "User Profile"
             case .group: return "Group"
+            case .session: return "Session"
+            case .experience: return "Experience"
             }
         }
 
         var symbolName: String {
             switch self {
             case .screen: return "rectangle.portrait.on.rectangle.portrait"
-            case .session: return "clock.arrow.2.circlepath"
-            case .experience: return "arrow.right.square"
             case .custom: return "hand.tap"
             case .profile: return "person"
             case .group: return "person.3"
+            case .session: return "clock.arrow.2.circlepath"
+            case .experience: return "arrow.right.square"
             }
         }
     }
