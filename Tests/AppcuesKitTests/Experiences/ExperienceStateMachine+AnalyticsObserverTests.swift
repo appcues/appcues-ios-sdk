@@ -64,13 +64,27 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 2)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", interactive: false))
+        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_seen", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
-            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07"
-        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "stepIndex": "0,0"
+        ].verifyPropertiesMatch(lastUpdate.properties)
         XCTAssertNotNil(appcues.storage.lastContentShownAt)
+
+        XCTAssertEqual(
+            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
+            LifecycleEvent.EventProperties(
+                type: .stepSeen,
+                experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+                experienceName: "Mock Experience: Group with 3 steps, Single step",
+                stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
+                stepIndex: Experience.StepIndex(group: 0, item: 0)
+            ),
+            "can succesfully remap the property dict"
+        )
     }
 
     func testEvaluateRenderingStepState() throws {
@@ -80,12 +94,26 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_seen", interactive: false))
+        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_seen", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
-            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07"
-        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "stepIndex": "0,0"
+        ].verifyPropertiesMatch(lastUpdate.properties)
+
+        XCTAssertEqual(
+            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
+            LifecycleEvent.EventProperties(
+                type: .stepSeen,
+                experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+                experienceName: "Mock Experience: Group with 3 steps, Single step",
+                stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
+                stepIndex: Experience.StepIndex(group: 0, item: 0)
+            ),
+            "can succesfully remap the property dict"
+        )
     }
 
     func testEvaluateEndingStepState() throws {
@@ -95,12 +123,26 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_completed", interactive: false))
+        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_completed", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
-            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07"
-        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "stepIndex": "0,0"
+        ].verifyPropertiesMatch(lastUpdate.properties)
+
+        XCTAssertEqual(
+            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
+            LifecycleEvent.EventProperties(
+                type: .stepCompleted,
+                experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+                experienceName: "Mock Experience: Group with 3 steps, Single step",
+                stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
+                stepIndex: Experience.StepIndex(group: 0, item: 0)
+            ),
+            "can succesfully remap the property dict"
+        )
     }
 
     func testEvaluateEndingExperienceState() throws {
@@ -110,12 +152,26 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_dismissed", interactive: false))
+        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_dismissed", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
-            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07"
-        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "stepIndex": "0,0"
+        ].verifyPropertiesMatch(lastUpdate.properties)
+
+        XCTAssertEqual(
+            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
+            LifecycleEvent.EventProperties(
+                type: .experienceDismissed,
+                experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+                experienceName: "Mock Experience: Group with 3 steps, Single step",
+                stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
+                stepIndex: Experience.StepIndex(group: 0, item: 0)
+            ),
+            "can succesfully remap the property dict"
+        )
     }
 
     func testEvaluateEndingExperienceLastStepState() throws {
@@ -125,11 +181,22 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_completed", interactive: false))
+        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_completed", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf"
-        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
+        ].verifyPropertiesMatch(lastUpdate.properties)
+
+        XCTAssertEqual(
+            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
+            LifecycleEvent.EventProperties(
+                type: .experienceCompleted,
+                experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+                experienceName: "Mock Experience: Group with 3 steps, Single step"
+            ),
+            "can succesfully remap the property dict"
+        )
     }
 
     func testEvaluateExperienceError() throws {
@@ -142,13 +209,26 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:experience_error", interactive: false))
+        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_error", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
             "message": "error",
             "errorId": "A6D6E248-FAFF-4789-A03C-BD7F520C1181"
-        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
+        ].verifyPropertiesMatch(lastUpdate.properties)
+
+        XCTAssertEqual(
+            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
+            LifecycleEvent.EventProperties(
+                type: .experienceError,
+                experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+                experienceName: "Mock Experience: Group with 3 steps, Single step",
+                errorID: UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181"),
+                message: "error"
+            ),
+            "can succesfully remap the property dict"
+        )
     }
 
     func testEvaluateStepError() throws {
@@ -161,14 +241,30 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        XCTAssertEqual(analyticsSubscriber.lastUpdate?.type, .event(name: "appcues:v2:step_error", interactive: false))
+        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_error", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "stepIndex": "0,0",
             "message": "error",
             "errorId": "A6D6E248-FAFF-4789-A03C-BD7F520C1181"
-        ].verifyPropertiesMatch(analyticsSubscriber.lastUpdate?.properties)
+        ].verifyPropertiesMatch(lastUpdate.properties)
+
+        XCTAssertEqual(
+            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
+            LifecycleEvent.EventProperties(
+                type: .stepError,
+                experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+                experienceName: "Mock Experience: Group with 3 steps, Single step",
+                stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
+                stepIndex: Experience.StepIndex(group: 0, item: 0),
+                errorID: UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181"),
+                message: "error"
+            ),
+            "can succesfully remap the property dict"
+        )
     }
 
     func testEvaluateNoTransitionError() throws {
