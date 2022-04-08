@@ -9,6 +9,7 @@
 import UIKit
 
 /// A protocol that defines the methods to adopt to respond to changes in an ``ExperienceContainerViewController``.
+@objc
 public protocol ExperienceContainerLifecycleHandler: AnyObject {
 
     /// Tells the delegate that the container will appear.

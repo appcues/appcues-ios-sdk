@@ -35,7 +35,7 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
             trailing: modalStyle?.paddingTrailing ?? 0)
     }
 
-    func createWrapper(around containerController: ExperienceContainerViewController) -> UIViewController {
+    func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {
         containerController.modalPresentationStyle = presentationStyle.modalPresentationStyle
 
         if presentationStyle == .dialog {

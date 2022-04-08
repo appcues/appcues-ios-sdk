@@ -17,7 +17,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
     required init?(config: [String: Any]?) {
     }
 
-    func decorate(containerController: ExperienceContainerViewController) {
+    func decorate(containerController: ExperienceContainerViewController) throws {
         self.containerController = containerController
         containerController.addDismissButton()
 
@@ -25,7 +25,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
         containerController.isModalInPresentation = false
     }
 
-    func decorate(backdropView: UIView) {
+    func decorate(backdropView: UIView) throws {
         backdropView.addGestureRecognizer(
             UITapGestureRecognizer(target: self, action: #selector(didTapBackground)))
     }

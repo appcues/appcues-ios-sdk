@@ -26,6 +26,7 @@ public protocol ExperienceTrait {
 }
 
 /// A trait that modifies the `UIViewController` that encapsulates the contents of a specific step in the experience.
+@objc
 public protocol StepDecoratingTrait: ExperienceTrait {
 
     /// Modify the view controller for a step.
@@ -39,6 +40,7 @@ public protocol StepDecoratingTrait: ExperienceTrait {
 /// A trait responsible for creating the `UIViewController` (specifically a ``ExperienceContainerViewController``) that holds the
 /// experience step(s) being presented. The returned controller must call the ``ExperienceContainerLifecycleHandler``
 /// methods at the appropriate times.
+@objc
 public protocol ContainerCreatingTrait: ExperienceTrait {
 
     /// Create the container controller for experience step(s).
@@ -54,6 +56,7 @@ public protocol ContainerCreatingTrait: ExperienceTrait {
 }
 
 /// A trait that modifies the container view controller created by an ``ContainerCreatingTrait``.
+@objc
 public protocol ContainerDecoratingTrait: ExperienceTrait {
 
     /// Modify a container view controller.
@@ -65,6 +68,7 @@ public protocol ContainerDecoratingTrait: ExperienceTrait {
 }
 
 /// A trait that modifies the backdrop `UIView` that may be included in the presented experience.
+@objc
 public protocol BackdropDecoratingTrait: ExperienceTrait {
 
     /// Modify the backdrop view.
@@ -79,6 +83,7 @@ public protocol BackdropDecoratingTrait: ExperienceTrait {
 }
 
 /// A trait that creates a `UIViewController` that wraps the ``ExperienceContainerViewController``.
+@objc
 public protocol WrapperCreatingTrait: ExperienceTrait {
 
     /// Create a wrapper controller around a container controller.
@@ -96,6 +101,7 @@ public protocol WrapperCreatingTrait: ExperienceTrait {
 }
 
 /// A trait responsible for providing the ability to show and hide the experience.
+@objc
 public protocol PresentingTrait: ExperienceTrait {
 
     /// Shows the view controller for an experience.

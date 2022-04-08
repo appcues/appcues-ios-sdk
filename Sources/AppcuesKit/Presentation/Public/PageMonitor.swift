@@ -9,7 +9,8 @@
 import Foundation
 
 /// Maintains page state metadata for an ``ExperienceContainerViewController``.
-public class PageMonitor {
+@objc
+public class PageMonitor: NSObject {
 
     // Using closures as observers is ok from a memory management perspective because the lifecycle of any Trait
     // observing the experience controller and the experience controller itself should be the same.
