@@ -87,12 +87,12 @@ class ActionRegistryTests: XCTestCase {
 }
 
 private extension ActionRegistryTests {
-    struct TestAction: ExperienceAction {
+    class TestAction: ExperienceAction {
         static let type = "@test/action"
 
         var executionExpectation: XCTestExpectation?
 
-        init?(config: [String: Any]?) {
+        required init?(config: [String: Any]?) {
             executionExpectation = config?["executionExpectation"] as? XCTestExpectation
         }
 
@@ -102,12 +102,12 @@ private extension ActionRegistryTests {
         }
     }
 
-    struct TestAction2: ExperienceAction {
+    class TestAction2: ExperienceAction {
         static let type = "@test/action"
 
         var executionExpectation2: XCTestExpectation?
 
-        init?(config: [String: Any]?) {
+        required init?(config: [String: Any]?) {
             executionExpectation2 = config?["executionExpectation2"] as? XCTestExpectation
         }
 

@@ -115,13 +115,13 @@ internal class TraitComposer: TraitComposing {
 
 @available(iOS 13.0, *)
 extension TraitComposer {
-    struct DefaultContainerCreatingTrait: ContainerCreatingTrait {
+    class DefaultContainerCreatingTrait: ContainerCreatingTrait {
         static var type: String = "_defaultContainerCreatingTrait"
 
         let groupID: String? = nil
 
         init() {}
-        init?(config: [String: Any]?) {}
+        required init?(config: [String: Any]?) {}
 
         func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {
             DefaultContainerViewController(stepControllers: stepControllers, targetPageIndex: targetPageIndex)

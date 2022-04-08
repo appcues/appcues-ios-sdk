@@ -10,7 +10,7 @@ import UIKit
 import SafariServices
 
 @available(iOS 13.0, *)
-internal struct AppcuesLinkAction: ExperienceAction {
+internal class AppcuesLinkAction: ExperienceAction {
     static let type = "@appcues/link"
 
     var urlOpener: TopControllerGetting & URLOpening = UIApplication.shared
@@ -18,7 +18,7 @@ internal struct AppcuesLinkAction: ExperienceAction {
     let url: URL
     let openExternally: Bool
 
-    init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?) {
         if let url = URL(string: config?["url"] as? String ?? "") {
             self.url = url
             self.openExternally = (config?["external"] as? Bool) ?? false

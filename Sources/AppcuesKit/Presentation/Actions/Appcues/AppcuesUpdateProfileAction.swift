@@ -9,12 +9,12 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal struct AppcuesUpdateProfileAction: ExperienceAction {
+internal class AppcuesUpdateProfileAction: ExperienceAction {
     static let type = "@appcues/update-profile"
 
     let properties: [String: Any]
 
-    init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?) {
         if let properties = config {
             self.properties = properties
         } else {

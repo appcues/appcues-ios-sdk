@@ -9,12 +9,12 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal struct AppcuesLaunchExperienceAction: ExperienceAction {
+internal class AppcuesLaunchExperienceAction: ExperienceAction {
     static let type = "@appcues/launch-experience"
 
     let experienceID: String
 
-    init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?) {
         if let experienceID = config?["experienceID"] as? String {
             self.experienceID = experienceID
         } else {

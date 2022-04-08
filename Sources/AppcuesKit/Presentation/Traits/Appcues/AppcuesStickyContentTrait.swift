@@ -9,13 +9,13 @@
 import SwiftUI
 
 @available(iOS 13.0, *)
-internal struct AppcuesStickyContentTrait: StepDecoratingTrait {
+internal class AppcuesStickyContentTrait: StepDecoratingTrait {
     static let type = "@appcues/sticky-content"
 
     let edge: Edge
     let content: ExperienceComponent
 
-    init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?) {
         if let edge = Edge(config?["edge"] as? String), let content = config?["content", decodedAs: ExperienceComponent.self] {
             self.edge = edge
             self.content = content
@@ -39,8 +39,9 @@ internal struct AppcuesStickyContentTrait: StepDecoratingTrait {
         stickyContentVC.didMove(toParent: viewController)
 
         // Pass sticky content size changes to the parent controller to update the insets.
-        stickyContentVC.onSizeChange = { size, safeArea in
-            switch edge {
+        stickyContentVC.onSizeChange = { [weak self] size, safeArea in
+            guard let self = self else { return }
+            switch self.edge {
             case .top:
                 viewController.additionalSafeAreaInsets.top = size.height - safeArea.top
             case .leading:

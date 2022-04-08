@@ -59,11 +59,11 @@ class TraitRegistryTests: XCTestCase {
 }
 
 private extension TraitRegistryTests {
-    struct TestTrait: ExperienceTrait {
+    class TestTrait: ExperienceTrait {
         static let type = "@test/trait"
 
         var groupID: String?
 
-        init?(config: [String: Any]?) {}
+        required init?(config: [String: Any]?) {}
     }
 }

@@ -10,11 +10,11 @@ import Foundation
 import UIKit
 
 @available(iOS 13.0, *)
-internal struct AppcuesCloseAction: ExperienceAction {
+internal class AppcuesCloseAction: ExperienceAction {
 
     static let type = "@appcues/close"
 
-    init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?) {
         // no config expected
     }
 

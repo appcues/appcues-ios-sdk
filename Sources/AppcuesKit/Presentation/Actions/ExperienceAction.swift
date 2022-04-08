@@ -9,6 +9,7 @@
 import Foundation
 
 /// A type that describes an action that can be triggered from an `Experience`.
+@objc
 public protocol ExperienceAction {
 
     /// The name of the action.
