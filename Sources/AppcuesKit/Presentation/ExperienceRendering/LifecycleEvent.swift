@@ -77,7 +77,7 @@ extension LifecycleEvent {
         }
     }
 
-    struct EventProperties {
+    struct EventProperties: Equatable {
         let type: LifecycleEvent
         let experienceID: UUID
         let experienceName: String
@@ -104,6 +104,24 @@ extension LifecycleEvent {
 
             self.errorID = UUID(uuidString: update.properties?["errorId"] as? String ?? "")
             self.message = update.properties?["message"] as? String
+        }
+
+        init(
+            type: LifecycleEvent,
+            experienceID: UUID,
+            experienceName: String,
+            stepID: UUID? = nil,
+            stepIndex: Experience.StepIndex? = nil,
+            errorID: UUID? = nil,
+            message: String? = nil
+        ) {
+            self.type = type
+            self.experienceID = experienceID
+            self.experienceName = experienceName
+            self.stepID = stepID
+            self.stepIndex = stepIndex
+            self.errorID = errorID
+            self.message = message
         }
     }
 }
