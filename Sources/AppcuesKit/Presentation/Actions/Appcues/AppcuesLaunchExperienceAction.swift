@@ -23,6 +23,6 @@ internal struct AppcuesLaunchExperienceAction: ExperienceAction {
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
-        appcues.show(experienceID: experienceID) { _ in completion() }
+        appcues.show(experienceID: experienceID) { _, _  in completion() }
     }
 }

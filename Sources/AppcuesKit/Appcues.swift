@@ -10,7 +10,8 @@ import Foundation
 import UIKit
 
 /// An object that manages Appcues tracking for your app.
-public class Appcues {
+@objc(Appcues)
+public class Appcues: NSObject {
 
     let container = DIContainer()
     let config: Appcues.Config
@@ -33,12 +34,15 @@ public class Appcues {
     private var decorators: [AnalyticsDecorating] = []
 
     /// The delegate object that manages and observes experience presentations.
-    public weak var delegate: AppcuesExperienceDelegate?
+    @objc public weak var delegate: AppcuesExperienceDelegate?
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
+    @objc
     public init(config: Config) {
         self.config = config
+
+        super.init()
 
         initializeContainer()
 
@@ -47,12 +51,14 @@ public class Appcues {
 
     /// Get the current version of the Appcues SDK.
     /// - Returns: Current version of the Appcues SDK.
+    @objc(sdkVersion)
     public static func version() -> String {
         return __appcues_version
     }
 
     /// Get the current version of the Appcues SDK.
     /// - Returns: Current version of the Appcues SDK.
+    @objc
     public func version() -> String {
         return Appcues.version()
     }
@@ -61,6 +67,7 @@ public class Appcues {
     /// - Parameters:
     ///   - userID: Unique value identifying the user.
     ///   - properties: Optional properties that provide additional context about the user.
+    @objc
     public func identify(userID: String, properties: [String: Any]? = nil) {
         identify(isAnonymous: false, userID: userID, properties: properties)
     }
@@ -69,6 +76,7 @@ public class Appcues {
     /// - Parameters:
     ///   - groupID: Unique value identifying the group.
     ///   - properties: Optional properties that provide additional context about the group.
+    @objc
     public func group(groupID: String?, properties: [String: Any]? = nil) {
         var groupID = groupID
         var properties = properties
@@ -90,11 +98,13 @@ public class Appcues {
     /// Generate a unique ID for the current user when there is not a known identity to use in
     /// the `identify` call.  This will cause the SDK to begin tracking activity and checking for
     /// qualified content.
+    @objc
     public func anonymous(properties: [String: Any]? = nil) {
         identify(isAnonymous: true, userID: config.anonymousIDFactory(), properties: properties)
     }
 
     /// Clears out the current user in this session.  Can be used when the user logs out of your application.
+    @objc
     public func reset() {
         // call this first to close final analytics on the session
         sessionMonitor.reset()
@@ -109,6 +119,7 @@ public class Appcues {
     /// - Parameters:
     ///   - name: Name of the event.
     ///   - properties: Optional properties that provide additional context about the event.
+    @objc
     public func track(name: String, properties: [String: Any]? = nil) {
         track(name: name, properties: properties, interactive: true)
     }
@@ -117,6 +128,7 @@ public class Appcues {
     /// - Parameters:
     ///   - title: Name of the screen.
     ///   - properties: Optional properties that provide additional context about the event.
+    @objc
     public func screen(title: String, properties: [String: Any]? = nil) {
         publish(TrackingUpdate(type: .screen(title), properties: properties))
     }
@@ -125,23 +137,32 @@ public class Appcues {
     /// - Parameters:
     ///   - experienceID: ID of the experience.
     ///   - completion: The block to execute after the attempt to show the content has completed.
-    ///   This block has a `Result` parameter which indicates if the attempt to show the content succeeded.
+    ///   This block has a `Bool` parameter which indicates if the attempt to show the content succeeded.
+    ///   If it was not successful, a non-nil `Error` parameter will also be included.
     ///
     /// This method ignores any targeting that is set on the flow or checklist.
-    public func show(experienceID: String, completion: ((Result<Void, Error>) -> Void)? = nil) {
+    @objc
+    public func show(experienceID: String, completion: ((Bool, Error?) -> Void)? = nil) {
         guard #available(iOS 13.0, *) else {
             config.logger.error("iOS 13 or above is required to show an Appcues experience")
-            completion?(.failure(AppcuesError.unsupportedOSVersion))
+            completion?(false, AppcuesError.unsupportedOSVersion)
             return
         }
 
         guard sessionMonitor.isActive else {
             config.logger.error("An active Appcues session is required to show an Appcues experience")
-            completion?(.failure(AppcuesError.noActiveSession))
+            completion?(false, AppcuesError.noActiveSession)
             return
         }
 
-        experienceLoader.load(experienceID: experienceID, published: true, completion: completion)
+        experienceLoader.load(experienceID: experienceID, published: true) { result in
+            switch result {
+            case .success:
+                completion?(true, nil)
+            case .failure(let error):
+                completion?(false, error)
+            }
+        }
     }
 
     /// Register a trait that modifies an `Experience`.
@@ -161,6 +182,7 @@ public class Appcues {
     }
 
     /// Launches the Appcues debugger over your app's UI.
+    @objc
     public func debug() {
         guard #available(iOS 13.0, *) else {
             config.logger.error("iOS 13 or above is required to use the Appcues inline debugger")
@@ -171,6 +193,7 @@ public class Appcues {
     }
 
     /// Enables automatic screen tracking.
+    @objc
     public func trackScreens() {
         // resolving will init UIKitScreenTracking, which sets up the swizzling of
         // UIViewController for automatic screen tracking
@@ -188,6 +211,7 @@ public class Appcues {
     /// guard !<#appcuesInstance#>.didHandleURL(url) else { return true }
     /// ```
     @discardableResult
+    @objc
     public func didHandleURL(_ url: URL) -> Bool {
         guard #available(iOS 13.0, *) else { return false }
 

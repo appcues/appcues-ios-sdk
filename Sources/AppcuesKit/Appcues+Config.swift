@@ -16,7 +16,8 @@ public extension Appcues {
     // `Config(accountID: "").apiHost("")`. A struct would require initializing as a var first.
 
     /// A configuration object that defines behavior and policies for Appcues.
-    class Config {
+    @objc
+    class Config: NSObject {
 
         let accountID: String
 
@@ -42,6 +43,7 @@ public extension Appcues {
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
         /// - Parameter applicationID: Appcues Application ID - a string containing a UUID,
         ///                            copied from the Apps & Installation page in Studio for this iOS application.
+        @objc
         public init(accountID: String, applicationID: String) {
             self.accountID = accountID
             self.applicationID = applicationID
@@ -53,6 +55,7 @@ public extension Appcues {
         ///
         /// Refer to <doc:Logging> for details.
         @discardableResult
+        @objc
         public func logging(_ enabled: Bool) -> Self {
             logger = enabled ? OSLog(appcuesCategory: "general") : .disabled
             return self
@@ -64,6 +67,7 @@ public extension Appcues {
         ///
         /// Any path values in the provided `URL` will be discarded.
         @discardableResult
+        @objc
         public func apiHost(_ apiHost: URL) -> Self {
             self.apiHost = apiHost
             return self
@@ -74,6 +78,7 @@ public extension Appcues {
         /// - Parameter sessionTimeout: The timeout length, in seconds.
         /// - Returns: The `Configuration` object.
         @discardableResult
+        @objc
         public func sessionTimeout(_ sessionTimeout: UInt) -> Self {
             self.sessionTimeout = sessionTimeout
             return self
@@ -85,6 +90,7 @@ public extension Appcues {
         /// - Parameter activityStorageMaxSize: The number of items to store, maximum 25, minimum 0.
         /// - Returns: The `Configuration` object.
         @discardableResult
+        @objc
         public func activityStorageMaxSize(_ activityStorageMaxSize: UInt) -> Self {
             self.activityStorageMaxSize = max(0, min(25, activityStorageMaxSize))
             return self
@@ -96,7 +102,8 @@ public extension Appcues {
         /// - Parameter activityStorageMaxAge: The max age, in seconds, since now.  The default is `nil`, meaning no max age.
         /// - Returns: The `Configuration` object.
         @discardableResult
-        public func activityStorageMaxAge(_ activityStorageMaxAge: UInt?) -> Self {
+        @objc
+        public func activityStorageMaxAge(_ activityStorageMaxAge: UInt) -> Self {
             self.activityStorageMaxAge = activityStorageMaxAge
             return self
         }
@@ -107,6 +114,7 @@ public extension Appcues {
         ///
         /// Injecting a custom `URLSession` may be useful for testing in combination with `URLSessionConfiguration.protocolClasses`.
         @discardableResult
+        @objc
         public func urlSession(_ urlSession: URLSession) -> Self {
             self.urlSession = urlSession
             return self
@@ -116,6 +124,7 @@ public extension Appcues {
         /// - Parameter anonymousIDFactory: Closure that returns an ID as a String.
         /// - Returns: The `Configuration` object.
         @discardableResult
+        @objc
         public func anonymousIDFactory(_ anonymousIDFactory: @escaping () -> String) -> Self {
             self.anonymousIDFactory = anonymousIDFactory
             return self
