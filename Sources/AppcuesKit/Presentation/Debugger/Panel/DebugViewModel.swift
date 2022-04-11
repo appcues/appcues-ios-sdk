@@ -78,11 +78,13 @@ internal class DebugViewModel: ObservableObject {
     }
 
     func reset() {
-        trackingPages = false
         currentUserID = ""
-        isAnonymous = true
-        unreadCount = 0
+        filter = nil
         events.removeAll()
+        latestEvent = nil
+        trackingPages = false
+        unreadCount = 0
+        isAnonymous = true
     }
 
     func addUpdate(_ update: TrackingUpdate) {
