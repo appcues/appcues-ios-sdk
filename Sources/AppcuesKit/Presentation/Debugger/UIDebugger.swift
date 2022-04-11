@@ -74,6 +74,7 @@ internal class UIDebugger: UIDebugging {
         debugWindow?.isHidden = true
         debugWindow = nil
         cancellables.removeAll()
+        viewModel.reset()
     }
 
     @objc
