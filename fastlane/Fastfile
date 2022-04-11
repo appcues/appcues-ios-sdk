@@ -99,7 +99,7 @@ platform :ios do
       commits_count: 5,
       pretty: "- [%as] %s"
     )
-    changelog = "Latest commits on #{CIRCLE_BRANCH}:\n" + git_log + "\n\nCircleCI Build: #{ENV["CIRCLE_BUILD_NUM"]}"
+    changelog = "Latest commits on #{ENV["CIRCLE_BRANCH"]}:\n" + git_log + "\n\nCircleCI Build: #{ENV["CIRCLE_BUILD_NUM"]}"
     
     upload_to_testflight(
       api_key: ENV["APP_STORE_CONNECT_API_KEY"],
