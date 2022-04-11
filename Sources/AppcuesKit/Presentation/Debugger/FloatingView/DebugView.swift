@@ -213,6 +213,7 @@ internal class DebugView: UIView {
         delegate?.debugView(did: isOpen ? .open : .close)
 
         fleetingLogView.isLocked = isOpen
+        floatingView.unreadIndicator.isDisabled = isOpen
     }
 
     // MARK: Gesture Recognizers

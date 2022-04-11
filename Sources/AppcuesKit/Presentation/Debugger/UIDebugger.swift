@@ -87,11 +87,11 @@ internal class UIDebugger: UIDebugging {
 extension UIDebugger: DebugViewDelegate {
     func debugView(did event: DebugView.Event) {
         switch event {
-        case .open:
+        case .open, .close:
             viewModel.unreadCount = 0
         case .hide:
             hide()
-        case .show, .close, .reposition:
+        case .show, .reposition:
             break
         }
     }

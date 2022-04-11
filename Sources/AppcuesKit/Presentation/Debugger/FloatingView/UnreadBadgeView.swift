@@ -10,9 +10,11 @@ import UIKit
 
 internal class UnreadBadgeView: UILabel {
 
+    var isDisabled = false
+
     var count: Int = 0 {
         didSet {
-            isHidden = count < 1
+            isHidden = isDisabled || count < 1
             text = "\(count)"
             sizeToFit()
         }
