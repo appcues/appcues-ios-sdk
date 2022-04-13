@@ -147,7 +147,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingExperienceState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(Experience.mock, .initial)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(Experience.mock, .initial, markComplete: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -174,9 +174,34 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
+    func testEvaluateEndingExperienceStateMarkComplete() throws {
+        // Act
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(Experience.mock, .initial, markComplete: true)))
+
+        // Assert
+        XCTAssertFalse(isCompleted)
+        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
+        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_completed", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf"
+        ].verifyPropertiesMatch(lastUpdate.properties)
+
+        XCTAssertEqual(
+            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
+            LifecycleEvent.EventProperties(
+                type: .experienceCompleted,
+                experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+                experienceName: "Mock Experience: Group with 3 steps, Single step"
+            ),
+            "can succesfully remap the property dict"
+        )
+    }
+
     func testEvaluateEndingExperienceLastStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(Experience.mock, Experience.StepIndex(group: 1, item: 0))))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(Experience.mock, Experience.StepIndex(group: 1, item: 0), markComplete: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)

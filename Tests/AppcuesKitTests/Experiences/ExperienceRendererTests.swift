@@ -141,7 +141,7 @@ class ExperienceRendererTests: XCTestCase {
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
-        experienceRenderer.dismissCurrentExperience()  {
+        experienceRenderer.dismissCurrentExperience(markComplete: false)  {
             completionExpectation.fulfill()
         }
 

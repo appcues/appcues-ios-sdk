@@ -30,7 +30,8 @@ class AppcuesCloseActionTests: XCTestCase {
         // Arrange
         var completionCount = 0
         var dismissCount = 0
-        appcues.experienceRenderer.onDismissCurrentExperience = { completion in
+        appcues.experienceRenderer.onDismissCurrentExperience = { markComplete, completion in
+            XCTAssertFalse(markComplete)
             dismissCount += 1
             completion?()
         }
@@ -43,4 +44,22 @@ class AppcuesCloseActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(dismissCount, 1)
     }
-}
+
+    func testExecuteMarkComplete() throws {
+        // Arrange
+        var completionCount = 0
+        var dismissCount = 0
+        appcues.experienceRenderer.onDismissCurrentExperience = { markComplete, completion in
+            XCTAssertTrue(markComplete)
+            dismissCount += 1
+            completion?()
+        }
+        let action = AppcuesCloseAction(config: ["markComplete": true])
+
+        // Act
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(dismissCount, 1)
+    }}
