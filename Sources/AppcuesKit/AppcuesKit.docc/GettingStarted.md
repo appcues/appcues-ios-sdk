@@ -4,7 +4,7 @@ Initialize the SDK and track events.
 
 ## Initializing the SDK
 
-An instance of the Appcues iOS SDK (``Appcues``) should be initialized when your app launches. A lifecycle method such as `application(_:didFinishLaunchingWithOptions:)` in would be a common location:
+An instance of the Appcues iOS SDK (``Appcues``) should be initialized when your app launches. A lifecycle method such as `application(_:didFinishLaunchingWithOptions:)` would be a common location:
 
 ```swift
 func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
