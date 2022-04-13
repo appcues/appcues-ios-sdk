@@ -110,9 +110,9 @@ class MockExperienceRenderer: ExperienceRendering {
         onShowQualifiedExperiences?(qualifiedExperiences, completion)
     }
 
-    var onDismissCurrentExperience: (((() -> Void)?) -> Void)?
-    func dismissCurrentExperience(completion: (() -> Void)?) {
-        onDismissCurrentExperience?(completion)
+    var onDismissCurrentExperience: ((Bool, (() -> Void)?) -> Void)?
+    func dismissCurrentExperience(markComplete: Bool, completion: (() -> Void)?) {
+        onDismissCurrentExperience?(markComplete, completion)
     }
 }
 

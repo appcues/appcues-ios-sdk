@@ -122,7 +122,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
-        let action: Action = .endExperience
+        let action: Action = .endExperience(markComplete: false)
         let stateMachine = givenState(is: initialState)
 
         // Act
