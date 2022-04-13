@@ -27,7 +27,7 @@ extension Result where Success == ExperienceStateMachine.State, Failure == Exper
             let .success(.beginningStep(experience, _, _, _)),
             let .success(.renderingStep(experience, _, _, _)),
             let .success(.endingStep(experience, _, _)),
-            let .success(.endingExperience(experience, _)),
+            let .success(.endingExperience(experience, _, _)),
             let .failure(.experienceAlreadyActive(ignoredExperience: experience)),
             let .failure(.step(experience, _, _)),
             let .failure(.experience(experience, _)):
@@ -81,8 +81,8 @@ extension ExperienceStateMachine {
                 trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.endingStep(experience, stepIndex, _)):
                 trackLifecycleEvent(.stepCompleted, LifecycleEvent.properties(experience, stepIndex))
-            case let .success(.endingExperience(experience, stepIndex)):
-                if stepIndex == experience.stepIndices.last {
+            case let .success(.endingExperience(experience, stepIndex, markComplete)):
+                if markComplete || stepIndex == experience.stepIndices.last {
                     trackLifecycleEvent(.experienceCompleted, LifecycleEvent.properties(experience))
                 } else {
                     trackLifecycleEvent(.experienceDismissed, LifecycleEvent.properties(experience, stepIndex))
