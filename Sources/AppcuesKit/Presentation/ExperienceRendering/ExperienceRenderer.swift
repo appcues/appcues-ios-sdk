@@ -13,7 +13,7 @@ internal protocol ExperienceRendering {
     func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
     func show(qualifiedExperiences: [Experience], completion: ((Result<Void, Error>) -> Void)?)
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
-    func dismissCurrentExperience(completion: (() -> Void)?)
+    func dismissCurrentExperience(markComplete: Bool, completion: (() -> Void)?)
 }
 
 @available(iOS 13.0, *)
@@ -98,8 +98,8 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func dismissCurrentExperience(completion: (() -> Void)?) {
-        stateMachine.transitionAndObserve(.endExperience) { result in
+    func dismissCurrentExperience(markComplete: Bool, completion: (() -> Void)?) {
+        stateMachine.transitionAndObserve(.endExperience(markComplete: markComplete)) { result in
             switch result {
             case .success(.idling):
                 completion?()

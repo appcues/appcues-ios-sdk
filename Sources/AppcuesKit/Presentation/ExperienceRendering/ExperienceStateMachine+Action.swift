@@ -14,7 +14,7 @@ extension ExperienceStateMachine {
         case startExperience(Experience)
         case startStep(StepReference)
         case renderStep
-        case endExperience
+        case endExperience(markComplete: Bool)
         case reset
         case reportError(ExperienceError, fatal: Bool)
     }
