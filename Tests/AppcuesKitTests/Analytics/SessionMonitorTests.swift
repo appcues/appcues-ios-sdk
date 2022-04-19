@@ -77,7 +77,7 @@ class SessionMonitorTests: XCTestCase {
         let onTrackExpectation = expectation(description: "session analytics tracked")
         appcues.onTrack = { name, props, interactive in
             if name == SessionEvents.sessionReset.rawValue {
-                XCTAssertFalse(interactive)
+                XCTAssertTrue(interactive)
                 XCTAssertNil(props)
                 onTrackExpectation.fulfill()
             }
