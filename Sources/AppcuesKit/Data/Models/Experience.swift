@@ -76,7 +76,6 @@ extension Experience.Step: Decodable {
 
     struct Child: StepModel, Decodable {
         let id: UUID
-        let contentType: String
         let content: ExperienceComponent
         let traits: [Experience.Trait]
         let actions: [String: [Experience.Action]]
