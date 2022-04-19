@@ -120,7 +120,6 @@ extension Experience.Step.Child {
     init(fixedID: String) {
         self.init(
             id: UUID(uuidString: fixedID) ?? UUID(),
-            contentType: "application/json",
             content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil)),
             traits: [],
             actions: [:]
