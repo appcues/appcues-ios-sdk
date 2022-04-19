@@ -20,6 +20,8 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
     }
 
     func decorate(containerController: ExperienceContainerViewController) throws {
+        guard containerController.pageMonitor.numberOfPages > 1 else { return }
+
         let pageWrapView = UIView()
         pageWrapView.translatesAutoresizingMaskIntoConstraints = false
         pageWrapView.directionalLayoutMargins = NSDirectionalEdgeInsets(

@@ -70,6 +70,7 @@ internal class SessionMonitor: SessionMonitoring {
     func reset() {
         publisher.track(SessionEvents.sessionReset, properties: nil, interactive: false)
         sessionID = nil
+        tracker.flush()
     }
 
     @objc
