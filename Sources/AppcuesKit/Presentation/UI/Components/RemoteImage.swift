@@ -14,6 +14,7 @@ import Combine
 
 @available(iOS 13.0, *)
 internal class ImageLoader: ObservableObject {
+    @Published var animatedImage: FLAnimatedImage?
     @Published var image: UIImage?
     private(set) var isLoading = false
     private let url: URL
@@ -25,26 +26,38 @@ internal class ImageLoader: ObservableObject {
     init(url: URL, cache: SessionImageCache? = nil) {
         self.url = url
         self.cache = cache
-        self.image = cache?[url]
+        if let animatedImage: FLAnimatedImage = cache?[url] {
+            self.animatedImage = animatedImage
+        } else if let image: UIImage = cache?[url] {
+            self.image = image
+        }
     }
 
     func load() {
         guard !isLoading else { return }
 
-        if let image = cache?[url] {
+        if let animatedImage: FLAnimatedImage = cache?[url] {
+            self.animatedImage = animatedImage
+            return
+        } else if let image: UIImage = cache?[url] {
             self.image = image
             return
         }
 
+        self.isLoading = true
         cancellable = URLSession.shared.dataTaskPublisher(for: url)
-            .map { UIImage(data: $0.data) }
-            .replaceError(with: nil)
-            .handleEvents(receiveSubscription: { [weak self] _ in self?.isLoading = true },
-                          receiveOutput: { [weak self, url] in self?.cache?[url] = $0 },
-                          receiveCompletion: { [weak self] _ in self?.isLoading = false },
-                          receiveCancel: { [weak self] in self?.isLoading = false })
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in self?.image = $0 }
+            .sink(receiveCompletion: { [weak self] _ in
+                self?.isLoading = false
+            }, receiveValue: { [weak self, url] output in
+                if output.data.isAnimatedImage {
+                    self?.animatedImage = FLAnimatedImage(data: output.data)
+                    self?.cache?[url] = self?.animatedImage
+                } else {
+                    self?.image = UIImage(data: output.data)
+                    self?.cache?[url] = self?.image
+                }
+            })
     }
 
     func cancel() {
@@ -62,7 +75,9 @@ internal struct RemoteImage<Placeholder: View>: View {
     private let placeholder: Placeholder
 
     var body: some View {
-        if let image = loader.image {
+        if let animatedImage = loader.animatedImage {
+            AnimatedImage(animatedImage: animatedImage)
+        } else if let image = loader.image {
             Image(uiImage: image)
                 .resizable()
         } else {
