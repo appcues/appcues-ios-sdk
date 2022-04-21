@@ -41,15 +41,11 @@ internal struct AppcuesImage: View {
         if model.imageUrl.scheme == "sf-symbol" {
             Image(systemName: model.imageUrl.host ?? "")
         } else {
-            if model.animated == true, let videoURL = model.imageUrl.toMP4() {
-                LoopingVideoPlayer(url: videoURL)
-            } else {
-                RemoteImage(url: model.imageUrl, cache: imageCache) {
-                    if let blurImage = Image(blurHash: model.blurHash) {
-                        blurImage.resizable()
-                    } else {
-                        placeholder ?? Color.clear
-                    }
+            RemoteImage(url: model.imageUrl, cache: imageCache) {
+                if let blurImage = Image(blurHash: model.blurHash) {
+                    blurImage.resizable()
+                } else {
+                    placeholder ?? Color.clear
                 }
             }
         }
