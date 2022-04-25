@@ -26,7 +26,6 @@ internal class DebugViewModel: ObservableObject {
     @Published private(set) var connectedStatus = StatusItem(status: .pending, title: "Connected to Appcues")
     @Published private(set) var trackingPages = false
     @Published private(set) var userIdentified = false
-    @Published var unreadCount: Int = 0
     @Published var isAnonymous = false
 
     @Published var experienceStatuses: [StatusItem] = []
@@ -83,7 +82,6 @@ internal class DebugViewModel: ObservableObject {
         events.removeAll()
         latestEvent = nil
         trackingPages = false
-        unreadCount = 0
         isAnonymous = true
     }
 
@@ -92,7 +90,6 @@ internal class DebugViewModel: ObservableObject {
 
         trackingPages = trackingPages || event.type == .screen
 
-        unreadCount += 1
         latestEvent = event
 
         if event.type == .experience, let properties = LifecycleEvent.restructure(update: update) {
