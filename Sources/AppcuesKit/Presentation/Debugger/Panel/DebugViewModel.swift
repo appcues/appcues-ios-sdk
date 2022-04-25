@@ -102,7 +102,9 @@ internal class DebugViewModel: ObservableObject {
         events.append(event)
     }
 
+    // Expects to be called on a background thread.
     private func handleExperienceEvent(properties: LifecycleEvent.EventProperties) {
+        var experienceStatuses = experienceStatuses
         let existingIndex = experienceStatuses.firstIndex { $0.id == properties.experienceID }
 
         let status: Status
@@ -134,7 +136,9 @@ internal class DebugViewModel: ObservableObject {
             title = "Showing \(properties.experienceName)"
         case .experienceCompleted, .experienceDismissed:
             if let existingIndex = existingIndex {
-                experienceStatuses.remove(at: existingIndex)
+                DispatchQueue.main.sync {
+                    _ = self.experienceStatuses.remove(at: existingIndex)
+                }
             }
             return
         }
@@ -147,9 +151,9 @@ internal class DebugViewModel: ObservableObject {
             experienceStatuses.append(updatedStatus)
         }
 
-        DispatchQueue.main.async {
+        DispatchQueue.main.sync {
             // Errors are listed last
-            self.experienceStatuses = self.experienceStatuses.sorted { $0.status == .verified && $1.status == .unverfied }
+            self.experienceStatuses = experienceStatuses.sorted { $0.status == .verified && $1.status == .unverfied }
         }
     }
 
