@@ -103,6 +103,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_appBuild": Bundle.main.build,
             "_sdkVersion": __appcues_version,
             "_sdkName": "appcues-ios",
+            "_osVersion": UIDevice.current.systemVersion,
             "_deviceType": UIDevice.current.userInterfaceIdiom.analyticsName,
             "_deviceModel": UIDevice.current.modelName
         ]
