@@ -92,7 +92,7 @@ public class Appcues: NSObject {
         }
 
         storage.groupID = groupID
-        publish(TrackingUpdate(type: .group, properties: properties))
+        publish(TrackingUpdate(type: .group(groupID), properties: properties))
     }
 
     /// Generate a unique ID for the current user when there is not a known identity to use in

@@ -14,7 +14,7 @@ internal struct TrackingUpdate {
         case event(name: String, interactive: Bool)
         case screen(String)
         case profile
-        case group
+        case group(String?)
     }
 
     enum Policy {

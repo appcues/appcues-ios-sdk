@@ -296,10 +296,10 @@ extension DebugViewModel {
                 self.name = title
             case .profile:
                 self.type = .profile
-                self.name = "Profile Update"
-            case .group:
+                self.name = "\(update.properties?["userId"] ?? "Profile Update")"
+            case let .group(groupID):
                 self.type = .group
-                self.name = "Group Update"
+                self.name = "\(groupID ?? "-")"
             }
         }
     }
