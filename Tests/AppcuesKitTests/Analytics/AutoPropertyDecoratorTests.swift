@@ -98,7 +98,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
 
     func testGroup() throws {
         // Arrange
-        let update = TrackingUpdate(type: .group, properties: ["CUSTOM": "value"])
+        let update = TrackingUpdate(type: .group("mygroup"), properties: ["CUSTOM": "value"])
 
         // Act
         let decorated = decorator.decorate(update)
