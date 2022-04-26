@@ -40,7 +40,7 @@ class AppcuesLinkActionTests: XCTestCase {
             XCTAssertTrue(vc is SFSafariViewController)
             presentCount += 1
         }
-        let action = AppcuesLinkAction(config: ["url": "https://appcues.com", "external": false])
+        let action = AppcuesLinkAction(config: ["url": "https://appcues.com", "openExternally": false])
         action?.urlOpener = mockURLOpener
 
         // Act
@@ -60,7 +60,7 @@ class AppcuesLinkActionTests: XCTestCase {
             XCTAssertEqual(url.absoluteString, "https://appcues.com")
             openCount += 1
         }
-        let action = AppcuesLinkAction(config: ["url": "https://appcues.com", "external": true])
+        let action = AppcuesLinkAction(config: ["url": "https://appcues.com", "openExternally": true])
         action?.urlOpener = mockURLOpener
 
         // Act
@@ -80,7 +80,7 @@ class AppcuesLinkActionTests: XCTestCase {
             XCTAssertEqual(url.absoluteString, "deeplink://test")
             openCount += 1
         }
-        let action = AppcuesLinkAction(config: ["url": "deeplink://test", "external": false])
+        let action = AppcuesLinkAction(config: ["url": "deeplink://test", "openExternally": false])
         action?.urlOpener = mockURLOpener
 
         // Act
