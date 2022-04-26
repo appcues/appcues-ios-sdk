@@ -21,7 +21,7 @@ internal class AppcuesLinkAction: ExperienceAction {
     required init?(config: [String: Any]?) {
         if let url = URL(string: config?["url"] as? String ?? "") {
             self.url = url
-            self.openExternally = (config?["external"] as? Bool) ?? false
+            self.openExternally = (config?["openExternally"] as? Bool) ?? false
         } else {
             return nil
         }
