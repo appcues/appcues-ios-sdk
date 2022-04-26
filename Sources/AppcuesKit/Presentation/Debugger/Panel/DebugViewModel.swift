@@ -258,12 +258,12 @@ extension DebugViewModel {
 
             // flatten the nested `_identity` auto-properties into individual top level items.
             let autoProps = (properties["_identity"] as? [String: Any] ?? [:])
-                .sorted { $0.key > $1.key }
+                .sortedWithAutoProperties()
                 .map { ($0.key, String(describing: $0.value)) }
             properties["_identity"] = nil
 
             let userProps = properties
-                .sorted { $0.key > $1.key }
+                .sortedWithAutoProperties()
                 .map { ($0.key, String(describing: $0.value)) }
 
             if !userProps.isEmpty {
@@ -300,6 +300,23 @@ extension DebugViewModel {
             case let .group(groupID):
                 self.type = .group
                 self.name = "\(groupID ?? "-")"
+            }
+        }
+    }
+}
+
+private extension Dictionary where Key == String, Value == Any {
+    func sortedWithAutoProperties() -> [(key: Key, value: Value)] {
+        self.sorted {
+            switch ($0.key.first, $1.key.first) {
+            case ("_", "_"):
+                return $0.key <= $1.key
+            case ("_",  _):
+                return false
+            case (_, "_"):
+                return true
+            default:
+                return $0.key <= $1.key
             }
         }
     }
