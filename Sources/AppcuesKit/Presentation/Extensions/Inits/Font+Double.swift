@@ -11,10 +11,10 @@ import SwiftUI
 extension Font {
 
     /// Init `Font` from an experience JSON model values.
-    init?(name: String?, size: Double?, weight: Double?) {
+    init?(name: String?, size: Double?) {
         guard let size = CGFloat(size) else { return nil }
         guard let name = name else {
-            self = .system(size: size, weight: Font.Weight(double: weight) ?? .regular)
+            self = .system(size: size)
             return
         }
 
@@ -32,25 +32,8 @@ extension Font {
                 self = .system(size: size)
             }
         } else {
-            if let weight = weight {
-                self = .custom(name, size: size, weight: weight)
-            } else {
-                self = .custom(name, size: size)
-            }
+            self = .custom(name, size: size)
         }
-    }
-
-    static func custom(_ name: String, size: CGFloat = UIFont.labelFontSize, weight: CGFloat = 0) -> Font {
-        let descriptor = UIFontDescriptor(fontAttributes: [
-            .name: name,
-            kCTFontVariationAttribute as UIFontDescriptor.AttributeName: [
-                // 0x77676874 == OpenType variation axis tag for `wght`
-                // https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6fvar.html
-                0x77676874: weight
-            ]
-        ])
-
-        return Font(UIFont(descriptor: descriptor, size: size))
     }
 }
 
@@ -69,24 +52,6 @@ extension Font.Weight {
         case "Light": self = .light
         case "Thin": self = .thin
         case "Ultralight": self = .ultraLight
-        default: return nil
-        }
-    }
-
-    /// Init `Font.Weight` from an experience JSON model value.
-    init?(double: Double?) {
-        guard let double = double else { return nil }
-
-        switch double {
-        case 850...1_000: self = .black
-        case 750..<850: self = .heavy
-        case 650..<750: self = .bold
-        case 550..<650: self = .semibold
-        case 450..<550: self = .medium
-        case 350..<450: self = .regular
-        case 250..<350: self = .light
-        case 150..<250: self = .thin
-        case 1..<150: self = .ultraLight
         default: return nil
         }
     }
