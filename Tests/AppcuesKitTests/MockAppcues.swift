@@ -142,9 +142,9 @@ class MockActivityProcessor: ActivityProcessing {
 
 class MockDebugger: UIDebugging {
 
-    var onShow: (() -> Void)?
-    func show() {
-        onShow?()
+    var onShow: ((DebugDestination?) -> Void)?
+    func show(destination: DebugDestination?) {
+        onShow?(destination)
     }
 }
 
