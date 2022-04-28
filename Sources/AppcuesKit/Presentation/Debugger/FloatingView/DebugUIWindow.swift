@@ -11,9 +11,6 @@ import UIKit
 @available(iOS 13.0, *)
 internal class DebugUIWindow: UIWindow {
 
-    // Disallow becoming key so presented experiences are never shown on the this debug window.
-    override var canBecomeKey: Bool { false }
-
     init(windowScene: UIWindowScene, rootViewController: UIViewController) {
         super.init(windowScene: windowScene)
 
