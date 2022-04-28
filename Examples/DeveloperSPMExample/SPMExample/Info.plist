@@ -20,16 +20,16 @@
 	<string>1.0</string>
 	<key>CFBundleURLTypes</key>
 	<array>
-        <dict>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleURLName</key>
-            <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>appcues-example</string>
-            </array>
-        </dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>appcues-example</string>
+			</array>
+		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -84,6 +84,8 @@
 		<string>Lato-Regular.ttf</string>
 		<string>Lato-Bold.ttf</string>
 		<string>Lato-Black.ttf</string>
+		<string>Mulish-VariableFont_wght.ttf</string>
+		<string>Mulish-Italic-VariableFont_wght.ttf</string>
 	</array>
 </dict>
 </plist>
