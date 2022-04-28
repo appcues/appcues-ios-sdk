@@ -54,27 +54,49 @@ internal enum DebugFontUI {
         private let systemFonts = FontInfo.systemFonts()
         private let allFonts = FontInfo.allFonts()
 
+        var sections: [(title: String, names: [String])] {
+            var nonEmptySections: [(String, [String])] = []
+
+            let appFonts = filtered(\.appFonts)
+            if !appFonts.isEmpty {
+                nonEmptySections.append(("App-Specific Fonts", appFonts))
+            }
+
+            let systemFonts = filtered(\.systemFonts)
+            if !systemFonts.isEmpty {
+                nonEmptySections.append(("System Fonts", systemFonts))
+            }
+
+            let allFonts = filtered(\.allFonts)
+            if !allFonts.isEmpty {
+                nonEmptySections.append(("All Fonts", allFonts))
+            }
+
+            return nonEmptySections
+        }
+
+        @State private var searchText = ""
+
         var body: some View {
             List {
-                Section(header: Text("App-Specific Fonts")) {
-                    ForEach(appFonts, id: \.self) {
-                        FontItem(name: $0)
-                    }
-                }
-
-                Section(header: Text("System Fonts")) {
-                    ForEach(systemFonts, id: \.self) {
-                        FontItem(name: $0)
-                    }
-                }
-
-                Section(header: Text("All Fonts")) {
-                    ForEach(allFonts, id: \.self) {
-                        FontItem(name: $0)
+                ForEach(sections, id: \.title) { title, fonts in
+                    Section(header: Text(title)) {
+                        ForEach(fonts, id: \.self) {
+                            FontItem(name: $0)
+                        }
                     }
                 }
             }
+            .searchableCompatible(text: $searchText)
             .navigationBarTitle("", displayMode: .inline)
+        }
+
+        private func filtered(_ key: KeyPath<Self, [String]>) -> [String] {
+            let query = searchText.lowercased()
+            if query.isEmpty {
+                return self[keyPath: key]
+            }
+            return self[keyPath: key].filter { $0.lowercased().contains(query) }
         }
     }
 
@@ -95,6 +117,26 @@ internal enum DebugFontUI {
                 .foregroundColor(.secondary)
             }
         }
+    }
+
+    internal struct Searchable: ViewModifier {
+        let text: Binding<String>
+
+        func body(content: Content) -> some View {
+            if #available(iOS 15.0, *) {
+                content
+                    .searchable(text: text)
+            } else {
+                content
+            }
+        }
+    }
+}
+
+@available(iOS 13.0, *)
+extension View {
+    func searchableCompatible(text: Binding<String>) -> some View {
+        modifier(DebugFontUI.Searchable(text: text))
     }
 }
 
