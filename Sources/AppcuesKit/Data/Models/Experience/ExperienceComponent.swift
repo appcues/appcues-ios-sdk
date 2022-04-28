@@ -184,7 +184,7 @@ extension ExperienceComponent {
 
         let fontName: String?
         let fontSize: Double?
-        let fontWeight: String?
+        let fontWeight: Double?
         let letterSpacing: Double?
         let lineHeight: Double?
         let textAlignment: String?
@@ -211,7 +211,7 @@ extension ExperienceComponent {
             width: Double? = nil,
             fontName: String? = nil,
             fontSize: Double? = nil,
-            fontWeight: String? = nil,
+            fontWeight: Double? = nil,
             letterSpacing: Double? = nil,
             lineHeight: Double? = nil,
             textAlignment: String? = nil,
