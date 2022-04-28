@@ -28,6 +28,12 @@ internal enum DebugUI {
                         }
                     }
 
+                    Section(header: Text("Info")) {
+                        NavigationLink(destination: DebugFontUI.FontListView()) {
+                            Text("Available Fonts")
+                        }
+                    }
+
                     Section(header: EventsSectionHeader(selection: $viewModel.filter)) {
                         ForEach(filteredEvents.suffix(20).reversed()) { event in
                             NavigationLink(destination: EventDetailView(event: event)) {
