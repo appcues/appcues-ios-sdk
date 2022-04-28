@@ -13,6 +13,18 @@ import SwiftUI
 internal class DebugViewModel: ObservableObject {
     private let networking: Networking
 
+    // MARK: Navigation
+    @Published var navigationDestination: DebugDestination?
+    var navigationDestinationIsFonts: Bool {
+        get { navigationDestination == .fonts }
+        set { navigationDestination = newValue ? .fonts : nil }
+    }
+
+    // MARK: Recent Events
+    @Published private(set) var events: [LoggedEvent] = []
+    @Published private(set) var latestEvent: LoggedEvent?
+
+    // MARK: Status Overview
     let accountID: String
     let applicationID: String
     @Published var currentUserID: String {
@@ -21,8 +33,6 @@ internal class DebugViewModel: ObservableObject {
         }
     }
     @Published var filter: DebugViewModel.LoggedEvent.EventType?
-    @Published private(set) var events: [LoggedEvent] = []
-    @Published private(set) var latestEvent: LoggedEvent?
     @Published private(set) var connectedStatus = StatusItem(status: .pending, title: "Connected to Appcues")
     @Published private(set) var trackingPages = false
     @Published private(set) var userIdentified = false
@@ -311,7 +321,7 @@ private extension Dictionary where Key == String, Value == Any {
             switch ($0.key.first, $1.key.first) {
             case ("_", "_"):
                 return $0.key <= $1.key
-            case ("_",  _):
+            case ("_", _):
                 return false
             case (_, "_"):
                 return true
