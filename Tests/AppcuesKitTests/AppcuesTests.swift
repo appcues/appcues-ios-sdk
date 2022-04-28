@@ -207,7 +207,8 @@ class AppcuesTests: XCTestCase {
     func testDebug() throws {
         // Arrange
         let debuggerShownExpectation = expectation(description: "Debugger shown")
-        appcues.debugger.onShow = {
+        appcues.debugger.onShow = { destination in
+            XCTAssertNil(destination)
             debuggerShownExpectation.fulfill()
         }
 

@@ -84,7 +84,8 @@ class DeeplinkHandlerTests: XCTestCase {
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/debugger"))
 
         var debuggerShown = false
-        appcues.debugger.onShow = {
+        appcues.debugger.onShow = { destination in
+            XCTAssertNil(destination)
             debuggerShown = true
         }
 
@@ -96,6 +97,24 @@ class DeeplinkHandlerTests: XCTestCase {
         XCTAssertTrue(debuggerShown)
     }
 
+    func testHandleDebugURLWithActiveSceneAndDestination() throws {
+        // Arrange
+        deeplinkHandler.topControllerGetting = MockTopControllerGetting()
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/debugger/fonts"))
+
+        var debuggerShown = false
+        appcues.debugger.onShow = { destination in
+            XCTAssertEqual(destination, DebugDestination.fonts)
+            debuggerShown = true
+        }
+
+        // Act
+        let handled = deeplinkHandler.didHandleURL(url)
+
+        // Assert
+        XCTAssertTrue(handled)
+        XCTAssertTrue(debuggerShown)
+    }
     func testHandleNonAppcuesURL() throws {
         // Arrange
         deeplinkHandler.topControllerGetting = MockTopControllerGetting()
