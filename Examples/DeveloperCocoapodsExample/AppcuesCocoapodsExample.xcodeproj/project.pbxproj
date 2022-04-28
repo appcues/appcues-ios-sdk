@@ -16,6 +16,8 @@
 		9E6FF9F4B22B8874E5AA6544 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 93D50517BBE18B336D130E13 /* LaunchScreen.storyboard */; };
 		A245C61F75A6DAA8985A6772 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C713E67205D9507CE2DC80 /* AppDelegate.swift */; };
 		A5CE7AE8513C052690838416 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */; };
+		C9574198281B1F940028C7D9 /* Mulish-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C9574196281B1F940028C7D9 /* Mulish-Italic-VariableFont_wght.ttf */; };
+		C9574199281B1F940028C7D9 /* Mulish-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C9574197281B1F940028C7D9 /* Mulish-VariableFont_wght.ttf */; };
 		CAFC2E38ACF9024AD211097D /* DeeplinkNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADB3815CE7FEA22224162CE /* DeeplinkNavigator.swift */; };
 		CCD458B6662FC0AC5C80CAFF /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384497BA35A275E793B475C1 /* ProfileViewController.swift */; };
 		CD156254F042866368E77CC3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 024025AF9E2E0D38C368A6AC /* Main.storyboard */; };
@@ -39,6 +41,8 @@
 		AAD7ED9DCA5972361B3F5E67 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B5B67BE1F6371A71F749412B /* Pods_AppcuesCocoapodsExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppcuesCocoapodsExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C47ABB97FE784624C32E96D7 /* Lato-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Bold.ttf"; sourceTree = "<group>"; };
+		C9574196281B1F940028C7D9 /* Mulish-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
+		C9574197281B1F940028C7D9 /* Mulish-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		D222BCDD1CC476586F0AF3A8 /* Pods-AppcuesCocoapodsExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppcuesCocoapodsExample.release.xcconfig"; path = "Target Support Files/Pods-AppcuesCocoapodsExample/Pods-AppcuesCocoapodsExample.release.xcconfig"; sourceTree = "<group>"; };
 		D2C0EC54920737EBD7E2961F /* AppcuesCocoapodsExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AppcuesCocoapodsExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3C0F23F9CDE7740C2E2DBF7 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
@@ -62,6 +66,8 @@
 				547A647EB6D311E97F592C7C /* Lato-Black.ttf */,
 				C47ABB97FE784624C32E96D7 /* Lato-Bold.ttf */,
 				D3C0F23F9CDE7740C2E2DBF7 /* Lato-Regular.ttf */,
+				C9574196281B1F940028C7D9 /* Mulish-Italic-VariableFont_wght.ttf */,
+				C9574197281B1F940028C7D9 /* Mulish-VariableFont_wght.ttf */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -72,7 +78,6 @@
 				2623C75FBEB40F35C89C0FEF /* Pods-AppcuesCocoapodsExample.debug.xcconfig */,
 				D222BCDD1CC476586F0AF3A8 /* Pods-AppcuesCocoapodsExample.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -151,8 +156,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1200;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 95033167E7E129F199208F61 /* Build configuration list for PBXProject "AppcuesCocoapodsExample" */;
 			compatibilityVersion = "Xcode 10.0";
@@ -182,6 +185,8 @@
 				DBE453F2B40A01B4818CB84E /* Lato-Bold.ttf in Resources */,
 				3EADA9762D050C3E2ED69514 /* Lato-Regular.ttf in Resources */,
 				9E6FF9F4B22B8874E5AA6544 /* LaunchScreen.storyboard in Resources */,
+				C9574199281B1F940028C7D9 /* Mulish-VariableFont_wght.ttf in Resources */,
+				C9574198281B1F940028C7D9 /* Mulish-Italic-VariableFont_wght.ttf in Resources */,
 				CD156254F042866368E77CC3 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
