@@ -56,7 +56,7 @@ internal struct AppcuesStyle {
         self.horizontalAlignment = HorizontalAlignment(string: model?.horizontalAlignment) ?? .center
         self.verticalAlignment = VerticalAlignment(string: model?.verticalAlignment) ?? .center
 
-        let fontSize = model?.fontSize ?? 17
+        let fontSize = model?.fontSize ?? UIFont.labelFontSize
         self.font = Font(name: model?.fontName, size: fontSize, weight: model?.fontWeight)
         self.letterSpacing = CGFloat(model?.letterSpacing)
         if let lineHeight = CGFloat(model?.lineHeight) {
