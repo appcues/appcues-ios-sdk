@@ -87,9 +87,3 @@ extension Experience {
         steps[safe: stepIndex.group]?.items[safe: stepIndex.item]
     }
 }
-
-private extension Collection {
-    subscript (safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
-    }
-}
