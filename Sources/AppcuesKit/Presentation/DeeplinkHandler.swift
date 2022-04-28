@@ -19,7 +19,7 @@ internal class DeeplinkHandler: DeeplinkHandling {
     enum Action: Hashable {
         case preview(experienceID: String) // preview for draft content
         case show(experienceID: String)    // published content
-        case debugger
+        case debugger(destination: DebugDestination?)
 
         init?(url: URL, isSessionActive: Bool, applicationID: String) {
             guard url.scheme == "appcues-\(applicationID)", url.host == "sdk" else { return nil }
@@ -28,6 +28,7 @@ internal class DeeplinkHandler: DeeplinkHandling {
             // appcues-{app_id}://sdk/experience_preview/{experience_id}
             // appcues-{app_id}://sdk/experience_content/{experience_id}
             // appcues-{app_id}://sdk/debugger
+            // appcues-{app_id}://sdk/debugger/fonts
 
             let pathTokens = url.path.split(separator: "/").map { String($0) }
 
@@ -36,8 +37,8 @@ internal class DeeplinkHandler: DeeplinkHandling {
             } else if pathTokens.count == 2, pathTokens[0] == "experience_content", isSessionActive {
                 // can only show content via deeplink when a session is active
                 self = .show(experienceID: pathTokens[1])
-            } else if pathTokens.count == 1, pathTokens[0] == "debugger" {
-                self = .debugger
+            } else if pathTokens.count >= 1, pathTokens[0] == "debugger" {
+                self = .debugger(destination: DebugDestination(pathToken: pathTokens[safe: 1]))
             } else {
                 return nil
             }
@@ -87,8 +88,8 @@ internal class DeeplinkHandler: DeeplinkHandling {
             container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: false, completion: nil)
         case .show(let experienceID):
             container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: true, completion: nil)
-        case .debugger:
-            container.resolve(UIDebugging.self).show()
+        case .debugger(let destination):
+            container.resolve(UIDebugging.self).show(destination: destination)
         }
     }
 

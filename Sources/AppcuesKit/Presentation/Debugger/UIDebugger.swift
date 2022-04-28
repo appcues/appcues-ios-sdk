@@ -12,7 +12,20 @@ import Combine
 
 @available(iOS 13.0, *)
 internal protocol UIDebugging {
-    func show()
+    func show(destination: DebugDestination?)
+}
+
+/// Navigation destinations within the debugger
+internal enum DebugDestination {
+    /// Font list screen
+    case fonts
+
+    init?(pathToken: String?) {
+        switch pathToken {
+        case "fonts": self = .fonts
+        default: return nil
+        }
+    }
 }
 
 @available(iOS 13.0, *)
@@ -43,8 +56,15 @@ internal class UIDebugger: UIDebugging {
         notificationCenter.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
     }
 
-    func show() {
+    func show(destination: DebugDestination?) {
+        defer {
+            viewModel.navigationDestination = destination
+            (debugWindow?.rootViewController as? DebugViewController)?.open(animated: true)
+        }
+
+        // Debugger already open
         guard debugWindow == nil else { return }
+
         guard let windowScene = UIApplication.shared.activeWindowScenes.first else {
             config.logger.error("Could not open debugger")
             return
