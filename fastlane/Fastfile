@@ -59,6 +59,10 @@ platform :ios do
 
   desc "Push example app to Testflight beta"
   lane :beta_example do | options |
+    Dir.chdir("../Examples/DeveloperCocoapodsExample") do
+      sh("mint run xcodegen")
+    end
+
     app_store_connect_api_key
 
     current_build = latest_testflight_build_number(
