@@ -54,14 +54,12 @@ internal class DebugViewModel: ObservableObject {
             StatusItem(
                 status: trackingPages ? .verified : .pending,
                 title: "Tracking Screens",
-                subtitle: trackingPages ? nil : "Navigate to another screen to test",
-                action: Action(symbolName: "line.3.horizontal.decrease.circle") { [weak self] in self?.filter = .screen }),
+                subtitle: trackingPages ? nil : "Navigate to another screen to test"),
             StatusItem(
                 status: userIdentified ? .verified : .unverfied,
                 title: "User Identified",
                 subtitle: userDescription,
-                detailText: currentUserID,
-                action: Action(symbolName: "line.3.horizontal.decrease.circle") { [weak self] in self?.filter = .profile })
+                detailText: currentUserID)
         ] + experienceStatuses
     }
 
