@@ -44,6 +44,67 @@ class ExperienceRendererTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testShowPublishedNormalPriority() throws {
+        // Arrange
+        let preconditionExpectation = expectation(description: "Precondition completion called")
+        let completionExpectation = expectation(description: "Completion called")
+        // Two experiences should be presented
+        let presentExpectation = expectation(description: "Experience presented")
+        presentExpectation.expectedFulfillmentCount = 2
+        let experience = Experience.mock
+        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+
+        // Set up first experience
+        experienceRenderer.show(experience: Experience.mock, priority: .low, published: true) { result in
+            if case .success = result {
+                preconditionExpectation.fulfill()
+            }
+        }
+        XCTAssertEqual(XCTWaiter().wait(for: [preconditionExpectation], timeout: 1), .completed)
+
+        // Act
+        experienceRenderer.show(experience: Experience.mock, priority: .normal, published: true) { result in
+            print(result)
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        XCTAssertEqual(XCTWaiter().wait(for: [presentExpectation, completionExpectation], timeout: 1), .completed)
+    }
+
+    func testShowPublishedLowPriority() throws {
+        // Arrange
+        let preconditionExpectation = expectation(description: "Precondition completion called")
+        let completionExpectation = expectation(description: "Completion called")
+        completionExpectation.isInverted = true
+        let presentExpectation = expectation(description: "Experience presented")
+        let experience = Experience.mock
+        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+
+        // Set up first experience
+        experienceRenderer.show(experience: Experience.mock, priority: .low, published: true) { result in
+            if case .success = result {
+                preconditionExpectation.fulfill()
+            }
+        }
+        XCTAssertEqual(XCTWaiter().wait(for: [preconditionExpectation, presentExpectation], timeout: 1), .completed)
+
+        // Act
+        experienceRenderer.show(experience: Experience.mock, priority: .low, published: true) { result in
+            print(result)
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        XCTAssertEqual(XCTWaiter().wait(for: [completionExpectation], timeout: 1), .completed)
+    }
+
     func testShowUnpublished() throws {
         // Arrange
         let completionExpectation = expectation(description: "Completion called")
