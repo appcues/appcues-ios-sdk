@@ -33,7 +33,7 @@ class AppcuesCloseActionTests: XCTestCase {
         appcues.experienceRenderer.onDismissCurrentExperience = { markComplete, completion in
             XCTAssertFalse(markComplete)
             dismissCount += 1
-            completion?()
+            completion?(.success(()))
         }
         let action = AppcuesCloseAction(config: nil)
 
@@ -52,7 +52,7 @@ class AppcuesCloseActionTests: XCTestCase {
         appcues.experienceRenderer.onDismissCurrentExperience = { markComplete, completion in
             XCTAssertTrue(markComplete)
             dismissCount += 1
-            completion?()
+            completion?(.success(()))
         }
         let action = AppcuesCloseAction(config: ["markComplete": true])
 
