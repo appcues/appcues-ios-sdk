@@ -35,13 +35,13 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-        // only track analytics on published experiences (not previews)
-        // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
-        if published && stateMachine.state == .idling {
-            stateMachine.addObserver(analyticsObserver)
-        }
-        stateMachine.clientAppcuesDelegate = appcues.delegate
         DispatchQueue.main.async {
+            // only track analytics on published experiences (not previews)
+            // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
+            if published && self.stateMachine.state == .idling {
+                self.stateMachine.addObserver(self.analyticsObserver)
+            }
+            self.stateMachine.clientAppcuesDelegate = self.appcues.delegate
             self.stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
                 switch result {
                 case .success(.renderingStep):
@@ -82,6 +82,13 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async {
+                self.show(stepInCurrentExperience: stepRef, completion: completion)
+            }
+            return
+        }
+
         stateMachine.transitionAndObserve(.startStep(stepRef)) { result in
             switch result {
             case .success(.renderingStep):
@@ -99,6 +106,13 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func dismissCurrentExperience(markComplete: Bool, completion: (() -> Void)?) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async {
+                self.dismissCurrentExperience(markComplete: markComplete, completion: completion)
+            }
+            return
+        }
+
         stateMachine.transitionAndObserve(.endExperience(markComplete: markComplete)) { result in
             switch result {
             case .success(.idling):
