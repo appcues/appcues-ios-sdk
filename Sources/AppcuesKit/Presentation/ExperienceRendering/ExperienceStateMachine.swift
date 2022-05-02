@@ -117,7 +117,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         case let .renderingStep(_, _, package, _) where package.wrapperController.isBeingDismissed:
             experienceDidDisappear()
             // Update state in response to UI changes that have happened already (a call to UIViewController.dismiss).
-            _ = try? transition(.endExperience(markComplete: false))
+            try? transition(.endExperience(markComplete: false))
         default:
             break
         }
@@ -219,7 +219,7 @@ extension ExperienceStateMachine {
             case let .navigateInContainer(package, pageIndex):
                 package.containerController.navigate(to: pageIndex, animated: true)
             case let .dismissContainer(package, action):
-                package.dismisser { _ = try? machine.transition(action) }
+                package.dismisser { try? machine.transition(action) }
             case let .error(error, reset):
                 // Call each observer with the error as a failure and filter out ones that been satisfied
                 machine.stateObservers = machine.stateObservers.filter {
@@ -235,8 +235,8 @@ extension ExperienceStateMachine {
             machine: ExperienceStateMachine, experience: Experience, stepIndex: Experience.StepIndex, package: ExperiencePackage
         ) {
             machine.clientControllerDelegate = UIApplication.shared.topViewController() as? AppcuesExperienceDelegate
-            if !machine.canDisplay(experience: experience) {
-                _ = try? machine.transition(.reportError(.step(experience, stepIndex, "Step blocked by app"), fatal: true))
+            guard machine.canDisplay(experience: experience) else {
+                try? machine.transition(.reportError(.step(experience, stepIndex, "Step blocked by app"), fatal: true))
                 return
             }
 
@@ -247,10 +247,10 @@ extension ExperienceStateMachine {
 
             do {
                 try package.presenter {
-                    _ = try? machine.transition(.renderStep)
+                    try? machine.transition(.renderStep)
                 }
             } catch {
-                _ = try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)"), fatal: true))
+                try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)"), fatal: true))
             }
         }
     }
