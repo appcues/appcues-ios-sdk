@@ -59,7 +59,9 @@ internal class UIDebugger: UIDebugging {
     func show(destination: DebugDestination?) {
         defer {
             viewModel.navigationDestination = destination
-            (debugWindow?.rootViewController as? DebugViewController)?.open(animated: true)
+            if destination != nil {
+                (debugWindow?.rootViewController as? DebugViewController)?.open(animated: true)
+            }
         }
 
         // Debugger already open
