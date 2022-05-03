@@ -26,7 +26,7 @@ internal class SessionImageCache {
 
     subscript(_ key: URL) -> FLAnimatedImage? {
         get {
-            if let data = animatedImageCache.object(forKey: key as NSURL) as? Data {
+            if let data = animatedImageCache.object(forKey: key as NSURL) as Data? {
                 return FLAnimatedImage(data: data)
             }
             return nil
