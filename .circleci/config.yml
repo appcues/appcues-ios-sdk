@@ -100,9 +100,67 @@ jobs:
           event: fail
           template: basic_fail_1
           channel: team-mobile-bots
+      - run:
+          # some ideas from https://discuss.circleci.com/t/leveraging-circleci-api-to-include-build-logs-in-slack-notifications/39111
+          name: Get changelog
+          # 1) get the formatted changelong output; 2) find the lines that are actually the changelog; 3) format for JSON encoding; 4) remove the quotes that jq adds
+          command: |
+            APPCUES_SAMPLE_CHANGELOG=$(bundle exec fastlane run changelog_from_git_commits commits_count:5 pretty:"- [%as] %s" | grep "^-" -m 5 | jq -aRs . | sed -e 's/^"//' -e 's/"$//')
+            echo $APPCUES_SAMPLE_CHANGELOG
+            echo "export APPCUES_SAMPLE_CHANGELOG='${APPCUES_SAMPLE_CHANGELOG}'" >> $BASH_ENV
       - slack/notify:
           event: pass
-          template: success_tagged_deploy_1
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {
+                    "type": "plain_text",
+                    "text": "🚀 iOS Sample App Deployed to TestFlight 📲",
+                    "emoji": true
+                  }
+                }
+              ],
+              "attachments": [
+                {
+                  "color": "#5C5CFF",
+                  "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                        "type": "plain_text",
+                        "text": "$APPCUES_SAMPLE_CHANGELOG",
+                        "emoji": true
+                      }
+                    },
+                    {
+                      "type": "actions",
+                      "elements": [
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "View Job",
+                            "emoji": true
+                          },
+                          "url": "$CIRCLE_BUILD_URL"
+                        },
+                        {
+                          "type": "button",
+                          "text": {
+                            "type": "plain_text",
+                            "text": "View on App Store Connect",
+                            "emoji": true
+                          },
+                          "url": "https://appstoreconnect.apple.com/apps/1590866976/testflight/ios"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
           channel: team-mobile-bots
 
 # -------------------------
