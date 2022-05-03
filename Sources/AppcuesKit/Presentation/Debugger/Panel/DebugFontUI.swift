@@ -33,8 +33,8 @@ internal enum DebugFontUI {
                        let fontData = try? Data(contentsOf: url),
                        let fontDataProvider = CGDataProvider(data: fontData as CFData),
                        let font = CGFont(fontDataProvider),
-                       let name = font.postScriptName as? String {
-                        let ctfont = CTFontCreateWithName(name as CFString, 17, nil)
+                       let name = font.postScriptName {
+                        let ctfont = CTFontCreateWithName(name, 17, nil)
                         return CTFontCopyFamilyName(ctfont) as String
                     } else {
                         return nil
