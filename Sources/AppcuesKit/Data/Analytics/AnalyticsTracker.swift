@@ -88,9 +88,12 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         guard let activity = activity else { return }
         activityProcessor.process(activity) { [weak self] result in
             switch result {
-            case .success(let taco):
+            case .success(let qualifyResponse):
                 if #available(iOS 13.0, *) {
-                    self?.experienceRenderer.show(qualifiedExperiences: taco.experiences, completion: nil)
+                    self?.experienceRenderer.show(
+                        qualifiedExperiences: qualifyResponse.experiences,
+                        priority: qualifyResponse.renderPriority,
+                        completion: nil)
                 } else {
                     self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
                 }

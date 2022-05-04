@@ -22,6 +22,6 @@ internal class AppcuesCloseAction: ExperienceAction {
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.dismissCurrentExperience(markComplete: markComplete, completion: completion)
+        experienceRenderer.dismissCurrentExperience(markComplete: markComplete, completion: { _ in completion() })
     }
 }
