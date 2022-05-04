@@ -10,10 +10,10 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal protocol ExperienceRendering {
-    func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
-    func show(qualifiedExperiences: [Experience], completion: ((Result<Void, Error>) -> Void)?)
+    func show(experience: Experience, priority: RenderPriority, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
+    func show(qualifiedExperiences: [Experience], priority: RenderPriority, completion: ((Result<Void, Error>) -> Void)?)
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
-    func dismissCurrentExperience(markComplete: Bool, completion: (() -> Void)?)
+    func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?)
 }
 
 @available(iOS 13.0, *)
@@ -34,7 +34,19 @@ internal class ExperienceRenderer: ExperienceRendering {
         self.analyticsObserver = ExperienceStateMachine.AnalyticsObserver(container: container)
     }
 
-    func show(experience: Experience, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+    func show(experience: Experience, priority: RenderPriority, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+        if priority == .normal && stateMachine.state != .idling {
+            dismissCurrentExperience(markComplete: false) { result in
+                switch result {
+                case .success:
+                    self.show(experience: experience, priority: priority, published: published, completion: completion)
+                case .failure(let error):
+                    completion?(.failure(error))
+                }
+            }
+            return
+        }
+
         DispatchQueue.main.async {
             // only track analytics on published experiences (not previews)
             // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
@@ -58,7 +70,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func show(qualifiedExperiences: [Experience], completion: ((Result<Void, Error>) -> Void)?) {
+    func show(qualifiedExperiences: [Experience], priority: RenderPriority, completion: ((Result<Void, Error>) -> Void)?) {
         guard let experience = qualifiedExperiences.first else {
             // If given an empty list of qualified experiences, complete with a success because this function has completed without error.
             // This function only recurses on a non-empty case, so this block only applies to the initial external call.
@@ -66,7 +78,7 @@ internal class ExperienceRenderer: ExperienceRendering {
             return
         }
 
-        show(experience: experience, published: true) { result in
+        show(experience: experience, priority: priority, published: true) { result in
             switch result {
             case .success:
                 completion?(result)
@@ -75,7 +87,7 @@ internal class ExperienceRenderer: ExperienceRendering {
                 if remainingExperiences.isEmpty {
                     completion?(result)
                 } else {
-                    self.show(qualifiedExperiences: Array(remainingExperiences), completion: completion)
+                    self.show(qualifiedExperiences: Array(remainingExperiences), priority: priority, completion: completion)
                 }
             }
         }
@@ -105,7 +117,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func dismissCurrentExperience(markComplete: Bool, completion: (() -> Void)?) {
+    func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
                 self.dismissCurrentExperience(markComplete: markComplete, completion: completion)
@@ -116,11 +128,11 @@ internal class ExperienceRenderer: ExperienceRendering {
         stateMachine.transitionAndObserve(.endExperience(markComplete: markComplete)) { result in
             switch result {
             case .success(.idling):
-                completion?()
+                completion?(.success(()))
                 return true
-            case .failure:
+            case .failure(let error):
                 // Done observing, something went wrong
-                completion?()
+                completion?(.failure(error))
                 return true
             default:
                 // Keep observing until we get to the target state
