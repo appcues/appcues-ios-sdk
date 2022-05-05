@@ -283,7 +283,7 @@ class ExperienceStateMachineTests: XCTestCase {
         // Arrange
         let experience = Experience.mock
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
-        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition, fatal: false)
+        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState), fatal: false)
         let stateMachine = givenState(is: initialState)
 
         // Act
@@ -297,7 +297,7 @@ class ExperienceStateMachineTests: XCTestCase {
         // Arrange
         let experience = Experience.mock
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
-        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition, fatal: true)
+        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState), fatal: true)
         let stateMachine = givenState(is: initialState)
 
         // Act
@@ -311,7 +311,7 @@ class ExperienceStateMachineTests: XCTestCase {
         // Arrange
         let experience = Experience.mock
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
-        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition, fatal: true)
+        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState), fatal: true)
         let stateMachine = givenState(is: initialState)
         let listingObserver = ListingObserver()
         stateMachine.addObserver(listingObserver)
@@ -327,7 +327,7 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(
             listingObserver.results,
             [
-                .failure(.noTransition),
+                .failure(.noTransition(currentState: initialState)),
                 .success(.idling)
             ]
         )

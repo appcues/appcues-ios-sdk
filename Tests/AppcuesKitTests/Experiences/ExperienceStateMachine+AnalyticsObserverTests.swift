@@ -294,7 +294,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateNoTransitionError() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.noTransition))
+        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.noTransition(currentState: .idling)))
 
         // Assert
         XCTAssertFalse(isCompleted)
