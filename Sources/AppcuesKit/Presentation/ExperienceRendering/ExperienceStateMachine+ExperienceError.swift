@@ -11,7 +11,7 @@ import Foundation
 @available(iOS 13.0, *)
 extension ExperienceStateMachine {
     enum ExperienceError: Error {
-        case noTransition
+        case noTransition(currentState: State)
         case experienceAlreadyActive(ignoredExperience: Experience)
         case experience(Experience, String)
         case step(Experience, Experience.StepIndex, String)

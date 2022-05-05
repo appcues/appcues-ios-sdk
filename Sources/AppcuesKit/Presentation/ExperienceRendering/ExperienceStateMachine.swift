@@ -38,6 +38,10 @@ internal class ExperienceStateMachine {
     }
 
     /// Transition to a new state.
+    ///
+    /// Any side effects in `observer` should be dispatched asynchronously to allow the observer processing to complete
+    /// before the side effect spawns a new action.
+    ///
     /// - Parameters:
     ///   - newState: `ExperienceState` to attempt a transition to.
     ///   - observer: Block that's called on each state change, or if no state change occurs (represented by a `nil` value).
@@ -49,7 +53,7 @@ internal class ExperienceStateMachine {
         do {
             try transition(action)
         } catch {
-            let observerIsSatisfiedByFailure = observer.evaluateIfSatisfied(result: .failure(ExperienceError.noTransition))
+            let observerIsSatisfiedByFailure = observer.evaluateIfSatisfied(result: .failure(ExperienceError.noTransition(currentState: state)))
             if observerIsSatisfiedByFailure {
                 stateObservers = stateObservers.filter { $0 !== observer }
             }
