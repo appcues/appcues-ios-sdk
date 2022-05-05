@@ -44,15 +44,18 @@ class ExperienceRendererTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    func testShowPublishedNormalPriority() throws {
+    func testShowPublishedNormalPriorityReplacesExisting() throws {
         // Arrange
         let preconditionExpectation = expectation(description: "Precondition completion called")
         let completionExpectation = expectation(description: "Completion called")
         // Two experiences should be presented
         let presentExpectation = expectation(description: "Experience presented")
         presentExpectation.expectedFulfillmentCount = 2
+        let dismissExpectation = expectation(description: "Experience dismissed")
         let experience = Experience.mock
-        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
+        let preconditionPackage: ExperiencePackage = experience.package(
+            presentExpectation: presentExpectation,
+            dismissExpectation: dismissExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
         // Set up first experience
@@ -72,15 +75,49 @@ class ExperienceRendererTests: XCTestCase {
         }
 
         // Assert
-        XCTAssertEqual(XCTWaiter().wait(for: [presentExpectation, completionExpectation], timeout: 1), .completed)
+        XCTAssertEqual(XCTWaiter().wait(for: [dismissExpectation, presentExpectation, completionExpectation], timeout: 1), .completed)
     }
 
-    func testShowPublishedLowPriority() throws {
+    func testShowWhileBeginningInitialExperienceReplacesExisting() throws {
         // Arrange
         let preconditionExpectation = expectation(description: "Precondition completion called")
         let completionExpectation = expectation(description: "Completion called")
-        completionExpectation.isInverted = true
+        // Two experiences should be presented
         let presentExpectation = expectation(description: "Experience presented")
+        presentExpectation.expectedFulfillmentCount = 2
+        let dismissExpectation = expectation(description: "Experience dismissed")
+        let experience = Experience.mock
+        let preconditionPackage: ExperiencePackage = experience.package(
+            presentExpectation: presentExpectation,
+            dismissExpectation: dismissExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+
+        // Set up first experience
+        experienceRenderer.show(experience: Experience.mock, priority: .low, published: true) { result in
+            if case .success = result {
+                preconditionExpectation.fulfill()
+            }
+        }
+
+        // NOTE: No waiting for initial .show() to complete like the test case above does.
+
+        // Act
+        experienceRenderer.show(experience: Experience.mock, priority: .normal, published: true) { result in
+            print(result)
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testShowPublishedLowPriorityDoesntReplaceExisting() throws {
+        // Arrange
+        let preconditionExpectation = expectation(description: "Precondition completion called")
+        let presentExpectation = expectation(description: "Experience presented")
+        let failureExpectation = expectation(description: "Experience presentation failed called")
         let experience = Experience.mock
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
@@ -96,13 +133,13 @@ class ExperienceRendererTests: XCTestCase {
         // Act
         experienceRenderer.show(experience: Experience.mock, priority: .low, published: true) { result in
             print(result)
-            if case .success = result {
-                completionExpectation.fulfill()
+            if case .failure(ExperienceStateMachine.ExperienceError.experienceAlreadyActive) = result {
+                failureExpectation.fulfill()
             }
         }
 
         // Assert
-        XCTAssertEqual(XCTWaiter().wait(for: [completionExpectation], timeout: 1), .completed)
+        XCTAssertEqual(XCTWaiter().wait(for: [failureExpectation], timeout: 1), .completed)
     }
 
     func testShowUnpublished() throws {
