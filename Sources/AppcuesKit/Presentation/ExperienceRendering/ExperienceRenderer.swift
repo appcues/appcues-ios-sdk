@@ -35,6 +35,13 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func show(experience: Experience, priority: RenderPriority, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async {
+                self.show(experience: experience, priority: priority, published: published, completion: completion)
+            }
+            return
+        }
+
         if priority == .normal && stateMachine.state != .idling {
             dismissCurrentExperience(markComplete: false) { result in
                 switch result {
@@ -47,25 +54,23 @@ internal class ExperienceRenderer: ExperienceRendering {
             return
         }
 
-        DispatchQueue.main.async {
-            // only track analytics on published experiences (not previews)
-            // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
-            if published && self.stateMachine.state == .idling {
-                self.stateMachine.addObserver(self.analyticsObserver)
-            }
-            self.stateMachine.clientAppcuesDelegate = self.appcues.delegate
-            self.stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
-                switch result {
-                case .success(.renderingStep):
-                    completion?(.success(()))
-                    return true
-                case let .failure(error):
-                    completion?(.failure(error))
-                    return true
-                default:
-                    // Keep observing until we get to the target state
-                    return false
-                }
+        // only track analytics on published experiences (not previews)
+        // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
+        if published && stateMachine.state == .idling {
+            self.stateMachine.addObserver(analyticsObserver)
+        }
+        stateMachine.clientAppcuesDelegate = appcues.delegate
+        stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
+            switch result {
+            case .success(.renderingStep):
+                DispatchQueue.main.async { completion?(.success(())) }
+                return true
+            case let .failure(error):
+                DispatchQueue.main.async { completion?(.failure(error)) }
+                return true
+            default:
+                // Keep observing until we get to the target state
+                return false
             }
         }
     }
@@ -104,11 +109,11 @@ internal class ExperienceRenderer: ExperienceRendering {
         stateMachine.transitionAndObserve(.startStep(stepRef)) { result in
             switch result {
             case .success(.renderingStep):
-                completion?()
+                DispatchQueue.main.async { completion?() }
                 return true
             case .failure:
                 // Done observing, something went wrong
-                completion?()
+                DispatchQueue.main.async { completion?() }
                 return true
             default:
                 // Keep observing until we get to the target state
@@ -128,11 +133,24 @@ internal class ExperienceRenderer: ExperienceRendering {
         stateMachine.transitionAndObserve(.endExperience(markComplete: markComplete)) { result in
             switch result {
             case .success(.idling):
-                completion?(.success(()))
+                DispatchQueue.main.async { completion?(.success(())) }
                 return true
+
+            // These two cases handle dismissing an experience that's in the process of presenting a step group.
+            case .success(.renderingStep):
+                DispatchQueue.main.async { [weak self] in
+                    self?.dismissCurrentExperience(markComplete: markComplete, completion: completion)
+                }
+                return true
+            case .failure(.noTransition(currentState: .beginningExperience)),
+                    .failure(.noTransition(.beginningStep)):
+                // If no valid transition because the experience is starting, we want to wait for a valid point to dismiss
+                // (ie the .renderingStep case above) instead of completing with an error like the case below.
+                return false
+
             case .failure(let error):
                 // Done observing, something went wrong
-                completion?(.failure(error))
+                DispatchQueue.main.async { completion?(.failure(error)) }
                 return true
             default:
                 // Keep observing until we get to the target state
