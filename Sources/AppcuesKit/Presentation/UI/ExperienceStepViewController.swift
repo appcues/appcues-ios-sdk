@@ -52,7 +52,7 @@ internal class ExperienceStepViewController: UIViewController {
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
         super.preferredContentSizeDidChange(forChildContentContainer: container)
 
-        preferredContentSize = stepView.contentView.frame.size
+        preferredContentSize = stepView.scrollView.contentSize
     }
 
 }
