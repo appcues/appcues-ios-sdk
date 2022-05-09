@@ -1,3 +1,5 @@
+![AppcuesKit](/Sources/AppcuesKit/AppcuesKit.docc/banner%402x.png)
+
 # Appcues iOS SDK
 
 Appcues iOS SDK allows you to integrate Appcues experiences into your native iOS and iPadOS apps.
