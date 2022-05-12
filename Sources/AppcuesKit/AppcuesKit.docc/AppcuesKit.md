@@ -12,6 +12,7 @@ A Swift library for sending user properties and events to the Appcues API and re
 
 ### Core Functionality
 
+- <doc:AppcuesKit>
 - <doc:GettingStarted>
 - <doc:Identifying>
 - <doc:Tracking>
@@ -27,4 +28,5 @@ A Swift library for sending user properties and events to the Appcues API and re
 - <doc:Extending>
 - ``ExperienceAction``
 - ``ExperienceTrait``
+- ``ExperienceContainer``
 - <doc:Traits>

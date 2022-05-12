@@ -1,0 +1,57 @@
+@Tutorial(time: 5) {
+    @Intro(title: "Dependency Installation") {
+        This tutorial guides you through installing the Appcues iOS SDK in your app. Available options are Swift Package Manager or Cocoapods.
+        
+        @Image(source: banner-right.png, alt: "AppcuesKit")
+    }
+    
+    @Section(title: "Adding AppcuesKit with Swift Package Manager") {
+        @ContentAndMedia {
+            The Swift Package Manager is a tool for managing the distribution of Swift code.
+        }
+        
+        @Steps {
+            @Step {
+                In Xcode, open your project and navigate to **File** → **Add Packages…**.
+            }
+            
+            @Step {
+                Enter the package URL `https://github.com/appcues/appcues-ios-sdk`.
+            }
+            
+            @Step {
+                For **Dependency Rules**, select **Branch** (with branch set to `main`).
+            }
+            
+            @Step {
+                Click **Add Package**.
+            }
+        }
+    }
+    
+    @Section(title: "Adding AppcuesKit with Cocoapods") {
+        @ContentAndMedia {
+            [CocoaPods](https://cocoapods.org/) is a dependency manager for Swift and Objective-C apps.
+        }
+        
+        @Steps {
+            @Step {
+                Open the `Podfile` for your app.
+                
+                @Code(name: "Podfile", file: 01-02-01-Podfile.rb)
+            }
+            
+            @Step {
+                Add the Appcues pod to your app target.
+                
+                @Code(name: "Podfile", file: 01-02-02-Podfile.rb)
+            }
+            
+            @Step {
+                Install the pod by executing `pod install` from `Terminal`.
+            }
+
+        }
+    }
+
+}

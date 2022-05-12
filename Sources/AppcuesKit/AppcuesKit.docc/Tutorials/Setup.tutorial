@@ -1,0 +1,140 @@
+@Tutorial(time: 40) {
+    @Intro(title: "Initialization and Setup") {
+        This tutorial guides you through initializing the Appcues iOS SDK in your app and then completing the setup process. 
+        
+        @Image(source: banner-right.png, alt: "AppcuesKit")
+    }
+    
+    @Section(title: "Initializing an instance") {
+        @ContentAndMedia {
+            An instance of the Appcues iOS SDK should be initialized when your app launches. A common pattern is to create a singleton instance that can be easily accessed throughout your app. Other patterns such as dependency injection or encapsulating within a facade interface are also possible.
+        }
+        
+        @Steps {
+            Completing this section requires you to know your **Appcues Account ID** and **Appcues Application ID**.
+            
+            @Step {
+                Import the ``AppcuesKit`` package.
+                
+                @Code(name: "AppDelegate.swift", file: 02-01-01-AppDelegate.swift, previousFile: 02-01-01-0-AppDelegate.swift)
+            }
+            
+            @Step {
+                Initialize an instance of the Appcues SDK by providing a ``AppcuesKit/Appcues/Config`` object which specifies your Appcues Account ID and Appcues Application ID.
+                
+                @Code(name: "AppDelegate.swift", file: 02-01-02-AppDelegate.swift)
+            }
+            
+            @Step {
+                While performing setup and debugging, enabling logging (``AppcuesKit/Appcues/Config/logging(_:)``) on the Appcues instance may be helpful. 
+                
+                @Code(name: "AppDelegate.swift", file: 02-01-03-AppDelegate.swift)
+            }
+        }
+    }
+        
+    @Section(title: "Identifying users") {
+        @ContentAndMedia {
+            In order to target content to the right users at the right time, you need to identify users and send Appcues data about them. A user is identified with a unique ID.
+        }
+                
+        @Steps {
+            In the code where your app handles a completed sign in attempt:
+
+            @Step {
+                Import the ``AppcuesKit`` package and add a call to ``AppcuesKit/Appcues/identify(userID:properties:)``.
+                
+                @Code(name: "SignInViewController.swift", file: 02-02-01-SignInViewController.swift, previousFile: 02-02-01-0-SignInViewController.swift)
+            }
+            
+            In the code where your app handles resetting a users session:
+            
+            @Step {
+                Add a call to ``AppcuesKit/Appcues/reset()``.
+                
+                @Code(name: "ProfileViewController.swift", file: 02-02-02-ProfileViewController.swift, previousFile: 02-02-02-0-ProfileViewController.swift)
+            }
+        }
+    }
+        
+    @Section(title: "Tracking screens and events") {
+        @ContentAndMedia {
+            Events are the “actions” your users take in your application, which can be anything from clicking a certain button to viewing a specific screen.
+        }
+        
+        @Steps {
+            
+            @Step {
+                For each screen in your app, add a call to ``AppcuesKit/Appcues/screen(title:properties:)``. For completeness, each screen in your app should be tracked. Appcues experiences can be targeted to any tracked screen. Additional `properties` may be added to identify details about the scren.
+                
+                @Code(name: "ProfileViewController.swift", file: 02-03-01-ProfileViewController.swift, previousFile: 02-03-01-0-ProfileViewController.swift)
+            }
+            
+            @Step {
+                Custom events can be tracked for additional interactions that aren't screen views using ``AppcuesKit/Appcues/track(name:properties:)``.  Additional `properties` may be added to identify details about the scren.
+                
+                @Code(name: "ProfileViewController.swift", file: 02-03-02-ProfileViewController.swift)
+            }
+            
+            Appcues accounts with plans that include [Event Triggering](https://docs.appcues.com/article/450-event-triggering) can target Appcues experiences to any custom events that are tracked.
+        }
+    }
+    
+    @Section(title: "Configuring the Appcues URL scheme") {
+        @ContentAndMedia {
+            Events are the “actions” your users take in your application, which can be anything from clicking a certain button to viewing a specific screen. For full details, refer to <doc:URLSchemeConfiguring>.
+        }
+        
+        @Steps {
+            
+            @Step {
+                Update your `Info.plist` to register the custom URL scheme. Replace `APPCUES_APPLICATION_ID` with your app's Appcues Application ID.
+                
+                @Code(name: "Info.plist", file: 02-04-01-Info.plist, previousFile: 02-04-01-0-Info.plist)
+            }
+            
+            @Step {
+                Update your app delegate to handle the URL scheme.
+                
+                @Code(name: "AppDelegate.swift", file: 02-04-02-AppDelegate.swift, previousFile: 02-04-02-0-AppDelegate.swift)
+            }
+            
+            For apps using a `UIWindowSceneDelegate`, refer to <doc:URLSchemeConfiguring>.
+            
+            @Step {
+                Test the URL scheme in the `iOS Simulator`. In `Terminal`, use `xcrun` to open the URL, replacing `APPCUES-APPLICATION-ID` with your app's Appcues Application ID.
+                
+                @Code(name: "Terminal.app", file: 02-04-03-terminal.sh) {
+                    @Image(source: 02-04-03-debugger.png, alt: "A screenshot from the iOS Simulator showing the Appcues debugger.")
+                }
+            }
+        }
+    }
+    
+    @Section(title: "Verifying and Debugging") {
+        @ContentAndMedia {
+            Verify your Appcues SDK setup using the Appcues debugger. For full details on the Appcues debugger, refer to <doc:Debugging>.
+        }
+        
+        @Steps {
+            
+            @Step {
+                Tap the floating button to expand the debugger. Initially, you should see green check marks for at least **Installed** and **Connected**. 
+                
+                @Image(source: 02-05-01-debugger.png, alt: "A screenshot from the iOS Simulator showing the Appcues debugger.")
+            }
+            
+            @Step {
+                Complete a sign in (trigger the code you added in Section 2, step 1) and navigate to a scren that you've tagged with ``AppcuesKit/Appcues/screen(title:properties:)``. The debugger status should update to show green check marks for **User Identified** and **Tracking Screens**.
+                
+                @Image(source: 02-05-02-debugger.png, alt: "A screenshot from the iOS Simulator showing the Appcues debugger.")
+            }
+            
+            @Step {
+                With the debugger minimized, navigate through your app. The floating button will show every screen and event that's being tracked allowing you to quickly verify your installation. Expand the debugger and select an event to inspect the properties associated with it.
+                
+                @Video(source: 02-05-03-debugger.mp4, alt: "A video from the iOS Simulator showing the Appcues debugger.")
+            }
+        }
+    }
+}
