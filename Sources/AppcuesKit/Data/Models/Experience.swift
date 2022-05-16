@@ -10,6 +10,7 @@ import Foundation
 
 internal protocol StepModel {
     var id: UUID { get }
+    var type: String { get }
     var traits: [Experience.Trait] { get }
     var actions: [String: [Experience.Action]] { get }
 }
@@ -51,6 +52,9 @@ internal struct Experience {
 
     let id: UUID
     let name: String
+    let type: String
+    // a millisecond timestamp
+    let publishedAt: Int?
     // tags, theme, actions
     // TODO: Handle experience-level actions
     let traits: [Trait]
@@ -62,13 +66,14 @@ internal struct Experience {
 
 extension Experience: Decodable {
     private enum CodingKeys: CodingKey {
-        case id, name, traits, steps
+        case id, name, type, publishedAt, traits, steps
     }
 }
 
 extension Experience.Step: Decodable {
     struct Group: StepModel, Decodable {
         let id: UUID
+        let type: String
         let children: [Child]
         let traits: [Experience.Trait]
         let actions: [String: [Experience.Action]]
@@ -76,15 +81,10 @@ extension Experience.Step: Decodable {
 
     struct Child: StepModel, Decodable {
         let id: UUID
+        let type: String
         let content: ExperienceComponent
         let traits: [Experience.Trait]
         let actions: [String: [Experience.Action]]
-    }
-
-    private enum CodingKeys: CodingKey {
-        case steps
-        case contentType
-        case content
     }
 
     init(from decoder: Decoder) throws {
