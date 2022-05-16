@@ -32,6 +32,8 @@ TODO: Add long description of the pod here.
   s.ios.deployment_target = '11.0'
 
   s.source_files = 'Sources/AppcuesKit/**/*.swift'
+  s.exclude_files = 'Sources/AppcuesKit/AppcuesKit.docc'
+
   s.resource_bundles = {
       'Appcues' => ['Sources/AppcuesKit/**/*.xcassets']
   }
