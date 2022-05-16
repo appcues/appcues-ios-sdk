@@ -31,16 +31,20 @@ internal enum LifecycleEvent: String, CaseIterable {
     static func properties(_ experience: Experience, _ stepIndex: Experience.StepIndex? = nil, error: ErrorBody? = nil) -> [String: Any] {
         var properties: [String: Any] = [
             "experienceId": experience.id.uuidString.lowercased(),
-            "experienceName": experience.name
-            // TODO: The experience object does not current include version
-//            "version": experience.version
+            "experienceName": experience.name,
+            "experienceType": experience.type
             // TODO: Add locale values to analytics for localized experiences
 //            "localeName": "",
 //            "localeId": ""
         ]
 
+        if let version = experience.publishedAt {
+            properties["version"] = version
+        }
+
         if let stepIndex = stepIndex, let step = experience.step(at: stepIndex) {
             properties["stepId"] = step.id.uuidString.lowercased()
+            properties["stepType"] = step.type
             // stepIndex is added primarily for use by the debugger
             properties["stepIndex"] = stepIndex.description
         }
