@@ -35,6 +35,8 @@ class TraitComposerTests: XCTestCase {
         let experience = Experience(
             id: UUID(),
             name: "test",
+            type: "mobile",
+            publishedAt: 1632142800000,
             traits: [
                 Experience.Trait(
                     type: "@test/presenting",
@@ -138,6 +140,8 @@ class TraitComposerTests: XCTestCase {
         let experience = Experience(
             id: UUID(),
             name: "test",
+            type: "mobile",
+            publishedAt: 1632142800000,
             traits: [
                 Experience.Trait(
                     type: "@test/presenting",
@@ -172,10 +176,13 @@ class TraitComposerTests: XCTestCase {
         let experience = Experience(
             id: UUID(),
             name: "test",
+            type: "mobile",
+            publishedAt: 1632142800000,
             traits: [],
             steps: [
                 .group(Experience.Step.Group(
                     id: UUID(uuidString: "d9fbd360-2832-4c8e-a79e-c1731982f1f1")!,
+                    type: "group",
                     children: [],
                     traits: [],
                     actions: [:]
@@ -203,10 +210,13 @@ class TraitComposerTests: XCTestCase {
         Experience(
             id: UUID(),
             name: "test",
+            type: "mobile",
+            publishedAt: 1632142800000,
             traits: [],
             steps: [
                 .group(Experience.Step.Group(
                     id: UUID(),
+                    type: "group",
                     children: [
                         Experience.Step.Child(traits: [])
                     ],
@@ -257,6 +267,7 @@ private extension Experience.Step.Child {
     init(traits: [Experience.Trait]) {
         self.init(
             id: UUID(),
+            type: "modal",
             content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil)),
             traits: traits,
             actions: [:]
