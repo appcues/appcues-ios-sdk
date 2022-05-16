@@ -69,6 +69,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0"
         ].verifyPropertiesMatch(lastUpdate.properties)
@@ -99,6 +102,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0"
         ].verifyPropertiesMatch(lastUpdate.properties)
@@ -128,6 +134,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0"
         ].verifyPropertiesMatch(lastUpdate.properties)
@@ -157,6 +166,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0"
         ].verifyPropertiesMatch(lastUpdate.properties)
@@ -185,7 +197,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_completed", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
-            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf"
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile"
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
@@ -210,7 +224,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_completed", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
-            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf"
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile"
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
@@ -239,6 +255,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile",
             "message": "error",
             "errorId": "A6D6E248-FAFF-4789-A03C-BD7F520C1181"
         ].verifyPropertiesMatch(lastUpdate.properties)
@@ -271,6 +289,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0",
             "message": "error",

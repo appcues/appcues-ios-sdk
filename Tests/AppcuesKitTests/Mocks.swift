@@ -63,6 +63,8 @@ extension Experience {
         Experience(
             id: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
             name: "Mock Experience: Group with 3 steps, Single step",
+            type: "mobile",
+            publishedAt: 1632142800000,
             traits: [],
             steps: [
                 Experience.Step(
@@ -109,6 +111,7 @@ extension Experience.Step {
     init(fixedID: String, children: [Child]) {
         self = .group(Group(
             id: UUID(uuidString: fixedID) ?? UUID(),
+            type: "group",
             children: children,
             traits: [],
             actions: [:]
@@ -120,6 +123,7 @@ extension Experience.Step.Child {
     init(fixedID: String) {
         self.init(
             id: UUID(uuidString: fixedID) ?? UUID(),
+            type: "modal",
             content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil)),
             traits: [],
             actions: [:]
