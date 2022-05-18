@@ -194,7 +194,5 @@ workflows:
         - not: << pipeline.parameters.deploy-beta >>
     jobs:
       - validate_code:
-          filters:
-            branches:
-              ignore:
-                - main
+          context:
+            - Appcues
