@@ -95,7 +95,7 @@ Trait capabilities are applied in a defined sequence, and a trait with multiple 
 
 ## Error Handling
 
-There may be cases where a trait is unable to perform its intended capability. If this happens, it's preferred that a non-essential trait fail silently so that the experience can still be displayed to the user. However if a trait implemention is essential, it may throw a ``TraitError`` that will prevent the experience from being displayed and log an error with the Appcues platform.
+There may be cases where a trait is unable to perform its intended capability. If this happens, it's preferred that a non-essential trait fail silently so that the experience can still be displayed to the user. However if a trait implementation is essential, it may throw a ``TraitError`` that will prevent the experience from being displayed and log an error with the Appcues platform.
 
 For example, a ``ContainerCreatingTrait`` that is unable to create a proper container instance may throw a ``TraitError`` with a ``TraitError/description`` explaining the nature of the error. The description message will be visible in Appcues Studio.
 
