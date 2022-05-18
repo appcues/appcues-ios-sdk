@@ -2,6 +2,10 @@
 
 # Appcues iOS SDK
 
+>NOTE: This is a pre-release project for testing as a part of our mobile beta program. If you are interested in learning more about our mobile product and testing it before it is officially released, please [visit our site](https://www.appcues.com/mobile) and request early access.  
+>
+>If you have been contacted to be a part of our mobile beta program, we encourage you to try out this library and  provide feedback via Github issues and pull requests. Please note this library will not operate if you are not part of the mobile beta program.
+
 Appcues iOS SDK allows you to integrate Appcues experiences into your native iOS and iPadOS apps.
 
 The SDK is a Swift library for sending user properties and events to the Appcues API and retrieving and rendering Appcues content based on those properties and events.
