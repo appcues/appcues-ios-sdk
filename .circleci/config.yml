@@ -185,9 +185,7 @@ workflows:
           context:
             - Appcues
 
-  # an empty workflow to avoid Build Error: "All Workflows have been filtered from this Pipeline. No Jobs have been run."
-  # the `when` selects for `is_main` and the filter ignores `main`.
-  no-op:
+  main_verification:
     when:
       and:
         - *is_main
