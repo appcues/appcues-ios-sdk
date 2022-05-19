@@ -87,12 +87,14 @@ extension AppcuesModalTrait {
 
         var modalPresentationStyle: UIModalPresentationStyle {
             switch self {
-            case .full, .dialog:
+            case .full:
+                return UIDevice.current.userInterfaceIdiom == .pad ? .pageSheet : .overFullScreen
+            case .dialog:
                 return .overFullScreen
             case .sheet:
                 return .formSheet
             case .halfSheet:
-                return .pageSheet
+                return .formSheet
             }
         }
     }
