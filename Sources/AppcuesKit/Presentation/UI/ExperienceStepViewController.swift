@@ -66,6 +66,7 @@ extension ExperienceStepViewController {
     class ExperienceStepView: UIView {
         lazy var scrollView: UIScrollView = {
             let view = UIScrollView()
+            view.translatesAutoresizingMaskIntoConstraints = false
             // Force a consistent safe area behavior regardless of whether the content scrolls
             view.contentInsetAdjustmentBehavior = .always
             return view
@@ -82,9 +83,13 @@ extension ExperienceStepViewController {
 
             addSubview(scrollView)
             scrollView.addSubview(contentView)
-            scrollView.pin(to: self)
             contentView.pin(to: scrollView)
             NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: topAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
+                scrollView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
                 contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor)
             ])
         }
