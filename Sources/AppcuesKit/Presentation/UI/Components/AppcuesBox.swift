@@ -26,28 +26,3 @@ internal struct AppcuesBox: View {
         .applyAllAppcues(style)
     }
 }
-
-#if DEBUG
-@available(iOS 13.0, *)
-internal struct AppcuesBoxPreview: PreviewProvider {
-
-    static var previews: some View {
-        Group {
-            AppcuesBox(model: EC.zstackHero)
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
-
-            AppcuesBox(model: EC.BoxModel(
-                id: UUID(),
-                items: [
-                    .image(EC.imageBanner),
-                    .text(EC.textTitle)
-                ],
-                style: EC.Style(verticalAlignment: "top", horizontalAlignment: "leading"))
-            )
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
-        }
-    }
-}
-#endif

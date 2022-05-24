@@ -103,31 +103,3 @@ private extension URL {
         return components.url
     }
 }
-
-#if DEBUG
-@available(iOS 13.0, *)
-internal struct AppcuesImagePreview: PreviewProvider {
-    // swiftlint:disable:next force_unwrapping
-    static let imageURL = URL(string: "https://res.cloudinary.com/dnjrorsut/image/upload/v1513187203/crx-assets/modal-slideout-hero-image.png")!
-    static var previews: some View {
-        Group {
-            AppcuesImage(model: EC.imageSymbol)
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
-
-            AppcuesImage(model: EC.imageBanner)
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
-
-            AppcuesImage(model: EC.ImageModel(
-                imageUrl: imageURL,
-                contentMode: "fit",
-                intrinsicSize: EC.IntrinsicSize(width: 1_920, height: 1_280),
-                style: EC.Style(height: 100, width: 100, backgroundColor: "#eee"))
-            )
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
-        }
-    }
-}
-#endif
