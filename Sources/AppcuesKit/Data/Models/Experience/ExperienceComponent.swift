@@ -117,7 +117,6 @@ extension ExperienceComponent {
     }
 
     struct ImageModel: ComponentModel, Decodable {
-
         let id: UUID
         let imageUrl: URL
         let blurHash: String?
@@ -126,30 +125,6 @@ extension ExperienceComponent {
         let accessibilityLabel: String?
 
         let style: Style?
-
-        /// URL init
-        internal init(imageUrl: URL, contentMode: String?, intrinsicSize: IntrinsicSize?, style: ExperienceComponent.Style?) {
-            self.id = UUID()
-            self.imageUrl = imageUrl
-            self.blurHash = nil
-            self.contentMode = contentMode
-            self.intrinsicSize = intrinsicSize
-            self.accessibilityLabel = nil
-            self.style = style
-        }
-
-        /// Symbol init
-        internal init(symbolName: String, style: ExperienceComponent.Style?) {
-            self.id = UUID()
-            // swiftlint:disable:next force_unwrapping
-            self.imageUrl = URL(string: "sf-symbol://\(symbolName)")!
-            self.blurHash = nil
-            self.contentMode = "fit"
-            self.intrinsicSize = nil
-            self.accessibilityLabel = nil
-            self.style = style
-        }
-
     }
 
     struct EmbedModel: ComponentModel, Decodable {
@@ -161,7 +136,6 @@ extension ExperienceComponent {
 
     struct SpacerModel: ComponentModel, Decodable {
         let id: UUID
-
         let spacing: Double?
 
         let style: Style?
@@ -194,60 +168,6 @@ extension ExperienceComponent {
         let cornerRadius: Double?
         let borderColor: DynamicColor?
         let borderWidth: Double?
-
-        internal init(
-            verticalAlignment: String? = nil,
-            horizontalAlignment: String? = nil,
-            paddingTop: Double? = nil,
-            paddingLeading: Double? = nil,
-            paddingBottom: Double? = nil,
-            paddingTrailing: Double? = nil,
-            marginTop: Double? = nil,
-            marginLeading: Double? = nil,
-            marginBottom: Double? = nil,
-            marginTrailing: Double? = nil,
-            height: Double? = nil,
-            width: Double? = nil,
-            fontName: String? = nil,
-            fontSize: Double? = nil,
-            letterSpacing: Double? = nil,
-            lineHeight: Double? = nil,
-            textAlignment: String? = nil,
-            foregroundColor: DynamicColor? = nil,
-            backgroundColor: DynamicColor? = nil,
-            backgroundGradient: RawGradient? = nil,
-            shadow: RawShadow? = nil,
-            cornerRadius: Double? = nil,
-            borderColor: DynamicColor? = nil,
-            borderWidth: Double? = nil
-        ) {
-            self.verticalAlignment = verticalAlignment
-            self.horizontalAlignment = horizontalAlignment
-            self.paddingTop = paddingTop
-            self.paddingLeading = paddingLeading
-            self.paddingBottom = paddingBottom
-            self.paddingTrailing = paddingTrailing
-            self.marginTop = marginTop
-            self.marginLeading = marginLeading
-            self.marginBottom = marginBottom
-            self.marginTrailing = marginTrailing
-            self.height = height
-            self.width = width
-
-            self.fontName = fontName
-            self.fontSize = fontSize
-            self.letterSpacing = letterSpacing
-            self.lineHeight = lineHeight
-            self.textAlignment = textAlignment
-            self.foregroundColor = foregroundColor
-            self.backgroundColor = backgroundColor
-            self.backgroundGradient = backgroundGradient
-            self.shadow = shadow
-            self.cornerRadius = cornerRadius
-            self.borderColor = borderColor
-            self.borderWidth = borderWidth
-        }
-
     }
 
     struct IntrinsicSize: Decodable {
@@ -258,15 +178,9 @@ extension ExperienceComponent {
 
 extension ExperienceComponent.Style {
 
-    struct DynamicColor: Decodable, ExpressibleByStringLiteral {
+    struct DynamicColor: Decodable {
         let light: String
         let dark: String?
-
-        // A hex string maps to light mode only
-        init(stringLiteral: String) {
-            self.light = stringLiteral
-            self.dark = nil
-        }
     }
 
     struct RawGradient: Decodable {

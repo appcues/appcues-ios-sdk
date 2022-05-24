@@ -23,16 +23,3 @@ internal struct AppcuesEmbed: View {
             .applyAllAppcues(AppcuesStyle(from: model.style))
     }
 }
-
-#if DEBUG
-@available(iOS 13.0, *)
-internal struct AppcuesEmbedPreview: PreviewProvider {
-    static var previews: some View {
-        Group {
-            AppcuesEmbed(model: EC.embedVideo)
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
-        }
-    }
-}
-#endif

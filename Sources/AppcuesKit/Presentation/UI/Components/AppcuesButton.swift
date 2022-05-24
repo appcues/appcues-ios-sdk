@@ -32,28 +32,3 @@ internal struct AppcuesButton: View {
         .setupActions(viewModel.groupedActionHandlers(for: model.id))
     }
 }
-
-#if DEBUG
-@available(iOS 13.0, *)
-internal struct AppcuesButtonPreview: PreviewProvider {
-    static var previews: some View {
-        Group {
-            AppcuesButton(model: EC.ButtonModel(
-                id: UUID(),
-                content: ExperienceComponent.text(ExperienceComponent.TextModel(id: UUID(), text: "Default Button", style: nil)),
-                style: nil)
-            )
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
-
-            AppcuesButton(model: EC.buttonPrimary)
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
-
-            AppcuesButton(model: EC.buttonSecondary)
-                .previewLayout(PreviewLayout.sizeThatFits)
-                .padding()
-        }
-    }
-}
-#endif
