@@ -44,6 +44,7 @@ targets:
         MARKETING_VERSION: 0.1.0
         GENERATE_INFOPLIST_FILE: 'YES'
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk
+        BUILD_LIBRARY_FOR_DISTRIBUTION: 'YES'
     sources:
     - path: Sources/AppcuesKit
     - path: Sources/AppcuesKit/AppcuesKit.docc
