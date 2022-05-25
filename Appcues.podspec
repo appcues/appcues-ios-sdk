@@ -9,7 +9,7 @@
 Pod::Spec.new do |s|
   s.name             = 'Appcues'
   s.module_name      = 'AppcuesKit'
-  s.version          = '0.1.0'
+  s.version          = '1.0.0-beta.1'
   s.summary          = 'SDK for integrating with Appcues'
 
 # This description is used to generate tags and improve search results.
