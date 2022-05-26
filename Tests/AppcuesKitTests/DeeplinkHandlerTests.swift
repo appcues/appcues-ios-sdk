@@ -9,6 +9,7 @@
 import XCTest
 @testable import AppcuesKit
 
+@available(iOS 13.0, *)
 class DeeplinkHandlerTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -128,6 +129,7 @@ class DeeplinkHandlerTests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 extension DeeplinkHandlerTests {
     class MockTopControllerGetting: TopControllerGetting {
         func topViewController() -> UIViewController? {

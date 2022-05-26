@@ -9,6 +9,7 @@
 import XCTest
 @testable import AppcuesKit
 
+@available(iOS 13.0, *)
 class ExperienceRendererTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -286,6 +287,7 @@ class ExperienceRendererTests: XCTestCase {
 }
 
 private extension Experience {
+    @available(iOS 13.0, *)
     func packageWithDelay(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
         let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()])
         return ExperiencePackage(

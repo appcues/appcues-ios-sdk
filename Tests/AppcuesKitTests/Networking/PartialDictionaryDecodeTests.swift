@@ -13,7 +13,9 @@ class PartialDictionaryDecodeTests: XCTestCase {
 
     var encoder: JSONEncoder = {
         let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
+        if #available(iOS 11.0, *) {
+            encoder.outputFormatting = .sortedKeys
+        }
         return encoder
     }()
 

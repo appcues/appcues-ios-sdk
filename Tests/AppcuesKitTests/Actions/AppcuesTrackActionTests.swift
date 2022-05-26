@@ -9,6 +9,7 @@
 import XCTest
 @testable import AppcuesKit
 
+@available(iOS 13.0, *)
 class AppcuesTrackActionTests: XCTestCase {
 
     var appcues: MockAppcues!

@@ -42,6 +42,7 @@ enum Mocks {
         }
     }
 
+    @available(iOS 13.0, *)
     class ContainerViewController: DefaultContainerViewController {
         // ExperienceStateMachine checks these values to avoid unnecessary lifecycle events,
         // and so we need to mock them to trigger the correct events
@@ -81,6 +82,7 @@ extension Experience {
             ])
     }
 
+    @available(iOS 13.0, *)
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
         let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()])
         return ExperiencePackage(

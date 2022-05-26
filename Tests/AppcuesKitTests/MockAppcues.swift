@@ -27,18 +27,20 @@ class MockAppcues: Appcues {
         // TODO: build out the service mocks and registration
         container.register(DataStoring.self, value: storage)
         container.register(Networking.self, value: networking)
-        container.register(ExperienceLoading.self, value: experienceLoader)
-        container.register(ExperienceRendering.self, value: experienceRenderer)
-        container.register(UIDebugging.self, value: debugger)
-        container.register(DeeplinkHandling.self, value: deeplinkHandler)
         container.register(SessionMonitoring.self, value: sessionMonitor)
-        container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
-        container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
-        container.register(TraitComposing.self, value: traitComposer)
         container.register(ActivityProcessing.self, value: activityProcessor)
         container.register(ActivityStoring.self, value: activityStorage)
         container.register(AnalyticsTracking.self, value: analyticsTracker)
 
+        if #available(iOS 13.0, *) {
+            container.register(DeeplinkHandling.self, value: deeplinkHandler)
+            container.register(UIDebugging.self, value: debugger)
+            container.register(ExperienceLoading.self, value: experienceLoader)
+            container.register(ExperienceRendering.self, value: experienceRenderer)
+            container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
+            container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
+            container.register(TraitComposing.self, value: traitComposer)
+        }
 
         // dependencies that are not mocked
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
