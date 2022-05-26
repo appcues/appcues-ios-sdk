@@ -10,6 +10,7 @@ import XCTest
 import SafariServices
 @testable import AppcuesKit
 
+@available(iOS 13.0, *)
 class AppcuesLinkActionTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -92,6 +93,7 @@ class AppcuesLinkActionTests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 extension AppcuesLinkActionTests {
     class MockURLOpener: TopControllerGetting, URLOpening {
         var onOpen: ((URL) -> Void)?

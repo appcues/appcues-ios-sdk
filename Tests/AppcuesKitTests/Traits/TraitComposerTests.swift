@@ -9,6 +9,7 @@
 import XCTest
 @testable import AppcuesKit
 
+@available(iOS 13.0, *)
 class TraitComposerTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -275,7 +276,7 @@ private extension Experience.Step.Child {
     }
 }
 
-
+@available(iOS 13.0, *)
 extension TraitComposerTests {
     class TestTrait: StepDecoratingTrait, ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait, BackdropDecoratingTrait {
         static let type = "@test/trait"
