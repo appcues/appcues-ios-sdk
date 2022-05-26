@@ -59,7 +59,7 @@ internal class ActivityFileStorage: ActivityStoring {
             .default.contentsOfDirectory(at: storageDirectory, includingPropertiesForKeys: [], options: .skipsHiddenFiles)) ?? []
 
         let activities: [ActivityStorage] = files.compactMap {
-            if let jsonData = try? String(contentsOf: $0, encoding: .utf8).data(using: .utf8) {
+            if let jsonData = (try? String(contentsOf: $0, encoding: .utf8))?.data(using: .utf8) {
                return try? decoder.decode(ActivityStorage.self, from: jsonData)
             }
             return nil
