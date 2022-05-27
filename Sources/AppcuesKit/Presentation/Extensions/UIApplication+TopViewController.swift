@@ -26,7 +26,7 @@ extension UIApplication: TopControllerGetting, URLOpening {
 
     // Note: multitasking with two instances of the same app side by side will have both designated as `.foregroundActive`,
     // and as a result the returned window may not be the one expected.
-    private var activeKeyWindow: UIWindow? {
+    var activeKeyWindow: UIWindow? {
         if #available(iOS 13.0, *) {
             return self.activeWindowScenes
                 .flatMap { $0.windows }

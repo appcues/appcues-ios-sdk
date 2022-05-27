@@ -20,6 +20,16 @@ internal class TraitRegistry {
         register(trait: AppcuesSkippableTrait.self)
         register(trait: AppcuesBackdropTrait.self)
         register(trait: AppcuesPagingDotsTrait.self)
+
+        register(trait: ExperimentalBlurBackdropTrait.self)
+        register(trait: ExperimentalConfettiTrait.self)
+        register(trait: ExperimentalGradientTrait.self)
+        register(trait: ExperimentalNavigationTreeTrait.self)
+        register(trait: ExperimentalNavigationTitleTrait.self)
+        register(trait: ExperimentalTabBarTrait.self)
+        register(trait: ExperimentalTabBarItemTrait.self)
+        register(trait: ExperimentalTooltipTrait.self)
+        register(trait: ExperimentalVibrancyTrait.self)
     }
 
     func register(trait: ExperienceTrait.Type) {
