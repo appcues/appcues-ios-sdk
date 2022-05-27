@@ -53,7 +53,8 @@ internal class ExperienceStateMachine {
         do {
             try transition(action)
         } catch {
-            let observerIsSatisfiedByFailure = observer.evaluateIfSatisfied(result: .failure(ExperienceError.noTransition(currentState: state)))
+            let error = ExperienceError.noTransition(currentState: state)
+            let observerIsSatisfiedByFailure = observer.evaluateIfSatisfied(result: .failure(error))
             if observerIsSatisfiedByFailure {
                 stateObservers = stateObservers.filter { $0 !== observer }
             }
