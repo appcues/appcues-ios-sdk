@@ -8,12 +8,16 @@
 
 import UIKit
 
+internal protocol FloatingViewDelegate: AnyObject {
+    func floatingViewActivated()
+}
+
 @available(iOS 13.0, *)
 internal class FloatingView: UIView {
 
     private let tapRecognizer = UITapGestureRecognizer()
 
-    var onViewActivated: (() -> Void)?
+    weak var delegate: FloatingViewDelegate?
 
     lazy var imageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(asset: Asset.Image.debugIcon))
@@ -61,7 +65,7 @@ internal class FloatingView: UIView {
 
     @objc
     private func viewTapped(recognizer: UITapGestureRecognizer) {
-        onViewActivated?()
+        delegate?.floatingViewActivated()
     }
 
     func animatePosition(to point: CGPoint, animated: Bool = true, haptics: Bool = true) {
@@ -161,7 +165,7 @@ internal class FloatingView: UIView {
     // MARK: Accessibility
 
     override func accessibilityActivate() -> Bool {
-        onViewActivated?()
-        return onViewActivated != nil
+        delegate?.floatingViewActivated()
+        return delegate != nil
     }
 }

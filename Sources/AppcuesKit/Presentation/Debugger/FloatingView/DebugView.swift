@@ -14,7 +14,7 @@ internal protocol DebugViewDelegate: AnyObject {
 }
 
 @available(iOS 13.0, *)
-internal class DebugView: UIView {
+internal class DebugView: UIView, FloatingViewDelegate {
 
     private let gestureCalculator = GestureCalculator()
 
@@ -144,7 +144,7 @@ internal class DebugView: UIView {
             dismissView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
 
-        floatingView.onViewActivated = floatingViewActivated
+        floatingView.delegate = self
 
         floatingViewPanRecognizer.addTarget(self, action: #selector(floatingViewPanned))
         floatingView.addGestureRecognizer(floatingViewPanRecognizer)
@@ -237,7 +237,9 @@ internal class DebugView: UIView {
         }
     }
 
-    private func floatingViewActivated() {
+    // MARK: FloatingViewDelegate
+
+    func floatingViewActivated() {
         let isCurrentlyOpen = floatingView.center == floatingViewOpenCenter
         setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
 
