@@ -13,19 +13,25 @@ import XCTest
 class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     var appcues: MockAppcues!
-    private var analyticsSubscriber: Mocks.TestSubscriber!
+    private var trackedUpdates = 0
+    private var lastUpdate: TrackingUpdate?
     var observer: ExperienceStateMachine.AnalyticsObserver!
 
     override func setUpWithError() throws {
         appcues = MockAppcues()
-        analyticsSubscriber = Mocks.TestSubscriber()
-        appcues.register(subscriber: analyticsSubscriber)
+        appcues.analyticsPublisher.onPublish = { update in
+            self.trackedUpdates += 1
+            self.lastUpdate = update
+        }
         observer = ExperienceStateMachine.AnalyticsObserver(container: appcues.container)
     }
 
     override func tearDownWithError() throws {
         // Reset fixed UUID
         UUID.generator = UUID.init
+
+        trackedUpdates = 0
+        lastUpdate = nil
     }
 
     func testEvaluateIdlingState() throws {
@@ -34,7 +40,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 0)
+        XCTAssertEqual(trackedUpdates, 0)
     }
 
     func testEvaluateBeginningExperienceState() throws {
@@ -43,7 +49,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 0)
+        XCTAssertEqual(trackedUpdates, 0)
     }
 
     func testEvaluateBeginningStepState() throws {
@@ -52,7 +58,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 0)
+        XCTAssertEqual(trackedUpdates, 0)
     }
 
     func testEvaluateRenderingFirstStepState() throws {
@@ -64,8 +70,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 2)
-        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(trackedUpdates, 2)
+        let lastUpdate = try XCTUnwrap(lastUpdate)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_seen", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
@@ -97,8 +103,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(trackedUpdates, 1)
+        let lastUpdate = try XCTUnwrap(lastUpdate)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_seen", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
@@ -129,8 +135,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(trackedUpdates, 1)
+        let lastUpdate = try XCTUnwrap(lastUpdate)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_completed", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
@@ -161,8 +167,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(trackedUpdates, 1)
+        let lastUpdate = try XCTUnwrap(lastUpdate)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_dismissed", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
@@ -193,8 +199,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(trackedUpdates, 1)
+        let lastUpdate = try XCTUnwrap(lastUpdate)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_completed", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
@@ -220,8 +226,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(trackedUpdates, 1)
+        let lastUpdate = try XCTUnwrap(lastUpdate)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_completed", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
@@ -250,8 +256,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(trackedUpdates, 1)
+        let lastUpdate = try XCTUnwrap(lastUpdate)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_error", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
@@ -284,8 +290,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 1)
-        let lastUpdate = try XCTUnwrap(analyticsSubscriber.lastUpdate)
+        XCTAssertEqual(trackedUpdates, 1)
+        let lastUpdate = try XCTUnwrap(lastUpdate)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_error", interactive: false))
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
@@ -320,6 +326,6 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
-        XCTAssertEqual(analyticsSubscriber.trackedUpdates, 0)
+        XCTAssertEqual(trackedUpdates, 0)
     }
 }

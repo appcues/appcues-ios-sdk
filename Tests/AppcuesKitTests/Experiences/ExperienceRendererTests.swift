@@ -32,7 +32,7 @@ class ExperienceRendererTests: XCTestCase {
         let eventExpectation = expectation(description: "event tracked")
         // expect some number of analytics events (events/states are tested elsewhere)
         eventExpectation.assertForOverFulfill = false
-        appcues.register(subscriber: Mocks.HandlingSubscriber { _ in eventExpectation.fulfill() })
+        appcues.analyticsPublisher.onPublish = { _ in eventExpectation.fulfill() }
 
         // Act
         experienceRenderer.show(experience: Experience.mock, priority: .low, published: true) { result in
@@ -155,7 +155,7 @@ class ExperienceRendererTests: XCTestCase {
         let eventExpectation = expectation(description: "event tracked")
         // no analytics events should be tracked because this is an unpublished flow
         eventExpectation.isInverted = true
-        appcues.register(subscriber: Mocks.HandlingSubscriber { _ in eventExpectation.fulfill() })
+        appcues.analyticsPublisher.onPublish = { _ in eventExpectation.fulfill() }
 
         // Act
         experienceRenderer.show(experience: Experience.mock, priority: .low, published: false) { result in
@@ -187,7 +187,7 @@ class ExperienceRendererTests: XCTestCase {
         let eventExpectation = expectation(description: "event tracked")
         // expect some number of analytics events (events/states are tested elsewhere)
         eventExpectation.assertForOverFulfill = false
-        appcues.register(subscriber: Mocks.HandlingSubscriber { _ in eventExpectation.fulfill() })
+        appcues.analyticsPublisher.onPublish = { _ in eventExpectation.fulfill() }
 
         // Act
         experienceRenderer.show(qualifiedExperiences: [brokenExperience, validExperience], priority: .low) { result in

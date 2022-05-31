@@ -60,6 +60,7 @@ class DeeplinkHandlerTests: XCTestCase {
 
     func testHandleContentURLWithInactiveScene() throws {
         // Arrange
+        appcues.sessionID = UUID()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b"))
 
         var loaderCalled = false

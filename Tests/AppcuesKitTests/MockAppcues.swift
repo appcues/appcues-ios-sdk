@@ -19,12 +19,9 @@ class MockAppcues: Appcues {
     }
 
     override func initializeContainer() {
-
-        container.register(Appcues.self, value: self)
+        container.owner = self
         container.register(Appcues.Config.self, value: config)
-        container.register(AnalyticsPublishing.self, value: self)
-
-        // TODO: build out the service mocks and registration
+        container.register(AnalyticsPublishing.self, value: analyticsPublisher)
         container.register(DataStoring.self, value: storage)
         container.register(Networking.self, value: networking)
         container.register(SessionMonitoring.self, value: sessionMonitor)
@@ -54,18 +51,7 @@ class MockAppcues: Appcues {
         super.identify(userID: userID, properties: properties)
     }
 
-    var onTrack: ((String, [String: Any]?, Bool) -> Void)?
-    override func track(name: String, properties: [String : Any]?, interactive: Bool) {
-        onTrack?(name, properties, interactive)
-        super.track(name: name, properties: properties, interactive: interactive)
-    }
-
-    var onScreen: ((String, [String: Any]?) -> Void)?
-    override func screen(title: String, properties: [String : Any]? = nil) {
-        onScreen?(title, properties)
-        super.screen(title: title, properties: properties)
-    }
-
+    var analyticsPublisher = MockAnalyticsPublisher()
     var storage = MockStorage()
     var experienceLoader = MockExperienceLoader()
     var experienceRenderer = MockExperienceRenderer()
@@ -77,6 +63,34 @@ class MockAppcues: Appcues {
     var activityStorage = MockActivityStorage()
     var networking = MockNetworking()
     var analyticsTracker = MockAnalyticsTracker()
+}
+
+class MockAnalyticsPublisher: AnalyticsPublishing {
+
+    var onPublish: ((TrackingUpdate) -> Void)?
+    func publish(_ update: TrackingUpdate) {
+        onPublish?(update)
+    }
+
+    var onRegisterSubscriber: ((AnalyticsSubscribing) -> Void)?
+    func register(subscriber: AnalyticsSubscribing) {
+        onRegisterSubscriber?(subscriber)
+    }
+
+    var onRemoveSubscriber: ((AnalyticsSubscribing) -> Void)?
+    func remove(subscriber: AnalyticsSubscribing) {
+        onRemoveSubscriber?(subscriber)
+    }
+
+    var onRegisterDecorator: ((AnalyticsDecorating) -> Void)?
+    func register(decorator: AnalyticsDecorating) {
+        onRegisterDecorator?(decorator)
+    }
+
+    var onRemoveDecorator: ((AnalyticsDecorating) -> Void)?
+    func remove(decorator: AnalyticsDecorating) {
+        onRemoveDecorator?(decorator)
+    }
 }
 
 class MockStorage: DataStoring {
@@ -119,8 +133,6 @@ class MockExperienceRenderer: ExperienceRendering {
 }
 
 class MockSessionMonitor: SessionMonitoring {
-    var sessionID: UUID?
-    var isActive: Bool = true
     var onStart: (() -> Void)?
     var onReset: (() -> Void)?
 
