@@ -78,10 +78,7 @@ internal class DebugViewModel: ObservableObject {
         self.isAnonymous = isAnonymous
         self.userIdentified = !currentUserID.isEmpty
 
-        // Initial connectivity check
-        ping()
-
-        connectedStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { self.ping() }
+        connectedStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.ping() }
     }
 
     func reset() {
