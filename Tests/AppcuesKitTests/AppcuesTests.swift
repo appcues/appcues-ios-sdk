@@ -216,4 +216,72 @@ class AppcuesTests: XCTestCase {
         // Assert
         XCTAssertTrue(result)
     }
+
+    // Test that all the components are properly deinited when the Appcues instance is
+    @available(iOS 13.0, *)
+    func testDeinit() throws {
+        // Arrange
+        var appcues: Appcues? = Appcues(config: Appcues.Config(accountID: "abc", applicationID: "123"))
+
+        weak var weakAppcues = appcues
+        weak var weakConfig = appcues?.container.resolve(Appcues.Config.self)
+        weak var weakAnalyticsPublishing = appcues?.container.resolve(AnalyticsPublishing.self)
+        weak var weakDataStoring = appcues?.container.resolve(DataStoring.self)
+        weak var weakNetworking = appcues?.container.resolve(Networking.self)
+        weak var weakAnalyticsTracking = appcues?.container.resolve(AnalyticsTracking.self)
+        weak var weakSessionMonitoring = appcues?.container.resolve(SessionMonitoring.self)
+        weak var weakUIKitScreenTracker = appcues?.container.resolve(UIKitScreenTracker.self)
+        weak var weakAutoPropertyDecoration = appcues?.container.resolve(AutoPropertyDecorator.self)
+        weak var weakActivityProcessing = appcues?.container.resolve(ActivityProcessing.self)
+        weak var weakActivityStoring = appcues?.container.resolve(ActivityStoring.self)
+        weak var weakDeeplinkHandling = appcues?.container.resolve(DeeplinkHandling.self)
+        weak var weakUIDebugging = appcues?.container.resolve(UIDebugging.self)
+        weak var weakExperienceLoading = appcues?.container.resolve(ExperienceLoading.self)
+        weak var weakExperienceRendering = appcues?.container.resolve(ExperienceRendering.self)
+        weak var weakTraitRegistry = appcues?.container.resolve(TraitRegistry.self)
+        weak var weakActionRegistry = appcues?.container.resolve(ActionRegistry.self)
+        weak var weakTraitComposing = appcues?.container.resolve(TraitComposing.self)
+
+        XCTAssertNotNil(weakAppcues)
+        XCTAssertNotNil(weakConfig)
+        XCTAssertNotNil(weakAnalyticsPublishing)
+        XCTAssertNotNil(weakDataStoring)
+        XCTAssertNotNil(weakNetworking)
+        XCTAssertNotNil(weakAnalyticsTracking)
+        XCTAssertNotNil(weakSessionMonitoring)
+        XCTAssertNotNil(weakUIKitScreenTracker)
+        XCTAssertNotNil(weakAutoPropertyDecoration)
+        XCTAssertNotNil(weakActivityProcessing)
+        XCTAssertNotNil(weakActivityStoring)
+        XCTAssertNotNil(weakDeeplinkHandling)
+        XCTAssertNotNil(weakUIDebugging)
+        XCTAssertNotNil(weakExperienceLoading)
+        XCTAssertNotNil(weakExperienceRendering)
+        XCTAssertNotNil(weakTraitRegistry)
+        XCTAssertNotNil(weakActionRegistry)
+        XCTAssertNotNil(weakTraitComposing)
+
+        // Act
+        appcues = nil
+
+        // Assert
+        XCTAssertNil(weakAppcues)
+        XCTAssertNil(weakConfig)
+        XCTAssertNil(weakAnalyticsPublishing)
+        XCTAssertNil(weakDataStoring)
+        XCTAssertNil(weakNetworking)
+        XCTAssertNil(weakAnalyticsTracking)
+        XCTAssertNil(weakSessionMonitoring)
+        XCTAssertNil(weakUIKitScreenTracker)
+        XCTAssertNil(weakAutoPropertyDecoration)
+        XCTAssertNil(weakActivityProcessing)
+        XCTAssertNil(weakActivityStoring)
+        XCTAssertNil(weakDeeplinkHandling)
+        XCTAssertNil(weakUIDebugging)
+        XCTAssertNil(weakExperienceLoading)
+        XCTAssertNil(weakExperienceRendering)
+        XCTAssertNil(weakTraitRegistry)
+        XCTAssertNil(weakActionRegistry)
+        XCTAssertNil(weakTraitComposing)
+    }
 }

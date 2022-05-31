@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal protocol DeeplinkHandling {
+internal protocol DeeplinkHandling: AnyObject {
     func didHandleURL(_ url: URL) -> Bool
 }
 

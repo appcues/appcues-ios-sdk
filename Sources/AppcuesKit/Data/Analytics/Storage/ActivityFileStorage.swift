@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal protocol ActivityStoring {
+internal protocol ActivityStoring: AnyObject {
     func save(_ activity: ActivityStorage)
     func remove(_ activity: ActivityStorage)
     func read() -> [ActivityStorage]

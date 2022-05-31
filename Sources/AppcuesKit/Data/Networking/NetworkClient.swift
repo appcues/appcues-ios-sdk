@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal protocol Networking {
+internal protocol Networking: AnyObject {
     func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void)
     func post<T: Decodable>(to endpoint: Endpoint, body: Data, completion: @escaping (_ result: Result<T, Error>) -> Void)
 }

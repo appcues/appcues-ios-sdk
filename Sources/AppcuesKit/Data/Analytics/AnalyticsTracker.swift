@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-internal protocol AnalyticsTracking {
+internal protocol AnalyticsTracking: AnyObject {
     func flush()
 }
 

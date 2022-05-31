@@ -11,7 +11,7 @@ import SwiftUI
 import Combine
 
 @available(iOS 13.0, *)
-internal protocol UIDebugging {
+internal protocol UIDebugging: AnyObject {
     func show(destination: DebugDestination?)
 }
 

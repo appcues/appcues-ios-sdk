@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal protocol ExperienceLoading {
+internal protocol ExperienceLoading: AnyObject {
     func load(experienceID: String, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
 }
 
