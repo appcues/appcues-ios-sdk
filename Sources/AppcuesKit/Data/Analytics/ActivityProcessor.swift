@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal protocol ActivityProcessing {
+internal protocol ActivityProcessing: AnyObject {
     func process(_ activity: Activity, completion: @escaping (Result<QualifyResponse, Error>) -> Void)
 }
 

@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-internal protocol SessionMonitoring {
+internal protocol SessionMonitoring: AnyObject {
     func start()
     func reset()
 }
