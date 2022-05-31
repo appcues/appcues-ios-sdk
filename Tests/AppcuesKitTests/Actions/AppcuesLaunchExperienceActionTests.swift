@@ -16,6 +16,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
 
     override func setUpWithError() throws {
         appcues = MockAppcues()
+        appcues.sessionID = UUID()
     }
 
     func testInit() throws {

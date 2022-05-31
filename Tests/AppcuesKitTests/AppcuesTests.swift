@@ -24,26 +24,30 @@ class AppcuesTests: XCTestCase {
         // and (2) validate that activity does begin flowing through once the user is known (anon or auth)
 
         // Arrange
+        // Need to use a real AnalyticsPublisher, not the mock because the real one filters on the session state
+        let realPublisher = AnalyticsPublisher(container: appcues.container)
+        appcues.container.register(AnalyticsPublishing.self, value: realPublisher)
         let subscriber = Mocks.TestSubscriber()
-        appcues.register(subscriber: subscriber)
-        appcues.sessionMonitor.isActive = false //start out with Appcues disabled - no user
+        realPublisher.register(subscriber: subscriber)
+        
+        appcues.sessionID = nil //start out with Appcues disabled - no user
 
         appcues.sessionMonitor.onStart = {
-            self.appcues.sessionMonitor.isActive = true
+            self.appcues.sessionID = UUID()
         }
 
         appcues.sessionMonitor.onReset = {
-            self.appcues.sessionMonitor.isActive = false
+            self.appcues.sessionID = nil
         }
 
         // Act
-        appcues.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //not tracked
-        appcues.anonymous()                                                                                    //tracked - user
-        appcues.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //tracked - screen
-        appcues.reset()                                                                                        //stop tracking
-        appcues.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //not tracked
-        appcues.identify(userID: "specific-user-id", properties: ["my_key":"my_value", "another_key": 33])     //tracked - user
-        appcues.screen(title: "My test page", properties: ["my_key":"my_value", "another_key": 33])            //tracked - screen
+        appcues.screen(title: "My test page") // not tracked
+        appcues.anonymous()                   // tracked - user
+        appcues.screen(title: "My test page") // tracked - screen
+        appcues.reset()                       // stop tracking
+        appcues.screen(title: "My test page") // not tracked
+        appcues.identify(userID: "a-user-id") // tracked - user
+        appcues.screen(title: "My test page") // tracked - screen
 
         // Assert
         XCTAssertEqual(4, subscriber.trackedUpdates)
@@ -51,26 +55,26 @@ class AppcuesTests: XCTestCase {
 
     func testIdentifyWithEmptyUserIsNotTracked() throws {
         // Arrange
-        let subscriber = Mocks.TestSubscriber()
-        appcues.register(subscriber: subscriber)
+        var trackedUpdates = 0
+        appcues.analyticsPublisher.onPublish = { _ in trackedUpdates += 1 }
 
         // Act
         appcues.identify(userID: "", properties: nil)
 
         // Assert
-        XCTAssertEqual(0, subscriber.trackedUpdates)
+        XCTAssertEqual(0, trackedUpdates)
     }
 
     func testSetGroup() throws {
         // Arrange
-        let subscriber = Mocks.TestSubscriber()
-        appcues.register(subscriber: subscriber)
+        var mostRecentUpdate: TrackingUpdate?
+        appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
 
         // Act
         appcues.group(groupID: "group1", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
-        let lastUpdate = try XCTUnwrap(subscriber.lastUpdate)
+        let lastUpdate = try XCTUnwrap(mostRecentUpdate)
         guard case .group = lastUpdate.type else { return XCTFail() }
         ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(lastUpdate.properties)
         XCTAssertEqual("group1", appcues.storage.groupID)
@@ -78,14 +82,14 @@ class AppcuesTests: XCTestCase {
 
     func testNilGroupIDRemovesGroup() throws {
         // Arrange
-        let subscriber = Mocks.TestSubscriber()
-        appcues.register(subscriber: subscriber)
+        var mostRecentUpdate: TrackingUpdate?
+        appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
 
         // Act
         appcues.group(groupID: nil, properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
-        let lastUpdate = try XCTUnwrap(subscriber.lastUpdate)
+        let lastUpdate = try XCTUnwrap(mostRecentUpdate)
         guard case .group = lastUpdate.type else { return XCTFail() }
         XCTAssertNil(appcues.storage.groupID)
         XCTAssertNil(lastUpdate.properties)
@@ -93,103 +97,17 @@ class AppcuesTests: XCTestCase {
 
     func testEmptyStringGroupIDRemovesGroup() throws {
         // Arrange
-        let subscriber = Mocks.TestSubscriber()
-        appcues.register(subscriber: subscriber)
+        var mostRecentUpdate: TrackingUpdate?
+        appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
 
         // Act
         appcues.group(groupID: "", properties: ["my_key":"my_value", "another_key": 33])
 
         // Assert
-        let lastUpdate = try XCTUnwrap(subscriber.lastUpdate)
+        let lastUpdate = try XCTUnwrap(mostRecentUpdate)
         guard case .group = lastUpdate.type else { return XCTFail() }
         XCTAssertNil(appcues.storage.groupID)
         XCTAssertNil(lastUpdate.properties)
-    }
-
-    func testRegisterDecorator() throws {
-        // Arrange
-        let decorator = Mocks.TestDecorator()
-
-        // Act
-        appcues.register(decorator: decorator)
-        appcues.track(name: "custom event", properties: nil)
-
-        // Assert
-        XCTAssertEqual(1, decorator.decorations)
-    }
-
-    func testRemoveDecorator() throws {
-        // Arrange
-        let decorator = Mocks.TestDecorator()
-        appcues.register(decorator: decorator)
-        appcues.track(name: "custom event", properties: nil)
-
-        // Act
-        appcues.remove(decorator: decorator)
-        appcues.track(name: "custom event", properties: nil)
-
-        // Assert
-        XCTAssertEqual(1, decorator.decorations)
-    }
-
-    func testClearDecorators() throws {
-        // Arrange
-        let decorator1 = Mocks.TestDecorator()
-        appcues.register(decorator: decorator1)
-        let decorator2 = Mocks.TestDecorator()
-        appcues.register(decorator: decorator2)
-        appcues.track(name: "custom event", properties: nil)
-
-        // Act
-        appcues.clearDecorators()
-        appcues.track(name: "custom event", properties: nil)
-
-        // Assert
-        XCTAssertEqual(1, decorator1.decorations)
-        XCTAssertEqual(1, decorator2.decorations)
-    }
-
-    func testRegisterSubscriber() throws {
-        // Arrange
-        let subscriber = Mocks.TestSubscriber()
-
-        // Act
-        appcues.register(subscriber: subscriber)
-        appcues.track(name: "custom event", properties: nil)
-
-        // Assert
-        XCTAssertEqual(1, subscriber.trackedUpdates)
-    }
-
-    func testRemoveSubscriber() throws {
-        // Arrange
-        let subscriber = Mocks.TestSubscriber()
-        appcues.register(subscriber: subscriber)
-        appcues.track(name: "custom event", properties: nil)
-
-        // Act
-        appcues.remove(subscriber: subscriber)
-        appcues.track(name: "custom event", properties: nil)
-
-        // Assert
-        XCTAssertEqual(1, subscriber.trackedUpdates)
-    }
-
-    func testClearSubscribers() throws {
-        // Arrange
-        let subscriber1 = Mocks.TestSubscriber()
-        appcues.register(subscriber: subscriber1)
-        let subscriber2 = Mocks.TestSubscriber()
-        appcues.register(subscriber: subscriber2)
-        appcues.track(name: "custom event", properties: nil)
-
-        // Act
-        appcues.clearSubscribers()
-        appcues.track(name: "custom event", properties: nil)
-
-        // Assert
-        XCTAssertEqual(1, subscriber1.trackedUpdates)
-        XCTAssertEqual(1, subscriber2.trackedUpdates)
     }
 
     func testSdkVersion() throws {
@@ -221,6 +139,7 @@ class AppcuesTests: XCTestCase {
 
     func testShowExperienceByID() throws {
         // Arrange
+        appcues.sessionID = UUID()
         var completionCount = 0
         var experienceShownCount = 0
         appcues.experienceLoader.onLoad = { experienceID, published, completion in
@@ -244,7 +163,7 @@ class AppcuesTests: XCTestCase {
 
     func testExperienceNotShownIfNoSession() throws {
         // Arrange
-        appcues.sessionMonitor.isActive = false
+        appcues.sessionID = nil
         var completionCount = 0
         var experienceShownCount = 0
         appcues.experienceLoader.onLoad = { experienceID, published, completion in
@@ -267,9 +186,9 @@ class AppcuesTests: XCTestCase {
     func testAutomaticScreenTracking() throws {
         // Arrange
         let screenExpectation = expectation(description: "Screen tracked")
-        appcues.onScreen = { title, properties in
-            XCTAssertEqual("test screen", title)
-            XCTAssertNil(properties)
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            XCTAssertEqual(trackingUpdate.type, .screen("test screen"))
+            XCTAssertNil(trackingUpdate.properties)
             screenExpectation.fulfill()
         }
 

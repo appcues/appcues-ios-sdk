@@ -21,18 +21,6 @@ enum Mocks {
         }
     }
 
-    class HandlingSubscriber: AnalyticsSubscribing {
-        var handler: (TrackingUpdate) -> Void
-
-        init(handler: @escaping (TrackingUpdate) -> Void) {
-            self.handler = handler
-        }
-
-        func track(update: TrackingUpdate) {
-            handler(update)
-        }
-    }
-
     class TestDecorator: AnalyticsDecorating {
         var decorations = 0
 

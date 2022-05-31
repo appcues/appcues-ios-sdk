@@ -26,7 +26,7 @@ class SessionMonitorTests: XCTestCase {
         // so that no instance lingers around and fulfills expectations more than once due to
         // that shared resource triggering additional events to flow through the system on older
         // Appcues instances from previous tests.
-        appcues.onTrack = nil
+        appcues.analyticsPublisher.onPublish = nil
         appcues.analyticsTracker.onFlush = nil
     }
 
@@ -34,10 +34,10 @@ class SessionMonitorTests: XCTestCase {
         // Arrange
         let onTrackExpectation = expectation(description: "session analytics tracked")
         appcues.storage.userID = "user123"
-        appcues.onTrack = { name, props, interactive in
-            if name == SessionEvents.sessionStarted.rawValue{
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            if case .event(SessionEvents.sessionStarted.rawValue, let interactive) = trackingUpdate.type {
                 XCTAssertTrue(interactive)
-                XCTAssertNil(props)
+                XCTAssertNil(trackingUpdate.properties)
                 onTrackExpectation.fulfill()
             }
         }
@@ -47,7 +47,7 @@ class SessionMonitorTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
-        XCTAssertTrue(sessionMonitor.isActive)
+        XCTAssertTrue(appcues.isActive)
     }
 
     func testStartNoUser() throws {
@@ -55,8 +55,8 @@ class SessionMonitorTests: XCTestCase {
         let onTrackExpectation = expectation(description: "session analytics tracked")
         onTrackExpectation.isInverted = true
         appcues.storage.userID = ""
-        appcues.onTrack = { name, _, _ in
-            if name == SessionEvents.sessionStarted.rawValue {
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            if case .event(SessionEvents.sessionStarted.rawValue, _) = trackingUpdate.type {
                 onTrackExpectation.fulfill()
             }
         }
@@ -66,7 +66,7 @@ class SessionMonitorTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
-        XCTAssertFalse(sessionMonitor.isActive)
+        XCTAssertFalse(appcues.isActive)
     }
 
     func testReset() throws {
@@ -75,10 +75,10 @@ class SessionMonitorTests: XCTestCase {
         sessionMonitor.start()
         appcues.storage.userID = ""
         let onTrackExpectation = expectation(description: "session analytics tracked")
-        appcues.onTrack = { name, props, interactive in
-            if name == SessionEvents.sessionReset.rawValue {
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            if case .event(SessionEvents.sessionReset.rawValue, let interactive) = trackingUpdate.type {
                 XCTAssertTrue(interactive)
-                XCTAssertNil(props)
+                XCTAssertNil(trackingUpdate.properties)
                 onTrackExpectation.fulfill()
             }
         }
@@ -88,7 +88,7 @@ class SessionMonitorTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
-        XCTAssertFalse(sessionMonitor.isActive)
+        XCTAssertFalse(appcues.isActive)
     }
 
     func testBackground() throws {
@@ -97,10 +97,10 @@ class SessionMonitorTests: XCTestCase {
         sessionMonitor.start()
         let onTrackExpectation = expectation(description: "session analytics tracked")
         let onFlushExpectation = expectation(description: "analytics tracker flushed")
-        appcues.onTrack = { name, props, interactive in
-            if name == SessionEvents.sessionSuspended.rawValue {
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            if case .event(SessionEvents.sessionSuspended.rawValue, let interactive) = trackingUpdate.type {
                 XCTAssertFalse(interactive)
-                XCTAssertNil(props)
+                XCTAssertNil(trackingUpdate.properties)
                 onTrackExpectation.fulfill()
             }
         }
@@ -113,7 +113,7 @@ class SessionMonitorTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
-        XCTAssertTrue(sessionMonitor.isActive)
+        XCTAssertTrue(appcues.isActive)
     }
 
     func testBackgroundNoSession() throws {
@@ -122,8 +122,8 @@ class SessionMonitorTests: XCTestCase {
         let onFlushExpectation = expectation(description: "analytics tracker flushed")
         onTrackExpectation.isInverted = true
         onFlushExpectation.isInverted = true
-        appcues.onTrack = { name, _, _ in
-            if name == SessionEvents.sessionSuspended.rawValue {
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            if case .event(SessionEvents.sessionSuspended.rawValue, _) = trackingUpdate.type {
                 onTrackExpectation.fulfill()
             }
         }
@@ -136,7 +136,7 @@ class SessionMonitorTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
-        XCTAssertFalse(sessionMonitor.isActive)
+        XCTAssertFalse(appcues.isActive)
     }
 
     func testForegroundNoSession() throws {
@@ -147,8 +147,8 @@ class SessionMonitorTests: XCTestCase {
         sessionMonitor.reset()
         let onTrackExpectation = expectation(description: "session analytics tracked")
         onTrackExpectation.isInverted = true
-        appcues.onTrack = { name, _, _ in
-            if name == SessionEvents.sessionStarted.rawValue || name == SessionEvents.sessionResumed.rawValue {
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            if case let .event(name, _) = trackingUpdate.type, name == SessionEvents.sessionStarted.rawValue || name == SessionEvents.sessionResumed.rawValue {
                 onTrackExpectation.fulfill()
             }
         }
@@ -158,7 +158,7 @@ class SessionMonitorTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
-        XCTAssertFalse(sessionMonitor.isActive)
+        XCTAssertFalse(appcues.isActive)
     }
 
     func testForegroundNoBackground() throws {
@@ -167,8 +167,8 @@ class SessionMonitorTests: XCTestCase {
         sessionMonitor.start()
         let onTrackExpectation = expectation(description: "session analytics tracked")
         onTrackExpectation.isInverted = true
-        appcues.onTrack = { name, _, _ in
-            if name == SessionEvents.sessionStarted.rawValue || name == SessionEvents.sessionResumed.rawValue {
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            if case let .event(name, _) = trackingUpdate.type, name == SessionEvents.sessionStarted.rawValue || name == SessionEvents.sessionResumed.rawValue {
                 onTrackExpectation.fulfill()
             }
         }
@@ -178,7 +178,7 @@ class SessionMonitorTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
-        XCTAssertTrue(sessionMonitor.isActive)
+        XCTAssertTrue(appcues.isActive)
     }
 
     func testForegroundResume() throws {
@@ -189,8 +189,8 @@ class SessionMonitorTests: XCTestCase {
         sessionMonitor.start()
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: self, userInfo: nil)
         let onTrackExpectation = expectation(description: "session analytics tracked")
-        appcues.onTrack = { name, _, _ in
-            if name == SessionEvents.sessionResumed.rawValue {
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            if case .event(SessionEvents.sessionResumed.rawValue, _) = trackingUpdate.type {
                 onTrackExpectation.fulfill()
             }
         }
@@ -210,8 +210,8 @@ class SessionMonitorTests: XCTestCase {
         sessionMonitor.start()
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: self, userInfo: nil)
         let onTrackExpectation = expectation(description: "session analytics tracked")
-        appcues.onTrack = { name, _, _ in
-            if name == SessionEvents.sessionStarted.rawValue {
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            if case .event(SessionEvents.sessionStarted.rawValue, _) = trackingUpdate.type {
                 onTrackExpectation.fulfill()
             }
         }

@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal protocol ExperienceRendering {
+internal protocol ExperienceRendering: AnyObject {
     func show(experience: Experience, priority: RenderPriority, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
     func show(qualifiedExperiences: [Experience], priority: RenderPriority, completion: ((Result<Void, Error>) -> Void)?)
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)

@@ -34,10 +34,9 @@ class AppcuesTrackActionTests: XCTestCase {
         // Arrange
         var completionCount = 0
         var trackCount = 0
-        appcues.onTrack = { name, properties, interactive in
-            XCTAssertEqual(name, "My Custom Event")
-            XCTAssertNil(properties)
-            XCTAssertTrue(interactive)
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            XCTAssertEqual(trackingUpdate.type, .event(name: "My Custom Event", interactive: true))
+            XCTAssertNil(trackingUpdate.properties)
             trackCount += 1
         }
         let action = AppcuesTrackAction(config: ["eventName": "My Custom Event"])
