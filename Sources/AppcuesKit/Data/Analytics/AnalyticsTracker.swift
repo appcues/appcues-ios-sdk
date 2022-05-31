@@ -17,14 +17,15 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
     private static let flushAfterSeconds: Double = 10
 
-    private let container: DIContainer
+    private let storage: DataStoring
+    private let config: Appcues.Config
+    private let activityProcessor: ActivityProcessing
 
-    private lazy var storage = container.resolve(DataStoring.self)
-    private lazy var config = container.resolve(Appcues.Config.self)
-    private lazy var activityProcessor = container.resolve(ActivityProcessing.self)
-
-    @available(iOS 13.0, *)
-    private lazy var experienceRenderer = container.resolve(ExperienceRendering.self)
+    // A weak reference to ExperienceRendering would be expected here to avoid a retain cycle with AnalyticsObserver +
+    // AnalyticsPublishing, except because ExperienceRendering requires iOS 13, it'd have to be lazy and lazy + weak
+    // doesn't work. Instead weakly reference the container and resolve ExperienceRendering on demand to avoid a cycle
+    // with AnalyticsPublishing.
+    private weak var container: DIContainer?
 
     // maintain a batch of asynchronous events that are waiting to be flushed to network
     private let syncQueue = DispatchQueue(label: "appcues-analytics")
@@ -32,6 +33,9 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     private var flushWorkItem: DispatchWorkItem?
 
     init(container: DIContainer) {
+        self.storage = container.resolve(DataStoring.self)
+        self.config = container.resolve(Appcues.Config.self)
+        self.activityProcessor = container.resolve(ActivityProcessing.self)
         self.container = container
     }
 
@@ -89,8 +93,8 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         activityProcessor.process(activity) { [weak self] result in
             switch result {
             case .success(let qualifyResponse):
-                if #available(iOS 13.0, *) {
-                    self?.experienceRenderer.show(
+                if #available(iOS 13.0, *), let experienceRenderer = self?.container?.resolve(ExperienceRendering.self) {
+                    experienceRenderer.show(
                         qualifiedExperiences: qualifyResponse.experiences,
                         priority: qualifyResponse.renderPriority,
                         completion: nil)

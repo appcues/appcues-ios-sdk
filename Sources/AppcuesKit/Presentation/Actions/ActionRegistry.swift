@@ -14,10 +14,10 @@ internal class ActionRegistry {
 
     private var actions: [String: ExperienceAction.Type] = [:]
 
-    private let appcues: Appcues
+    private weak var appcues: Appcues?
 
     init(container: DIContainer) {
-        self.appcues = container.resolve(Appcues.self)
+        self.appcues = container.owner
 
         // Register default actions
         register(action: AppcuesCloseAction.self)
@@ -43,7 +43,9 @@ internal class ActionRegistry {
     }
 
     func actionClosures(for actionModels: [Experience.Action]) -> [(@escaping Completion) -> Void] {
-        actionModels.compactMap { [appcues] actionModel in
+        guard let appcues = appcues else { return [] }
+
+        return actionModels.compactMap { actionModel in
             if let actionInstance = actions[actionModel.type]?.init(config: actionModel.config) {
                 return { completion in
                     actionInstance.execute(inContext: appcues, completion: completion)

@@ -45,9 +45,8 @@ internal class DeeplinkHandler: DeeplinkHandling {
         }
     }
 
-    private let container: DIContainer
-    private lazy var sessionMonitor = container.resolve(SessionMonitoring.self)
-    private lazy var config = container.resolve(Appcues.Config.self)
+    private weak var container: DIContainer?
+    private lazy var config = container?.resolve(Appcues.Config.self)
 
     // This is a set because a `SceneDelegate` has a `Set<UIOpenURLContext>` to handle.
     private var actionsToHandle: Set<Action> = []
@@ -59,9 +58,10 @@ internal class DeeplinkHandler: DeeplinkHandling {
     }
 
     func didHandleURL(_ url: URL) -> Bool {
-        guard let action = Action(url: url,
-                                  isSessionActive: sessionMonitor.isActive,
-                                  applicationID: config.applicationID) else { return false }
+        guard let applicationID = config?.applicationID,
+              let action = Action(url: url, isSessionActive: container?.owner?.isActive ?? false, applicationID: applicationID) else {
+            return false
+        }
 
         if topControllerGetting.topViewController() != nil {
             // UIScene is already active and we can handle the action immediately.
@@ -85,11 +85,11 @@ internal class DeeplinkHandler: DeeplinkHandling {
     private func handle(action: Action) {
         switch action {
         case .preview(let experienceID):
-            container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: false, completion: nil)
+            container?.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: false, completion: nil)
         case .show(let experienceID):
-            container.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: true, completion: nil)
+            container?.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: true, completion: nil)
         case .debugger(let destination):
-            container.resolve(UIDebugging.self).show(destination: destination)
+            container?.resolve(UIDebugging.self).show(destination: destination)
         }
     }
 

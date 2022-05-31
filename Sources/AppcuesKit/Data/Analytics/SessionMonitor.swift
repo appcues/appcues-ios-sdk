@@ -10,9 +10,6 @@ import Foundation
 import UIKit
 
 internal protocol SessionMonitoring {
-    var sessionID: UUID? { get }
-    var isActive: Bool { get }
-
     func start()
     func reset()
 }
@@ -28,6 +25,7 @@ internal enum SessionEvents: String, CaseIterable {
 
 internal class SessionMonitor: SessionMonitoring {
 
+    private weak var appcues: Appcues?
     private let storage: DataStoring
     private let publisher: AnalyticsPublishing
     private let tracker: AnalyticsTracking
@@ -35,13 +33,9 @@ internal class SessionMonitor: SessionMonitoring {
     private let sessionTimeout: UInt
 
     private var applicationBackgrounded: Date?
-    private (set) var sessionID: UUID?
-
-    var isActive: Bool {
-        sessionID != nil
-    }
 
     init(container: DIContainer) {
+        self.appcues = container.owner
         self.publisher = container.resolve(AnalyticsPublishing.self)
         self.tracker = container.resolve(AnalyticsTracking.self)
         self.storage = container.resolve(DataStoring.self)
@@ -62,7 +56,7 @@ internal class SessionMonitor: SessionMonitoring {
         // if there is no user identified, we do not have a valid session
         guard !storage.userID.isEmpty else { return }
 
-        sessionID = UUID()
+        appcues?.sessionID = UUID()
         publisher.track(SessionEvents.sessionStarted, properties: nil, interactive: true)
     }
 
@@ -71,12 +65,12 @@ internal class SessionMonitor: SessionMonitoring {
         // this is interactive: true since a reset should flush to network immediately (with previous user ID)
         // and the next session start will be sent in a new request, with the new user ID
         publisher.track(SessionEvents.sessionReset, properties: nil, interactive: true)
-        sessionID = nil
+        appcues?.sessionID = nil
     }
 
     @objc
     func applicationWillEnterForeground(notification: Notification) {
-        guard sessionID != nil, let applicationBackgrounded = applicationBackgrounded else { return }
+        guard appcues?.sessionID != nil, let applicationBackgrounded = applicationBackgrounded else { return }
 
         let elapsed = Int(Date().timeIntervalSince(applicationBackgrounded))
         self.applicationBackgrounded = nil
@@ -90,7 +84,7 @@ internal class SessionMonitor: SessionMonitoring {
 
     @objc
     func didEnterBackground(notification: Notification) {
-        guard sessionID != nil else { return }
+        guard appcues?.sessionID != nil else { return }
         applicationBackgrounded = Date()
         publisher.track(SessionEvents.sessionSuspended, properties: nil, interactive: false)
 

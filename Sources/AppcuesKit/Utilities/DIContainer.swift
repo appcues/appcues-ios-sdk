@@ -18,6 +18,8 @@ internal class DIContainer {
     private var initializers: [String: (DIContainer) -> Any] = [:]
     private var components: [String: Any] = [:]
 
+    weak var owner: Appcues?
+
     func registerLazy<Component>(_ type: Component.Type, initializer: @escaping (DIContainer) -> Component) {
         initializers[String(describing: Component.self)] = initializer
     }
