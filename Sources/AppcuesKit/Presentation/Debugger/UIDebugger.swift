@@ -102,8 +102,13 @@ internal class UIDebugger: UIDebugging {
 @available(iOS 13.0, *)
 extension UIDebugger: DebugViewDelegate {
     func debugView(did event: DebugView.Event) {
-        if case .hide = event {
+        switch event {
+        case .hide:
             hide()
+        case .open:
+            viewModel.ping()
+        case .show, .close, .reposition:
+            break
         }
     }
 }
