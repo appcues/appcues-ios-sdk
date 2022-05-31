@@ -38,7 +38,7 @@ internal class UIDebugger: UIDebugging {
     private let config: Appcues.Config
     private let storage: DataStoring
     private let notificationCenter: NotificationCenter
-    private let analyticsPublisher: AnalyticsPublishing
+    private weak var analyticsPublisher: AnalyticsPublishing?
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
@@ -72,7 +72,7 @@ internal class UIDebugger: UIDebugging {
             return
         }
 
-        analyticsPublisher.register(subscriber: self)
+        analyticsPublisher?.register(subscriber: self)
         let panelViewController = UIHostingController(rootView: DebugUI.MainPanelView(viewModel: viewModel))
         let rootViewController = DebugViewController(wrapping: panelViewController)
         rootViewController.delegate = self
@@ -86,7 +86,7 @@ internal class UIDebugger: UIDebugging {
     }
 
     func hide() {
-        analyticsPublisher.remove(subscriber: self)
+        analyticsPublisher?.remove(subscriber: self)
         debugWindow?.isHidden = true
         debugWindow = nil
         cancellable = nil

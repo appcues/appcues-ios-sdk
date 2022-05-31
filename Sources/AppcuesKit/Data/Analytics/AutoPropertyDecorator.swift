@@ -16,8 +16,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     private var sessionPageviews = 0
     private var sessionRandomizer: Int?
 
+    private weak var appcues: Appcues?
     private let storage: DataStoring
-    private let sessionMonitor: SessionMonitoring
     private let config: Appcues.Config
 
     // these are the fixed values for the duration of the app runtime
@@ -31,8 +31,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     ]
 
     init(container: DIContainer) {
+        self.appcues = container.owner
         self.storage = container.resolve(DataStoring.self)
-        self.sessionMonitor = container.resolve(SessionMonitoring.self)
         self.config = container.resolve(Appcues.Config.self)
         configureApplicationProperties()
     }
@@ -71,7 +71,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_lastScreenTitle": previousScreen,
             "_updatedAt": Date(),
             "_lastContentShownAt": storage.lastContentShownAt,
-            "_sessionId": sessionMonitor.sessionID?.uuidString
+            "_sessionId": appcues?.sessionID?.uuidString
         ]
 
         if !Locale.preferredLanguages.isEmpty {

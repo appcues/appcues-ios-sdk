@@ -16,6 +16,7 @@ public class Appcues: NSObject {
     let container = DIContainer()
     let config: Appcues.Config
 
+    private lazy var analyticsPublisher = container.resolve(AnalyticsPublishing.self)
     private lazy var storage = container.resolve(DataStoring.self)
     private lazy var sessionMonitor = container.resolve(SessionMonitoring.self)
 
@@ -30,11 +31,11 @@ public class Appcues: NSObject {
 
     private lazy var notificationCenter = container.resolve(NotificationCenter.self)
 
-    private var subscribers: [AnalyticsSubscribing] = []
-    private var decorators: [AnalyticsDecorating] = []
-
     /// The delegate object that manages and observes experience presentations.
     @objc public weak var delegate: AppcuesExperienceDelegate?
+
+    var sessionID: UUID?
+    var isActive: Bool { sessionID != nil }
 
     /// Creates an instance of Appcues analytics.
     /// - Parameter config: `Config` object for this instance.
@@ -92,7 +93,7 @@ public class Appcues: NSObject {
         }
 
         storage.groupID = groupID
-        publish(TrackingUpdate(type: .group(groupID), properties: properties))
+        analyticsPublisher.publish(TrackingUpdate(type: .group(groupID), properties: properties))
     }
 
     /// Generate a unique ID for the current user when there is not a known identity to use in
@@ -121,7 +122,8 @@ public class Appcues: NSObject {
     ///   - properties: Optional properties that provide additional context about the event.
     @objc
     public func track(name: String, properties: [String: Any]? = nil) {
-        track(name: name, properties: properties, interactive: true)
+        analyticsPublisher.publish(TrackingUpdate(type: .event(name: name, interactive: true), properties: properties))
+
     }
 
     /// Track an screen viewed by a user.
@@ -130,7 +132,7 @@ public class Appcues: NSObject {
     ///   - properties: Optional properties that provide additional context about the event.
     @objc
     public func screen(title: String, properties: [String: Any]? = nil) {
-        publish(TrackingUpdate(type: .screen(title), properties: properties))
+        analyticsPublisher.publish(TrackingUpdate(type: .screen(title), properties: properties))
     }
 
     /// Forces specific Appcues experience to appear for the current user by passing in the ID.
@@ -149,7 +151,7 @@ public class Appcues: NSObject {
             return
         }
 
-        guard sessionMonitor.isActive else {
+        guard isActive else {
             config.logger.error("An active Appcues session is required to show an Appcues experience")
             completion?(false, AppcuesError.noActiveSession)
             return
@@ -223,9 +225,9 @@ public class Appcues: NSObject {
     }
 
     func initializeContainer() {
-        container.register(Appcues.self, value: self)
+        container.owner = self
         container.register(Config.self, value: config)
-        container.register(AnalyticsPublishing.self, value: self)
+        container.registerLazy(AnalyticsPublishing.self, initializer: AnalyticsPublisher.init)
         container.registerLazy(DataStoring.self, initializer: Storage.init)
         container.registerLazy(Networking.self, initializer: NetworkClient.init)
         container.registerLazy(AnalyticsTracking.self, initializer: AnalyticsTracker.init)
@@ -250,12 +252,12 @@ public class Appcues: NSObject {
 
         // register core analytics tracking to receive tracking updates
         if let trackingSubscriber = container.resolve(AnalyticsTracking.self) as? AnalyticsSubscribing {
-            register(subscriber: trackingSubscriber)
+            analyticsPublisher.register(subscriber: trackingSubscriber)
         }
 
         // register the autoproperty decorator
         let autoPropDecorator = container.resolve(AutoPropertyDecorator.self)
-        register(decorator: autoPropDecorator)
+        analyticsPublisher.register(decorator: autoPropDecorator)
 
         // start session monitoring
         sessionMonitor.start()
@@ -277,59 +279,7 @@ public class Appcues: NSObject {
             // and clear any stored group information - will have to be reset as needed
             storage.groupID = nil
         }
-        publish(TrackingUpdate(type: .profile, properties: properties))
-    }
-
-    // internal implementation of AnalyticsPublishing that allows for the additional option to specify
-    // whether the event is `interactive` -- used to determine if it can be batched and sent later (i.e. experience
-    // analytics) or must be sent immeidately.
-    //
-    // this is not in the extension below so that it can be overriden in unit test
-    func track(name: String, properties: [String: Any]?, interactive: Bool) {
-        publish(TrackingUpdate(type: .event(name: name, interactive: interactive), properties: properties))
-    }
-}
-
-extension Appcues: AnalyticsPublishing {
-
-    func register(subscriber: AnalyticsSubscribing) {
-        subscribers.append(subscriber)
-    }
-
-    func remove(subscriber: AnalyticsSubscribing) {
-        subscribers.removeAll { $0 === subscriber }
-    }
-
-    func register(decorator: AnalyticsDecorating) {
-        decorators.append(decorator)
-    }
-
-    func remove(decorator: AnalyticsDecorating) {
-        decorators.removeAll { $0 === decorator }
-    }
-
-    // for unit testing
-    func clearDecorators() {
-        decorators.removeAll()
-    }
-
-    // for unit testing
-    func clearSubscribers() {
-        subscribers.removeAll()
-    }
-
-    private func publish(_ update: TrackingUpdate) {
-        guard sessionMonitor.isActive else { return }
-
-        var update = update
-
-        for decorator in decorators {
-            update = decorator.decorate(update)
-        }
-
-        for subscriber in subscribers {
-            subscriber.track(update: update)
-        }
+        analyticsPublisher.publish(TrackingUpdate(type: .profile, properties: properties))
     }
 }
 

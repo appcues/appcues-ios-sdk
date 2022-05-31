@@ -21,11 +21,11 @@ internal class ExperienceRenderer: ExperienceRendering {
 
     private let stateMachine: ExperienceStateMachine
     private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
-    private let appcues: Appcues
+    private weak var appcues: Appcues?
     private let config: Appcues.Config
 
     init(container: DIContainer) {
-        self.appcues = container.resolve(Appcues.self)
+        self.appcues = container.owner
         self.config = container.resolve(Appcues.Config.self)
 
         // two items below are not registered/resolved directly from container as they
@@ -59,7 +59,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         if published && stateMachine.state == .idling {
             self.stateMachine.addObserver(analyticsObserver)
         }
-        stateMachine.clientAppcuesDelegate = appcues.delegate
+        stateMachine.clientAppcuesDelegate = appcues?.delegate
         stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
             switch result {
             case .success(.renderingStep):
