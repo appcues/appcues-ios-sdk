@@ -109,7 +109,7 @@ public extension Appcues {
         }
 
         /// Set the `URLSession` instance used by the configuration.
-        /// - Parameter apiHost: Domain of the API host.
+        /// - Parameter urlSession: `URLSession` object.
         /// - Returns: The `Configuration` object.
         ///
         /// Injecting a custom `URLSession` may be useful for testing in combination with `URLSessionConfiguration.protocolClasses`.
