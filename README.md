@@ -19,6 +19,7 @@ The SDK is a Swift library for sending user properties and events to the Appcues
       - [Segment](#segment)
       - [Swift Package Manager](#swift-package-manager)
       - [Cocoapods](#cocoapods)
+      - [XCFramework](#xcframework)
     - [One Time Setup](#one-time-setup)
       - [Initializing the SDK](#initializing-the-sdk)
       - [Supporting Debugging and Experience Previewing](#supporting-debugging-and-experience-previewing)
@@ -67,6 +68,17 @@ dependencies: [
    ```sh
    pod install
    ```
+
+#### XCFramework
+
+An XCFramework is attached with each [release](https://github.com/appcues/appcues-ios-sdk/releases).
+
+1. Download `AppcuesKit.xcframework.zip` attached to the [latest release](https://github.com/appcues/appcues-ios-sdk/releases) and unzip.
+2. In Xcode, open your project and navigate to **File** → **Add Files to "\<Project\>"…**
+3. Find the XCFramework in the file navigator and select it
+4. Ensure the option to "Copy items if needed" is checked and that your app's target is selected
+5. Click **Add**
+6. Select your project in the **Project navigator**, select your app target and then the **General** tab. Under **Frameworks, Libraries, and Embedded Content**, set AppcuesKit.xcframework to **Embed & Sign**
 
 ### One Time Setup
 
