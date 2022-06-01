@@ -1,29 +1,16 @@
-#
-# Be sure to run `pod lib lint Appcues.podspec' to ensure this is a
-# valid spec before submitting.
-#
-# Any lines starting with a # are optional, but their use is encouraged
-# To learn more about a Podspec see https://guides.cocoapods.org/syntax/podspec.html
-#
+# To validate: `$ pod lib lint Appcues.podspec
 
 Pod::Spec.new do |s|
   s.name             = 'Appcues'
   s.module_name      = 'AppcuesKit'
   s.version          = '1.0.0-beta.1'
-  s.summary          = 'SDK for integrating with Appcues'
-
-# This description is used to generate tags and improve search results.
-#   * Think: What does it do? Why did you write it? What is the focus?
-#   * Try to keep it short, snappy and to the point.
-#   * Write the description between the DESC delimiters below.
-#   * Finally, don't worry about the indent, CocoaPods strips it!
+  s.summary          = 'Appcues iOS SDK allows you to integrate Appcues experiences into your native iOS apps'
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+A Swift library for sending user properties and events to the Appcues API and retrieving and rendering Appcues content based on those properties and events.
                        DESC
 
   s.homepage         = 'https://github.com/appcues/appcues-ios-sdk'
-  # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
   s.license          = { :type => 'MIT', :file => 'LICENSE' }
   s.author           = { 'Appcues' => 'mobile@appcues.com' }
   s.source           = { :git => 'https://github.com/appcues/appcues-ios-sdk.git', :tag => s.version.to_s }
@@ -35,12 +22,4 @@ TODO: Add long description of the pod here.
   s.resource_bundles = {
       'Appcues' => ['Sources/AppcuesKit/**/*.xcassets']
   }
-
-  # s.resource_bundles = {
-  #   'Appcues' => ['Appcues/Assets/*.png']
-  # }
-
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
 end
