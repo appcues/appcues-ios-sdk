@@ -1,0 +1,23 @@
+name: AppcuesObjcExample
+options:
+  defaultConfig: Release
+  bundleIdPrefix: com.appcues
+  deploymentTarget:
+    iOS: 13.0
+  groupSortPosition: top
+targets:
+  AppcuesObjcExample:
+    type: application
+    platform: iOS
+    sources:
+    - path: ObjcExample
+      excludes: Info.plist
+    dependencies:
+    - package: AppcuesKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk-example-objc
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+packages:
+  AppcuesKit:
+    path: ../..
