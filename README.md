@@ -1,4 +1,4 @@
-![AppcuesKit](/Sources/AppcuesKit/AppcuesKit.docc/banner%402x.png)
+![AppcuesKit](https://raw.githubusercontent.com/appcues/appcues-ios-sdk/main/Sources/AppcuesKit/AppcuesKit.docc/banner%402x.png)
 
 # Appcues iOS SDK
 
