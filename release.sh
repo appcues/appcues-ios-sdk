@@ -35,8 +35,28 @@ fi
 # check if `gh` tool has auth access.
 # command will return non-zero if not auth'd.
 authd=$(gh auth status -t)
-if [[ $? != 0 ]]; then
+if [[ $? != 0 ]]
+then
 	echo "ex: $ gh auth login"
+	exit 1
+fi
+
+# check if `cocoapods` is installed.
+if ! command pod --version &> /dev/null
+then
+	echo "Cocoapods is required, but could not be found."
+	echo "Install it via: $ gem install cocoapods"
+	exit 1
+fi
+
+# check if `cocoapods` trunk is authenticated. Expecting output like
+#  - Pods:
+#    - Appcues
+pods=$(pod trunk me | grep -q "    - Appcues")
+if [[ $? != 0 ]]
+then
+	echo "You are not currently allowed to push new versions for the Appcues pod."
+	echo "Authenticate with: $ pod trunk register mobile@appcues.com '<YOUR NAME>'"
 	exit 1
 fi
 
@@ -49,7 +69,8 @@ then
 	exit 1
 fi
 
-if [ -n "$(git status --porcelain)" ]; then
+if [ -n "$(git status --porcelain)" ]
+then
   echo "There are uncommited changes. Please commit and create a pull request or stash them.";
   exit 1
 fi
@@ -123,3 +144,7 @@ rm $tempFile
 # build up the xcframework and upload to github
 ./fastlane/build.sh
 gh release upload $newVersion AppcuesKit.xcframework.zip
+
+# push the updated podspec
+# the version tag need to validate the podspec should have been created above
+pod trunk push Appcues.podspec
