@@ -3,7 +3,10 @@
 # Appcues iOS SDK
 
 [![CircleCI](https://circleci.com/gh/appcues/appcues-ios-sdk/tree/main.svg?style=shield&circle-token=16de1b3a77b1e448557552caa17a5c33ec38b679)](https://circleci.com/gh/appcues/appcues-ios-sdk/tree/main)
+[![Cocoapods](https://img.shields.io/cocoapods/v/Appcues)](https://cocoapods.org/pods/Appcues)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/appcues/appcues-ios-sdk/blob/main/LICENSE)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fappcues%2Fappcues-ios-sdk%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/appcues/appcues-ios-sdk)
+[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fappcues%2Fappcues-ios-sdk%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/appcues/appcues-ios-sdk)
 
 >NOTE: This is a pre-release project for testing as a part of our mobile beta program. If you are interested in learning more about our mobile product and testing it before it is officially released, please [visit our site](https://www.appcues.com/mobile) and request early access.  
 >
