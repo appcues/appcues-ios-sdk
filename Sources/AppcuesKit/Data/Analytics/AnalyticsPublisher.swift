@@ -22,27 +22,27 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
 
     private weak var appcues: Appcues?
 
-    private var subscribers: [AnalyticsSubscribing] = []
-    private var decorators: [AnalyticsDecorating] = []
+    private var subscribers: [WeakAnalyticsSubscribing] = []
+    private var decorators: [WeakAnalyticsDecorating] = []
 
     init(container: DIContainer) {
         self.appcues = container.owner
     }
 
     func register(subscriber: AnalyticsSubscribing) {
-        subscribers.append(subscriber)
+        subscribers.append(WeakAnalyticsSubscribing(subscriber))
     }
 
     func remove(subscriber: AnalyticsSubscribing) {
-        subscribers.removeAll { $0 === subscriber }
+        subscribers.removeAll { $0.value === subscriber }
     }
 
     func register(decorator: AnalyticsDecorating) {
-        decorators.append(decorator)
+        decorators.append(WeakAnalyticsDecorating(decorator))
     }
 
     func remove(decorator: AnalyticsDecorating) {
-        decorators.removeAll { $0 === decorator }
+        decorators.removeAll { $0.value === decorator }
     }
 
     func publish(_ update: TrackingUpdate) {
@@ -50,13 +50,31 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
 
         var update = update
 
-        for decorator in decorators {
-            update = decorator.decorate(update)
+        // Apply decorations, removing any decorators that have been released from memory.
+        decorators.removeAll {
+            update = $0.value?.decorate(update) ?? update
+            return $0.value == nil
         }
 
-        for subscriber in subscribers {
-            subscriber.track(update: update)
+        // Call subscribers, removing any subscribers that have been released from memory.
+        subscribers.removeAll {
+            $0.value?.track(update: update)
+            return $0.value == nil
         }
+    }
+}
+
+private extension AnalyticsPublisher {
+    class WeakAnalyticsSubscribing {
+        weak var value: AnalyticsSubscribing?
+
+        init (_ wrapping: AnalyticsSubscribing) { self.value = wrapping }
+    }
+
+    class WeakAnalyticsDecorating {
+        weak var value: AnalyticsDecorating?
+
+        init (_ wrapping: AnalyticsDecorating) { self.value = wrapping }
     }
 }
 
