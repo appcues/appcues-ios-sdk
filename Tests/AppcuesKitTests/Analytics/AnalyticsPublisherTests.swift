@@ -48,6 +48,19 @@ class AnalyticsPublisherTests: XCTestCase {
         XCTAssertEqual(1, decorator.decorations)
     }
 
+    func testWeakDecorator() throws {
+        // Arrange
+        var decorator: Mocks.TestDecorator? = Mocks.TestDecorator()
+        weak var weakDecorator: Mocks.TestDecorator? = decorator
+        analyticsPublisher.register(decorator: decorator!)
+
+        // Act
+        decorator = nil
+
+        // Assert
+        XCTAssertNil(weakDecorator)
+    }
+
     func testRegisterSubscriber() throws {
         // Arrange
         let subscriber = Mocks.TestSubscriber()
@@ -73,4 +86,18 @@ class AnalyticsPublisherTests: XCTestCase {
         // Assert
         XCTAssertEqual(1, subscriber.trackedUpdates)
     }
+
+    func testWeakSubscriber() throws {
+        // Arrange
+        var subscriber: Mocks.TestSubscriber? = Mocks.TestSubscriber()
+        weak var weakSubscriber: Mocks.TestSubscriber? = subscriber
+        analyticsPublisher.register(subscriber: subscriber!)
+
+        // Act
+        subscriber = nil
+
+        // Assert
+        XCTAssertNil(weakSubscriber)
+    }
+
 }
