@@ -119,6 +119,7 @@ public extension Appcues {
     /// ```
     @available(iOS 13.0, *)
     @discardableResult
+    @objc
     func filterAndHandle(_ URLContexts: Set<UIOpenURLContext>) -> Set<UIOpenURLContext> {
         URLContexts.filter { !didHandleURL($0.url) }
     }
