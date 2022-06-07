@@ -35,6 +35,8 @@ class DeeplinkHandlerTests: XCTestCase {
         XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "scheme://sdk/debugger")!, isSessionActive: false, applicationID: "abc"))
 
         XCTAssertNil(DeeplinkHandler.Action(url: URL(string: "appcues-abc://sdk/different-appid")!, isSessionActive: false, applicationID: "xyz"))
+
+        XCTAssertNotNil(DeeplinkHandler.Action(url: URL(string: "appcues-democues://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true, applicationID: "abc"))
     }
 
     func testHandlePreviewURLWithActiveScene() throws {
