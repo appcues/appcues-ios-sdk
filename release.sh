@@ -116,9 +116,8 @@ case "$response" in
 		;;
 esac
 
-# get the commits since the last release...
-# note: we do this here so the "Version x.x.x" commit doesn't show up in logs.
-changelog=$(git log --pretty=format:"- [%as] %s (%h)" $(git describe --tags --abbrev=0 @^)..@ --abbrev=7)
+# get the commits since the last release, filtering ones that aren't relevant.
+changelog=$(git log --pretty=format:"- [%as] %s (%h)" $(git describe --tags --abbrev=0 @^)..@ --abbrev=7 | sed '/[🔧🎬⬆️📸✅💡📝]/d')
 tempFile=$(mktemp)
 # write changelog to temp file.
 echo "$changelog" >> $tempFile
