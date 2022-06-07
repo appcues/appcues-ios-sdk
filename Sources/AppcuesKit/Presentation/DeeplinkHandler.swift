@@ -22,7 +22,8 @@ internal class DeeplinkHandler: DeeplinkHandling {
         case debugger(destination: DebugDestination?)
 
         init?(url: URL, isSessionActive: Bool, applicationID: String) {
-            guard url.scheme == "appcues-\(applicationID)", url.host == "sdk" else { return nil }
+            let isValidScheme = url.scheme == "appcues-\(applicationID)" || url.scheme == "appcues-democues"
+            guard isValidScheme, url.host == "sdk" else { return nil }
 
             // supported paths:
             // appcues-{app_id}://sdk/experience_preview/{experience_id}
