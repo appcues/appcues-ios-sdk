@@ -114,6 +114,26 @@ class ExperienceStateMachineTests: XCTestCase {
         )
     }
 
+    func test_stateIsRenderingStep_whenStartStepPastEnd_transitionsToIdling() throws {
+        // the @appcues/continue action would do this
+
+        // Arrange
+        let dismissExpectation = expectation(description: "Experience dismissed")
+        let experience = Experience.mock
+        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: false)
+        let action: Action = .startStep(StepReference.offset(1))
+        let stateMachine = givenState(is: initialState)
+
+        // Act
+        try stateMachine.transition(action)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(stateMachine.state, .idling)
+    }
+
     func test_stateIsRenderingStep_whenEndExperience_transitionsToIdling() throws {
         // the @appcues/close action would do this
 
