@@ -131,6 +131,13 @@ extension ExperienceStateMachine.Transition {
         _ experience: Experience, _ stepIndex: Experience.StepIndex, _ package: ExperiencePackage, _ stepRef: StepReference
     ) -> Self {
         guard let newStepIndex = stepRef.resolve(experience: experience, currentIndex: stepIndex) else {
+            if stepRef == .offset(1) && experience.stepIndices.last == stepIndex {
+                return .init(
+                    toState: .endingStep(experience, stepIndex, package),
+                    sideEffect: .continuation(.endExperience(markComplete: true))
+                )
+            }
+
             return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "Step at \(stepRef) does not exist"), reset: false))
         }
 
