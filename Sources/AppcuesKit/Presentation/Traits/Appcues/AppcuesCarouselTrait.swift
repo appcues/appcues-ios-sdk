@@ -206,9 +206,10 @@ extension AppcuesCarouselTrait {
             let layout = UICollectionViewCompositionalLayout(section: section)
 
             let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
-            view.backgroundColor = .clear
+            view.translatesAutoresizingMaskIntoConstraints = false
             view.alwaysBounceVertical = false
             view.contentInsetAdjustmentBehavior = .never
+            view.backgroundColor = .clear
 
             return view
         }()
@@ -217,7 +218,12 @@ extension AppcuesCarouselTrait {
             super.init(frame: .zero)
 
             addSubview(collectionView)
-            collectionView.pin(to: self)
+            NSLayoutConstraint.activate([
+                collectionView.topAnchor.constraint(equalTo: topAnchor),
+                collectionView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
+                collectionView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
+                collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            ])
         }
 
         @available(*, unavailable)
