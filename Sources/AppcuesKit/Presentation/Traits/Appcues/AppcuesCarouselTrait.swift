@@ -106,6 +106,20 @@ extension AppcuesCarouselTrait {
             preferredContentSize = container.preferredContentSize
         }
 
+        override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+            // Use the currentPage value instead of collectionView.indexPathsForVisibleItems because
+            // that occasionally includes additional items.
+            let targetIndex = IndexPath(item: pageMonitor.currentPage, section: 0)
+
+            // Using `coordinator.animate` would be ideal, and it does work,
+            // but that animation is jankier when going from landscape to portrait.
+            DispatchQueue.main.async {
+                self.carouselView.collectionView.scrollToItem(at: targetIndex, at: .centeredHorizontally, animated: false)
+            }
+
+            super.viewWillTransition(to: size, with: coordinator)
+        }
+
         func navigate(to pageIndex: Int, animated: Bool) {
             carouselView.collectionView.scrollToItem(
                 at: IndexPath(row: pageIndex, section: 0),
