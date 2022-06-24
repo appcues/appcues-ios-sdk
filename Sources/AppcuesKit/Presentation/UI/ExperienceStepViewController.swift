@@ -81,7 +81,7 @@ extension ExperienceStepViewController {
         // When nested inside the carousel traits collection view, the left and right safe area insets get doubled applied.
         // This zeros out those values to achieve the desired layout.
         override var safeAreaInsets: UIEdgeInsets {
-            get { UIEdgeInsets(top: super.safeAreaInsets.top, left: 0, bottom: super.safeAreaInsets.bottom, right: 0) }
+            UIEdgeInsets(top: super.safeAreaInsets.top, left: 0, bottom: super.safeAreaInsets.bottom, right: 0)
         }
 
         init() {
