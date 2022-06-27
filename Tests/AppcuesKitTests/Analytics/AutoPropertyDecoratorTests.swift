@@ -27,7 +27,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
 
     func testScreen() throws {
         // Arrange
-        let update = TrackingUpdate(type: .screen("screen name"), properties: ["CUSTOM": "value"])
+        let update = TrackingUpdate(type: .screen("screen name"), properties: ["CUSTOM": "value"], isInternal: false)
 
         // Act
         let decorated = decorator.decorate(update)
@@ -52,7 +52,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
 
     func testEvent() throws {
         // Arrange
-        let update = TrackingUpdate(type: .event(name: "appcues:session_started", interactive: true), properties: ["CUSTOM": "value"])
+        let update = TrackingUpdate(type: .event(name: "appcues:session_started", interactive: true), properties: ["CUSTOM": "value"], isInternal: false)
 
         // Act
         let decorated = decorator.decorate(update)
@@ -77,7 +77,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
 
     func testProfile() throws {
         // Arrange
-        let update = TrackingUpdate(type: .profile, properties: ["CUSTOM": "value"])
+        let update = TrackingUpdate(type: .profile, properties: ["CUSTOM": "value"], isInternal: false)
 
         // Act
         let decorated = decorator.decorate(update)
@@ -98,7 +98,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
 
     func testGroup() throws {
         // Arrange
-        let update = TrackingUpdate(type: .group("mygroup"), properties: ["CUSTOM": "value"])
+        let update = TrackingUpdate(type: .group("mygroup"), properties: ["CUSTOM": "value"], isInternal: false)
 
         // Act
         let decorated = decorator.decorate(update)

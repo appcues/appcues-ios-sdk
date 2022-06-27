@@ -102,7 +102,10 @@ extension ExperienceStateMachine {
         }
 
         func trackLifecycleEvent(_ name: LifecycleEvent, _ properties: [String: Any]) {
-            analyticsPublisher.publish(TrackingUpdate(type: .event(name: name.rawValue, interactive: false), properties: properties))
+            analyticsPublisher.publish(
+                TrackingUpdate(type: .event(name: name.rawValue, interactive: false),
+                               properties: properties,
+                               isInternal: true))
         }
     }
 }

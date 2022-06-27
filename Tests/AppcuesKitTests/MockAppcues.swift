@@ -42,6 +42,7 @@ class MockAppcues: Appcues {
         // dependencies that are not mocked
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
         container.registerLazy(UIKitScreenTracker.self, initializer: UIKitScreenTracker.init)
+        container.registerLazy(AnalyticsBroadcaster.self, initializer: AnalyticsBroadcaster.init)
 
     }
 

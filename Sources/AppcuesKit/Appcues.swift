@@ -32,7 +32,10 @@ public class Appcues: NSObject {
     private lazy var notificationCenter = container.resolve(NotificationCenter.self)
 
     /// The delegate object that manages and observes experience presentations.
-    @objc public weak var delegate: AppcuesExperienceDelegate?
+    @objc public weak var experienceDelegate: AppcuesExperienceDelegate?
+
+    /// The delegate object that observes published analytics events
+    @objc public weak var analyticsDelegate: AppcuesAnalyticsDelegate?
 
     var sessionID: UUID?
     var isActive: Bool { sessionID != nil }
@@ -93,7 +96,7 @@ public class Appcues: NSObject {
         }
 
         storage.groupID = groupID
-        analyticsPublisher.publish(TrackingUpdate(type: .group(groupID), properties: properties))
+        analyticsPublisher.publish(TrackingUpdate(type: .group(groupID), properties: properties, isInternal: false))
     }
 
     /// Generate a unique ID for the current user when there is not a known identity to use in
@@ -122,7 +125,7 @@ public class Appcues: NSObject {
     ///   - properties: Optional properties that provide additional context about the event.
     @objc
     public func track(name: String, properties: [String: Any]? = nil) {
-        analyticsPublisher.publish(TrackingUpdate(type: .event(name: name, interactive: true), properties: properties))
+        analyticsPublisher.publish(TrackingUpdate(type: .event(name: name, interactive: true), properties: properties, isInternal: false))
 
     }
 
@@ -132,7 +135,7 @@ public class Appcues: NSObject {
     ///   - properties: Optional properties that provide additional context about the event.
     @objc
     public func screen(title: String, properties: [String: Any]? = nil) {
-        analyticsPublisher.publish(TrackingUpdate(type: .screen(title), properties: properties))
+        analyticsPublisher.publish(TrackingUpdate(type: .screen(title), properties: properties, isInternal: false))
     }
 
     /// Forces specific Appcues experience to appear for the current user by passing in the ID.
@@ -237,6 +240,7 @@ public class Appcues: NSObject {
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
         container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
         container.registerLazy(ActivityStoring.self, initializer: ActivityFileStorage.init)
+        container.registerLazy(AnalyticsBroadcaster.self, initializer: AnalyticsBroadcaster.init)
 
         if #available(iOS 13.0, *) {
             container.registerLazy(DeeplinkHandling.self, initializer: DeeplinkHandler.init)
@@ -254,6 +258,10 @@ public class Appcues: NSObject {
         if let trackingSubscriber = container.resolve(AnalyticsTracking.self) as? AnalyticsSubscribing {
             analyticsPublisher.register(subscriber: trackingSubscriber)
         }
+
+        // register the analytics broadcaster to notify optional analyticsDelegate of tracking data
+        let analyticsBroadcaster = container.resolve(AnalyticsBroadcaster.self)
+        analyticsPublisher.register(subscriber: analyticsBroadcaster)
 
         // register the autoproperty decorator
         let autoPropDecorator = container.resolve(AutoPropertyDecorator.self)
@@ -279,7 +287,7 @@ public class Appcues: NSObject {
             // and clear any stored group information - will have to be reset as needed
             storage.groupID = nil
         }
-        analyticsPublisher.publish(TrackingUpdate(type: .profile, properties: properties))
+        analyticsPublisher.publish(TrackingUpdate(type: .profile, properties: properties, isInternal: false))
     }
 }
 

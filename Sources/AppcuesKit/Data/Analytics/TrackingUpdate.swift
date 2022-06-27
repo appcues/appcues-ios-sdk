@@ -35,6 +35,7 @@ internal struct TrackingUpdate {
     var properties: [String: Any]?
     var context: [String: Any]?
     let timestamp = Date()
+    let isInternal: Bool
 
     var policy: Policy {
         switch type {
