@@ -39,8 +39,8 @@ internal class AppcuesStickyContentTrait: StepDecoratingTrait {
         stickyContentVC.didMove(toParent: viewController)
 
         // Pass sticky content size changes to the parent controller to update the insets.
-        stickyContentVC.onSizeChange = { [weak self] size, safeArea in
-            guard let self = self else { return }
+        stickyContentVC.onSizeChange = { [weak self, weak viewController] size, safeArea in
+            guard let self = self, let viewController = viewController else { return }
             switch self.edge {
             case .top:
                 viewController.additionalSafeAreaInsets.top = size.height - safeArea.top
