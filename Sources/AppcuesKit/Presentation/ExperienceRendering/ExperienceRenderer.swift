@@ -59,7 +59,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         if published && stateMachine.state == .idling {
             self.stateMachine.addObserver(analyticsObserver)
         }
-        stateMachine.clientAppcuesDelegate = appcues?.delegate
+        stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
         stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
             switch result {
             case .success(.renderingStep):

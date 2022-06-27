@@ -28,7 +28,7 @@ class AnalyticsPublisherTests: XCTestCase {
 
         // Act
         analyticsPublisher.register(decorator: decorator)
-        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true)))
+        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true), isInternal: false))
 
         // Assert
         XCTAssertEqual(1, decorator.decorations)
@@ -38,11 +38,11 @@ class AnalyticsPublisherTests: XCTestCase {
         // Arrange
         let decorator = Mocks.TestDecorator()
         analyticsPublisher.register(decorator: decorator)
-        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true)))
+        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true), isInternal: false))
 
         // Act
         analyticsPublisher.remove(decorator: decorator)
-        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true)))
+        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true), isInternal: false))
 
         // Assert
         XCTAssertEqual(1, decorator.decorations)
@@ -67,7 +67,7 @@ class AnalyticsPublisherTests: XCTestCase {
 
         // Act
         analyticsPublisher.register(subscriber: subscriber)
-        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true)))
+        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true), isInternal: false))
 
         // Assert
         XCTAssertEqual(1, subscriber.trackedUpdates)
@@ -77,11 +77,11 @@ class AnalyticsPublisherTests: XCTestCase {
         // Arrange
         let subscriber = Mocks.TestSubscriber()
         analyticsPublisher.register(subscriber: subscriber)
-        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true)))
+        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true), isInternal: false))
 
         // Act
         analyticsPublisher.remove(subscriber: subscriber)
-        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true)))
+        analyticsPublisher.publish(TrackingUpdate(type: .event(name: "custom event", interactive: true), isInternal: false))
 
         // Assert
         XCTAssertEqual(1, subscriber.trackedUpdates)

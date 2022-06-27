@@ -36,7 +36,7 @@ class AnalyticsTrackerTests: XCTestCase {
             onRequestExpectation.fulfill()
         }
 
-        let update = TrackingUpdate(type: .profile, properties: ["my_key":"my_value", "another_key": 33])
+        let update = TrackingUpdate(type: .profile, properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
 
         // Act
         tracker.track(update: update)
@@ -57,7 +57,7 @@ class AnalyticsTrackerTests: XCTestCase {
             onRequestExpectation.fulfill()
         }
 
-        let update = TrackingUpdate(type: .event(name: "eventName", interactive: true), properties: ["my_key":"my_value", "another_key": 33])
+        let update = TrackingUpdate(type: .event(name: "eventName", interactive: true), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
 
         // Act
         tracker.track(update: update)
@@ -78,7 +78,7 @@ class AnalyticsTrackerTests: XCTestCase {
             onRequestExpectation.fulfill()
         }
 
-        let update = TrackingUpdate(type: .screen("My test page"), properties: ["my_key":"my_value", "another_key": 33])
+        let update = TrackingUpdate(type: .screen("My test page"), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
 
         // Act
         tracker.track(update: update)
