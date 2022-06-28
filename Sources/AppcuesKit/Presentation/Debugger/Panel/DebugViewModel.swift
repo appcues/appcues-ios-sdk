@@ -82,12 +82,10 @@ internal class DebugViewModel: ObservableObject {
     }
 
     func reset() {
-        currentUserID = ""
         filter = nil
         events.removeAll()
         latestEvent = nil
         trackingPages = false
-        isAnonymous = true
     }
 
     func addUpdate(_ update: TrackingUpdate) {
