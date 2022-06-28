@@ -4,6 +4,7 @@
 
 [![CircleCI](https://circleci.com/gh/appcues/appcues-ios-sdk/tree/main.svg?style=shield&circle-token=16de1b3a77b1e448557552caa17a5c33ec38b679)](https://circleci.com/gh/appcues/appcues-ios-sdk/tree/main)
 [![Cocoapods](https://img.shields.io/cocoapods/v/Appcues)](https://cocoapods.org/pods/Appcues)
+[![](https://img.shields.io/badge/-documentation-informational)](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/appcues/appcues-ios-sdk/blob/main/LICENSE)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fappcues%2Fappcues-ios-sdk%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/appcues/appcues-ios-sdk)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fappcues%2Fappcues-ios-sdk%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/appcues/appcues-ios-sdk)
@@ -105,7 +106,7 @@ Initializing the SDK requires you to provide two values, an Appcues account ID, 
 
 #### Supporting Debugging and Experience Previewing
 
-Supporting debugging and experience previewing is not required for the Appcues iOS SDK to function, but it is necessary for the optimal Appcues builder experience. Refer to the [Debug Guide](https://github.com/appcues/appcues-ios-sdk/blob/main/Sources/AppcuesKit/AppcuesKit.docc/Debugging.md) for details.
+Supporting debugging and experience previewing is not required for the Appcues iOS SDK to function, but it is necessary for the optimal Appcues builder experience. Refer to the [Debug Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/debugging) for details.
 
 ### Identifying Users
 
@@ -120,15 +121,15 @@ Events are the “actions” your users take in your application, which can be a
 - `track(name:)`
 - `screen(title:)`
 
-Refer to the full [Getting Started Guide](https://github.com/appcues/appcues-ios-sdk/blob/main/Sources/AppcuesKit/AppcuesKit.docc/GettingStarted.md) for more details.
+Refer to the full [Getting Started Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/gettingstarted) for more details.
 
 ## 🛠 Customization
 
-Refer to the [Extending Guide](https://github.com/appcues/appcues-ios-sdk/blob/main/Sources/AppcuesKit/AppcuesKit.docc/Extending.md) for details.
+Refer to the [Extending Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/extending) for details.
 
 ## 📝 Documentation
 
-Full documentation is available at https://docs.appcues.com/
+SDK Documentation is available at https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit and full Appcues documentation is available at https://docs.appcues.com/
 
 ## 🎬 Examples
 
