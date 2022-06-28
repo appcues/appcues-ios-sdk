@@ -147,3 +147,6 @@ gh release upload $newVersion AppcuesKit.xcframework.zip
 # push the updated podspec
 # the version tag need to validate the podspec should have been created above
 pod trunk push Appcues.podspec
+
+# compile the docs for the new version and deploy to GitHub pages
+./fastlane/docs.sh
