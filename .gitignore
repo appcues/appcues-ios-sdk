@@ -99,3 +99,7 @@ AppcuesKit.xcframework.zip
 
 # SwiftLint Remote Config Cache
 .swiftlint/RemoteConfigCache
+
+# DocC output should be excluded in all branches except gh-pages
+docs
+docs.zip
