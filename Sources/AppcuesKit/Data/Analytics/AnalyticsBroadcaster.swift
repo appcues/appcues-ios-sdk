@@ -13,12 +13,10 @@ import Foundation
 internal class AnalyticsBroadcaster: AnalyticsSubscribing {
 
     private weak var appcues: Appcues?
-    private let publisher: AnalyticsPublishing
     private let storage: DataStoring
 
     init(container: DIContainer) {
         self.appcues = container.owner
-        self.publisher = container.resolve(AnalyticsPublishing.self)
         self.storage = container.resolve(DataStoring.self)
     }
 
