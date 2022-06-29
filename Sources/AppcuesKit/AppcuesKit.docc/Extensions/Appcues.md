@@ -37,7 +37,8 @@
 ### Customizing and Extending
 
 - <doc:Extending>
-- ``Appcues/delegate``
+- ``Appcues/experienceDelegate``
+- ``Appcues/analyticsDelegate``
 - ``Appcues/register(action:)``
 - ``Appcues/register(trait:)``
 
