@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import UIKit
 
 /// An object that manages Appcues tracking for your app.
 @objc(Appcues)
