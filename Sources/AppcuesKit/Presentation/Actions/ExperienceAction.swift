@@ -23,7 +23,7 @@ public protocol ExperienceAction {
     init?(config: [String: Any]?)
 
     /// Execute the action.
-    /// - Parameter appcues: The `Appcues` instance that displayed the instance triggering the action.
+    /// - Parameter appcues: The `Appcues` instance that displayed the experience triggering the action.
     /// - Parameter completion: A block to call after the execution is completed.
     ///
     /// The `completion` block must be called to ensure any additional actions are also executed.
