@@ -1,0 +1,16 @@
+@Tutorials(name: "AppcuesKit") {
+    @Intro(title: "Using AppcuesKit") {
+        Integrate Appcues experiences into your native iOS and iPadOS apps.
+        
+        @Image(source: banner.png, alt: "AppcuesKit")
+    }
+    
+    @Chapter(name: "AppcuesKit Basics") {
+        @Image(source: icon.png, alt: "AppcuesKit")
+        
+        Install the dependency and integrate it into your app.
+                
+        @TutorialReference(tutorial: "doc:Installation")
+        @TutorialReference(tutorial: "doc:Setup")
+    }
+}
