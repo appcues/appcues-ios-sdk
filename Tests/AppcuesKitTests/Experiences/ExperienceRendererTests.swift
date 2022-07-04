@@ -284,6 +284,30 @@ class ExperienceRendererTests: XCTestCase {
         XCTAssertNotEqual(firstExperienceInstance.instanceID, secondExperienceInstance.instanceID)
         waitForExpectations(timeout: 2)
     }
+
+    func testShowStepDismissCallsCompletion() throws {
+        // sc-38212: Test that the completion handler is called when continuing from
+        // last step in an experience (which dismisses the experience).
+
+        // Arrange
+        let completionExpectation = expectation(description: "Completion called")
+        let dismissExpectation = expectation(description: "Experience dismissed")
+
+        let preconditionPresentExpectation = expectation(description: "Experience presented")
+        let experience = Experience.singleStepMock
+        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation, dismissExpectation: dismissExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+        experienceRenderer.show(experience: experience, priority: .low, published: true, completion: nil)
+        wait(for: [preconditionPresentExpectation], timeout: 1)
+
+        // Act
+        experienceRenderer.show(stepInCurrentExperience: .offset(1)) {
+            completionExpectation.fulfill()
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
 }
 
 private extension Experience {

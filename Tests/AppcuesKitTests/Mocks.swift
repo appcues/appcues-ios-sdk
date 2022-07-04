@@ -70,6 +70,23 @@ extension Experience {
             ])
     }
 
+    static var singleStepMock: Experience {
+        Experience(
+            id: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+            name: "Single step experience",
+            type: "mobile",
+            publishedAt: 1632142800000,
+            traits: [],
+            steps: [
+                Experience.Step(
+                    fixedID: "fb529214-3c78-4d6d-ba93-b55d22497ca1",
+                    children: [
+                        Step.Child(fixedID: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
+                    ]
+                )
+            ])
+    }
+
     @available(iOS 13.0, *)
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
         let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()])
