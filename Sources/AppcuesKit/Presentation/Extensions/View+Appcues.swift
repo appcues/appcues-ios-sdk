@@ -29,6 +29,9 @@ extension View {
                 view.simultaneousGesture(TapGesture().onEnded {
                     process(actionHandlers)
                 })
+                .accessibilityAction {
+                    process(actionHandlers)
+                }
             }
             .ifLet(actions[.longPress]) { view, actionHandlers in
                 view.simultaneousGesture(LongPressGesture().onEnded { _ in
