@@ -111,6 +111,14 @@ internal class ExperienceRenderer: ExperienceRendering {
             case .success(.renderingStep):
                 DispatchQueue.main.async { completion?() }
                 return true
+            case .success(.idling):
+                if stepRef == .offset(1) {
+                    // If the experience is dismissed and resets to the idling state,
+                    // then by definition the progression to the next step has completed.
+                    DispatchQueue.main.async { completion?() }
+                    return true
+                }
+                return false
             case .failure:
                 // Done observing, something went wrong
                 DispatchQueue.main.async { completion?() }
