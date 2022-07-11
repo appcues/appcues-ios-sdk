@@ -57,6 +57,13 @@ internal class UIDebugger: UIDebugging {
     }
 
     func show(destination: DebugDestination?) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async {
+                self.show(destination: destination)
+            }
+            return
+        }
+
         defer {
             viewModel.navigationDestination = destination
             if destination != nil {
