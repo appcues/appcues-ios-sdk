@@ -64,6 +64,18 @@ internal class DeeplinkHandler: DeeplinkHandling {
             return false
         }
 
+        if Thread.isMainThread {
+            dispatch(action: action)
+        } else {
+            DispatchQueue.main.async {
+                self.dispatch(action: action)
+            }
+        }
+
+        return true
+    }
+
+    private func dispatch(action: Action) {
         if topControllerGetting.topViewController() != nil {
             // UIScene is already active and we can handle the action immediately.
             handle(action: action)
@@ -79,8 +91,6 @@ internal class DeeplinkHandler: DeeplinkHandling {
         } else {
             actionsToHandle.insert(action)
         }
-
-        return true
     }
 
     private func handle(action: Action) {
