@@ -24,6 +24,7 @@ A Swift library for sending user properties and events to the Appcues API and re
 
 ### Observing Analytics
 
+- <doc:AnalyticObserving>
 - ``AppcuesAnalyticsDelegate``
 
 ### Extensibility
