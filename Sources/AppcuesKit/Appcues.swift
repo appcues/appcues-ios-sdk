@@ -19,14 +19,45 @@ public class Appcues: NSObject {
     private lazy var storage = container.resolve(DataStoring.self)
     private lazy var sessionMonitor = container.resolve(SessionMonitoring.self)
 
+    private var _uiDebugger: Any?
     @available(iOS 13.0, *)
-    private lazy var uiDebugger = container.resolve(UIDebugging.self)
+    private var uiDebugger: UIDebugging {
+        if _uiDebugger == nil {
+            _uiDebugger = container.resolve(UIDebugging.self)
+        }
+        // swiftlint:disable:next force_cast
+        return _uiDebugger as! UIDebugging
+    }
+
+    private var _traitRegistry: Any?
     @available(iOS 13.0, *)
-    private lazy var traitRegistry = container.resolve(TraitRegistry.self)
+    private var traitRegistry: TraitRegistry {
+        if _traitRegistry == nil {
+            _traitRegistry = container.resolve(TraitRegistry.self)
+        }
+        // swiftlint:disable:next force_cast
+        return _traitRegistry as! TraitRegistry
+    }
+
+    private var _actionRegistry: Any?
     @available(iOS 13.0, *)
-    private lazy var actionRegistry = container.resolve(ActionRegistry.self)
+    private var actionRegistry: ActionRegistry {
+        if _actionRegistry == nil {
+            _actionRegistry = container.resolve(ActionRegistry.self)
+        }
+        // swiftlint:disable:next force_cast
+        return _actionRegistry as! ActionRegistry
+    }
+
+    private var _experienceLoader: Any?
     @available(iOS 13.0, *)
-    private lazy var experienceLoader = container.resolve(ExperienceLoading.self)
+    private var experienceLoader: ExperienceLoading {
+        if _experienceLoader == nil {
+            _experienceLoader = container.resolve(ExperienceLoading.self)
+        }
+        // swiftlint:disable:next force_cast
+        return _experienceLoader as! ExperienceLoading
+    }
 
     private lazy var notificationCenter = container.resolve(NotificationCenter.self)
 
