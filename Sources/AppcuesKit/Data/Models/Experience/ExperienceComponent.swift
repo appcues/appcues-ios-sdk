@@ -125,6 +125,16 @@ extension ExperienceComponent {
         let accessibilityLabel: String?
 
         let style: Style?
+
+        init(from backgroundImage: Style.BackgroundImage) {
+            self.id = UUID()
+            self.imageUrl = backgroundImage.imageUrl
+            self.blurHash = backgroundImage.blurHash
+            self.contentMode = backgroundImage.contentMode
+            self.intrinsicSize = backgroundImage.intrinsicSize
+            self.accessibilityLabel = nil
+            self.style = nil
+        }
     }
 
     struct EmbedModel: ComponentModel, Decodable {
@@ -164,6 +174,7 @@ extension ExperienceComponent {
         let foregroundColor: DynamicColor?
         let backgroundColor: DynamicColor?
         let backgroundGradient: RawGradient?
+        let backgroundImage: BackgroundImage?
         let shadow: RawShadow?
         let cornerRadius: Double?
         let borderColor: DynamicColor?
@@ -196,5 +207,14 @@ extension ExperienceComponent.Style {
         let x: Double
         // swiftlint:disable:next identifier_name
         let y: Double
+    }
+
+    struct BackgroundImage: Decodable {
+        let imageUrl: URL
+        let blurHash: String?
+        let contentMode: String?
+        let verticalAlignment: String?
+        let horizontalAlignment: String?
+        let intrinsicSize: ExperienceComponent.IntrinsicSize?
     }
 }
