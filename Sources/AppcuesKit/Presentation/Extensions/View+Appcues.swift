@@ -10,32 +10,21 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 extension View {
-    // Recursively work through the sequence of actions in series.
-    private func process(_ actionHandlers: [(@escaping ActionRegistry.Completion) -> Void]) {
-        if let handler = actionHandlers.first {
-            handler {
-                DispatchQueue.main.async {
-                    // On completion, process the remaining action handlers.
-                    process(Array(actionHandlers.dropFirst()))
-                }
-            }
-        }
-    }
-
-    func setupActions(_ actions: [ExperienceStepViewModel.ActionType: [(@escaping ActionRegistry.Completion) -> Void]]) -> some View {
+    func setupActions(on viewModel: ExperienceStepViewModel, for id: UUID) -> some View {
+        let actions = viewModel.actions(for: id)
         // simultaneousGesture is needed to make a Button support any of these gestures.
-        self
+        return self
             .ifLet(actions[.tap]) { view, actionHandlers in
                 view.simultaneousGesture(TapGesture().onEnded {
-                    process(actionHandlers)
+                    viewModel.enqueueActions(actionHandlers)
                 })
                 .accessibilityAction {
-                    process(actionHandlers)
+                    viewModel.enqueueActions(actionHandlers)
                 }
             }
             .ifLet(actions[.longPress]) { view, actionHandlers in
                 view.simultaneousGesture(LongPressGesture().onEnded { _ in
-                    process(actionHandlers)
+                    viewModel.enqueueActions(actionHandlers)
                 })
             }
     }

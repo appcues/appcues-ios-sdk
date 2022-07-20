@@ -14,6 +14,11 @@ internal class ActionRegistry {
 
     private var actions: [String: ExperienceAction.Type] = [:]
 
+    private var isProcessing = false
+    private var actionQueue: [ExperienceAction] = [] {
+        didSet { processFirstAction() }
+    }
+
     private weak var appcues: Appcues?
 
     init(container: DIContainer) {
@@ -42,16 +47,31 @@ internal class ActionRegistry {
         actions[action.type] = action
     }
 
-    func actionClosures(for actionModels: [Experience.Action]) -> [(@escaping Completion) -> Void] {
-        guard let appcues = appcues else { return [] }
+    private func processFirstAction() {
+        guard !isProcessing, let appcues = appcues else { return }
 
-        return actionModels.compactMap { actionModel in
-            if let actionInstance = actions[actionModel.type]?.init(config: actionModel.config) {
-                return { completion in
-                    actionInstance.execute(inContext: appcues, completion: completion)
+        if let actionInstance = actionQueue.first {
+            isProcessing = true
+            actionInstance.execute(inContext: appcues) {
+                DispatchQueue.main.async {
+                    // On completion, remove the action, which triggers the didSet to process the remaining action handlers.
+                    self.isProcessing = false
+                    self.actionQueue.removeFirst()
                 }
             }
-            return nil
         }
+    }
+
+    /// Enqueue an experience action instance to be executed.
+    func enqueue(actionInstances: [ExperienceAction]) {
+        actionQueue.append(contentsOf: actionInstances)
+    }
+
+    /// Enqueue an experience action data model to be executed.
+    func enqueue(actionModels: [Experience.Action]) {
+        let actionInstances = actionModels.compactMap {
+            actions[$0.type]?.init(config: $0.config)
+        }
+        enqueue(actionInstances: actionInstances)
     }
 }

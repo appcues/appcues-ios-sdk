@@ -30,16 +30,12 @@ internal class ExperienceStepViewModel: ObservableObject {
         self.actionRegistry = actionRegistry
     }
 
-    /// Returns the actions for the specific component grouped by `ActionType`.
-    func groupedActionHandlers(for id: UUID) -> [ActionType: [(@escaping ActionRegistry.Completion) -> Void]] {
-        guard let componentActions = actions[id] else { return [:] }
+    func enqueueActions(_ actions: [Experience.Action]) {
+        actionRegistry.enqueue(actionModels: actions)
+    }
 
-        // (trailing closure in init would be less readable)
-        // swiftlint:disable:next trailing_closure
-        return Dictionary(grouping: componentActions, by: { $0.trigger })
-            .reduce(into: [:]) { dict, item in
-                guard let actionType = ActionType(rawValue: item.key) else { return }
-                dict[actionType] = actionRegistry.actionClosures(for: item.value)
-            }
+    func actions(for id: UUID) -> [ActionType?: [Experience.Action]] {
+        // An unknown trigger value will get lumped into Dictionary[nil] and be ignored.
+        Dictionary(grouping: actions[id] ?? [], by: { ActionType(rawValue: $0.trigger) })
     }
 }
