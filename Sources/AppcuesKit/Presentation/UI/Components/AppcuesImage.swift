@@ -23,7 +23,7 @@ internal struct AppcuesImage: View {
             .ifLet(model.accessibilityLabel) { view, val in
                 view.accessibility(label: Text(val))
             }
-            .setupActions(viewModel.groupedActionHandlers(for: model.id))
+            .setupActions(on: viewModel, for: model.id)
             .applyForegroundStyle(style)
             // set the aspect ratio before applying frame sizing
             .ifLet(ContentMode(string: model.contentMode)) { view, val in

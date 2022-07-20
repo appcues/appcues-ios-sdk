@@ -29,6 +29,6 @@ internal struct AppcuesButton: View {
         .applyBackgroundStyle(style)
         .applyBorderStyle(style)
         .applyExternalLayout(style)
-        .setupActions(viewModel.groupedActionHandlers(for: model.id))
+        .setupActions(on: viewModel, for: model.id)
     }
 }
