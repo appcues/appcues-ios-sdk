@@ -23,7 +23,6 @@ class ActionRegistryTests: XCTestCase {
     func testRegister() throws {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
-        let completionExpectation = expectation(description: "Completion called")
         let actionModel = Experience.Action(
             trigger: "tap",
             type: TestAction.type,
@@ -34,35 +33,34 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Assert
-        let actionClosures = actionRegistry.actionClosures(for: [actionModel])
-        XCTAssertEqual(actionClosures.count, 1)
-
-        actionClosures[0]({ completionExpectation.fulfill() })
+        actionRegistry.enqueue(actionModels: [actionModel])
         waitForExpectations(timeout: 1)
     }
 
 
     func testUnknownAction() throws {
         // Arrange
+        let executionExpectation = expectation(description: "Action executed")
+        executionExpectation.isInverted = true
         let actionModel = Experience.Action(
             trigger: "tap",
             type: "@unknown/action",
-            config: nil
+            config: ["executionExpectation": executionExpectation]
         )
 
         // Act
         actionRegistry.register(action: TestAction.self)
 
         // Assert
-        let actionClosures = actionRegistry.actionClosures(for: [actionModel])
-        XCTAssertEqual(actionClosures.count, 0)
+        actionRegistry.enqueue(actionModels: [actionModel])
+        waitForExpectations(timeout: 1)
+
     }
 
     func testDuplicateTypeRegistrations() throws {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
         let executionExpectation2 = expectation(description: "Second action executed")
-        let completionExpectation = expectation(description: "Completion called")
         executionExpectation2.isInverted = true
         let actionModel = Experience.Action(
             trigger: "tap",
@@ -79,12 +77,53 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction2.self)
 
         // Assert
-        let actionClosures = actionRegistry.actionClosures(for: [actionModel])
-        XCTAssertEqual(actionClosures.count, 1)
-
-        actionClosures[0]({ completionExpectation.fulfill() })
+        actionRegistry.enqueue(actionModels: [actionModel])
         waitForExpectations(timeout: 1)
     }
+
+    func testQueueExecution() throws {
+        // Arrange
+        let executionExpectation = expectation(description: "Action executed")
+        executionExpectation.expectedFulfillmentCount = 5
+        let actionModel = Experience.Action(
+            trigger: "tap",
+            type: TestAction.type,
+            config: ["executionExpectation": executionExpectation]
+        )
+        actionRegistry.register(action: TestAction.self)
+
+        // Act
+        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel, actionModel, actionModel])
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testQueueAppendingWhileProcessing() throws {
+        // Arrange
+        let executionExpectation = expectation(description: "Action executed")
+        executionExpectation.expectedFulfillmentCount = 5
+        let actionModel = Experience.Action(
+            trigger: "tap",
+            type: TestAction.type,
+            config: ["executionExpectation": executionExpectation]
+        )
+        let delayedActionModel = Experience.Action(
+            trigger: "tap",
+            type: TestAction.type,
+            config: ["executionExpectation": executionExpectation, "delay": 1]
+        )
+        actionRegistry.register(action: TestAction.self)
+
+        // Act
+        actionRegistry.enqueue(actionModels: [delayedActionModel])
+        // Enqueue more while the delayed one is processing
+        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel, actionModel])
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
 }
 
 @available(iOS 13.0, *)
@@ -92,15 +131,24 @@ private extension ActionRegistryTests {
     class TestAction: ExperienceAction {
         static let type = "@test/action"
 
-        var executionExpectation: XCTestExpectation?
+        let executionExpectation: XCTestExpectation?
+        let delay: TimeInterval?
 
         required init?(config: [String: Any]?) {
             executionExpectation = config?["executionExpectation"] as? XCTestExpectation
+            delay = config?["delay"] as? TimeInterval
         }
 
         func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
-            executionExpectation?.fulfill()
-            completion()
+            if let delay = delay {
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                    self.executionExpectation?.fulfill()
+                    completion()
+                }
+            } else {
+                executionExpectation?.fulfill()
+                completion()
+            }
         }
     }
 
