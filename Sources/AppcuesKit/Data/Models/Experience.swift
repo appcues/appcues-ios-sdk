@@ -60,13 +60,34 @@ internal struct Experience {
     let traits: [Trait]
     let steps: [Step]
 
+    // Post experience actions
+    let redirectURL: URL?
+    let nextContentID: String?
+
     /// Unique ID to disambiguate the same experience flowing through the system from different origins.
     let instanceID = UUID()
 }
 
 extension Experience: Decodable {
-    private enum CodingKeys: CodingKey {
-        case id, name, type, publishedAt, traits, steps
+    private enum CodingKeys: String, CodingKey {
+        case id, name, type, publishedAt, traits, steps, redirectURL = "redirectUrl", nextContentID = "nextContentId"
+    }
+}
+
+extension Experience {
+    @available(iOS 13.0, *)
+    var postExperienceActions: [ExperienceAction] {
+        var actions: [ExperienceAction] = []
+
+        if let redirectURL = redirectURL {
+            actions.append(AppcuesLinkAction(url: redirectURL))
+        }
+
+        if let nextContentID = nextContentID {
+            actions.append(AppcuesLaunchExperienceAction(experienceID: nextContentID))
+        }
+
+        return actions
     }
 }
 

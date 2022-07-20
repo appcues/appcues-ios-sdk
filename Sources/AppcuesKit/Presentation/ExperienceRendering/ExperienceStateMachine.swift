@@ -13,6 +13,7 @@ internal class ExperienceStateMachine {
 
     private let config: Appcues.Config
     private let traitComposer: TraitComposing
+    private let actionRegistry: ActionRegistry
 
     private(set) var stateObservers: [ExperienceStateObserver] = []
 
@@ -33,6 +34,7 @@ internal class ExperienceStateMachine {
     init(container: DIContainer, initialState: State = .idling) {
         config = container.resolve(Appcues.Config.self)
         traitComposer = container.resolve(TraitComposing.self)
+        actionRegistry = container.resolve(ActionRegistry.self)
 
         state = initialState
     }
@@ -214,6 +216,7 @@ extension ExperienceStateMachine {
         case navigateInContainer(ExperiencePackage, pageIndex: Int)
         case dismissContainer(ExperiencePackage, continuation: Action)
         case error(ExperienceError, reset: Bool)
+        case processActions([ExperienceAction])
 
         func execute(in machine: ExperienceStateMachine) throws {
             switch self {
@@ -233,6 +236,8 @@ extension ExperienceStateMachine {
                 if reset {
                     machine.state = .idling
                 }
+            case let .processActions(actions):
+                machine.actionRegistry.enqueue(actionInstances: actions)
             }
         }
 

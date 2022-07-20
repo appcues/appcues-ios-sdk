@@ -27,6 +27,11 @@ internal class AppcuesLinkAction: ExperienceAction {
         }
     }
 
+    init(url: URL, openExternally: Bool = false) {
+        self.url = url
+        self.openExternally = openExternally
+    }
+
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
         // SFSafariViewController only supports HTTP and HTTPS URLs and crashes otherwise, so check to be safe.
         if !openExternally && ["http", "https"].contains(url.scheme?.lowercased()) {
