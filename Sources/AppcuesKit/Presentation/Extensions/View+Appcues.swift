@@ -64,14 +64,29 @@ extension View {
 
     func applyBackgroundStyle(_ style: AppcuesStyle) -> some View {
         self
-            .ifLet(style.backgroundColor) { view, val in
+            // Order for the backgrounds matters. Images > Gradients > Color.
+            .ifLet(style.backgroundImage) { view, val in
+                let model = ExperienceComponent.ImageModel(from: val)
+                let backgroundAlignment = Alignment(
+                    vertical: val.verticalAlignment,
+                    horizontal: val.horizontalAlignment
+                ) ?? .center
+                let backgroundImage = AppcuesImage(model: model)
+
+                if #available(iOS 14.0, *) {
+                    view.background(backgroundImage.ignoresSafeArea(.container, edges: .all), alignment: backgroundAlignment).clipped()
+                } else {
+                    view.background(backgroundImage.edgesIgnoringSafeArea(.all), alignment: backgroundAlignment).clipped()
+                }
+            }
+            .ifLet(style.backgroundGradient) { view, val in
                 if #available(iOS 14.0, *) {
                     view.background(val.ignoresSafeArea(.container, edges: .all))
                 } else {
                     view.background(val.edgesIgnoringSafeArea(.all))
                 }
             }
-            .ifLet(style.backgroundGradient) { view, val in
+            .ifLet(style.backgroundColor) { view, val in
                 if #available(iOS 14.0, *) {
                     view.background(val.ignoresSafeArea(.container, edges: .all))
                 } else {
