@@ -176,11 +176,65 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(stateMachine.state, .idling)
     }
 
+    func test_whenEndExperience_andMarkComplete_executesActions() throws {
+        // Arrange
+        appcues.sessionID = UUID() // needed to pass a check to show the next experience
+
+        let dismissExpectation = expectation(description: "Experience dismissed")
+        let nextContentLoadedExpectation = expectation(description: "Next content ID requested")
+        let experience = Experience.mock
+        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
+        let action: Action = .endExperience(markComplete: true)
+        let stateMachine = givenState(is: initialState)
+
+        appcues.experienceLoader.onLoad = { contentID, published, completion in
+            XCTAssertEqual(contentID, Experience.mock.nextContentID)
+            XCTAssertTrue(published)
+            nextContentLoadedExpectation.fulfill()
+            completion?(.success(()))
+        }
+
+        // Act
+        try stateMachine.transition(action)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(stateMachine.state, .idling)
+    }
+
+    func test_whenEndExperience_andNoMarkComplete_doesNotExecuteActions() throws {
+        // Arrange
+        appcues.sessionID = UUID() // needed to pass a check to show the next experience
+
+        let dismissExpectation = expectation(description: "Experience dismissed")
+        let nextContentLoadedExpectation = expectation(description: "Next content ID requested")
+        nextContentLoadedExpectation.isInverted = true
+        let experience = Experience.mock
+        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
+        let action: Action = .endExperience(markComplete: false)
+        let stateMachine = givenState(is: initialState)
+
+        appcues.experienceLoader.onLoad = { contentID, published, completion in
+            XCTFail("no next content should be shown")
+        }
+
+        // Act
+        try stateMachine.transition(action)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(stateMachine.state, .idling)
+    }
+
     // MARK: Error Transitions
 
     func test_stateIsIdling_whenStartExperienceWithNoSteps_noTransition() throws {
         // Arrange
-        let experience = Experience(id: UUID(), name: "Empty experience", type: "mobile", publishedAt: 1632142800000, traits: [], steps: [])
+        let experience = Experience(id: UUID(), name: "Empty experience", type: "mobile", publishedAt: 1632142800000, traits: [], steps: [], redirectURL: nil, nextContentID: nil)
         let initialState: State = .idling
         let action: Action = .startExperience(experience)
         let stateMachine = givenState(is: initialState)

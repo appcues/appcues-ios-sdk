@@ -67,7 +67,9 @@ extension Experience {
                 .child(
                     Step.Child(fixedID: "03652bd5-f0cb-44f0-9274-e95b4441d857")
                 )
-            ])
+            ],
+            redirectURL: nil,
+            nextContentID: "abc")
     }
 
     static var singleStepMock: Experience {
@@ -84,7 +86,9 @@ extension Experience {
                         Step.Child(fixedID: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                     ]
                 )
-            ])
+            ],
+            redirectURL: nil,
+            nextContentID: nil)
     }
 
     @available(iOS 13.0, *)
