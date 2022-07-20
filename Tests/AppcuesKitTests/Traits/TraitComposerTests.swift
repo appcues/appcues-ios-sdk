@@ -54,7 +54,9 @@ class TraitComposerTests: XCTestCase {
             ],
             steps: [
                 .child(Experience.Step.Child(traits: []))
-            ])
+            ],
+        redirectURL: nil,
+        nextContentID: nil)
 
         // Act
         _ = try traitComposer.package(experience: experience, stepIndex: Experience.StepIndex(group: 0, item: 0))
@@ -153,7 +155,9 @@ class TraitComposerTests: XCTestCase {
             ],
             steps: [
                 .child(Experience.Step.Child(traits: []))
-            ])
+            ],
+            redirectURL: nil,
+            nextContentID: nil)
 
 
         // Act
@@ -188,7 +192,9 @@ class TraitComposerTests: XCTestCase {
                     traits: [],
                     actions: [:]
                 ))
-            ])
+            ],
+            redirectURL: nil,
+            nextContentID: nil)
 
         // Act
         XCTAssertThrowsError(try traitComposer.package(experience: experience, stepIndex: Experience.StepIndex(group: 0, item: 0))) { error in
@@ -260,7 +266,9 @@ class TraitComposerTests: XCTestCase {
                             "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
                         ])
                 ]))
-            ])
+            ],
+        redirectURL: nil,
+        nextContentID: nil)
     }
 }
 
