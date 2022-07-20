@@ -150,10 +150,10 @@ jobs:
                           "type": "button",
                           "text": {
                             "type": "plain_text",
-                            "text": "View on App Store Connect",
+                            "text": "View in TestFlight",
                             "emoji": true
                           },
-                          "url": "https://appstoreconnect.apple.com/apps/1590866976/testflight/ios"
+                          "url": "https://testflight.apple.com/v1/app/1590866976"
                         }
                       ]
                     }
