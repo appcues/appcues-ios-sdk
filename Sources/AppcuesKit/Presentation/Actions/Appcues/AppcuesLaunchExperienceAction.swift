@@ -22,6 +22,10 @@ internal class AppcuesLaunchExperienceAction: ExperienceAction {
         }
     }
 
+    init(experienceID: String) {
+        self.experienceID = experienceID
+    }
+
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
         appcues.show(experienceID: experienceID) { _, _  in completion() }
     }
