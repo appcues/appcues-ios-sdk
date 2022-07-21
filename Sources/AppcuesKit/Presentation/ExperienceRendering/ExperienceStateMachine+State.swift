@@ -40,9 +40,9 @@ extension ExperienceStateMachine {
                 )
             case let (.endingStep(experience, currentIndex, _), .startStep(stepRef)):
                 return Transition.fromEndingStepToBeginningStep(experience, currentIndex, stepRef, traitComposer)
-            case let (.endingExperience(experience, stepIndex, markComplete), .reset):
+            case let (.endingExperience(experience, _, _), .reset):
                 var sideEffect: SideEffect?
-                if markComplete || stepIndex == experience.stepIndices.last {
+                if self.isExperienceCompleted {
                     sideEffect = .processActions(experience.postExperienceActions)
                 }
                 return Transition(toState: .idling, sideEffect: sideEffect)

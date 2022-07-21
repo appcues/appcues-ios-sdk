@@ -15,7 +15,28 @@ internal protocol ExperienceStateObserver: AnyObject {
 }
 
 @available(iOS 13.0, *)
+extension ExperienceStateMachine.State {
+    var isExperienceCompleted: Bool {
+        switch self {
+        case let .endingExperience(experience, stepIndex, markComplete):
+            return markComplete || stepIndex == experience.stepIndices.last
+        default:
+            return false
+        }
+    }
+}
+
+@available(iOS 13.0, *)
 extension Result where Success == ExperienceStateMachine.State, Failure == ExperienceStateMachine.ExperienceError {
+    var isExperienceCompleted: Bool {
+        switch self {
+        case let .success(state):
+            return state.isExperienceCompleted
+        default:
+            return false
+        }
+    }
+
     /// Check if the result pertains to a specific experience ID.
     func matches(instanceID: UUID?) -> Bool {
         guard let instanceID = instanceID else { return true }
@@ -81,8 +102,8 @@ extension ExperienceStateMachine {
                 trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.endingStep(experience, stepIndex, _)):
                 trackLifecycleEvent(.stepCompleted, LifecycleEvent.properties(experience, stepIndex))
-            case let .success(.endingExperience(experience, stepIndex, markComplete)):
-                if markComplete || stepIndex == experience.stepIndices.last {
+            case let .success(.endingExperience(experience, stepIndex, _)):
+                if result.isExperienceCompleted {
                     trackLifecycleEvent(.experienceCompleted, LifecycleEvent.properties(experience))
                 } else {
                     trackLifecycleEvent(.experienceDismissed, LifecycleEvent.properties(experience, stepIndex))
