@@ -51,7 +51,7 @@ Add the Swift package as a dependency to your project in Xcode:
 
 1. In Xcode, open your project and navigate to **File** → **Add Packages…**
 2. Enter the package URL `https://github.com/appcues/appcues-ios-sdk`
-3. For **Dependency Rules**, select **Branch** (with branch set to `main`)
+3. For **Dependency Rules**, select **Exact Version** and enter the latest pre-release beta version `1.0.0-beta.4`
 4. Click **Add Package**
 
 Alternatively, if your project has a `Package.swift` file, you can add Appcues iOS SDK to your dependencies:
@@ -64,9 +64,9 @@ dependencies: [
 
 #### Cocoapods
 
-1. Add the pod to your Podfile
+1. Add the pod to your Podfile (The pre-release version needs to be explicitly included until 1.0.0 is released)
     ```rb
-    pod 'Appcues'
+    pod 'Appcues', '1.0.0-beta.4'
     ```
 2. In Terminal, run
    ```sh
