@@ -19,11 +19,18 @@ internal class ExperienceLoader: ExperienceLoading {
     private let config: Appcues.Config
     private let networking: Networking
     private let experienceRenderer: ExperienceRendering
+    private let notificationCenter: NotificationCenter
+
+    /// Store the experience ID loaded (only if previewing) so that it can be refreshed.
+    private var lastPreviewExperienceID: String?
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
         self.networking = container.resolve(Networking.self)
         self.experienceRenderer = container.resolve(ExperienceRendering.self)
+        self.notificationCenter = container.resolve(NotificationCenter.self)
+
+        notificationCenter.addObserver(self, selector: #selector(refreshPreview), name: .shakeToRefresh, object: nil)
     }
 
     func load(experienceID: String, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
@@ -42,6 +49,15 @@ internal class ExperienceLoader: ExperienceLoading {
                 self?.config.logger.error("Loading experience %{public}s failed with error %{public}s", experienceID, "\(error)")
                 completion?(.failure(error))
             }
+
+            self?.lastPreviewExperienceID = published ? nil : experienceID
         }
+    }
+
+    @objc
+    private func refreshPreview(notification: Notification) {
+        guard let experienceID = lastPreviewExperienceID else { return }
+
+        load(experienceID: experienceID, published: false, completion: nil)
     }
 }
