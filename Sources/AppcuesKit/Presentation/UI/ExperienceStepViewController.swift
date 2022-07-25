@@ -12,6 +12,7 @@ import UIKit
 internal class ExperienceStepViewController: UIViewController {
 
     let viewModel: ExperienceStepViewModel
+    let notificationCenter: NotificationCenter?
 
     lazy var stepView = ExperienceStepView()
     var padding: NSDirectionalEdgeInsets {
@@ -21,8 +22,9 @@ internal class ExperienceStepViewController: UIViewController {
 
     private let contentViewController: UIViewController
 
-    init(viewModel: ExperienceStepViewModel) {
+    init(viewModel: ExperienceStepViewModel, notificationCenter: NotificationCenter? = nil) {
         self.viewModel = viewModel
+        self.notificationCenter = notificationCenter
 
         let rootView = ExperienceStepRootView(rootView: viewModel.step.content.view, viewModel: viewModel)
         self.contentViewController = AppcuesHostingController(rootView: rootView)
@@ -59,6 +61,11 @@ internal class ExperienceStepViewController: UIViewController {
         )
     }
 
+    override func motionEnded(_ motion: UIEvent.EventSubtype, with event: UIEvent?) {
+        if motion == .motionShake {
+            notificationCenter?.post(name: .shakeToRefresh, object: self)
+        }
+    }
 }
 
 @available(iOS 13.0, *)
@@ -105,4 +112,8 @@ extension ExperienceStepViewController {
             fatalError("init(coder:) has not been implemented")
         }
     }
+}
+
+extension Notification.Name {
+    internal static let shakeToRefresh = Notification.Name("shakeToRefresh")
 }

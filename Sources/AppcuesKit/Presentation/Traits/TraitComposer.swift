@@ -18,10 +18,12 @@ internal class TraitComposer: TraitComposing {
 
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
+    private let notificationCenter: NotificationCenter
 
     init(container: DIContainer) {
         traitRegistry = container.resolve(TraitRegistry.self)
         actionRegistry = container.resolve(ActionRegistry.self)
+        notificationCenter = container.resolve(NotificationCenter.self)
     }
 
     func package(experience: Experience, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
@@ -83,7 +85,7 @@ internal class TraitComposer: TraitComposing {
 
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithDecorators.map { step, decorators in
             let viewModel = ExperienceStepViewModel(step: step, actionRegistry: actionRegistry)
-            let stepViewController = ExperienceStepViewController(viewModel: viewModel)
+            let stepViewController = ExperienceStepViewController(viewModel: viewModel, notificationCenter: notificationCenter)
             try decorators.forEach { try $0.decorate(stepController: stepViewController) }
             return stepViewController
         }
