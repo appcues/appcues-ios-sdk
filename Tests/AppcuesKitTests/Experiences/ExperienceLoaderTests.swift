@@ -94,4 +94,51 @@ class ExperienceLoaderTests: XCTestCase {
         // Assert
         waitForExpectations(timeout: 1)
     }
+
+    func testReloadPreviewNotification() throws {
+        // Arrange
+        let reloadExpectation = expectation(description: "Data loaded called")
+
+        // Load the initial preview
+        experienceLoader.load(experienceID: "123", published: false, completion: nil)
+
+        appcues.networking.onGet = { endpoint in
+            XCTAssertEqual(
+                endpoint.url(config: self.appcues.config, storage: self.appcues.storage),
+                APIEndpoint.preview(experienceID: "123").url(config: self.appcues.config, storage: self.appcues.storage)
+            )
+            reloadExpectation.fulfill()
+
+            return .success(Experience.mock)
+        }
+
+        // Act
+        appcues.container.resolve(NotificationCenter.self).post(name: .shakeToRefresh, object: nil)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testNoOpWhenNotificationOnPublishedExperiencec() throws {
+        // Arrange
+        let reloadExpectation = expectation(description: "Data loaded called")
+        reloadExpectation.isInverted = true
+
+        // Load the initial preview
+        experienceLoader.load(experienceID: "123", published: false, completion: nil)
+        // Load a published experience
+        experienceLoader.load(experienceID: "abc", published: true, completion: nil)
+
+        appcues.networking.onGet = { endpoint in
+            reloadExpectation.fulfill()
+            XCTFail("Experience should not be loaded on notification")
+            return .success(Experience.mock)
+        }
+
+        // Act
+        appcues.container.resolve(NotificationCenter.self).post(name: .shakeToRefresh, object: nil)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
 }
