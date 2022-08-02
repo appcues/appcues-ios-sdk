@@ -34,12 +34,16 @@ internal class DebugViewModel: ObservableObject {
     }
     @Published var filter: DebugViewModel.LoggedEvent.EventType?
     @Published private(set) var connectedStatus = StatusItem(status: .pending, title: "Connected to Appcues")
+    @Published private(set) var deeplinkStatus = StatusItem(status: .pending, title: "Appcues Deeplink Configured")
     @Published private(set) var trackingPages = false
     @Published private(set) var userIdentified = false
     @Published var isAnonymous = false
 
     @Published var experienceStatuses: [StatusItem] = []
     private let syncQueue = DispatchQueue(label: "appcues-status-listing")
+
+    /// Unique value to pass through a deeplink to verify handling.
+    private var deeplinkVerificationToken: String?
 
     var statusItems: [StatusItem] {
         return [
@@ -51,6 +55,7 @@ internal class DebugViewModel: ObservableObject {
                 title: "Installed SDK \(Appcues.version())",
                 subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)"),
             connectedStatus,
+            deeplinkStatus,
             StatusItem(
                 status: trackingPages ? .verified : .pending,
                 title: "Tracking Screens",
@@ -79,6 +84,7 @@ internal class DebugViewModel: ObservableObject {
         self.userIdentified = !currentUserID.isEmpty
 
         connectedStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.ping() }
+        deeplinkStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.verifyDeeplink() }
     }
 
     func reset() {
@@ -87,6 +93,8 @@ internal class DebugViewModel: ObservableObject {
         latestEvent = nil
         trackingPages = false
     }
+
+    // MARK: Event Handling
 
     func addUpdate(_ update: TrackingUpdate) {
         let event = LoggedEvent(from: update)
@@ -160,6 +168,8 @@ internal class DebugViewModel: ObservableObject {
         }
     }
 
+    // MARK: API Connection Status
+
     func ping() {
         connectedStatus.status = .pending
         connectedStatus.subtitle = nil
@@ -177,6 +187,61 @@ internal class DebugViewModel: ObservableObject {
                 }
             }
         }
+    }
+
+    // MARK: Deeplink Status
+
+    func verifyDeeplink() {
+        deeplinkStatus.status = .pending
+        deeplinkStatus.subtitle = nil
+
+        if !infoPlistContainsScheme() {
+            deeplinkStatus.status = .unverfied
+            deeplinkStatus.subtitle = "Error 1: CFBundleURLSchemes value missing"
+            return
+        }
+
+        verifyDeeplinkHandling(token: UUID().uuidString)
+    }
+
+    private func infoPlistContainsScheme() -> Bool {
+        guard let urlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] else { return false }
+
+        return urlTypes
+            .flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] }
+            .contains { $0 == "appcues-\(applicationID)" }
+    }
+
+    private func verifyDeeplinkHandling(token: String) {
+        guard let url = URL(string: "appcues-\(applicationID)://sdk/verify/\(token)") else {
+            deeplinkStatus.status = .unverfied
+            deeplinkStatus.subtitle = "Error 0: Failed to set up verification"
+            return
+        }
+
+        deeplinkVerificationToken = token
+
+        UIApplication.shared.open(url, options: [:])
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            if self.deeplinkVerificationToken != nil {
+                self.deeplinkStatus.status = .unverfied
+                self.deeplinkStatus.subtitle = "Error 2: Appcues SDK not receiving links"
+                self.deeplinkVerificationToken = nil
+            }
+        }
+    }
+
+    func receivedVerification(token: String) {
+        if token == deeplinkVerificationToken {
+            deeplinkStatus.status = .verified
+            deeplinkStatus.subtitle = nil
+        } else {
+            deeplinkStatus.status = .unverfied
+            deeplinkStatus.subtitle = "Error 3: Unexpected result"
+        }
+
+        deeplinkVerificationToken = nil
     }
 }
 
