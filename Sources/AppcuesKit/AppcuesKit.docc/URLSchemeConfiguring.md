@@ -79,6 +79,17 @@ var body: some Scene {
 
 ## Verifying the Custom URL Scheme
 
-Test that the URL scheme handling is set up correctly by navigating to `appcues-APPCUES_APPLICATION_ID://sdk/debugger` in your browser on the device with the app installed.
+The Appcues debugger allows you to easily validate that the Appcues deeplink is properly configured.
+
+1. Launch the debugger in your app with a call to ``Appcues/debug()``.
+2. Expand the debugger by tapping the floating button.
+3. Tap the "Appcues Deeplink Configured" row to verify the status. If a checkmark appears, the Appcues deeplink is properly configured. 
+
+### Troubleshooting
+
+- `Error 0`: The Appcues debugger was unable to set up the verification test.
+- `Error 1`: The `CFBundleURLSchemes` value is missing. Refer to the "Register the Custom URL Scheme" section above.
+- `Error 2`: The URL scheme is registered, but the Appcues SDK did not receive the link from the host app. Refer to the "Handle the Custom URL Scheme" section above.
+- `Error 3`: The Appcues SDK received the link, but the verification token value was unexpected. Testing again should resolve the issue.
 
 See <doc:Debugging> for details on the functionality of the debugger.
