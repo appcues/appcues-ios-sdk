@@ -36,6 +36,6 @@ internal class ExperienceStepViewModel: ObservableObject {
 
     func actions(for id: UUID) -> [ActionType?: [Experience.Action]] {
         // An unknown trigger value will get lumped into Dictionary[nil] and be ignored.
-        Dictionary(grouping: actions[id] ?? [], by: { ActionType(rawValue: $0.trigger) })
+        Dictionary(grouping: actions[id] ?? []) { ActionType(rawValue: $0.trigger) }
     }
 }
