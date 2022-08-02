@@ -20,6 +20,7 @@ internal class DeeplinkHandler: DeeplinkHandling {
         case preview(experienceID: String) // preview for draft content
         case show(experienceID: String)    // published content
         case debugger(destination: DebugDestination?)
+        case verifyInstall(id: String)
 
         init?(url: URL, isSessionActive: Bool, applicationID: String) {
             let isValidScheme = url.scheme == "appcues-\(applicationID)" || url.scheme == "appcues-democues"
@@ -30,6 +31,7 @@ internal class DeeplinkHandler: DeeplinkHandling {
             // appcues-{app_id}://sdk/experience_content/{experience_id}
             // appcues-{app_id}://sdk/debugger
             // appcues-{app_id}://sdk/debugger/fonts
+            // appcues-{app_id}://sdk/verify/{token}
 
             let pathTokens = url.path.split(separator: "/").map { String($0) }
 
@@ -40,6 +42,8 @@ internal class DeeplinkHandler: DeeplinkHandling {
                 self = .show(experienceID: pathTokens[1])
             } else if pathTokens.count >= 1, pathTokens[0] == "debugger" {
                 self = .debugger(destination: DebugDestination(pathToken: pathTokens[safe: 1]))
+            } else if pathTokens.count == 2, pathTokens[0] == "verify" {
+                self = .verifyInstall(id: pathTokens[1])
             } else {
                 return nil
             }
@@ -101,6 +105,8 @@ internal class DeeplinkHandler: DeeplinkHandling {
             container?.resolve(ExperienceLoading.self).load(experienceID: experienceID, published: true, completion: nil)
         case .debugger(let destination):
             container?.resolve(UIDebugging.self).show(destination: destination)
+        case .verifyInstall(let token):
+            container?.resolve(UIDebugging.self).verifyInstall(token: token)
         }
     }
 

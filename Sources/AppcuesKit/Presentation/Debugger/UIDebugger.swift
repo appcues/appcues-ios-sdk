@@ -12,6 +12,7 @@ import Combine
 
 @available(iOS 13.0, *)
 internal protocol UIDebugging: AnyObject {
+    func verifyInstall(token: String)
     func show(destination: DebugDestination?)
 }
 
@@ -54,6 +55,10 @@ internal class UIDebugger: UIDebugging {
             isAnonymous: storage.isAnonymous)
 
         notificationCenter.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
+    }
+
+    func verifyInstall(token: String) {
+        viewModel.receivedVerification(token: token)
     }
 
     func show(destination: DebugDestination?) {
