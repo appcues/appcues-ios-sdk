@@ -119,6 +119,26 @@ class DeeplinkHandlerTests: XCTestCase {
         XCTAssertTrue(handled)
         XCTAssertTrue(debuggerShown)
     }
+
+    func testHandleDebugDeeplinkVerification() throws {
+        // Arrange
+        deeplinkHandler.topControllerGetting = MockTopControllerGetting()
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/verify/token-123"))
+
+        var debuggerVerificationCalled = false
+        appcues.debugger.onVerify = { token in
+            XCTAssertEqual(token, "token-123")
+            debuggerVerificationCalled = true
+        }
+
+        // Act
+        let handled = deeplinkHandler.didHandleURL(url)
+
+        // Assert
+        XCTAssertTrue(handled)
+        XCTAssertTrue(debuggerVerificationCalled)
+    }
+
     func testHandleNonAppcuesURL() throws {
         // Arrange
         deeplinkHandler.topControllerGetting = MockTopControllerGetting()
