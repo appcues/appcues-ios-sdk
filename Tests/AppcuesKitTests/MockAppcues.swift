@@ -157,6 +157,11 @@ class MockActivityProcessor: ActivityProcessing {
 
 class MockDebugger: UIDebugging {
 
+    var onVerify: ((String) -> Void)?
+    func verifyInstall(token: String) {
+        onVerify?(token)
+    }
+
     var onShow: ((DebugDestination?) -> Void)?
     func show(destination: DebugDestination?) {
         onShow?(destination)
