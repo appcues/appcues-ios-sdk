@@ -31,7 +31,6 @@ internal class ActionRegistry {
         register(action: AppcuesTrackAction.self)
         register(action: AppcuesUpdateProfileAction.self)
         register(action: AppcuesContinueAction.self)
-        register(action: AppcuesRequestReviewAction.self)
     }
 
     func register(action: ExperienceAction.Type) {
