@@ -15,7 +15,7 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
     let presentationStyle: PresentationStyle
     let modalStyle: ExperienceComponent.Style?
 
-    required init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
         if let presentationStyle = PresentationStyle(rawValue: config?["presentationStyle"] as? String ?? "") {
             self.presentationStyle = presentationStyle
         } else {

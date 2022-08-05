@@ -37,12 +37,12 @@ internal class TraitComposer: TraitComposing {
         }
 
         // Experience-level traits
-        var allTraitInstances: [ExperienceTrait] = traitRegistry.instances(for: experience.traits)
+        var allTraitInstances: [ExperienceTrait] = traitRegistry.instances(for: experience.traits, level: .experience)
 
         // Add step-group-level traits
         switch experience.steps[stepIndex.group] {
         case .group(let stepGroup):
-            allTraitInstances.append(contentsOf: traitRegistry.instances(for: stepGroup.traits))
+            allTraitInstances.append(contentsOf: traitRegistry.instances(for: stepGroup.traits, level: .group))
         case .child:
             // Traits for a single step are handled below with the stepModels.
             break
@@ -59,7 +59,7 @@ internal class TraitComposer: TraitComposing {
         var stepModelsWithDecorators: [(Experience.Step.Child, [StepDecoratingTrait])] = []
 
         stepModels.forEach { stepModel in
-            let stepTraitInstances = traitRegistry.instances(for: stepModel.traits)
+            let stepTraitInstances = traitRegistry.instances(for: stepModel.traits, level: .step)
             allTraitInstances.append(contentsOf: stepTraitInstances)
             var stepDecoratingTraits = stepDecorators
 
@@ -123,7 +123,7 @@ extension TraitComposer {
         let groupID: String? = nil
 
         init() {}
-        required init?(config: [String: Any]?) {}
+        required init?(config: [String: Any]?, level: ExperienceTraitLevel) {}
 
         func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {
             DefaultContainerViewController(stepControllers: stepControllers, targetPageIndex: targetPageIndex)

@@ -14,7 +14,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
 
     private weak var containerController: UIViewController?
 
-    required init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
     }
 
     func decorate(containerController: ExperienceContainerViewController) throws {
