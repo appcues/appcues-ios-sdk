@@ -15,7 +15,7 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
 
     var containerController: ExperienceContainerViewController?
 
-    required init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
         self.style = config?["style", decodedAs: ExperienceComponent.Style.self]
     }
 

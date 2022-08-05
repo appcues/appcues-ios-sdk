@@ -35,9 +35,9 @@ internal class TraitRegistry {
         traits[trait.type] = trait
     }
 
-    func instances(for models: [Experience.Trait]) -> [ExperienceTrait] {
+    func instances(for models: [Experience.Trait], level: ExperienceTraitLevel) -> [ExperienceTrait] {
         models.compactMap { traitModel in
-            traits[traitModel.type]?.init(config: traitModel.config)
+            traits[traitModel.type]?.init(config: traitModel.config, level: level)
         }
     }
 }

@@ -14,7 +14,7 @@ internal class AppcuesBackdropTrait: BackdropDecoratingTrait {
 
     let backgroundColor: UIColor?
 
-    required init?(config: [String: Any]?) {
+    required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
         if let dynamicColor = config?["backgroundColor", decodedAs: ExperienceComponent.Style.DynamicColor.self] {
             self.backgroundColor = UIColor(dynamicColor: dynamicColor)
         } else {
