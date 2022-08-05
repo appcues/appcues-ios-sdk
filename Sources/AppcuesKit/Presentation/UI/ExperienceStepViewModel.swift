@@ -17,8 +17,8 @@ internal class ExperienceStepViewModel: ObservableObject {
     }
 
     let step: Experience.Step.Child
-    private var actions: [UUID: [Experience.Action]]
-    private let actionRegistry: ActionRegistry
+    private let actions: [UUID: [Experience.Action]]
+    private let actionRegistry: ActionRegistry?
 
     init(step: Experience.Step.Child, actionRegistry: ActionRegistry) {
         self.step = step
@@ -30,8 +30,23 @@ internal class ExperienceStepViewModel: ObservableObject {
         self.actionRegistry = actionRegistry
     }
 
+    // Create an empty view model for contexts that require an `ExperienceStepViewModel` but aren't in a step context.
+    init() {
+        self.step = Experience.Step.Child(
+            id: UUID(),
+            type: "",
+            content: .spacer(ExperienceComponent.SpacerModel(
+                id: UUID(),
+                spacing: nil,
+                style: nil)),
+            traits: [],
+            actions: [:])
+        self.actions = [:]
+        self.actionRegistry = nil
+    }
+
     func enqueueActions(_ actions: [Experience.Action]) {
-        actionRegistry.enqueue(actionModels: actions)
+        actionRegistry?.enqueue(actionModels: actions)
     }
 
     func actions(for id: UUID) -> [ActionType?: [Experience.Action]] {
