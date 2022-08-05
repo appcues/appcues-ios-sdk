@@ -10,9 +10,15 @@ import UIKit
 
 // swiftlint:disable file_types_order
 
+/// Context in which a trait can be applied.
 @objc
 public enum ExperienceTraitLevel: Int {
-    case experience, group, step
+    /// A trait to be applied to the entire experiene.
+    case experience
+    /// A trait to be applied to a group of steps in  an experience.
+    case group
+    /// A trait to be applied to a single step in an experiene.
+    case step
 }
 
 /// A type that describes a trait of an `Experience`.

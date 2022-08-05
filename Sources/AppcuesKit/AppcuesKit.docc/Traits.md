@@ -85,6 +85,32 @@ In practice this distinction looks like this in the experience data model:
 }
 ```
 
+A trait is made aware of the level at which it is being applied by the ``ExperienceTraitLevel`` passed into ``ExperienceTrait/init(config:level:)``. A trait may choose to alter its behavior depending on the `level` at which it is applied.
+
+For example, a trait might simultaneously conform to ``StepDecoratingTrait`` and ``ContainerDecoratingTrait`` and the choose to apply it's decoration in only one of those contexts:
+
+```swift
+let level: ExperienceTraitLevel
+
+required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
+    self.level = level
+}
+
+// StepDecoratingTrait
+func decorate(stepController viewController: UIViewController) throws {
+    guard level == .step else { return }
+
+    // do something when the trait was applied a step level
+}
+
+// ContainerDecoratingTrait
+func decorate(containerController: ExperienceContainerViewController) throws {
+    guard level == .group else { return }
+
+    // do something when the trait was applied a group level
+}
+```
+
 ## Trait Application Sequence
 
 Trait capabilities are applied in a defined sequence, and a trait with multiple capabilities will have its capabilities applied piecewise.
