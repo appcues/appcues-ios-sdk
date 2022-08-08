@@ -171,7 +171,7 @@ class TraitComposerTests: XCTestCase {
     }
 
     func testDefaultContainerCreatingTrait() throws {
-        let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(config: [:]))
+        let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(config: [:], level: .group))
         let container = try traitInstance.createContainer(for: [], targetPageIndex: 0)
         XCTAssertTrue(container is DefaultContainerViewController)
     }
@@ -301,7 +301,7 @@ extension TraitComposerTests {
 
         var backdropDecoratingExpectation: XCTestExpectation?
 
-        required init?(config: [String: Any]?) {
+        required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
             self.groupID = config?["groupID"] as? String
 
             stepDecoratingExpectation = config?["stepDecoratingExpectation"] as? XCTestExpectation
@@ -360,7 +360,7 @@ extension TraitComposerTests {
         var presentExpectation: XCTestExpectation?
         var removeExpectation: XCTestExpectation?
 
-        required init?(config: [String: Any]?) {
+        required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
             self.groupID = config?["groupID"] as? String
 
             presentExpectation = config?["presentExpectation"] as? XCTestExpectation

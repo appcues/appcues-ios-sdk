@@ -28,7 +28,7 @@ class TraitRegistryTests: XCTestCase {
         traitRegistry.register(trait: TestTrait.self)
 
         // Assert
-        let traitInstances = traitRegistry.instances(for: [traitModel])
+        let traitInstances = traitRegistry.instances(for: [traitModel], level: .group)
         XCTAssertEqual(traitInstances.count, 1)
     }
 
@@ -40,7 +40,7 @@ class TraitRegistryTests: XCTestCase {
         traitRegistry.register(trait: TestTrait.self)
 
         // Assert
-        let traitInstances = traitRegistry.instances(for: [traitModel])
+        let traitInstances = traitRegistry.instances(for: [traitModel], level: .group)
         XCTAssertEqual(traitInstances.count, 0)
     }
 
@@ -54,7 +54,7 @@ class TraitRegistryTests: XCTestCase {
         traitRegistry.register(trait: TestTrait.self)
 
         // Assert
-        let traitInstances = traitRegistry.instances(for: [traitModel])
+        let traitInstances = traitRegistry.instances(for: [traitModel], level: .group)
         XCTAssertEqual(traitInstances.count, 1)
     }
 }
@@ -66,6 +66,6 @@ private extension TraitRegistryTests {
 
         var groupID: String?
 
-        required init?(config: [String: Any]?) {}
+        required init?(config: [String: Any]?, level: ExperienceTraitLevel) {}
     }
 }
