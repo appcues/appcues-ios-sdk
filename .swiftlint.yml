@@ -150,3 +150,10 @@ vertical_whitespace:
 missing_docs:
   excludes_extensions: true
   excludes_inherited_types: true
+
+custom_rules:
+  deep_link_spelling:
+    name: "Deep link spelling"
+    regex: "([d,D]eeplink)"
+    message: "Should be \"Deep link\", not \"Deeplink\""
+    severity: warning
