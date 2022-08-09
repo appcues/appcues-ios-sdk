@@ -12,7 +12,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
-    lazy var deeplinkNavigator = DeeplinkNavigator()
+    lazy var deepLinkNavigator = DeepLinkNavigator()
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
@@ -20,11 +20,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new
         // (see `application:configurationForConnectingSceneSession` instead).
 
-        // Handle Appcues deeplinks.
+        // Handle Appcues deep links.
         let unhandledURLContexts = Appcues.shared.filterAndHandle(connectionOptions.urlContexts)
 
-        // Handle app-specific deeplinks.
-        deeplinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
+        // Handle app-specific deep links.
+        deepLinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -37,7 +37,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-        deeplinkNavigator.didBecomeActive()
+        deepLinkNavigator.didBecomeActive()
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
@@ -57,10 +57,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        // Handle Appcues deeplinks.
+        // Handle Appcues deep links.
         let unhandledURLContexts = Appcues.shared.filterAndHandle(URLContexts)
 
-        // Handle app-specific deeplinks.
-        deeplinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
+        // Handle app-specific deep links.
+        deepLinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
     }
 }

@@ -1,5 +1,5 @@
 //
-//  DeeplinkHandler.swift
+//  DeepLinkHandler.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-10-28.
@@ -9,12 +9,12 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal protocol DeeplinkHandling: AnyObject {
+internal protocol DeepLinkHandling: AnyObject {
     func didHandleURL(_ url: URL) -> Bool
 }
 
 @available(iOS 13.0, *)
-internal class DeeplinkHandler: DeeplinkHandling {
+internal class DeepLinkHandler: DeepLinkHandling {
 
     enum Action: Hashable {
         case preview(experienceID: String) // preview for draft content
@@ -38,7 +38,7 @@ internal class DeeplinkHandler: DeeplinkHandling {
             if pathTokens.count == 2, pathTokens[0] == "experience_preview" {
                 self = .preview(experienceID: pathTokens[1])
             } else if pathTokens.count == 2, pathTokens[0] == "experience_content", isSessionActive {
-                // can only show content via deeplink when a session is active
+                // can only show content via deep link when a session is active
                 self = .show(experienceID: pathTokens[1])
             } else if pathTokens.count >= 1, pathTokens[0] == "debugger" {
                 self = .debugger(destination: DebugDestination(pathToken: pathTokens[safe: 1]))

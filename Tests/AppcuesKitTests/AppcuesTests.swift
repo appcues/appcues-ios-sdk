@@ -205,7 +205,7 @@ class AppcuesTests: XCTestCase {
 
     func testDidHandleURL() throws {
         // Arrange
-        appcues.deeplinkHandler.onDidHandleURL = { url -> Bool in
+        appcues.deepLinkHandler.onDidHandleURL = { url -> Bool in
             XCTAssertEqual(URL(string: "https://www.appcues.com")!, url)
             return true
         }
@@ -234,7 +234,7 @@ class AppcuesTests: XCTestCase {
         weak var weakAutoPropertyDecoration = appcues?.container.resolve(AutoPropertyDecorator.self)
         weak var weakActivityProcessing = appcues?.container.resolve(ActivityProcessing.self)
         weak var weakActivityStoring = appcues?.container.resolve(ActivityStoring.self)
-        weak var weakDeeplinkHandling = appcues?.container.resolve(DeeplinkHandling.self)
+        weak var weakDeepLinkHandling = appcues?.container.resolve(DeepLinkHandling.self)
         weak var weakUIDebugging = appcues?.container.resolve(UIDebugging.self)
         weak var weakExperienceLoading = appcues?.container.resolve(ExperienceLoading.self)
         weak var weakExperienceRendering = appcues?.container.resolve(ExperienceRendering.self)
@@ -253,7 +253,7 @@ class AppcuesTests: XCTestCase {
         XCTAssertNotNil(weakAutoPropertyDecoration)
         XCTAssertNotNil(weakActivityProcessing)
         XCTAssertNotNil(weakActivityStoring)
-        XCTAssertNotNil(weakDeeplinkHandling)
+        XCTAssertNotNil(weakDeepLinkHandling)
         XCTAssertNotNil(weakUIDebugging)
         XCTAssertNotNil(weakExperienceLoading)
         XCTAssertNotNil(weakExperienceRendering)
@@ -276,7 +276,7 @@ class AppcuesTests: XCTestCase {
         XCTAssertNil(weakAutoPropertyDecoration)
         XCTAssertNil(weakActivityProcessing)
         XCTAssertNil(weakActivityStoring)
-        XCTAssertNil(weakDeeplinkHandling)
+        XCTAssertNil(weakDeepLinkHandling)
         XCTAssertNil(weakUIDebugging)
         XCTAssertNil(weakExperienceLoading)
         XCTAssertNil(weakExperienceRendering)

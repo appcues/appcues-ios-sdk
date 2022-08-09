@@ -47,9 +47,9 @@ This screen is identified as `Update Group` for screen targeting.
 
 A textfield is included to set the group for the current user using `Appcues.group()`.
 
-## Deeplinks
+## Deep Links
 
-The app supports the following deeplinks.
+The app supports the following deep links.
 
 | Screen  | Link                      |
 | ------- | ------------------------- |
