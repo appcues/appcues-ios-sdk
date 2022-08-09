@@ -18,7 +18,7 @@
 		A245C61F75A6DAA8985A6772 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C713E67205D9507CE2DC80 /* AppDelegate.swift */; };
 		A24A736BF7726104BF014D20 /* Pods_AppcuesCocoapodsExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 808B6BBAEF75A6DD7AC11D0D /* Pods_AppcuesCocoapodsExample.framework */; };
 		A5CE7AE8513C052690838416 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */; };
-		CAFC2E38ACF9024AD211097D /* DeeplinkNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADB3815CE7FEA22224162CE /* DeeplinkNavigator.swift */; };
+		CAFC2E38ACF9024AD211097D /* DeepLinkNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5ADB3815CE7FEA22224162CE /* DeepLinkNavigator.swift */; };
 		CCD458B6662FC0AC5C80CAFF /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384497BA35A275E793B475C1 /* ProfileViewController.swift */; };
 		CD156254F042866368E77CC3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 024025AF9E2E0D38C368A6AC /* Main.storyboard */; };
 		DBE453F2B40A01B4818CB84E /* Lato-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C47ABB97FE784624C32E96D7 /* Lato-Bold.ttf */; };
@@ -34,7 +34,7 @@
 		2E1BE92E4A34AD818AD21FDC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		384497BA35A275E793B475C1 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		547A647EB6D311E97F592C7C /* Lato-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Black.ttf"; sourceTree = "<group>"; };
-		5ADB3815CE7FEA22224162CE /* DeeplinkNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeeplinkNavigator.swift; sourceTree = "<group>"; };
+		5ADB3815CE7FEA22224162CE /* DeepLinkNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkNavigator.swift; sourceTree = "<group>"; };
 		5DC2B62290580560D162A8E7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		808B6BBAEF75A6DD7AC11D0D /* Pods_AppcuesCocoapodsExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppcuesCocoapodsExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		82DED1437C1DA54F0C231566 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -86,7 +86,7 @@
 				3271BCB89D21367EC1AA9069 /* Fonts */,
 				10C713E67205D9507CE2DC80 /* AppDelegate.swift */,
 				2E1BE92E4A34AD818AD21FDC /* Assets.xcassets */,
-				5ADB3815CE7FEA22224162CE /* DeeplinkNavigator.swift */,
+				5ADB3815CE7FEA22224162CE /* DeepLinkNavigator.swift */,
 				9D26E6136C6539597C9E50A9 /* EventsViewController.swift */,
 				9CB61619365785F4544ED13D /* GroupViewController.swift */,
 				AAD7ED9DCA5972361B3F5E67 /* Info.plist */,
@@ -105,7 +105,6 @@
 				0FC954E991346E02C5B07502 /* Pods-AppcuesCocoapodsExample.debug.xcconfig */,
 				05171392CB1FB5611E5F7E22 /* Pods-AppcuesCocoapodsExample.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -157,8 +156,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1200;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 95033167E7E129F199208F61 /* Build configuration list for PBXProject "AppcuesCocoapodsExample" */;
 			compatibilityVersion = "Xcode 10.0";
@@ -262,7 +259,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A245C61F75A6DAA8985A6772 /* AppDelegate.swift in Sources */,
-				CAFC2E38ACF9024AD211097D /* DeeplinkNavigator.swift in Sources */,
+				CAFC2E38ACF9024AD211097D /* DeepLinkNavigator.swift in Sources */,
 				EC6747EFCF3EDE3DE6E45EF3 /* EventsViewController.swift in Sources */,
 				64C809F864D3002CD52993CD /* GroupViewController.swift in Sources */,
 				CCD458B6662FC0AC5C80CAFF /* ProfileViewController.swift in Sources */,
