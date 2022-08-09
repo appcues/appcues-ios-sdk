@@ -254,7 +254,7 @@ public class Appcues: NSObject {
     public func didHandleURL(_ url: URL) -> Bool {
         guard #available(iOS 13.0, *) else { return false }
 
-        return container.resolve(DeeplinkHandling.self).didHandleURL(url)
+        return container.resolve(DeepLinkHandling.self).didHandleURL(url)
     }
 
     func initializeContainer() {
@@ -273,7 +273,7 @@ public class Appcues: NSObject {
         container.registerLazy(AnalyticsBroadcaster.self, initializer: AnalyticsBroadcaster.init)
 
         if #available(iOS 13.0, *) {
-            container.registerLazy(DeeplinkHandling.self, initializer: DeeplinkHandler.init)
+            container.registerLazy(DeepLinkHandling.self, initializer: DeepLinkHandler.init)
             container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
             container.registerLazy(ExperienceLoading.self, initializer: ExperienceLoader.init)
             container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)

@@ -34,9 +34,9 @@ Tap the row to re-check the connection status.
 
 > If there is a connection error, long-press the row to copy the detailed error information.
 
-### Deeplink Configuration Status
+### Deep Link Configuration Status
 
-Tap to check status. Shows a checkmark if the Appcues deeplink is properly configured. See <doc:URLSchemeConfiguring> for information about error messages.
+Tap to check status. Shows a checkmark if the Appcues deep link is properly configured. See <doc:URLSchemeConfiguring> for information about error messages.
 
 ### Screen Tracking Status
 

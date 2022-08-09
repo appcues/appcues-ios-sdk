@@ -30,7 +30,7 @@ class MockAppcues: Appcues {
         container.register(AnalyticsTracking.self, value: analyticsTracker)
 
         if #available(iOS 13.0, *) {
-            container.register(DeeplinkHandling.self, value: deeplinkHandler)
+            container.register(DeepLinkHandling.self, value: deepLinkHandler)
             container.register(UIDebugging.self, value: debugger)
             container.register(ExperienceLoading.self, value: experienceLoader)
             container.register(ExperienceRendering.self, value: experienceRenderer)
@@ -59,7 +59,7 @@ class MockAppcues: Appcues {
     var sessionMonitor = MockSessionMonitor()
     var activityProcessor = MockActivityProcessor()
     var debugger = MockDebugger()
-    var deeplinkHandler = MockDeeplinkHandler()
+    var deepLinkHandler = MockDeepLinkHandler()
     var traitComposer = MockTraitComposer()
     var activityStorage = MockActivityStorage()
     var networking = MockNetworking()
@@ -168,7 +168,7 @@ class MockDebugger: UIDebugging {
     }
 }
 
-class MockDeeplinkHandler: DeeplinkHandling {
+class MockDeepLinkHandler: DeepLinkHandling {
 
     var onDidHandleURL: ((URL) -> Bool)?
     func didHandleURL(_ url: URL) -> Bool {

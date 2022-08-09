@@ -38,14 +38,14 @@ If your app uses a Scene delegate, add the following:
 
 ```swift
 func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-    // Handle Appcues deeplinks.
+    // Handle Appcues deep links.
     let unhandledURLContexts = appcues.filterAndHandle(connectionOptions.urlContexts)
 
     // Handle any links remaining in unhandledURLContexts.
 }
 
 func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-    // Handle Appcues deeplinks.
+    // Handle Appcues deep links.
     let unhandledURLContexts = appcues.filterAndHandle(URLContexts)
 
     // Handle any links remaining in unhandledURLContexts.
@@ -56,7 +56,7 @@ If your app uses only an App delegate, add the following:
 
 ```swift
 func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:] ) -> Bool {
-    // Handle Appcues deeplinks.
+    // Handle Appcues deep links.
     guard !appcues.didHandleURL(url) else { return true }
 
     // Handle a non-Appcues URL.
@@ -79,11 +79,11 @@ var body: some Scene {
 
 ## Verifying the Custom URL Scheme
 
-The Appcues debugger allows you to easily validate that the Appcues deeplink is properly configured.
+The Appcues debugger allows you to easily validate that the Appcues deep link is properly configured.
 
 1. Launch the debugger in your app with a call to ``Appcues/debug()``.
 2. Expand the debugger by tapping the floating button.
-3. Tap the "Appcues Deeplink Configured" row to verify the status. If a checkmark appears, the Appcues deeplink is properly configured. 
+3. Tap the "Appcues Deep Link Configured" row to verify the status. If a checkmark appears, the Appcues deep link is properly configured. 
 
 ### Troubleshooting
 

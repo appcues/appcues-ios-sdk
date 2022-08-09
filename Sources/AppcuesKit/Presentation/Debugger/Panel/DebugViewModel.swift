@@ -34,7 +34,7 @@ internal class DebugViewModel: ObservableObject {
     }
     @Published var filter: DebugViewModel.LoggedEvent.EventType?
     @Published private(set) var connectedStatus = StatusItem(status: .pending, title: "Connected to Appcues")
-    @Published private(set) var deeplinkStatus = StatusItem(status: .pending, title: "Appcues Deeplink Configured")
+    @Published private(set) var deepLinkStatus = StatusItem(status: .pending, title: "Appcues Deep Link Configured")
     @Published private(set) var trackingPages = false
     @Published private(set) var userIdentified = false
     @Published var isAnonymous = false
@@ -42,8 +42,8 @@ internal class DebugViewModel: ObservableObject {
     @Published var experienceStatuses: [StatusItem] = []
     private let syncQueue = DispatchQueue(label: "appcues-status-listing")
 
-    /// Unique value to pass through a deeplink to verify handling.
-    private var deeplinkVerificationToken: String?
+    /// Unique value to pass through a deep link to verify handling.
+    private var deepLinkVerificationToken: String?
 
     var statusItems: [StatusItem] {
         return [
@@ -55,7 +55,7 @@ internal class DebugViewModel: ObservableObject {
                 title: "Installed SDK \(Appcues.version())",
                 subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)"),
             connectedStatus,
-            deeplinkStatus,
+            deepLinkStatus,
             StatusItem(
                 status: trackingPages ? .verified : .pending,
                 title: "Tracking Screens",
@@ -84,7 +84,7 @@ internal class DebugViewModel: ObservableObject {
         self.userIdentified = !currentUserID.isEmpty
 
         connectedStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.ping() }
-        deeplinkStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.verifyDeeplink() }
+        deepLinkStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.verifyDeepLink() }
     }
 
     func reset() {
@@ -189,19 +189,19 @@ internal class DebugViewModel: ObservableObject {
         }
     }
 
-    // MARK: Deeplink Status
+    // MARK: Deep Link Status
 
-    func verifyDeeplink() {
-        deeplinkStatus.status = .pending
-        deeplinkStatus.subtitle = nil
+    func verifyDeepLink() {
+        deepLinkStatus.status = .pending
+        deepLinkStatus.subtitle = nil
 
         if !infoPlistContainsScheme() {
-            deeplinkStatus.status = .unverfied
-            deeplinkStatus.subtitle = "Error 1: CFBundleURLSchemes value missing"
+            deepLinkStatus.status = .unverfied
+            deepLinkStatus.subtitle = "Error 1: CFBundleURLSchemes value missing"
             return
         }
 
-        verifyDeeplinkHandling(token: UUID().uuidString)
+        verifyDeepLinkHandling(token: UUID().uuidString)
     }
 
     private func infoPlistContainsScheme() -> Bool {
@@ -212,36 +212,36 @@ internal class DebugViewModel: ObservableObject {
             .contains { $0 == "appcues-\(applicationID)" }
     }
 
-    private func verifyDeeplinkHandling(token: String) {
+    private func verifyDeepLinkHandling(token: String) {
         guard let url = URL(string: "appcues-\(applicationID)://sdk/verify/\(token)") else {
-            deeplinkStatus.status = .unverfied
-            deeplinkStatus.subtitle = "Error 0: Failed to set up verification"
+            deepLinkStatus.status = .unverfied
+            deepLinkStatus.subtitle = "Error 0: Failed to set up verification"
             return
         }
 
-        deeplinkVerificationToken = token
+        deepLinkVerificationToken = token
 
         UIApplication.shared.open(url, options: [:])
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            if self.deeplinkVerificationToken != nil {
-                self.deeplinkStatus.status = .unverfied
-                self.deeplinkStatus.subtitle = "Error 2: Appcues SDK not receiving links"
-                self.deeplinkVerificationToken = nil
+            if self.deepLinkVerificationToken != nil {
+                self.deepLinkStatus.status = .unverfied
+                self.deepLinkStatus.subtitle = "Error 2: Appcues SDK not receiving links"
+                self.deepLinkVerificationToken = nil
             }
         }
     }
 
     func receivedVerification(token: String) {
-        if token == deeplinkVerificationToken {
-            deeplinkStatus.status = .verified
-            deeplinkStatus.subtitle = nil
+        if token == deepLinkVerificationToken {
+            deepLinkStatus.status = .verified
+            deepLinkStatus.subtitle = nil
         } else {
-            deeplinkStatus.status = .unverfied
-            deeplinkStatus.subtitle = "Error 3: Unexpected result"
+            deepLinkStatus.status = .unverfied
+            deepLinkStatus.subtitle = "Error 3: Unexpected result"
         }
 
-        deeplinkVerificationToken = nil
+        deepLinkVerificationToken = nil
     }
 }
 

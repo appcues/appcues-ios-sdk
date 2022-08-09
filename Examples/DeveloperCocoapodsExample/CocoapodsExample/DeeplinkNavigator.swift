@@ -1,5 +1,5 @@
 //
-//  DeeplinkNavigator.swift
+//  DeepLinkNavigator.swift
 //  AppcuesCocoapodsExample
 //
 //  Created by Matt on 2022-03-04.
@@ -8,12 +8,12 @@
 import UIKit
 import AppcuesKit
 
-// NOTE: This deeplink implementation should not be taken as an example of best practices. It's not particularly scalable,
+// NOTE: This deep link implementation should not be taken as an example of best practices. It's not particularly scalable,
 // it's coupled to the specific view controller hierarchy of the app, and uses segues which can cause runtime crashes.
-class DeeplinkNavigator {
+class DeepLinkNavigator {
 
     /// Link destinations
-    enum Deeplink {
+    enum DeepLink {
         case signIn
         case events
         case profile
@@ -88,7 +88,7 @@ class DeeplinkNavigator {
         guard
             let url = URLContexts.first?.url,
             url.scheme == "appcues-example",
-            let target = Deeplink(host: url.host)
+            let target = DeepLink(host: url.host)
         else { return }
 
         let handler = {
