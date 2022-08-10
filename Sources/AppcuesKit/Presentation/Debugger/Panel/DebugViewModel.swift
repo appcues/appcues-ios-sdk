@@ -34,7 +34,7 @@ internal class DebugViewModel: ObservableObject {
     }
     @Published var filter: DebugViewModel.LoggedEvent.EventType?
     @Published private(set) var connectedStatus = StatusItem(status: .pending, title: "Connected to Appcues")
-    @Published private(set) var deepLinkStatus = StatusItem(status: .pending, title: "Appcues Deep Link Configured")
+    @Published private(set) var deepLinkStatus = StatusItem(status: .pending, title: "Appcues Deep Link", subtitle: "Tap to check configuration")
     @Published private(set) var trackingPages = false
     @Published private(set) var userIdentified = false
     @Published var isAnonymous = false
