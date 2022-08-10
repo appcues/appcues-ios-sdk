@@ -9,10 +9,6 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fappcues%2Fappcues-ios-sdk%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/appcues/appcues-ios-sdk)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fappcues%2Fappcues-ios-sdk%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/appcues/appcues-ios-sdk)
 
->NOTE: This is a pre-release project for testing as a part of our mobile beta program. If you are interested in learning more about our mobile product and testing it before it is officially released, please [visit our site](https://www.appcues.com/mobile) and request early access.  
->
->If you have been contacted to be a part of our mobile beta program, we encourage you to try out this library and  provide feedback via Github issues and pull requests. Please note this library will not operate if you are not part of the mobile beta program.
-
 Appcues iOS SDK allows you to integrate Appcues experiences into your native iOS and iPadOS apps.
 
 The SDK is a Swift library for sending user properties and events to the Appcues API and retrieving and rendering Appcues content based on those properties and events.
@@ -51,7 +47,7 @@ Add the Swift package as a dependency to your project in Xcode:
 
 1. In Xcode, open your project and navigate to **File** → **Add Packages…**
 2. Enter the package URL `https://github.com/appcues/appcues-ios-sdk`
-3. For **Dependency Rules**, select **Exact Version** and enter the latest pre-release beta version `1.0.0-beta.4`
+3. For **Dependency Rule**, select **Up to Next Major Version**
 4. Click **Add Package**
 
 Alternatively, if your project has a `Package.swift` file, you can add Appcues iOS SDK to your dependencies:
@@ -64,9 +60,9 @@ dependencies: [
 
 #### Cocoapods
 
-1. Add the pod to your Podfile (The pre-release version needs to be explicitly included until 1.0.0 is released)
+1. Add the pod to your Podfile
     ```rb
-    pod 'Appcues', '1.0.0-beta.4'
+    pod 'Appcues'
     ```
 2. In Terminal, run
    ```sh
