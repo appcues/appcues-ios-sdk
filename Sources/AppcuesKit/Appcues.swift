@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// An object that manages Appcues tracking for your app.
+/// An object that manages Appcues tracking and rendering of experience content, for your app.
 @objc(Appcues)
 public class Appcues: NSObject {
 
@@ -70,8 +70,8 @@ public class Appcues: NSObject {
     var sessionID: UUID?
     var isActive: Bool { sessionID != nil }
 
-    /// Creates an instance of Appcues analytics.
-    /// - Parameter config: `Config` object for this instance.
+    /// Creates an instance of Appcues.
+    /// - Parameter config: `Config` object for this instance, containing initialization options.
     @objc
     public init(config: Config) {
         self.config = config
@@ -149,7 +149,7 @@ public class Appcues: NSObject {
         notificationCenter.post(name: .appcuesReset, object: self, userInfo: nil)
     }
 
-    /// Track an action taken by a user.
+    /// Track a custom event for an action taken by a user.
     /// - Parameters:
     ///   - name: Name of the event.
     ///   - properties: Optional properties that provide additional context about the event.
@@ -161,8 +161,8 @@ public class Appcues: NSObject {
 
     /// Track an screen viewed by a user.
     /// - Parameters:
-    ///   - title: Name of the screen.
-    ///   - properties: Optional properties that provide additional context about the event.
+    ///   - title: Title of the screen.
+    ///   - properties: Optional properties that provide additional context about the screen view.
     @objc
     public func screen(title: String, properties: [String: Any]? = nil) {
         analyticsPublisher.publish(TrackingUpdate(type: .screen(title), properties: properties, isInternal: false))
@@ -175,7 +175,7 @@ public class Appcues: NSObject {
     ///   This block has a `Bool` parameter which indicates if the attempt to show the content succeeded.
     ///   If it was not successful, a non-nil `Error` parameter will also be included.
     ///
-    /// This method ignores any targeting that is set on the flow or checklist.
+    /// This method ignores any targeting that is set on the experience.
     @objc
     public func show(experienceID: String, completion: ((Bool, Error?) -> Void)? = nil) {
         guard #available(iOS 13.0, *) else {
