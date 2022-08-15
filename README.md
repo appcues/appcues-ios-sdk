@@ -35,7 +35,7 @@ The SDK is a Swift library for sending user properties and events to the Appcues
 
 ### Installation
 
-Add the Appcues iOS SDK package to your app. There are several supported installation options.
+Add the Appcues iOS SDK package to your app. There are several supported installation options. A [tutorial video](https://appcues.wistia.com/medias/m47az4z63o) is also available for reference, showing an installation using Swift Package Manager.
 
 #### Segment
 
