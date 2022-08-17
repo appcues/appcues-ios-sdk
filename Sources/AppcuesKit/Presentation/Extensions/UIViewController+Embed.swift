@@ -19,7 +19,7 @@ extension UIViewController {
     func unembedChildViewController(_ childVC: UIViewController) {
         guard childVC.parent == self else { return }
         childVC.willMove(toParent: nil)
-        childVC.removeFromParent()
         childVC.view.removeFromSuperview()
+        childVC.removeFromParent()
     }
 }

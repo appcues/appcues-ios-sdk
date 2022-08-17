@@ -47,6 +47,7 @@ internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDeco
         let backgroundContentVC = AppcuesHostingController(rootView: content.view
             .edgesIgnoringSafeArea(.all)
             .environmentObject(viewModel))
+        backgroundContentVC.updatesPreferredContentSize = false
         backgroundContentVC.view.backgroundColor = .clear
 
         // The background is strictly decoration.
