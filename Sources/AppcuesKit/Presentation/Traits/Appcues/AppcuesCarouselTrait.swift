@@ -101,6 +101,12 @@ extension AppcuesCarouselTrait {
         override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
             super.preferredContentSizeDidChange(forChildContentContainer: container)
 
+            // if this container has opted out of updating size, for example background content containers, do not update
+            // this view controller's preferredContentSize or height constraint
+            if let dynamicSizing = container as? DynamicContentSizing, !dynamicSizing.updatesPreferredContentSize {
+                return
+            }
+
             // If the current child controller changes it's preferred size, propagate that to the paging view.
             carouselView.preferredHeightConstraint.constant = container.preferredContentSize.height
             preferredContentSize = container.preferredContentSize
