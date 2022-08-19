@@ -20,18 +20,20 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
     let viewDescription: String
     let category: String
     let destination: String
+    let experienceID: String?
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         // An internal-only action, so can't be initialized from an Experience.Action model.
         return nil
     }
 
-    init(appcues: Appcues?, interactionType: String, viewDescription: String, category: String, destination: String) {
+    init(appcues: Appcues?, interactionType: String, viewDescription: String, category: String, destination: String, experienceID: String?) {
         self.appcues = appcues
         self.interactionType = interactionType
         self.viewDescription = viewDescription
         self.category = category
         self.destination = destination
+        self.experienceID = experienceID
     }
 
     func execute(completion: @escaping ActionRegistry.Completion) {
@@ -49,8 +51,8 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
             ]
         ]
 
-        if let experienceData = experienceRenderer.getCurrentExperienceData(),
-           let stepIndex = experienceRenderer.getCurrentStepIndex() {
+        if let experienceData = experienceRenderer.experienceData(experienceID: experienceID),
+           let stepIndex = experienceRenderer.stepIndex(experienceID: experienceID) {
             interactionProperties = LifecycleEvent.properties(experienceData, stepIndex).merging(interactionProperties)
         }
 

@@ -9,13 +9,18 @@
 import UIKit
 
 extension UIViewController {
-    func embedChildViewController(_ childVC: UIViewController, inSuperview superview: UIView, respectLayoutMargins: Bool = false) {
+    func embedChildViewController(
+        _ childVC: UIViewController,
+        inSuperview superview: UIView,
+        margins: NSDirectionalEdgeInsets = .zero,
+        respectLayoutMargins: Bool = false
+    ) {
         addChild(childVC)
         superview.addSubview(childVC.view)
         if respectLayoutMargins {
             childVC.view.pin(to: superview.layoutMarginsGuide)
         } else {
-            childVC.view.pin(to: superview)
+            childVC.view.pin(to: superview, margins: margins)
         }
         childVC.didMove(toParent: self)
     }

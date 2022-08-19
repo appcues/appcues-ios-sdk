@@ -65,9 +65,9 @@ internal class ActionRegistry {
 
     /// Enqueue an array of experience action data models to be executed. This version is for non-interactive action execution,
     /// such as actions that execute as part of the navigation to a step.
-    func enqueue(actionModels: [Experience.Action], level: AppcuesExperiencePluginConfiguration.Level, completion: @escaping () -> Void) {
+    func enqueue(actionModels: [Experience.Action], level: AppcuesExperiencePluginConfiguration.Level, experienceID: String?, completion: @escaping () -> Void) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, appcues: appcues))
+            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, experienceID: experienceID, appcues: appcues))
         }
         execute(transformQueue(actionInstances), completion: completion)
     }
@@ -84,11 +84,12 @@ internal class ActionRegistry {
     func enqueue(
         actionModels: [Experience.Action],
         level: AppcuesExperiencePluginConfiguration.Level,
+        experienceID: String?,
         interactionType: String,
         viewDescription: String?
     ) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, appcues: appcues))
+            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, experienceID: experienceID, appcues: appcues))
         }
 
         // As a heuristic, take the last action that's `InteractionLoggingAction`, since that's most likely
@@ -99,7 +100,8 @@ internal class ActionRegistry {
             interactionType: interactionType,
             viewDescription: viewDescription ?? "",
             category: primaryAction?.category ?? "",
-            destination: primaryAction?.destination ?? ""
+            destination: primaryAction?.destination ?? "",
+            experienceID: experienceID
         )
 
         // Directly enqueue the interactionAction separately from the others so that it can't be modified by the queue transformation.

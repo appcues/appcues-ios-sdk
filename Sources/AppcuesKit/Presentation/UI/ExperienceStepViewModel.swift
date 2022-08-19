@@ -19,8 +19,9 @@ internal class ExperienceStepViewModel: ObservableObject {
     let step: Experience.Step.Child
     private let actions: [UUID: [Experience.Action]]
     private let actionRegistry: ActionRegistry?
+    private let experienceID: String?
 
-    init(step: Experience.Step.Child, actionRegistry: ActionRegistry) {
+    init(step: Experience.Step.Child, actionRegistry: ActionRegistry, experienceID: String) {
         self.step = step
         // Update the action list to be keyed by the UUID.
         self.actions = step.actions.reduce(into: [:]) { dict, item in
@@ -28,6 +29,7 @@ internal class ExperienceStepViewModel: ObservableObject {
             dict[uuidKey] = item.value
         }
         self.actionRegistry = actionRegistry
+        self.experienceID = experienceID
     }
 
     // Create an empty view model for contexts that require an `ExperienceStepViewModel` but aren't in a step context.
@@ -45,12 +47,14 @@ internal class ExperienceStepViewModel: ObservableObject {
         )
         self.actions = [:]
         self.actionRegistry = nil
+        self.experienceID = nil
     }
 
     func enqueueActions(_ actions: [Experience.Action], type: String, viewDescription: String?) {
         actionRegistry?.enqueue(
             actionModels: actions,
             level: .step,
+            experienceID: experienceID,
             interactionType: type,
             viewDescription: viewDescription
         )

@@ -23,6 +23,8 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
 
     private weak var appcues: Appcues?
 
+    private let experienceID: String?
+
     private let buttonAppearance: ButtonAppearance
     private let ignoreBackdropTap: Bool
     private let buttonStyle: ExperienceComponent.Style?
@@ -33,6 +35,7 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         self.appcues = configuration.appcues
+        self.experienceID = configuration.experienceID
 
         let config = configuration.decode(Config.self)
         self.buttonAppearance = config?.buttonAppearance ?? .default
@@ -78,7 +81,7 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
         guard let appcues = appcues else { return }
 
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.dismissCurrentExperience(markComplete: false, completion: nil)
+        experienceRenderer.dismissExperience(experienceID: experienceID, markComplete: false, completion: nil)
     }
 }
 

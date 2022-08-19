@@ -21,9 +21,11 @@ internal class AppcuesContinueAction: AppcuesExperienceAction {
     private weak var appcues: Appcues?
 
     let stepReference: StepReference
+    let experienceID: String?
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         appcues = configuration.appcues
+        experienceID = configuration.experienceID
 
         let config = configuration.decode(Config.self)
         if let index = config?.index {
@@ -42,6 +44,6 @@ internal class AppcuesContinueAction: AppcuesExperienceAction {
         guard let appcues = appcues else { return completion() }
 
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.show(stepInCurrentExperience: stepReference, completion: completion)
+        experienceRenderer.show(step: stepReference, experienceID: experienceID, completion: completion)
     }
 }

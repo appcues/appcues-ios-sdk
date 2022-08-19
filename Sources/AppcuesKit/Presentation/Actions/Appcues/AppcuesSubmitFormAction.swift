@@ -19,12 +19,15 @@ internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActio
     private weak var appcues: Appcues?
 
     let skipValidation: Bool
+    let experienceID: String?
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         self.appcues = configuration.appcues
 
         let config = configuration.decode(Config.self)
         self.skipValidation = config?.skipValidation ?? false
+
+        self.experienceID = configuration.experienceID
     }
 
     func execute(completion: ActionRegistry.Completion) {
@@ -37,8 +40,8 @@ internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActio
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
         let analyticsPublisher = appcues.container.resolve(AnalyticsPublishing.self)
 
-        guard let experienceData = experienceRenderer.getCurrentExperienceData(),
-              let stepIndex = experienceRenderer.getCurrentStepIndex(),
+        guard let experienceData = experienceRenderer.experienceData(experienceID: experienceID),
+              let stepIndex = experienceRenderer.stepIndex(experienceID: experienceID),
               let stepState = experienceData.state(for: stepIndex) else { return }
 
         let interactionProperties = LifecycleEvent.properties(experienceData, stepIndex).merging([
@@ -66,8 +69,8 @@ internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActio
 
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
 
-        guard let experienceData = experienceRenderer.getCurrentExperienceData(),
-              let stepIndex = experienceRenderer.getCurrentStepIndex(),
+        guard let experienceData = experienceRenderer.experienceData(experienceID: experienceID),
+              let stepIndex = experienceRenderer.stepIndex(experienceID: experienceID),
               let stepState = experienceData.state(for: stepIndex) else { return queue }
 
         if stepState.stepFormIsComplete {
