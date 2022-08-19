@@ -13,6 +13,7 @@
 		7013CDD44A5E7E6056595498 /* Lato-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */; };
 		702B963B624B5F8BB19F2468 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8757BA449145145EAF8FE061 /* Main.storyboard */; };
 		7A219B6092786F843A1A004A /* Lato-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A2AD399FBBF5EB8AEBE70BF /* Lato-Bold.ttf */; };
+		9EF6EF267BBE750196BB8852 /* EmbedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC01F919D7C1743A7217373 /* EmbedViewController.swift */; };
 		A0C767D67BF836D241C38AB0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7203E757C2C6EA5D37C5E443 /* Assets.xcassets */; };
 		A23B377CAA8FFC989E6A9A73 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A540BC606C8E2160FB2B489 /* AppDelegate.swift */; };
 		AB4DA4AF52B5BC21308C439B /* AppcuesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 781D0ABDB3436955E4EA34B9 /* AppcuesKit */; };
@@ -44,6 +45,7 @@
 		C77616FC1B7BAE52C91F4FBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D140F36AD3D06536C395A074 /* Mulish-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		F46FEDAF7B878A4794848F30 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
+		FFC01F919D7C1743A7217373 /* EmbedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +104,7 @@
 				7A540BC606C8E2160FB2B489 /* AppDelegate.swift */,
 				7203E757C2C6EA5D37C5E443 /* Assets.xcassets */,
 				91C043606EC23556B49010D3 /* DeepLinkNavigator.swift */,
+				FFC01F919D7C1743A7217373 /* EmbedViewController.swift */,
 				AF7C790690C785694C7F24F8 /* EventsViewController.swift */,
 				87C55D469D39EFF3296C5387 /* GroupViewController.swift */,
 				476767533B954304A7121A53 /* Info.plist */,
@@ -211,6 +214,7 @@
 			files = (
 				A23B377CAA8FFC989E6A9A73 /* AppDelegate.swift in Sources */,
 				B8DB7327A11245904C6B908F /* DeepLinkNavigator.swift in Sources */,
+				9EF6EF267BBE750196BB8852 /* EmbedViewController.swift in Sources */,
 				64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */,
 				EE6124C9BB7FB8ACF18B1503 /* GroupViewController.swift in Sources */,
 				F897157F45696443B145C383 /* ProfileViewController.swift in Sources */,
