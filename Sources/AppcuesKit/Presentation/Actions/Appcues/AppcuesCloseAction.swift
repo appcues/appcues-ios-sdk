@@ -14,14 +14,16 @@ internal class AppcuesCloseAction: ExperienceAction {
 
     static let type = "@appcues/close"
 
-    let markComplete: Bool
+    private let markComplete: Bool
+    private let experienceID: String?
 
     required init?(config: [String: Any]?) {
         markComplete = config?["markComplete"] as? Bool ?? false
+        experienceID = config?["experienceID"] as? String
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.dismissCurrentExperience(markComplete: markComplete) { _ in completion() }
+        experienceRenderer.dismissExperience(experienceID: experienceID, markComplete: markComplete) { _ in completion() }
     }
 }

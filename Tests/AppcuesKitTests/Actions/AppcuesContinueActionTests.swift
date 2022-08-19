@@ -43,7 +43,7 @@ class AppcuesContinueActionTests: XCTestCase {
         // Arrange
         var completionCount = 0
         var showStepCount = 0
-        appcues.experienceRenderer.onShowStep = { stepRef, completion in
+        appcues.experienceRenderer.onShowStep = { stepRef, _, completion in
             if case .offset(1) = stepRef {
                 showStepCount += 1
             }

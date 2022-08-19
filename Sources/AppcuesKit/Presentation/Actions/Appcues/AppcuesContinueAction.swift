@@ -13,6 +13,7 @@ internal class AppcuesContinueAction: ExperienceAction {
     static let type = "@appcues/continue"
 
     let stepReference: StepReference
+    let experienceID: String?
 
     required init?(config: [String: Any]?) {
         if let index = config?["index"] as? Int {
@@ -25,10 +26,11 @@ internal class AppcuesContinueAction: ExperienceAction {
             // Default to continuing to next step
             stepReference = .offset(1)
         }
+        experienceID = config?["experienceID"] as? String
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.show(stepInCurrentExperience: stepReference, completion: completion)
+        experienceRenderer.show(step: stepReference, experienceID: experienceID, completion: completion)
     }
 }
