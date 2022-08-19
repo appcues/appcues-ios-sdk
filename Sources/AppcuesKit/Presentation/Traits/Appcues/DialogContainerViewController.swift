@@ -34,14 +34,8 @@ internal class DialogContainerViewController: UIViewController {
     }
 
     func configureStyle(_ style: ExperienceComponent.Style?) -> Self {
-        containerView.dialogView.backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
-        containerView.dialogView.layer.cornerRadius = style?.cornerRadius ?? 0
-
-        containerView.dialogView.layer.borderColor = UIColor(dynamicColor: style?.borderColor)?.cgColor
-        containerView.dialogView.layer.borderWidth = CGFloat(style?.borderWidth) ?? 0
-
+        containerView.dialogView.styleContainer(style)
         containerView.shadowLayer = CAShapeLayer(shadowModel: style?.shadow)
-
         return self
     }
 }

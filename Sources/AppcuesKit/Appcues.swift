@@ -273,9 +273,13 @@ public class Appcues: NSObject {
     ///   - view: The AppcuesView to register for hosting embedded content.
     ///   - embedId: The unique identifier for the embedded AppcusView.
     ///   - viewController: The UIViewController that owns the provided AppcuesView instance.
-    @available(iOS 13.0, *)
     @objc
     public func registerEmbed(_ view: AppcuesView, embedId: String, on viewController: UIViewController) {
+        guard #available(iOS 13.0, *) else {
+            config.logger.error("iOS 13 or above is required to render embedded experiences")
+            return
+        }
+
         view.configure(appcues: self, embedId: embedId, viewController: viewController)
         embedViews.add(view)
     }

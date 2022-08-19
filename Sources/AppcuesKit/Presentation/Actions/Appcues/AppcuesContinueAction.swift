@@ -26,7 +26,7 @@ internal class AppcuesContinueAction: ExperienceAction {
             // Default to continuing to next step
             stepReference = .offset(1)
         }
-        experienceID = config?["experienceID"] as? String
+        experienceID = config?["_experienceID"] as? String
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {

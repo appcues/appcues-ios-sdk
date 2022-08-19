@@ -38,8 +38,6 @@ internal class TraitComposer: TraitComposing {
             throw ExperienceStateMachine.ExperienceError.step(experience, stepIndex, errorMessage)
         }
 
-        let embedView = appcues?.resolveEmbedViewFor(experience: experience)
-
         // Experience-level traits
         var allTraitInstances: [ExperienceTrait] = traitRegistry.instances(for: experience.traits, level: .experience)
 
@@ -87,6 +85,16 @@ internal class TraitComposer: TraitComposing {
             stepModelsWithDecorators.append((stepModel, stepDecoratingTraits))
         }
 
+        let unwrappedPresenting = try presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
+
+        // special case - embeds - provide the trait access to the embed container view controller
+        // and vice-versa (for dismissal)
+        if let embedPresenting = unwrappedPresenting as? AppcuesEmbedTrait {
+            let embedView = resolveEmbedViewFor(experience: experience)
+            embedPresenting.embedView = embedView
+            embedView?.embedTrait = embedPresenting
+        }
+
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithDecorators.map { step, decorators in
             let viewModel = ExperienceStepViewModel(step: step,
                                                     actionRegistry: actionRegistry,
@@ -108,15 +116,6 @@ internal class TraitComposer: TraitComposing {
             wrapperCreating.addBackdrop(backdropView: backdropView, to: wrappedContainerViewController)
         }
 
-        let unwrappedPresenting = try presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
-
-        // special case - embeds - provide the trait access to the embed container view controller
-        // and vice-versa (for dismissal)
-        if let embedPresenting = unwrappedPresenting as? AppcuesEmbedTrait {
-            embedPresenting.embedView = embedView
-            embedView?.embedTrait = embedPresenting
-        }
-
         return ExperiencePackage(
             traitInstances: allTraitInstances,
             steps: stepModelsWithDecorators.map { $0.0 },
@@ -125,6 +124,16 @@ internal class TraitComposer: TraitComposing {
             presenter: { try unwrappedPresenting.present(viewController: wrappedContainerViewController, completion: $0) },
             dismisser: { unwrappedPresenting.remove(viewController: wrappedContainerViewController, completion: $0) }
         )
+    }
+
+    private func resolveEmbedViewFor(experience: Experience) -> AppcuesView? {
+        if let embedTrait = experience.traits.first(where: { $0.type == AppcuesEmbedTrait.type }),
+           let embedId = embedTrait.config?["embedId"] as? String,
+           let embedView = appcues?.embedViews.allObjects.first(where: { $0.embedId == embedId }) {
+            return embedView
+        }
+
+        return nil
     }
 }
 
@@ -160,19 +169,6 @@ private extension Array {
             if let result = try transform(item) {
                 return result
             }
-        }
-
-        return nil
-    }
-}
-
-@available(iOS 13.0, *)
-extension Appcues {
-    func resolveEmbedViewFor(experience: Experience) -> AppcuesView? {
-        if let embedTrait = experience.traits.first(where: { $0.type == AppcuesEmbedTrait.type }),
-           let embedId = embedTrait.config?["embedId"] as? String,
-           let embedView = embedViews.allObjects.first(where: { $0.embedId == embedId }) {
-            return embedView
         }
 
         return nil

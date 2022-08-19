@@ -29,6 +29,8 @@ internal class ExperienceRenderer: ExperienceRendering {
     // that can have more than one running in parallel
     private var experienceStateMachines: [String: ExperienceStateMachine] = [:]
 
+    private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
+
     private weak var appcues: Appcues?
     private let config: Appcues.Config
 
@@ -40,6 +42,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         // two items below are not registered/resolved directly from container as they
         // are considered private implementation details of the ExperienceRenderer - helpers.
         self.sharedStateMachine = ExperienceStateMachine(container: container)
+        self.analyticsObserver = ExperienceStateMachine.AnalyticsObserver(container: container)
     }
 
     func show(experience: Experience, priority: RenderPriority, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
@@ -66,10 +69,9 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func show(qualifiedExperiences: [Experience], priority: RenderPriority, completion: ((Result<Void, Error>) -> Void)?) {
-        let nonModal = qualifiedExperiences.filter { $0.isNonModal }
-        let modal = qualifiedExperiences.filter { !$0.isNonModal }
+        let (nonModal, modal) = qualifiedExperiences.separate { $0.isNonModal }
 
-        // for the overall success/failure completion - we have potentially mulitple experiences being rendered from the
+        // for the overall success/failure completion - we have potentially multiple experiences being rendered from the
         // response.  If any fail, we'll return a failure with the first known failure error.  Otherwise, return success.
         var failureResult: Result<Void, Error>?
         showNonModal(qualifiedExperiences: nonModal) { result in
@@ -128,8 +130,6 @@ internal class ExperienceRenderer: ExperienceRendering {
                       published: Bool,
                       completion: ((Result<Void, Error>) -> Void)?) {
 
-        guard let container = container else { return }
-
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
                 self.show(experience: experience, in: stateMachine, priority: priority, published: published, completion: completion)
@@ -152,7 +152,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         // only track analytics on published experiences (not previews)
         // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
         if published && stateMachine.state == .idling {
-            stateMachine.addObserver(ExperienceStateMachine.AnalyticsObserver(container: container))
+            stateMachine.addObserver(analyticsObserver)
         }
         stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
         stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
@@ -194,7 +194,7 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     private func showNonModal(qualifiedExperiences: [Experience], completion: ((Result<Void, Error>) -> Void)?) {
-        // for the overall success/failure completion - we have potentially mulitple experiences being rendered from the
+        // for the overall success/failure completion - we have potentially multiple experiences being rendered from the
         // response.  If any fail, we'll return a failure with the first known failure error.  Otherwise, return success.
         var failureResult: Result<Void, Error>?
         qualifiedExperiences.forEach {

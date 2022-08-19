@@ -19,7 +19,7 @@ internal class AppcuesCloseAction: ExperienceAction {
 
     required init?(config: [String: Any]?) {
         markComplete = config?["markComplete"] as? Bool ?? false
-        experienceID = config?["experienceID"] as? String
+        experienceID = config?["_experienceID"] as? String
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {

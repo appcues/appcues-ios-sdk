@@ -1,5 +1,5 @@
 //
-//  DebugView.swift
+//  UIView+Custom.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-10-25.
@@ -41,4 +41,11 @@ extension UIView {
        ])
    }
 
+    @available(iOS 13.0, *)
+    func styleContainer(_ style: ExperienceComponent.Style?) {
+        backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
+        layer.cornerRadius = style?.cornerRadius ?? 0
+        layer.borderColor = UIColor(dynamicColor: style?.borderColor)?.cgColor
+        layer.borderWidth = CGFloat(style?.borderWidth) ?? 0
+    }
 }

@@ -71,7 +71,7 @@ internal class ActionRegistry {
         let actionInstances = actionModels.compactMap { model -> ExperienceAction? in
             var configMap = model.config ?? [:]
             if let experienceID = experienceID {
-                configMap["experienceID"] = experienceID
+                configMap["_experienceID"] = experienceID
             }
             return actions[model.type]?.init(config: configMap)
         }

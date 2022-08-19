@@ -47,23 +47,13 @@ internal class AppcuesEmbedTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
     }
 
     func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {
-        // should throw at this point if we don't have an embedViewController to use?
-        experienceController = containerController
-
-        if let backgroundColor = UIColor(dynamicColor: embedStyle?.backgroundColor) {
-            containerController.view.backgroundColor = backgroundColor
+        // if there is no embedView, throw and exit, as this trait will be unable to function
+        guard embedView != nil else {
+            throw TraitError(description: "No embed view found")
         }
 
-        containerController.view.clipsToBounds = true
-
-        containerController.view.backgroundColor = UIColor(dynamicColor: embedStyle?.backgroundColor)
-        containerController.view.layer.cornerRadius = embedStyle?.cornerRadius ?? 0
-
-        containerController.view.layer.borderColor = UIColor(dynamicColor: embedStyle?.borderColor)?.cgColor
-        containerController.view.layer.borderWidth = CGFloat(embedStyle?.borderWidth) ?? 0
-
-        // containerController.view.shadowLayer = CAShapeLayer(shadowModel: embedStyle?.shadow)
-
+        experienceController = containerController
+        containerController.view.styleContainer(embedStyle)
         return containerController
     }
 

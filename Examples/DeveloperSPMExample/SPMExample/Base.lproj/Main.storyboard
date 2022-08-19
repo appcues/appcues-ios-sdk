@@ -309,7 +309,6 @@
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="100" placeholder="YES" id="O4S-bx-s56"/>
-                                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="1" id="XrZ-x5-fVx"/>
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AeE-4e-n5n">
@@ -336,7 +335,6 @@
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="100" placeholder="YES" id="Blb-Ul-lDy"/>
-                                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="1" id="hXJ-NF-GX2"/>
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xov-5D-P80">
@@ -362,7 +360,6 @@
                                                 <rect key="frame" x="0.0" y="831.5" width="414" height="100"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <constraints>
-                                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="1" id="mQf-VF-6vz"/>
                                                     <constraint firstAttribute="height" constant="100" placeholder="YES" id="mr6-ad-KqD"/>
                                                 </constraints>
                                             </view>

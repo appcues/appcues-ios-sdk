@@ -33,8 +33,8 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
     @objc
     private func didTapBackground() {
 
-        if let embedViewController = containerController?.view.superview as? AppcuesView {
-            embedViewController.remove()
+        if let embedView = containerController?.view.superview as? AppcuesView {
+            embedView.remove()
         } else {
             containerController?.dismiss(animated: true)
         }
@@ -60,8 +60,8 @@ private extension UIViewController {
 
     @objc
     func dismissButtonTapped() {
-        if let embedViewController = view.superview as? AppcuesView {
-            embedViewController.remove()
+        if let embedView = view.superview as? AppcuesView {
+            embedView.remove()
         } else {
             dismiss(animated: true)
         }
