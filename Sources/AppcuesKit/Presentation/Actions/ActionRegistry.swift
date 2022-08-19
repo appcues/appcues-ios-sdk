@@ -67,9 +67,13 @@ internal class ActionRegistry {
     }
 
     /// Enqueue an experience action data model to be executed.
-    func enqueue(actionModels: [Experience.Action]) {
-        let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(config: $0.config)
+    func enqueue(actionModels: [Experience.Action], experienceID: String?) {
+        let actionInstances = actionModels.compactMap { model -> ExperienceAction? in
+            var configMap = model.config ?? [:]
+            if let experienceID = experienceID {
+                configMap["experienceID"] = experienceID
+            }
+            return actions[model.type]?.init(config: configMap)
         }
         enqueue(actionInstances: actionInstances)
     }

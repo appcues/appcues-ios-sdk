@@ -33,7 +33,7 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Assert
-        actionRegistry.enqueue(actionModels: [actionModel])
+        actionRegistry.enqueue(actionModels: [actionModel], experienceID: nil)
         waitForExpectations(timeout: 1)
     }
 
@@ -52,7 +52,7 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Assert
-        actionRegistry.enqueue(actionModels: [actionModel])
+        actionRegistry.enqueue(actionModels: [actionModel], experienceID: nil)
         waitForExpectations(timeout: 1)
 
     }
@@ -77,7 +77,7 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction2.self)
 
         // Assert
-        actionRegistry.enqueue(actionModels: [actionModel])
+        actionRegistry.enqueue(actionModels: [actionModel], experienceID: nil)
         waitForExpectations(timeout: 1)
     }
 
@@ -93,7 +93,7 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Act
-        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel, actionModel, actionModel])
+        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel, actionModel, actionModel], experienceID: nil)
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -116,9 +116,9 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Act
-        actionRegistry.enqueue(actionModels: [delayedActionModel])
+        actionRegistry.enqueue(actionModels: [delayedActionModel], experienceID: nil)
         // Enqueue more while the delayed one is processing
-        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel, actionModel])
+        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel, actionModel], experienceID: nil)
 
         // Assert
         waitForExpectations(timeout: 1)
