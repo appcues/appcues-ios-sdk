@@ -9,10 +9,10 @@
 import UIKit
 
 extension UIViewController {
-    func embedChildViewController(_ childVC: UIViewController, inSuperview superview: UIView) {
+    func embedChildViewController(_ childVC: UIViewController, inSuperview superview: UIView, margins: NSDirectionalEdgeInsets = .zero) {
         addChild(childVC)
         superview.addSubview(childVC.view)
-        childVC.view.pin(to: superview)
+        childVC.view.pin(to: superview, margins: margins)
         childVC.didMove(toParent: self)
     }
 

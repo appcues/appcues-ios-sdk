@@ -19,8 +19,10 @@ internal class TraitComposer: TraitComposing {
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
     private let notificationCenter: NotificationCenter
+    private weak var appcues: Appcues?
 
     init(container: DIContainer) {
+        appcues = container.owner
         traitRegistry = container.resolve(TraitRegistry.self)
         actionRegistry = container.resolve(ActionRegistry.self)
         notificationCenter = container.resolve(NotificationCenter.self)
@@ -35,6 +37,8 @@ internal class TraitComposer: TraitComposing {
             let errorMessage = "step group \(groupID) doesn't contain a child step at index \(targetPageIndex)"
             throw ExperienceStateMachine.ExperienceError.step(experience, stepIndex, errorMessage)
         }
+
+        let embedView = appcues?.resolveEmbedViewFor(experience: experience)
 
         // Experience-level traits
         var allTraitInstances: [ExperienceTrait] = traitRegistry.instances(for: experience.traits, level: .experience)
@@ -106,6 +110,13 @@ internal class TraitComposer: TraitComposing {
 
         let unwrappedPresenting = try presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
 
+        // special case - embeds - provide the trait access to the embed container view controller
+        // and vice-versa (for dismissal)
+        if let embedPresenting = unwrappedPresenting as? AppcuesEmbedTrait {
+            embedPresenting.embedView = embedView
+            embedView?.embedTrait = embedPresenting
+        }
+
         return ExperiencePackage(
             traitInstances: allTraitInstances,
             steps: stepModelsWithDecorators.map { $0.0 },
@@ -149,6 +160,19 @@ private extension Array {
             if let result = try transform(item) {
                 return result
             }
+        }
+
+        return nil
+    }
+}
+
+@available(iOS 13.0, *)
+extension Appcues {
+    func resolveEmbedViewFor(experience: Experience) -> AppcuesView? {
+        if let embedTrait = experience.traits.first(where: { $0.type == AppcuesEmbedTrait.type }),
+           let embedId = embedTrait.config?["embedId"] as? String,
+           let embedView = embedViews.allObjects.first(where: { $0.embedId == embedId }) {
+            return embedView
         }
 
         return nil

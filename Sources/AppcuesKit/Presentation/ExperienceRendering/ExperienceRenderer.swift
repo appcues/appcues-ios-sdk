@@ -310,7 +310,6 @@ private extension ExperienceRenderer {
 @available(iOS 13.0, *)
 extension Experience {
     var isNonModal: Bool {
-        // TODO: will be determined later when new trait exists
-        false
+        traits.contains { $0.type == AppcuesEmbedTrait.type }
     }
 }

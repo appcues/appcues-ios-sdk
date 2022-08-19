@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 /// An object that manages Appcues tracking and rendering of experience content, for your app.
 @objc(Appcues)
@@ -57,6 +58,16 @@ public class Appcues: NSObject {
         }
         // swiftlint:disable:next force_cast
         return _experienceLoader as! ExperienceLoading
+    }
+
+    private var _embedViews: Any?
+    @available(iOS 13.0, *)
+    internal var embedViews: NSHashTable<AppcuesView> {
+        if _embedViews == nil {
+            _embedViews = NSHashTable<AppcuesView>.weakObjects()
+        }
+        // swiftlint:disable:next force_cast
+        return _embedViews as! NSHashTable<AppcuesView>
     }
 
     private lazy var notificationCenter = container.resolve(NotificationCenter.self)
@@ -255,6 +266,18 @@ public class Appcues: NSObject {
         guard #available(iOS 13.0, *) else { return false }
 
         return container.resolve(DeepLinkHandling.self).didHandleURL(url)
+    }
+
+    /// Registers the given embed view to be available for targeting embedded Appcues experience content.
+    /// - Parameters:
+    ///   - view: The AppcuesView to register for hosting embedded content.
+    ///   - embedId: The unique identifier for the embedded AppcusView.
+    ///   - viewController: The UIViewController that owns the provided AppcuesView instance.
+    @available(iOS 13.0, *)
+    @objc
+    public func registerEmbed(_ view: AppcuesView, embedId: String, on viewController: UIViewController) {
+        view.configure(appcues: self, embedId: embedId, viewController: viewController)
+        embedViews.add(view)
     }
 
     func initializeContainer() {
