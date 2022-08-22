@@ -47,11 +47,6 @@ internal class AppcuesEmbedTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
     }
 
     func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {
-        // if there is no embedView, throw and exit, as this trait will be unable to function
-        guard embedView != nil else {
-            throw TraitError(description: "No embed view found")
-        }
-
         experienceController = containerController
         containerController.view.styleContainer(embedStyle)
         return containerController

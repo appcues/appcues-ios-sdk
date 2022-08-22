@@ -85,16 +85,6 @@ internal class TraitComposer: TraitComposing {
             stepModelsWithDecorators.append((stepModel, stepDecoratingTraits))
         }
 
-        let unwrappedPresenting = try presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
-
-        // special case - embeds - provide the trait access to the embed container view controller
-        // and vice-versa (for dismissal)
-        if let embedPresenting = unwrappedPresenting as? AppcuesEmbedTrait {
-            let embedView = resolveEmbedViewFor(experience: experience)
-            embedPresenting.embedView = embedView
-            embedView?.embedTrait = embedPresenting
-        }
-
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithDecorators.map { step, decorators in
             let viewModel = ExperienceStepViewModel(step: step,
                                                     actionRegistry: actionRegistry,
@@ -114,6 +104,16 @@ internal class TraitComposer: TraitComposing {
             let backdropView = UIView()
             try backdropDecorating.forEach { try $0.decorate(backdropView: backdropView) }
             wrapperCreating.addBackdrop(backdropView: backdropView, to: wrappedContainerViewController)
+        }
+
+        let unwrappedPresenting = try presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
+
+        // special case - embeds - provide the trait access to the embed container view controller
+        // and vice-versa (for dismissal)
+        if let embedPresenting = unwrappedPresenting as? AppcuesEmbedTrait {
+            let embedView = resolveEmbedViewFor(experience: experience)
+            embedPresenting.embedView = embedView
+            embedView?.embedTrait = embedPresenting
         }
 
         return ExperiencePackage(
