@@ -39,18 +39,18 @@ internal class AppcuesStickyContentTrait: StepDecoratingTrait {
         stickyContentVC.didMove(toParent: viewController)
 
         // Pass sticky content size changes to the parent controller to update the insets.
-        stickyContentVC.onSizeChange = { [weak self, weak viewController] size, safeArea in
+        stickyContentVC.onContentSizeChange = { [weak self, weak viewController] size in
             guard let self = self, let viewController = viewController else { return }
             switch self.edge {
             case .top:
-                viewController.additionalSafeAreaInsets.top = size.height - safeArea.top
+                viewController.additionalSafeAreaInsets.top = size.height
             case .leading:
                 // TODO: mapping left->leading could be backwards for RTL
-                viewController.additionalSafeAreaInsets.left = size.width - safeArea.left
+                viewController.additionalSafeAreaInsets.left = size.width
             case .bottom:
-                viewController.additionalSafeAreaInsets.bottom = size.height - safeArea.bottom
+                viewController.additionalSafeAreaInsets.bottom = size.height
             case .trailing:
-                viewController.additionalSafeAreaInsets.right = size.width - safeArea.right
+                viewController.additionalSafeAreaInsets.right = size.width
             }
         }
     }
@@ -90,9 +90,9 @@ extension AppcuesStickyContentTrait {
     /// HostingController that reports `frame` size changes.
     class StickyHostingController<Content: View>: AppcuesHostingController<Content> {
 
-        var onSizeChange: ((CGSize, UIEdgeInsets) -> Void)?
+        var onContentSizeChange: ((CGSize) -> Void)?
 
-        private var previousSize: CGSize = .zero
+        private var previousContentSize: CGSize = .zero
 
         override func viewDidLoad() {
             super.viewDidLoad()
@@ -102,9 +102,14 @@ extension AppcuesStickyContentTrait {
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
 
-            if view.frame.size != previousSize {
-                onSizeChange?(view.frame.size, view.safeAreaInsets)
-                previousSize = view.frame.size
+            // the content size is the frame size of the view minus any safe area insets
+            let contentSize = CGSize(
+                width: view.frame.width - view.safeAreaInsets.left - view.safeAreaInsets.right,
+                height: view.frame.height - view.safeAreaInsets.top - view.safeAreaInsets.bottom)
+
+            if contentSize != previousContentSize {
+                onContentSizeChange?(contentSize)
+                previousContentSize = contentSize
             }
         }
     }
