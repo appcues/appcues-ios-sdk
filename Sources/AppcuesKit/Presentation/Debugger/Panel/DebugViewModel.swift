@@ -20,6 +20,8 @@ internal class DebugViewModel: ObservableObject {
         set { navigationDestination = newValue ? .fonts : nil }
     }
 
+    @Published var captures: [Capture] = []
+
     // MARK: Recent Events
     @Published private(set) var events: [LoggedEvent] = []
     @Published private(set) var latestEvent: LoggedEvent?

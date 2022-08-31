@@ -11,6 +11,7 @@ import UIKit
 @available(iOS 13.0, *)
 internal protocol DebugViewDelegate: AnyObject {
     func debugView(did event: DebugView.Event)
+    func debugCaptured(capture: Capture)
 }
 
 @available(iOS 13.0, *)

@@ -123,6 +123,30 @@ extension UIDebugger: DebugViewDelegate {
             break
         }
     }
+
+    func debugCaptured(capture: Capture) {
+        viewModel.captures.append(capture)
+
+        var request = URLRequest(url: URL(string: "http://localhost:3000/capture")!)
+        request.httpMethod = "POST"
+        request.httpBody = try? JSONEncoder().encode(capture)
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+
+        let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
+                let data = String(data: data ?? Data(), encoding: .utf8) ?? ""
+                print("CAPTURE RESPONSE: \(statusCode) \(url) \(data)")
+            }
+        }
+
+        if let method = request.httpMethod, let url = request.url?.absoluteString {
+            let data = String(data: request.httpBody ?? Data(), encoding: .utf8) ?? ""
+            print("CAPTURE REQUEST: \(method) \(url) \(data)")
+        }
+
+        dataTask.resume()
+    }
+
 }
 
 @available(iOS 13.0, *)

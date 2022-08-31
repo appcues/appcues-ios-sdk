@@ -21,6 +21,8 @@ internal class TraitRegistry {
         register(trait: AppcuesBackdropTrait.self)
         register(trait: AppcuesPagingDotsTrait.self)
         register(trait: AppcuesBackgroundContentTrait.self)
+
+        register(trait: AppcuesTooltipTrait.self)
     }
 
     func register(trait: ExperienceTrait.Type) {

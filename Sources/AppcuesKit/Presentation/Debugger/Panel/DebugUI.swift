@@ -34,6 +34,23 @@ internal enum DebugUI {
                         }
                     }
 
+                    Section(header: Text("Captured Screens")) {
+                        ForEach(viewModel.captures.reversed()) { capture in
+                            NavigationLink(destination: ScrollView { Text(capture.jsonHierarchy); Image(uiImage: capture.image) }) {
+                                HStack {
+                                    Image(uiImage: capture.image)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(height: 200, alignment: .center)
+                                        .overlay(Rectangle().stroke(lineWidth: 1))
+                                    Text(capture.jsonHierarchy)
+                                        .lineLimit(10)
+                                        .truncationMode(.tail)
+                                }
+                            }
+                        }
+                    }
+
                     Section(header: EventsSectionHeader(selection: $viewModel.filter)) {
                         ForEach(filteredEvents.suffix(20).reversed()) { event in
                             NavigationLink(destination: EventDetailView(event: event)) {
