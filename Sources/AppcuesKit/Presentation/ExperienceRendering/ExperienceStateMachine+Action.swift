@@ -11,7 +11,7 @@ import Foundation
 @available(iOS 13.0, *)
 extension ExperienceStateMachine {
     enum Action {
-        case startExperience(Experience)
+        case startExperience(ExperienceData)
         case startStep(StepReference)
         case renderStep
         case endExperience(markComplete: Bool)

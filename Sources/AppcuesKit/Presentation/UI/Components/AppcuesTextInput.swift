@@ -19,6 +19,7 @@ internal struct AppcuesTextInput: View {
     }
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
+    @EnvironmentObject var stepState: ExperienceData.StepState
 
     var body: some View {
         let style = AppcuesStyle(from: model.style)
@@ -27,7 +28,7 @@ internal struct AppcuesTextInput: View {
         VStack(alignment: style.horizontalAlignment, spacing: 0) {
             ExperienceComponent.text(model.label).view
 
-            let binding = viewModel.formBinding(for: model.id)
+            let binding = stepState.formBinding(for: model.id)
 
             MultilineTextView(text: binding, model: model)
                 .frame(height: height)

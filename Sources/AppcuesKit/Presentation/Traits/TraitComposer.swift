@@ -10,7 +10,7 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal protocol TraitComposing: AnyObject {
-    func package(experience: Experience, stepIndex: Experience.StepIndex) throws -> ExperiencePackage
+    func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage
 }
 
 @available(iOS 13.0, *)
@@ -26,7 +26,7 @@ internal class TraitComposer: TraitComposing {
         notificationCenter = container.resolve(NotificationCenter.self)
     }
 
-    func package(experience: Experience, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
+    func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
         let stepModels: [Experience.Step.Child] = experience.steps[stepIndex.group].items
         let targetPageIndex = stepIndex.item
 
@@ -85,7 +85,10 @@ internal class TraitComposer: TraitComposing {
 
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithDecorators.map { step, decorators in
             let viewModel = ExperienceStepViewModel(step: step, actionRegistry: actionRegistry)
-            let stepViewController = ExperienceStepViewController(viewModel: viewModel, notificationCenter: notificationCenter)
+            let stepViewController = ExperienceStepViewController(
+                viewModel: viewModel,
+                stepState: experience.state(for: experience.steps[stepIndex.group].items[stepIndex.item].id),
+                notificationCenter: notificationCenter)
             try decorators.forEach { try $0.decorate(stepController: stepViewController) }
             return stepViewController
         }

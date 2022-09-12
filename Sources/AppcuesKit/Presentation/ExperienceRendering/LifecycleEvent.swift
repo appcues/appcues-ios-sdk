@@ -28,7 +28,8 @@ internal enum LifecycleEvent: String, CaseIterable {
     }
 
     /// Map experience model to a general property dictionary.
-    static func properties(_ experience: Experience, _ stepIndex: Experience.StepIndex? = nil, error: ErrorBody? = nil) -> [String: Any] {
+    @available(iOS 13.0, *)
+    static func properties(_ experience: ExperienceData, _ stepIndex: Experience.StepIndex? = nil, error: ErrorBody? = nil) -> [String: Any] {
         var properties: [String: Any] = [
             "experienceId": experience.id.uuidString.lowercased(),
             "experienceName": experience.name,
