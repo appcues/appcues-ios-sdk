@@ -110,12 +110,15 @@ extension View {
     }
 
     func applyAllAppcues(_ style: AppcuesStyle) -> some View {
-        self
-            .applyForegroundStyle(style)
-            .applyInternalLayout(style)
-            .applyBackgroundStyle(style)
-            .applyBorderStyle(style)
-            .applyExternalLayout(style)
+        // Using `AnyView` here drastically improves memory and CPU usage
+        AnyView(
+            self
+                .applyForegroundStyle(style)
+                .applyInternalLayout(style)
+                .applyBackgroundStyle(style)
+                .applyBorderStyle(style)
+                .applyExternalLayout(style)
+        )
     }
 }
 
