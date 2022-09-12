@@ -178,8 +178,8 @@ class MockDeepLinkHandler: DeepLinkHandling {
 
 class MockTraitComposer: TraitComposing {
 
-    var onPackage: ((Experience, Experience.StepIndex) throws -> ExperiencePackage)?
-    func package(experience: Experience, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
+    var onPackage: ((ExperienceData, Experience.StepIndex) throws -> ExperiencePackage)?
+    func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
         if let onPackage = onPackage {
             return try onPackage(experience, stepIndex)
         } else {

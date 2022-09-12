@@ -45,7 +45,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateBeginningExperienceState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.beginningExperience(Experience.mock)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.beginningExperience(ExperienceData.mock)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -54,7 +54,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateBeginningStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.beginningStep(Experience.mock, .initial, Experience.mock.package(), isFirst: true)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.beginningStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), isFirst: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -66,7 +66,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertNil(appcues.storage.lastContentShownAt)
 
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(Experience.mock, .initial, Experience.mock.package(), isFirst: true)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), isFirst: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -99,7 +99,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateRenderingStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(Experience.mock, .initial, Experience.mock.package(), isFirst: false)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), isFirst: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -131,7 +131,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(Experience.mock, .initial, Experience.mock.package())))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mock, .initial, ExperienceData.mock.package())))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -163,7 +163,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingExperienceState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(Experience.mock, .initial, markComplete: false)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(ExperienceData.mock, .initial, markComplete: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -195,7 +195,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingExperienceStateMarkComplete() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(Experience.mock, .initial, markComplete: true)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(ExperienceData.mock, .initial, markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -222,7 +222,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingExperienceLastStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(Experience.mock, Experience.StepIndex(group: 1, item: 0), markComplete: false)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(ExperienceData.mock, Experience.StepIndex(group: 1, item: 0), markComplete: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -252,7 +252,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.experience(Experience.mock, "error")))
+        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.experience(ExperienceData.mock, "error")))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -286,7 +286,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.step(Experience.mock, .initial, "error")))
+        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.step(ExperienceData.mock, .initial, "error")))
 
         // Assert
         XCTAssertFalse(isCompleted)
