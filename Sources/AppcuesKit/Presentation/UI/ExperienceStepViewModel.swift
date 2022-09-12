@@ -163,6 +163,17 @@ extension ExperienceComponent {
             components[model.id] = .init(
                 value: .single(model.defaultValue ?? ""),
                 required: model.required ?? false)
+        case .optionSelect(let model):
+            switch model.selectMode {
+            case .single:
+                components[model.id] = .init(
+                    value: .single(model.defaultValue?.first ?? ""),
+                    required: model.required ?? false)
+            case .multi:
+                components[model.id] = .init(
+                    value: .multi(Set(model.defaultValue ?? [])),
+                    required: model.required ?? false)
+            }
         }
 
         return components
