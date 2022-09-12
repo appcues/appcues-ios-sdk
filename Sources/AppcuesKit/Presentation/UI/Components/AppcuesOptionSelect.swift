@@ -29,13 +29,13 @@ internal struct AppcuesOptionSelect: View {
                     }
                 }
             case (_, .horizontalList):
-                HStack(alignment: .center, spacing: 0) {
+                HStack(alignment: model.controlPosition?.verticalAlignment ?? .center, spacing: 0) {
                     items
                 }
             case (_, .verticalList),
                 // fallbacks
                 (_, .none), (.multi, .picker):
-                VStack(alignment: .leading, spacing: 0) {
+                VStack(alignment: model.controlPosition?.horizontalAlignment ?? .center, spacing: 0) {
                     items
                 }
             }
@@ -57,6 +57,31 @@ internal struct AppcuesOptionSelect: View {
                     option.content.view
                 }
             }
+        }
+    }
+}
+
+@available(iOS 13.0, *)
+extension ExperienceComponent.OptionSelectModel.ControlPosition {
+    var verticalAlignment: VerticalAlignment? {
+        switch self {
+        case .top:
+            return .top
+        case .bottom:
+            return .bottom
+        case .leading, .trailing, .hidden:
+            return nil
+        }
+    }
+
+    var horizontalAlignment: HorizontalAlignment? {
+        switch self {
+        case .leading:
+            return .leading
+        case .trailing:
+            return .trailing
+        case .top, .bottom, .hidden:
+            return nil
         }
     }
 }
