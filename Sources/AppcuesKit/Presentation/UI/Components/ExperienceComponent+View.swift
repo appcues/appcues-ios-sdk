@@ -25,6 +25,8 @@ extension ExperienceComponent {
             AppcuesImage(model: model)
         case .embed(let model):
             AppcuesEmbed(model: model)
+        case .textInput(let model):
+            AppcuesTextInput(model: model)
         case .spacer(let model):
             Spacer(minLength: CGFloat(model.spacing))
         }
