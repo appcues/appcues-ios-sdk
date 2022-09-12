@@ -27,6 +27,8 @@ extension ExperienceComponent {
             AppcuesEmbed(model: model)
         case .textInput(let model):
             AppcuesTextInput(model: model)
+        case .optionSelect(let model):
+            AppcuesOptionSelect(model: model)
         case .spacer(let model):
             Spacer(minLength: CGFloat(model.spacing))
         }

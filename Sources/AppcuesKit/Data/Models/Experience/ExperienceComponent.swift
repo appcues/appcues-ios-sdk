@@ -22,6 +22,7 @@ internal indirect enum ExperienceComponent {
     case image(ImageModel)
     case spacer(SpacerModel)
     case embed(EmbedModel)
+    case optionSelect(OptionSelectModel)
     case textInput(TextInputModel)
 
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
@@ -33,6 +34,7 @@ internal indirect enum ExperienceComponent {
         case .image(let model): return model[keyPath: keyPath]
         case .spacer(let model): return model[keyPath: keyPath]
         case .embed(let model): return model[keyPath: keyPath]
+        case .optionSelect(let model): return model[keyPath: keyPath]
         case .textInput(let model): return model[keyPath: keyPath]
         }
     }
@@ -71,6 +73,8 @@ extension ExperienceComponent: Decodable {
             self = .spacer(try modelContainer.decode(SpacerModel.self))
         case "embed":
             self = .embed(try modelContainer.decode(EmbedModel.self))
+        case "optionSelect":
+            self = .optionSelect(try modelContainer.decode(OptionSelectModel.self))
         case "textInput":
             self = .textInput(try modelContainer.decode(TextInputModel.self))
         default:
@@ -168,7 +172,46 @@ extension ExperienceComponent {
 
         let style: Style?
     }
-    
+
+    struct FormOptionModel: Decodable, Identifiable {
+        var id: String { value }
+
+        let value: String
+        let content: ExperienceComponent
+        let selectedContent: ExperienceComponent?
+    }
+
+    struct OptionSelectModel: ComponentModel, Decodable {
+        enum SelectMode: String, Decodable {
+            case single, multi
+        }
+
+        enum ControlPosition: String, Decodable {
+            case leading, trailing, top, bottom, hidden
+        }
+
+        enum DisplayFormat: String, Decodable {
+            case verticalList, horizontalList, picker
+        }
+
+        let id: UUID
+
+        let label: TextModel
+        let selectMode: SelectMode
+        let options: [FormOptionModel]
+        let defaultValue: [String]?
+        // swiftlint:disable:next discouraged_optional_boolean
+        let required: Bool?
+        let controlPosition: ControlPosition?
+        let displayFormat: DisplayFormat?
+        let selectedColor: Style.DynamicColor?
+        let unselectedColor: Style.DynamicColor?
+        let accentColor: Style.DynamicColor?
+        let pickerStyle: Style?
+
+        let style: Style?
+    }
+
     struct SpacerModel: ComponentModel, Decodable {
         let id: UUID
         let spacing: Double?
