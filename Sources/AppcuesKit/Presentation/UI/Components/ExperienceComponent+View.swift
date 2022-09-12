@@ -12,25 +12,26 @@ import SwiftUI
 extension ExperienceComponent {
 
     @ViewBuilder var view: some View {
+        // Using `AnyView` here drastically improves memory and CPU usage
         switch self {
         case .stack(let model):
-            AppcuesStack(model: model)
+            AnyView(AppcuesStack(model: model))
         case .box(let model):
-            AppcuesBox(model: model)
+            AnyView(AppcuesBox(model: model))
         case .text(let model):
-            AppcuesText(model: model)
+            AnyView(AppcuesText(model: model))
         case .button(let model):
-            AppcuesButton(model: model)
+            AnyView(AppcuesButton(model: model))
         case .image(let model):
-            AppcuesImage(model: model)
+            AnyView(AppcuesImage(model: model))
         case .embed(let model):
-            AppcuesEmbed(model: model)
+            AnyView(AppcuesEmbed(model: model))
         case .textInput(let model):
-            AppcuesTextInput(model: model)
+            AnyView(AppcuesTextInput(model: model))
         case .optionSelect(let model):
-            AppcuesOptionSelect(model: model)
+            AnyView(AppcuesOptionSelect(model: model))
         case .spacer(let model):
-            Spacer(minLength: CGFloat(model.spacing))
+            AnyView(Spacer(minLength: CGFloat(model.spacing)))
         }
     }
 }
