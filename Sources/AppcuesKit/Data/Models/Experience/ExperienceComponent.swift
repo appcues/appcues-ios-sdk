@@ -22,6 +22,7 @@ internal indirect enum ExperienceComponent {
     case image(ImageModel)
     case spacer(SpacerModel)
     case embed(EmbedModel)
+    case textInput(TextInputModel)
 
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
@@ -32,6 +33,7 @@ internal indirect enum ExperienceComponent {
         case .image(let model): return model[keyPath: keyPath]
         case .spacer(let model): return model[keyPath: keyPath]
         case .embed(let model): return model[keyPath: keyPath]
+        case .textInput(let model): return model[keyPath: keyPath]
         }
     }
 }
@@ -69,6 +71,8 @@ extension ExperienceComponent: Decodable {
             self = .spacer(try modelContainer.decode(SpacerModel.self))
         case "embed":
             self = .embed(try modelContainer.decode(EmbedModel.self))
+        case "textInput":
+            self = .textInput(try modelContainer.decode(TextInputModel.self))
         default:
             let context = DecodingError.Context(codingPath: container.codingPath, debugDescription: "unknown type '\(type)'")
             throw DecodingError.valueNotFound(Self.self, context)
@@ -144,6 +148,27 @@ extension ExperienceComponent {
         let style: Style?
     }
 
+    struct TextInputModel: ComponentModel, Decodable {
+        enum DataType: String, Decodable {
+            case text, number, email, phone, name, address
+        }
+
+        let id: UUID
+
+        let label: TextModel
+        let placeholder: TextModel?
+        let defaultValue: String?
+        // swiftlint:disable:next discouraged_optional_boolean
+        let required: Bool?
+        let numberOfLines: Int?
+        let maxLength: Int?
+        let dataType: DataType?
+        let textFieldStyle: Style?
+        let cursorColor: Style.DynamicColor?
+
+        let style: Style?
+    }
+    
     struct SpacerModel: ComponentModel, Decodable {
         let id: UUID
         let spacing: Double?
