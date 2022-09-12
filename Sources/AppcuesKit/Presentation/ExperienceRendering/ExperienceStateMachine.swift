@@ -212,7 +212,7 @@ extension ExperienceStateMachine {
 extension ExperienceStateMachine {
     enum SideEffect {
         case continuation(Action)
-        case presentContainer(Experience, Experience.StepIndex, ExperiencePackage)
+        case presentContainer(ExperienceData, Experience.StepIndex, ExperiencePackage)
         case navigateInContainer(ExperiencePackage, pageIndex: Int)
         case dismissContainer(ExperiencePackage, continuation: Action)
         case error(ExperienceError, reset: Bool)
@@ -242,10 +242,10 @@ extension ExperienceStateMachine {
         }
 
         private func executePresentContainer(
-            machine: ExperienceStateMachine, experience: Experience, stepIndex: Experience.StepIndex, package: ExperiencePackage
+            machine: ExperienceStateMachine, experience: ExperienceData, stepIndex: Experience.StepIndex, package: ExperiencePackage
         ) {
             machine.clientControllerDelegate = UIApplication.shared.topViewController() as? AppcuesExperienceDelegate
-            guard machine.canDisplay(experience: experience) else {
+            guard machine.canDisplay(experience: experience.model) else {
                 try? machine.transition(.reportError(.step(experience, stepIndex, "Step blocked by app"), fatal: true))
                 return
             }

@@ -12,11 +12,11 @@ import Foundation
 extension ExperienceStateMachine {
     enum State {
         case idling
-        case beginningExperience(Experience)
-        case beginningStep(Experience, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
-        case renderingStep(Experience, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
-        case endingStep(Experience, Experience.StepIndex, ExperiencePackage)
-        case endingExperience(Experience, Experience.StepIndex, markComplete: Bool)
+        case beginningExperience(ExperienceData)
+        case beginningStep(ExperienceData, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
+        case renderingStep(ExperienceData, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
+        case endingStep(ExperienceData, Experience.StepIndex, ExperiencePackage)
+        case endingExperience(ExperienceData, Experience.StepIndex, markComplete: Bool)
 
         func transition(for action: Action, traitComposer: TraitComposing) -> Transition? {
             switch (self, action) {
@@ -107,7 +107,7 @@ extension ExperienceStateMachine.State: CustomStringConvertible {
 
 @available(iOS 13.0, *)
 extension ExperienceStateMachine.Transition {
-    static func fromIdlingToBeginningExperience(_ experience: Experience) -> Self {
+    static func fromIdlingToBeginningExperience(_ experience: ExperienceData) -> Self {
         guard !experience.steps.isEmpty else {
             return .init(toState: nil, sideEffect: .error(.experience(experience, "Experience has 0 steps"), reset: true))
         }
@@ -118,7 +118,7 @@ extension ExperienceStateMachine.Transition {
        )
     }
 
-    static func fromBeginningExperienceToBeginningStep(_ experience: Experience, _ traitComposer: TraitComposing) -> Self {
+    static func fromBeginningExperienceToBeginningStep(_ experience: ExperienceData, _ traitComposer: TraitComposing) -> Self {
         let stepIndex = Experience.StepIndex.initial
         do {
             let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
@@ -132,7 +132,7 @@ extension ExperienceStateMachine.Transition {
     }
 
     static func fromRenderingStepToEndingStep(
-        _ experience: Experience, _ stepIndex: Experience.StepIndex, _ package: ExperiencePackage, _ stepRef: StepReference
+        _ experience: ExperienceData, _ stepIndex: Experience.StepIndex, _ package: ExperiencePackage, _ stepRef: StepReference
     ) -> Self {
         guard let newStepIndex = stepRef.resolve(experience: experience, currentIndex: stepIndex) else {
             if stepRef == .offset(1) && experience.stepIndices.last == stepIndex {
@@ -158,7 +158,7 @@ extension ExperienceStateMachine.Transition {
     }
 
     static func fromEndingStepToBeginningStep(
-        _ experience: Experience, _ currentIndex: Experience.StepIndex, _ stepRef: StepReference, _ traitComposer: TraitComposing
+        _ experience: ExperienceData, _ currentIndex: Experience.StepIndex, _ stepRef: StepReference, _ traitComposer: TraitComposing
     ) -> Self {
         guard let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex) else {
             return .init(

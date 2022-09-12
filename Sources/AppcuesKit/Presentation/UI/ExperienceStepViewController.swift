@@ -22,11 +22,11 @@ internal class ExperienceStepViewController: UIViewController {
 
     private let contentViewController: UIViewController
 
-    init(viewModel: ExperienceStepViewModel, notificationCenter: NotificationCenter? = nil) {
+    init(viewModel: ExperienceStepViewModel, stepState: ExperienceData.StepState, notificationCenter: NotificationCenter? = nil) {
         self.viewModel = viewModel
         self.notificationCenter = notificationCenter
 
-        let rootView = ExperienceStepRootView(rootView: viewModel.step.content.view, viewModel: viewModel)
+        let rootView = ExperienceStepRootView(rootView: viewModel.step.content.view, viewModel: viewModel, stepState: stepState)
         self.contentViewController = AppcuesHostingController(rootView: rootView)
         self.contentViewController.view.backgroundColor = .clear
 

@@ -60,7 +60,7 @@ internal class ExperienceRenderer: ExperienceRendering {
             self.stateMachine.addObserver(analyticsObserver)
         }
         stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
-        stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
+        stateMachine.transitionAndObserve(.startExperience(ExperienceData(experience: experience)), filter: experience.instanceID) { result in
             switch result {
             case .success(.renderingStep):
                 DispatchQueue.main.async { completion?(.success(())) }

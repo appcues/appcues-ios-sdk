@@ -13,6 +13,7 @@ internal struct AppcuesOptionSelect: View {
     let model: ExperienceComponent.OptionSelectModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
+    @EnvironmentObject var stepState: ExperienceData.StepState
 
     var body: some View {
         let style = AppcuesStyle(from: model.style)
@@ -22,7 +23,7 @@ internal struct AppcuesOptionSelect: View {
 
             switch (model.selectMode, model.displayFormat) {
             case (.single, .picker):
-                Picker(model.label.text, selection: viewModel.formBinding(for: model.id)) {
+                Picker(model.label.text, selection: stepState.formBinding(for: model.id)) {
                     ForEach(model.options) { option in
                         option.content.view
                             .tag(option.value)
@@ -46,7 +47,7 @@ internal struct AppcuesOptionSelect: View {
 
     @ViewBuilder var items: some View {
         ForEach(model.options) { option in
-            let binding = viewModel.formBinding(for: model.id, value: option.value)
+            let binding = stepState.formBinding(for: model.id, value: option.value)
             SelectToggleView(
                 selected: binding,
                 model: model

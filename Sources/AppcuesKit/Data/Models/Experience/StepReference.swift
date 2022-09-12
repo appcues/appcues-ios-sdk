@@ -26,7 +26,8 @@ internal enum StepReference: Equatable {
         }
     }
 
-    func resolve(experience: Experience, currentIndex: Experience.StepIndex) -> Experience.StepIndex? {
+    @available(iOS 13.0, *)
+    func resolve(experience: ExperienceData, currentIndex: Experience.StepIndex) -> Experience.StepIndex? {
         switch self {
         case .index(let index):
             return experience.stepIndices[safe: index]
@@ -61,29 +62,32 @@ extension Experience {
             self.item = parts[1]
         }
     }
+}
 
-    var stepIndices: [StepIndex] {
-        steps.enumerated().flatMap { groupOffset, element in
+@available(iOS 13.0, *)
+extension ExperienceData {
+    var stepIndices: [Experience.StepIndex] {
+        model.steps.enumerated().flatMap { groupOffset, element in
             element.items.enumerated().map { stepOffset, _ in
-                StepIndex(group: groupOffset, item: stepOffset)
+                Experience.StepIndex(group: groupOffset, item: stepOffset)
             }
         }
     }
 
-    func stepIndex(for id: UUID) -> StepIndex? {
-        for (groupOffset, element) in steps.enumerated() {
+    func stepIndex(for id: UUID) -> Experience.StepIndex? {
+        for (groupOffset, element) in model.steps.enumerated() {
             if element.id == id {
-                return StepIndex(group: groupOffset, item: 0)
+                return Experience.StepIndex(group: groupOffset, item: 0)
             }
 
             for (stepOffset, step) in element.items.enumerated() where step.id == id {
-                return StepIndex(group: groupOffset, item: stepOffset)
+                return Experience.StepIndex(group: groupOffset, item: stepOffset)
             }
         }
         return nil
     }
 
-    func step(at stepIndex: StepIndex) -> Step.Child? {
-        steps[safe: stepIndex.group]?.items[safe: stepIndex.item]
+    func step(at stepIndex: Experience.StepIndex) -> Experience.Step.Child? {
+        model.steps[safe: stepIndex.group]?.items[safe: stepIndex.item]
     }
 }

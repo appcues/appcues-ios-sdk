@@ -13,9 +13,11 @@ internal struct ExperienceStepRootView<Content: View>: View {
     let rootView: Content
 
     @ObservedObject var viewModel: ExperienceStepViewModel
+    @ObservedObject var stepState: ExperienceData.StepState
 
     var body: some View {
         rootView
             .environmentObject(viewModel)
+            .environmentObject(stepState)
     }
 }

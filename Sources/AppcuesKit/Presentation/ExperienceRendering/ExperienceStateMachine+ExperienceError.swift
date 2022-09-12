@@ -12,9 +12,9 @@ import Foundation
 extension ExperienceStateMachine {
     enum ExperienceError: Error {
         case noTransition(currentState: State)
-        case experienceAlreadyActive(ignoredExperience: Experience)
-        case experience(Experience, String)
-        case step(Experience, Experience.StepIndex, String)
+        case experienceAlreadyActive(ignoredExperience: ExperienceData)
+        case experience(ExperienceData, String)
+        case step(ExperienceData, Experience.StepIndex, String)
     }
 }
 
