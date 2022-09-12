@@ -90,6 +90,35 @@ extension Experience {
             redirectURL: nil,
             nextContentID: nil)
     }
+}
+
+extension Experience.Step {
+    init(fixedID: String, children: [Child]) {
+        self = .group(Group(
+            id: UUID(uuidString: fixedID) ?? UUID(),
+            type: "group",
+            children: children,
+            traits: [],
+            actions: [:]
+        ))
+    }
+}
+
+extension Experience.Step.Child {
+    init(fixedID: String) {
+        self.init(
+            id: UUID(uuidString: fixedID) ?? UUID(),
+            type: "modal",
+            content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil)),
+            traits: [],
+            actions: [:]
+        )
+    }
+}
+
+extension ExperienceData {
+    static var mock: ExperienceData { ExperienceData(experience: .mock) }
+    static var singleStepMock: ExperienceData { ExperienceData(experience: .singleStepMock) }
 
     @available(iOS 13.0, *)
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
@@ -115,29 +144,5 @@ extension Experience {
                 dismissExpectation?.fulfill()
                 $0?()
             })
-    }
-}
-
-extension Experience.Step {
-    init(fixedID: String, children: [Child]) {
-        self = .group(Group(
-            id: UUID(uuidString: fixedID) ?? UUID(),
-            type: "group",
-            children: children,
-            traits: [],
-            actions: [:]
-        ))
-    }
-}
-
-extension Experience.Step.Child {
-    init(fixedID: String) {
-        self.init(
-            id: UUID(uuidString: fixedID) ?? UUID(),
-            type: "modal",
-            content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil)),
-            traits: [],
-            actions: [:]
-        )
     }
 }

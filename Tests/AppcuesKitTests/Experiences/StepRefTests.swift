@@ -14,62 +14,62 @@ class StepRefTests: XCTestCase {
 
     func testResolveIndex() throws {
         XCTAssertEqual(
-            StepReference.index(0).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 0)),
+            StepReference.index(0).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 0)),
             SI(group: 0, item: 0)
         )
         XCTAssertEqual(
-            StepReference.index(0).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 1)),
+            StepReference.index(0).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 1)),
             SI(group: 0, item: 0)
         )
         XCTAssertEqual(
-            StepReference.index(0).resolve(experience: Experience.mock, currentIndex: SI(group: 1, item: 1)),
+            StepReference.index(0).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 1, item: 1)),
             SI(group: 0, item: 0)
         )
         XCTAssertEqual(
-            StepReference.index(3).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 1)),
+            StepReference.index(3).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 1)),
             SI(group: 1, item: 0)
         )
-        XCTAssertNil(StepReference.index(134).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 1)))
+        XCTAssertNil(StepReference.index(134).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 1)))
     }
 
     func testResolveOffset() throws {
         XCTAssertEqual(
-            StepReference.offset(1).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 1)),
+            StepReference.offset(1).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 1)),
             SI(group: 0, item: 2)
         )
         XCTAssertEqual(
-            StepReference.offset(-1).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 1)),
+            StepReference.offset(-1).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 1)),
             SI(group: 0, item: 0)
         )
         XCTAssertEqual(
-            StepReference.offset(2).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 1)),
+            StepReference.offset(2).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 1)),
             SI(group: 1, item: 0)
         )
         XCTAssertEqual(
-            StepReference.offset(0).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 1)),
+            StepReference.offset(0).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 1)),
             SI(group: 0, item: 1)
         )
-        XCTAssertNil(StepReference.offset(-10).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 1)))
+        XCTAssertNil(StepReference.offset(-10).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 1)))
     }
 
     func testResolveID() throws {
         XCTAssertEqual(
-            StepReference.stepID(UUID(uuidString: "fb529214-3c78-4d6d-ba93-b55d22497ca1")!).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 0)),
+            StepReference.stepID(UUID(uuidString: "fb529214-3c78-4d6d-ba93-b55d22497ca1")!).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 0)),
             SI(group: 0, item: 0)
         )
         XCTAssertEqual(
-            StepReference.stepID(UUID(uuidString: "fb529214-3c78-4d6d-ba93-b55d22497ca1")!).resolve(experience: Experience.mock, currentIndex: SI(group: 1, item: 0)),
+            StepReference.stepID(UUID(uuidString: "fb529214-3c78-4d6d-ba93-b55d22497ca1")!).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 1, item: 0)),
             SI(group: 0, item: 0)
         )
         XCTAssertEqual(
-            StepReference.stepID(UUID(uuidString: "149f335f-15f6-4d8a-9e38-29a4ca435fd2")!).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 0)),
+            StepReference.stepID(UUID(uuidString: "149f335f-15f6-4d8a-9e38-29a4ca435fd2")!).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 0)),
             SI(group: 0, item: 1)
         )
         XCTAssertEqual(
-            StepReference.stepID(UUID(uuidString: "03652bd5-f0cb-44f0-9274-e95b4441d857")!).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 0)),
+            StepReference.stepID(UUID(uuidString: "03652bd5-f0cb-44f0-9274-e95b4441d857")!).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 0)),
             SI(group: 1, item: 0)
         )
-        XCTAssertNil(StepReference.stepID(UUID(uuidString: "49e21be9-cd9c-4ec6-85de-e4f24a676e31")!).resolve(experience: Experience.mock, currentIndex: SI(group: 0, item: 0)))
+        XCTAssertNil(StepReference.stepID(UUID(uuidString: "49e21be9-cd9c-4ec6-85de-e4f24a676e31")!).resolve(experience: ExperienceData.mock, currentIndex: SI(group: 0, item: 0)))
     }
 
     func testEquatable() throws {
