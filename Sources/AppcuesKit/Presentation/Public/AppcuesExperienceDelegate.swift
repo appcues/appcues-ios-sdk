@@ -12,7 +12,7 @@ import Foundation
 @objc
 public protocol AppcuesExperienceDelegate: AnyObject {
     /// Asks the delegate for permission to display the Appcues experience.
-    /// - Returns: `true` to allow the SDK to display the experience, `false` to refuse the presentaiton.
+    /// - Returns: `true` to allow the SDK to display the experience, `false` to refuse the presentation.
     func canDisplayExperience(experienceID: String) -> Bool
     /// Notifies the delegate before an Appcues experience is presented.
     func experienceWillAppear()
