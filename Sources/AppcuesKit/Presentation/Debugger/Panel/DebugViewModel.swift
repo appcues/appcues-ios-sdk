@@ -335,12 +335,30 @@ extension DebugViewModel {
                 .map { ($0.key, String(describing: $0.value)) }
             properties["_identity"] = nil
 
+            // flatten the nested `interactionData` properties into individual top level items.
+            var interactionData = (properties["interactionData"] as? [String: Any] ?? [:])
+            let formResponse = (interactionData["formResponse"] as? ExperienceData.StepState)?.formattedAsDebugData()
+            interactionData["formResponse"] = nil
+            properties["interactionData"] = nil
+            let interactionProps = interactionData
+                .sortedWithAutoProperties()
+                .map { ($0.key, String(describing: $0.value)) }
+
             let userProps = properties
                 .sortedWithAutoProperties()
                 .map { ($0.key, String(describing: $0.value)) }
 
             if !userProps.isEmpty {
                 groups.append(("Properties", userProps))
+            }
+
+            // Other types of interaction data
+            if !interactionProps.isEmpty {
+                groups.append(("Interaction Data", interactionProps))
+            }
+
+            if let formResponse = formResponse, !formResponse.isEmpty {
+                groups.append(("Interaction Data: Form Response", formResponse))
             }
 
             if !autoProps.isEmpty {
