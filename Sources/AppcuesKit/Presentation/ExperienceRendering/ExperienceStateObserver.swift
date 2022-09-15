@@ -101,6 +101,7 @@ extension ExperienceStateMachine {
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
                 trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.endingStep(experience, stepIndex, _)):
+                trackFormCompletion(experience, stepIndex)
                 trackLifecycleEvent(.stepCompleted, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.endingExperience(experience, stepIndex, _)):
                 if result.isExperienceCompleted {
@@ -127,6 +128,23 @@ extension ExperienceStateMachine {
                 TrackingUpdate(type: .event(name: name.rawValue, interactive: false),
                                properties: properties,
                                isInternal: true))
+        }
+
+        func trackFormCompletion(_ experience: ExperienceData, _ stepIndex: Experience.StepIndex) {
+            guard let stepID = experience.step(at: stepIndex)?.id else { return }
+            let stepState = experience.state(for: stepID)
+
+            guard !stepState.formItems.isEmpty else { return }
+
+            analyticsPublisher.publish(TrackingUpdate(type: .profile, properties: stepState.formattedAsProfileUpdate(), isInternal: true))
+
+            let properties = [
+                "interactionType": "Form Submitted",
+                // Passing the actual StepState model is safe because of specific handling in `encodeSkippingInvalid`.
+                "interactionData": [ "formResponse": stepState ]
+            ].merging(LifecycleEvent.properties(experience, stepIndex), uniquingKeysWith: { first, _ in first })
+
+            trackLifecycleEvent(.stepInteraction, properties)
         }
     }
 }

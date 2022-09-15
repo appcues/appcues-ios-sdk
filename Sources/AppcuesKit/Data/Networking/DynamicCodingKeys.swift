@@ -36,10 +36,14 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
         try dict?.forEach { key, value in
             let codingKey = DynamicCodingKeys(key: key)
 
-            if key == "_identity", let autoprops = value as? [String: Any] {
+            if (key == "_identity" || key == "interactionData"), let nestedProps = value as? [String: Any] {
                 // "_identity" is a special case - the Appcues auto-properties that supply app/user/session data
+                // "interactionData" is a special case where a nested object is expected
                 var autopropContainer = self.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: codingKey)
-                try autopropContainer.encodeSkippingInvalid(autoprops)
+                try autopropContainer.encodeSkippingInvalid(nestedProps)
+            } else if #available(iOS 13.0, *), let stepState = value as? ExperienceData.StepState {
+                // Allow encoding the nested StepState structure since platform expects it
+                try self.encode(stepState, forKey: codingKey)
             } else {
                 switch value {
                 case let string as String:
