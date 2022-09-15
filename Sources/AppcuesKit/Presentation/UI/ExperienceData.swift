@@ -101,14 +101,18 @@ extension ExperienceData {
             }
         }
 
-        private var underlyingValue: ValueType
-        private let required: Bool
+        fileprivate let type: String
+        fileprivate let label: String
+        fileprivate var underlyingValue: ValueType
+        fileprivate let required: Bool
 
         var isSatisfied: Bool {
             return !required || underlyingValue.isSet
         }
 
-        internal init(value: FormItem.ValueType, required: Bool) {
+        internal init(type: String, label: String, value: FormItem.ValueType, required: Bool) {
+            self.type = type
+            self.label = label
             self.underlyingValue = value
             self.required = required
         }
@@ -135,5 +139,51 @@ extension ExperienceData {
                 return existingValues.contains(searchValue)
             }
         }
+    }
+}
+
+@available(iOS 13.0, *)
+extension ExperienceData.StepState {
+    func formattedAsProfileUpdate() -> [String: Any] {
+        var update: [String: Any] = [:]
+
+        formItems.forEach { _, item in
+            update["_appcuesForm_\(item.label.asSlug)"] = item.getValue()
+        }
+
+        return update
+    }
+}
+
+@available(iOS 13.0, *)
+extension ExperienceData.StepState: Encodable {
+    enum ItemKeys: CodingKey {
+        case fieldId, fieldType, fieldRequired, value, label
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.unkeyedContainer()
+
+        try formItems.forEach { id, formItem in
+            var itemContainer = container.nestedContainer(keyedBy: ItemKeys.self)
+            try itemContainer.encode(id, forKey: .fieldId)
+            try itemContainer.encode(formItem.type, forKey: .fieldType)
+            try itemContainer.encode(formItem.required, forKey: .fieldRequired)
+            try itemContainer.encode(formItem.getValue(), forKey: .value)
+            try itemContainer.encode(formItem.label, forKey: .label)
+        }
+    }
+}
+
+private extension String {
+    private static let slugSafeCharacters = CharacterSet(charactersIn: "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-")
+
+    var asSlug: String {
+        guard let latin = self.applyingTransform(StringTransform("Any-Latin; Latin-ASCII; Lower;"), reverse: false) else { return self }
+
+        let urlComponents = latin.components(separatedBy: String.slugSafeCharacters.inverted)
+        let result = urlComponents.filter { !$0.isEmpty }.joined(separator: "-")
+
+        return result
     }
 }
