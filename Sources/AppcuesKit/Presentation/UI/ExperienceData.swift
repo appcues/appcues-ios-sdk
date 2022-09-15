@@ -77,8 +77,8 @@ extension ExperienceData {
         }
     }
 
-    struct FormItem {
-        enum ValueType {
+    struct FormItem: Equatable {
+        enum ValueType: Equatable {
             case single(String)
             case multi(Set<String>)
 
@@ -178,6 +178,13 @@ extension ExperienceData.StepState: Encodable {
             try itemContainer.encode(formItem.getValue(), forKey: .value)
             try itemContainer.encode(formItem.label, forKey: .label)
         }
+    }
+}
+
+@available(iOS 13.0, *)
+extension ExperienceData.StepState: Equatable {
+    static func == (lhs: ExperienceData.StepState, rhs: ExperienceData.StepState) -> Bool {
+        lhs.formItems == rhs.formItems
     }
 }
 

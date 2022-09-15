@@ -107,6 +107,10 @@ extension Dictionary where Key == String, Value == Any {
                 XCTAssertEqual(val1, val2)
             case let (val1 as Bool, val2 as Bool):
                 XCTAssertEqual(val1, val2)
+            case let (val1 as [String: Any], val2 as [String: Any]):
+                val1.verifyPropertiesMatch(val2)
+            case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
+                XCTAssertEqual(val1, val2)
             default:
                 XCTFail("\(self[key] ?? "nil") does not match \(other[key] ?? "nil").")
             }
