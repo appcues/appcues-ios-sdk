@@ -153,6 +153,12 @@ extension ExperienceData.StepState {
 
         return update
     }
+
+    func formattedAsDebugData() -> [(title: String, value: String)] {
+        return formItems.map { _, formItem in
+            (formItem.label, formItem.getValue())
+        }
+    }
 }
 
 @available(iOS 13.0, *)
