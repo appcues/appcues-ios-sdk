@@ -128,7 +128,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mock, .initial, ExperienceData.mock.package())))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -159,9 +159,18 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
+    func testEvaluateEndingStepStateWhenIncomplete() throws {
+        // Act
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), markComplete: false)))
+
+        // Assert
+        XCTAssertFalse(isCompleted)
+        XCTAssertEqual(updates.count, 0)
+    }
+
     func testEvaluateEndingStepStateWithForm() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mockWithForm, .initial, ExperienceData.mock.package())))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mockWithForm, .initial, ExperienceData.mock.package(), markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
