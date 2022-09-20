@@ -15,7 +15,7 @@ extension ExperienceStateMachine {
         case beginningExperience(ExperienceData)
         case beginningStep(ExperienceData, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
         case renderingStep(ExperienceData, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
-        case endingStep(ExperienceData, Experience.StepIndex, ExperiencePackage)
+        case endingStep(ExperienceData, Experience.StepIndex, ExperiencePackage, markComplete: Bool)
         case endingExperience(ExperienceData, Experience.StepIndex, markComplete: Bool)
 
         func transition(for action: Action, traitComposer: TraitComposing) -> Transition? {
@@ -30,15 +30,15 @@ extension ExperienceStateMachine {
                 return Transition.fromRenderingStepToEndingStep(experience, stepIndex, package, stepRef)
             case let (.renderingStep(experience, stepIndex, package, _), .endExperience(markComplete)):
                 return Transition(
-                    toState: .endingStep(experience, stepIndex, package),
+                    toState: .endingStep(experience, stepIndex, package, markComplete: markComplete),
                     sideEffect: .continuation(.endExperience(markComplete: markComplete))
                 )
-            case let (.endingStep(experience, stepIndex, package), .endExperience(markComplete)):
+            case let (.endingStep(experience, stepIndex, package, _), .endExperience(markComplete)):
                 return Transition(
                     toState: .endingExperience(experience, stepIndex, markComplete: markComplete),
                     sideEffect: .dismissContainer(package, continuation: .reset)
                 )
-            case let (.endingStep(experience, currentIndex, _), .startStep(stepRef)):
+            case let (.endingStep(experience, currentIndex, _, _), .startStep(stepRef)):
                 return Transition.fromEndingStepToBeginningStep(experience, currentIndex, stepRef, traitComposer)
             case let (.endingExperience(experience, _, _), .reset):
                 var sideEffect: SideEffect?
@@ -73,8 +73,8 @@ extension ExperienceStateMachine.State: Equatable {
             return experience1.id == experience2.id && stepIndex1 == stepIndex2 && isFirst1 == isFirst2
         case let (.renderingStep(experience1, stepIndex1, _, isFirst1), .renderingStep(experience2, stepIndex2, _, isFirst2)):
             return experience1.id == experience2.id && stepIndex1 == stepIndex2 && isFirst1 == isFirst2
-        case let (.endingStep(experience1, stepIndex1, _), .endingStep(experience2, stepIndex2, _)):
-            return experience1.id == experience2.id && stepIndex1 == stepIndex2
+        case let (.endingStep(experience1, stepIndex1, _, markComplete1), .endingStep(experience2, stepIndex2, _, markComplete2)):
+            return experience1.id == experience2.id && stepIndex1 == stepIndex2 && markComplete1 == markComplete2
         case let (.endingExperience(experience1, stepIndex1, markComplete1), .endingExperience(experience2, stepIndex2, markComplete2)):
             return experience1.id == experience2.id && stepIndex1 == stepIndex2 && markComplete1 == markComplete2
         default:
@@ -95,10 +95,10 @@ extension ExperienceStateMachine.State: CustomStringConvertible {
             return ".beginningStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .renderingStep(experience, stepIndex, _, _):
             return ".renderingStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
-        case let .endingStep(experience, stepIndex, _):
-            return ".endingStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
+        case let .endingStep(experience, stepIndex, _, markComplete):
+            return ".endingStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex), markComplete: \(markComplete))"
         case let .endingExperience(experience, _, markComplete):
-            return ".endingExperience(experienceID: \(experience.id.uuidString), markComplete: \(markComplete)"
+            return ".endingExperience(experienceID: \(experience.id.uuidString), markComplete: \(markComplete))"
         }
     }
 }
@@ -137,7 +137,7 @@ extension ExperienceStateMachine.Transition {
         guard let newStepIndex = stepRef.resolve(experience: experience, currentIndex: stepIndex) else {
             if stepRef == .offset(1) && experience.stepIndices.last == stepIndex {
                 return .init(
-                    toState: .endingStep(experience, stepIndex, package),
+                    toState: .endingStep(experience, stepIndex, package, markComplete: true),
                     sideEffect: .continuation(.endExperience(markComplete: true))
                 )
             }
@@ -154,7 +154,8 @@ extension ExperienceStateMachine.Transition {
             sideEffect = .dismissContainer(package, continuation: .startStep(stepRef))
         }
 
-        return .init(toState: .endingStep(experience, stepIndex, package), sideEffect: sideEffect)
+        // Moving to a new step is an interaction that indicates the ending step is completed
+        return .init(toState: .endingStep(experience, stepIndex, package, markComplete: true), sideEffect: sideEffect)
     }
 
     static func fromEndingStepToBeginningStep(
