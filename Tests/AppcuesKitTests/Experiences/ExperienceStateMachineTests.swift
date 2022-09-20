@@ -344,7 +344,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
         // Arrange
         let experience = ExperienceData.mock
-        let initialState: State = .endingStep(experience, Experience.StepIndex(group: 0, item: 1), experience.package())
+        let initialState: State = .endingStep(experience, Experience.StepIndex(group: 0, item: 1), experience.package(), markComplete: true)
         let action: Action = .startStep(StepReference.index(1000))
         let stateMachine = givenState(is: initialState)
 
