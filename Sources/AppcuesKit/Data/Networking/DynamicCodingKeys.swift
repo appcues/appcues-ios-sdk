@@ -33,6 +33,7 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
     mutating func encodeSkippingInvalid(_ dict: [String: Any]?) throws {
         var encodingErrorKeys: [String] = []
 
+        // swiftlint:disable:next closure_body_length
         try dict?.forEach { key, value in
             let codingKey = DynamicCodingKeys(key: key)
 
@@ -50,11 +51,15 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
                     try self.encode(string, forKey: codingKey)
                 case let url as URL:
                     try self.encode(url.absoluteString, forKey: codingKey)
-                case let bool as Bool:
-                    try self.encode(bool, forKey: codingKey)
                 // swiftlint:disable:next legacy_objc_type
                 case let number as NSNumber:
-                    try self.encode(number.decimalValue, forKey: codingKey)
+                    if isBoolNumber(number), let bool = number as? Bool {
+                        try self.encode(bool, forKey: codingKey)
+                    } else {
+                        try self.encode(number.decimalValue, forKey: codingKey)
+                    }
+                case let bool as Bool:
+                    try self.encode(bool, forKey: codingKey)
                 case let date as Date:
                     try self.encode(date, forKey: codingKey)
                 default:
@@ -71,5 +76,13 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
             """
             )
         }
+    }
+
+    // helper to determine if an NSNumber is actually containing a Boolean value
+    // swiftlint:disable:next legacy_objc_type
+    private func isBoolNumber(_ num: NSNumber) -> Bool {
+        let boolID = CFBooleanGetTypeID() // the type ID of CFBoolean
+        let numID = CFGetTypeID(num) // the type ID of num
+        return numID == boolID
     }
 }
