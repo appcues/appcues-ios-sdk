@@ -73,26 +73,9 @@ extension ExperienceComponent {
                 components.merge($0.formComponents, uniquingKeysWith: { first, _ in first })
             }
         case .textInput(let model):
-            components[model.id] = .init(
-                type: "textInput",
-                label: model.label.text,
-                value: .single(model.defaultValue ?? ""),
-                required: model.required ?? false)
+            components[model.id] = .init(model: model)
         case .optionSelect(let model):
-            switch model.selectMode {
-            case .single:
-                components[model.id] = .init(
-                    type: "optionSelect",
-                    label: model.label.text,
-                    value: .single(model.defaultValue?.first ?? ""),
-                    required: model.required ?? false)
-            case .multi:
-                components[model.id] = .init(
-                    type: "optionSelect",
-                    label: model.label.text,
-                    value: .multi(Set(model.defaultValue ?? [])),
-                    required: model.required ?? false)
-            }
+            components[model.id] = .init(model: model)
         }
 
         return components

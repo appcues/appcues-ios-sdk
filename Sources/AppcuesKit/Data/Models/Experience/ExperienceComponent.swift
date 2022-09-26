@@ -200,8 +200,8 @@ extension ExperienceComponent {
         let selectMode: SelectMode
         let options: [FormOptionModel]
         let defaultValue: [String]?
-        // swiftlint:disable:next discouraged_optional_boolean
-        let required: Bool?
+        let minSelections: UInt?
+        let maxSelections: UInt?
         let controlPosition: ControlPosition?
         let displayFormat: DisplayFormat?
         let selectedColor: Style.DynamicColor?

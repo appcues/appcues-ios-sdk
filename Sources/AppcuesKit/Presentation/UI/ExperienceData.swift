@@ -37,6 +37,31 @@ internal class ExperienceData {
 
 @available(iOS 13.0, *)
 extension ExperienceData {
+
+    enum Validator: Equatable {
+        /// The item has some value.
+        case nonEmpty
+        /// At least the specified number of values have been selected.
+        case minSelections(UInt)
+        /// At most the specified number of values have been selected.
+        case maxSelections(UInt)
+
+        @available(iOS 13.0, *)
+        func isSatisfied(value: ExperienceData.FormItem.ValueType) -> Bool {
+            switch (self, value) {
+            case (.nonEmpty, _), (.minSelections, .single):
+                return value.isSet
+            case (.maxSelections, .single):
+                // Case should never apply, but logically it's always valid
+                return true
+            case let (.minSelections(min), .multi(set, _)):
+                return set.count >= min
+            case let (.maxSelections(max), .multi(set, _)):
+                return set.count <= max
+            }
+        }
+    }
+
     class FormState {
         var steps: [UUID: StepState] = [:]
 
@@ -80,13 +105,13 @@ extension ExperienceData {
     struct FormItem: Equatable {
         enum ValueType: Equatable {
             case single(String)
-            case multi(Set<String>)
+            case multi([String], max: UInt?)
 
             var isSet: Bool {
                 switch self {
                 case .single(let value):
                     return !value.isEmpty
-                case .multi(let values):
+                case .multi(let values, _):
                     return !values.isEmpty
                 }
             }
@@ -95,7 +120,7 @@ extension ExperienceData {
                 switch self {
                 case .single(let value):
                     return value
-                case .multi(let values):
+                case .multi(let values, _):
                     return values.joined(separator: ",")
                 }
             }
@@ -104,17 +129,32 @@ extension ExperienceData {
         fileprivate let type: String
         fileprivate let label: String
         fileprivate var underlyingValue: ValueType
+        fileprivate let validators: [Validator]
         fileprivate let required: Bool
 
         var isSatisfied: Bool {
-            return !required || underlyingValue.isSet
+            return !validators.contains { !$0.isSatisfied(value: underlyingValue) }
         }
 
-        internal init(type: String, label: String, value: FormItem.ValueType, required: Bool) {
-            self.type = type
-            self.label = label
-            self.underlyingValue = value
-            self.required = required
+        init(model: ExperienceComponent.TextInputModel) {
+            self.type = "textInput"
+            self.label = model.label.text
+            self.underlyingValue = .single(model.defaultValue ?? "")
+            self.validators = model.validators()
+            self.required = model.required ?? false
+        }
+
+        init(model: ExperienceComponent.OptionSelectModel) {
+            self.type = "optionSelect"
+            self.label = model.label.text
+            switch model.selectMode {
+            case .single:
+                self.underlyingValue = .single(model.defaultValue?.first ?? "")
+            case .multi:
+                self.underlyingValue = .multi(model.defaultValue ?? [], max: model.trueMaxSelections)
+            }
+            self.validators = model.validators()
+            self.required = model.trueMinSelections > 0
         }
 
         func getValue() -> String {
@@ -125,9 +165,19 @@ extension ExperienceData {
             switch underlyingValue {
             case .single:
                 underlyingValue = .single(newValue)
-            case .multi(let existingValues):
-                // Toggle the value to be included in the set.
-                underlyingValue = .multi(existingValues.symmetricDifference([newValue]))
+            case .multi(var existingValues, let maxSelections):
+                if existingValues.contains(newValue) {
+                    existingValues = existingValues.filter { $0 != newValue }
+                } else if let maxSelections = maxSelections {
+                    if existingValues.count < maxSelections {
+                        existingValues.append(newValue)
+                    } else {
+                        // Would be selecting more than the max, so no change.
+                    }
+                } else {
+                    existingValues.append(newValue)
+                }
+                underlyingValue = .multi(existingValues, max: maxSelections)
             }
         }
 
@@ -135,7 +185,7 @@ extension ExperienceData {
             switch underlyingValue {
             case .single(let value):
                 return value == searchValue
-            case .multi(let existingValues):
+            case .multi(let existingValues, _):
                 return existingValues.contains(searchValue)
             }
         }
@@ -185,6 +235,54 @@ extension ExperienceData.StepState: Encodable {
 extension ExperienceData.StepState: Equatable {
     static func == (lhs: ExperienceData.StepState, rhs: ExperienceData.StepState) -> Bool {
         lhs.formItems == rhs.formItems
+    }
+}
+
+@available(iOS 13.0, *)
+extension ExperienceComponent.TextInputModel {
+    func validators() -> [ExperienceData.Validator] {
+        var validators: [ExperienceData.Validator] = []
+
+        if required == true {
+            validators.append(.nonEmpty)
+        }
+
+        return validators
+    }
+}
+
+@available(iOS 13.0, *)
+extension ExperienceComponent.OptionSelectModel {
+
+    /// The actual minimum number of selections (accounting for the full model state)	.
+    var trueMinSelections: UInt {
+        min((minSelections ?? 0), UInt(options.count))
+    }
+
+    /// The actual maximum number of selections (accounting for the full model state).
+    var trueMaxSelections: UInt? {
+        guard let maxSelections = maxSelections else { return nil }
+
+        return max(trueMinSelections, maxSelections)
+    }
+
+    func validators() -> [ExperienceData.Validator] {
+        var validators: [ExperienceData.Validator] = []
+
+        if trueMinSelections > 0 {
+            switch selectMode {
+            case .single:
+                validators.append(.minSelections(1))
+            case .multi:
+                validators.append(.minSelections(trueMinSelections))
+            }
+        }
+
+        if let maxSelections = trueMaxSelections {
+            validators.append(.maxSelections(maxSelections))
+        }
+
+        return validators
     }
 }
 
