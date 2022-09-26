@@ -169,6 +169,20 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
     }
 
     func testEvaluateEndingStepStateWithForm() throws {
+        // Arrange
+        let expectedFormItem = ExperienceData.FormItem(model: ExperienceComponent.TextInputModel(
+            id: UUID(),
+            label: ExperienceComponent.TextModel(id: UUID(), text: "Form label", style: nil),
+            placeholder: nil,
+            defaultValue: "default value",
+            required: true,
+            numberOfLines: nil,
+            maxLength: nil,
+            dataType: nil,
+            textFieldStyle: nil,
+            cursorColor: nil,
+            style: nil))
+
         // Act
         let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mockWithForm, .initial, ExperienceData.mock.package(), markComplete: true)))
 
@@ -195,11 +209,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "interactionType": "Form Submitted",
             "interactionData": [
                 "formResponse": ExperienceData.StepState(formItems: [
-                    UUID(uuidString: "f002dc4f-c5fc-4439-8916-0047a5839741")!: ExperienceData.FormItem(
-                        type: "textInput",
-                        label: "Form label",
-                        value: .single("default value"),
-                        required: true)
+                    UUID(uuidString: "f002dc4f-c5fc-4439-8916-0047a5839741")!: expectedFormItem
                 ])
             ]
         ].verifyPropertiesMatch(updates[1].properties)
