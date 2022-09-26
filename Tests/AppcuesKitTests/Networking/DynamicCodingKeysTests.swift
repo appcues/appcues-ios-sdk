@@ -21,14 +21,14 @@ class DynamicCodingKeysTests: XCTestCase {
 
     func testEncodeDictAny() throws {
         // Arrange
-        let testData = TestData(dict: ["string": "value", "int": 42, "double": 3.14, "bool": true])
+        let testData = TestData(dict: ["string": "value", "int": 42, "double": 3.14, "number": NSNumber(1), "bool": true])
 
         // Act
         let data = try XCTUnwrap(encoder.encode(testData))
 
         // Assert
         let asString = try XCTUnwrap(String(data: data, encoding: .utf8))
-        XCTAssertEqual(asString, #"{"dict":{"bool":true,"double":3.14,"int":42,"string":"value"}}"#)
+        XCTAssertEqual(asString, #"{"dict":{"bool":true,"double":3.14,"int":42,"number":1,"string":"value"}}"#)
     }
 
     func testEncodeDictAnyInvalid() throws {
