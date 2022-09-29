@@ -63,4 +63,5 @@ class AppcuesCloseActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(dismissCount, 1)
-    }}
+    }
+}

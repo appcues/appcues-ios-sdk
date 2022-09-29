@@ -131,6 +131,16 @@ class MockExperienceRenderer: ExperienceRendering {
     func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
         onDismissCurrentExperience?(markComplete, completion)
     }
+
+    var onGetCurrentExperienceData: (() -> ExperienceData)?
+    func getCurrentExperienceData() -> ExperienceData? {
+        onGetCurrentExperienceData?()
+    }
+
+    var onGetCurrentStepIndex: (() -> Experience.StepIndex)?
+    func getCurrentStepIndex() -> AppcuesKit.Experience.StepIndex? {
+        onGetCurrentStepIndex?()
+    }
 }
 
 class MockSessionMonitor: SessionMonitoring {

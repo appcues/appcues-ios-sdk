@@ -124,19 +124,45 @@ class ActionRegistryTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testQueueTransforming() throws {
+        // Arrange
+        let executionExpectation = expectation(description: "Action executed")
+        executionExpectation.expectedFulfillmentCount = 3
+        let actionModel = Experience.Action(
+            trigger: "tap",
+            type: TestAction.type,
+            config: ["executionExpectation": executionExpectation]
+        )
+        let actionModel2 = Experience.Action(
+            trigger: "tap",
+            type: TestAction.type,
+            config: ["executionExpectation": executionExpectation, "removeSubsequent": true]
+        )
+        actionRegistry.register(action: TestAction.self)
+
+        // Act
+        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel2, actionModel, actionModel])
+
+        // Assert
+
+        // The last two actionModel's should be removed
+        waitForExpectations(timeout: 1)
+    }
 }
 
 @available(iOS 13.0, *)
 private extension ActionRegistryTests {
-    class TestAction: ExperienceAction {
+    class TestAction: ExperienceAction, ExperienceActionQueueTransforming {
         static let type = "@test/action"
 
         let executionExpectation: XCTestExpectation?
         let delay: TimeInterval?
+        let removeSubsequent: Bool
 
         required init?(config: [String: Any]?) {
             executionExpectation = config?["executionExpectation"] as? XCTestExpectation
             delay = config?["delay"] as? TimeInterval
+            removeSubsequent = config?["removeSubsequent"] as? Bool ?? false
         }
 
         func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
@@ -149,6 +175,11 @@ private extension ActionRegistryTests {
                 executionExpectation?.fulfill()
                 completion()
             }
+        }
+
+        func transformQueue(_ queue: [ExperienceAction], index: Int, inContext appcues: Appcues) -> [ExperienceAction] {
+            guard removeSubsequent else { return queue }
+            return Array(queue[0...index])
         }
     }
 

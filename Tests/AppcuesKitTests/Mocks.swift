@@ -91,7 +91,7 @@ extension Experience {
             nextContentID: nil)
     }
 
-    static var mockWithForm: Experience {
+    static func mockWithForm(defaultValue: String?) -> Experience {
         Experience(
             id: UUID(uuidString: "ded7b50f-bc24-42de-a0fa-b1f10fc10d00")!,
             name: "Mock Experience: Single step with form",
@@ -102,7 +102,7 @@ extension Experience {
                 Experience.Step(
                     fixedID: "02b83a13-537c-4cfc-89be-815e303d1c00",
                     children: [
-                        Step.Child(formWithFixedID: "6cf396f6-1f01-4449-9e38-7e845f5316c0")
+                        Step.Child(formWithFixedID: "6cf396f6-1f01-4449-9e38-7e845f5316c0", defaultValue: defaultValue)
                     ]
                 )
             ],
@@ -135,7 +135,7 @@ extension Experience.Step.Child {
         )
     }
 
-    init(formWithFixedID fixedID: String) {
+    init(formWithFixedID fixedID: String, defaultValue: String?) {
         self.init(
             id: UUID(uuidString: fixedID) ?? UUID(),
             type: "modal",
@@ -143,7 +143,7 @@ extension Experience.Step.Child {
                 id: UUID(uuidString: "f002dc4f-c5fc-4439-8916-0047a5839741")!,
                 label: ExperienceComponent.TextModel(id: UUID(), text: "Form label", style: nil),
                 placeholder: nil,
-                defaultValue: "default value",
+                defaultValue: defaultValue,
                 required: true,
                 numberOfLines: nil,
                 maxLength: nil,
@@ -161,7 +161,7 @@ extension Experience.Step.Child {
 extension ExperienceData {
     static var mock: ExperienceData { ExperienceData(experience: .mock) }
     static var singleStepMock: ExperienceData { ExperienceData(experience: .singleStepMock) }
-    static var mockWithForm: ExperienceData { ExperienceData(experience: .mockWithForm) }
+    static func mockWithForm(defaultValue: String?) -> ExperienceData { ExperienceData(experience: .mockWithForm(defaultValue: defaultValue)) }
 
     @available(iOS 13.0, *)
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
