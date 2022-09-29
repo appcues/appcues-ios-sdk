@@ -14,6 +14,8 @@ internal protocol ExperienceRendering: AnyObject {
     func show(qualifiedExperiences: [Experience], priority: RenderPriority, completion: ((Result<Void, Error>) -> Void)?)
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
     func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?)
+    func getCurrentExperienceData() -> ExperienceData?
+    func getCurrentStepIndex() -> Experience.StepIndex?
 }
 
 @available(iOS 13.0, *)
@@ -165,5 +167,13 @@ internal class ExperienceRenderer: ExperienceRendering {
                 return false
             }
         }
+    }
+
+    func getCurrentExperienceData() -> ExperienceData? {
+        stateMachine.state.currentExperienceData
+    }
+
+    func getCurrentStepIndex() -> Experience.StepIndex? {
+        stateMachine.state.currentStepIndex
     }
 }

@@ -18,6 +18,31 @@ extension ExperienceStateMachine {
         case endingStep(ExperienceData, Experience.StepIndex, ExperiencePackage, markComplete: Bool)
         case endingExperience(ExperienceData, Experience.StepIndex, markComplete: Bool)
 
+        var currentExperienceData: ExperienceData? {
+            switch self {
+            case .idling:
+                return nil
+            case .beginningExperience(let experienceData),
+                    .beginningStep(let experienceData, _, _, _),
+                    .renderingStep(let experienceData, _, _, _),
+                    .endingStep(let experienceData, _, _, _),
+                    .endingExperience(let experienceData, _, _):
+                return experienceData
+            }
+        }
+
+        var currentStepIndex: Experience.StepIndex? {
+            switch self {
+            case .idling, .beginningExperience:
+                return nil
+            case .beginningStep(_, let stepIndex, _, _),
+                    .renderingStep(_, let stepIndex, _, _),
+                    .endingStep(_, let stepIndex, _, _),
+                    .endingExperience(_, let stepIndex, _):
+                return stepIndex
+            }
+        }
+
         func transition(for action: Action, traitComposer: TraitComposing) -> Transition? {
             switch (self, action) {
             case let (.idling, .startExperience(experience)):

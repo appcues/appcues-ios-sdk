@@ -30,6 +30,11 @@ internal class ExperienceData {
         return stepState
     }
 
+    func state(for stepIndex: Experience.StepIndex) -> StepState? {
+        guard let stepID = model.steps[safe: stepIndex.group]?.items[safe: stepIndex.item]?.id else { return nil }
+        return state(for: stepID)
+    }
+
     subscript<T>(dynamicMember keyPath: KeyPath<Experience, T>) -> T {
         return model[keyPath: keyPath]
     }
