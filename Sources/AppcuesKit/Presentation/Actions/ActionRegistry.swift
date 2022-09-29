@@ -63,7 +63,7 @@ internal class ActionRegistry {
 
     /// Enqueue an experience action instance to be executed.
     func enqueue(actionInstances: [ExperienceAction]) {
-        actionQueue.append(contentsOf: actionInstances)
+        actionQueue.append(contentsOf: transformQueue(actionInstances))
     }
 
     /// Enqueue an experience action data model to be executed.
@@ -72,5 +72,17 @@ internal class ActionRegistry {
             actions[$0.type]?.init(config: $0.config)
         }
         enqueue(actionInstances: actionInstances)
+    }
+
+    // Queue transforms are applied in the order of the original queue,
+    // and actions added to the queue will not have their queue transform executed.
+    private func transformQueue(_ actionInstances: [ExperienceAction]) -> [ExperienceAction] {
+        return actionInstances.reduce(actionInstances) { currentQueue, action in
+            guard let indexInCurrent = currentQueue.firstIndex(where: { $0 === action }),
+                  let transformingAction = action as? ExperienceActionQueueTransforming,
+                  let appcues = appcues else { return currentQueue }
+
+            return transformingAction.transformQueue(currentQueue, index: indexInCurrent, inContext: appcues)
+        }
     }
 }
