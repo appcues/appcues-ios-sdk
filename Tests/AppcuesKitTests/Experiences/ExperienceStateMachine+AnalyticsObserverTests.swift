@@ -168,63 +168,6 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertEqual(updates.count, 0)
     }
 
-    func testEvaluateEndingStepStateWithForm() throws {
-        // Arrange
-        let expectedFormItem = ExperienceData.FormItem(model: ExperienceComponent.TextInputModel(
-            id: UUID(),
-            label: ExperienceComponent.TextModel(id: UUID(), text: "Form label", style: nil),
-            placeholder: nil,
-            defaultValue: "default value",
-            required: true,
-            numberOfLines: nil,
-            maxLength: nil,
-            dataType: nil,
-            textFieldStyle: nil,
-            cursorColor: nil,
-            style: nil))
-
-        // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mockWithForm, .initial, ExperienceData.mock.package(), markComplete: true)))
-
-        // Assert
-        XCTAssertFalse(isCompleted)
-        XCTAssertEqual(updates.count, 3)
-
-        XCTAssertEqual(updates[0].type, .profile)
-        XCTAssertEqual(updates[1].type, .event(name: "appcues:v2:step_interaction", interactive: false))
-        XCTAssertEqual(updates[2].type, .event(name: "appcues:v2:step_completed", interactive: false))
-
-        [
-            "_appcuesForm_form-label": "default value"
-        ].verifyPropertiesMatch(updates[0].properties)
-
-        [
-            "experienceName": "Mock Experience: Single step with form",
-            "experienceId": "ded7b50f-bc24-42de-a0fa-b1f10fc10d00",
-            "version": 1632142800000,
-            "experienceType": "mobile",
-            "stepType": "modal",
-            "stepId": "6cf396f6-1f01-4449-9e38-7e845f5316c0",
-            "stepIndex": "0,0",
-            "interactionType": "Form Submitted",
-            "interactionData": [
-                "formResponse": ExperienceData.StepState(formItems: [
-                    UUID(uuidString: "f002dc4f-c5fc-4439-8916-0047a5839741")!: expectedFormItem
-                ])
-            ]
-        ].verifyPropertiesMatch(updates[1].properties)
-
-        [
-            "experienceName": "Mock Experience: Single step with form",
-            "experienceId": "ded7b50f-bc24-42de-a0fa-b1f10fc10d00",
-            "version": 1632142800000,
-            "experienceType": "mobile",
-            "stepType": "modal",
-            "stepId": "6cf396f6-1f01-4449-9e38-7e845f5316c0",
-            "stepIndex": "0,0"
-        ].verifyPropertiesMatch(updates[2].properties)
-    }
-
     func testEvaluateEndingExperienceState() throws {
         // Act
         let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(ExperienceData.mock, .initial, markComplete: false)))
