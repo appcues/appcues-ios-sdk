@@ -142,6 +142,7 @@ extension Experience.Step.Child {
             content: ExperienceComponent.textInput(ExperienceComponent.TextInputModel(
                 id: UUID(uuidString: "f002dc4f-c5fc-4439-8916-0047a5839741")!,
                 label: ExperienceComponent.TextModel(id: UUID(), text: "Form label", style: nil),
+                errorLabel: nil,
                 placeholder: nil,
                 defaultValue: defaultValue,
                 required: true,

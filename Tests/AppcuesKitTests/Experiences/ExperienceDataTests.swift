@@ -46,11 +46,11 @@ class ExperienceDataTests: XCTestCase {
         formItem.setValue("0")
         XCTAssertEqual(formItem.getValue(), "0")
         formItem.setValue("1")
-        XCTAssertEqual(formItem.getValue(), "0,1")
+        XCTAssertEqual(formItem.getValue(), "0\n1")
         formItem.setValue("0")
         XCTAssertEqual(formItem.getValue(), "1")
         formItem.setValue("0")
-        XCTAssertEqual(formItem.getValue(), "1,0")
+        XCTAssertEqual(formItem.getValue(), "1\n0")
     }
 
     func testMultiSelectMinSelections() throws {
@@ -87,13 +87,13 @@ class ExperienceDataTests: XCTestCase {
         formItem.setValue("0")
         XCTAssertEqual(formItem.getValue(), "0")
         formItem.setValue("1")
-        XCTAssertEqual(formItem.getValue(), "0,1")
+        XCTAssertEqual(formItem.getValue(), "0\n1")
         formItem.setValue("2")
-        XCTAssertEqual(formItem.getValue(), "0,1", "exceeding max not set")
+        XCTAssertEqual(formItem.getValue(), "0\n1", "exceeding max not set")
         formItem.setValue("1")
         XCTAssertEqual(formItem.getValue(), "0")
         formItem.setValue("2")
-        XCTAssertEqual(formItem.getValue(), "0,2")
+        XCTAssertEqual(formItem.getValue(), "0\n2")
     }
 
     // We do no handling of the scenario where defaultValue.count > maxSelections.
@@ -111,15 +111,15 @@ class ExperienceDataTests: XCTestCase {
 
         // Act/Assert
         XCTAssertFalse(formItem.isSatisfied)
-        XCTAssertEqual(formItem.getValue(), "0,1,2")
+        XCTAssertEqual(formItem.getValue(), "0\n1\n2")
 
         formItem.setValue("3")
-        XCTAssertEqual(formItem.getValue(), "0,1,2", "exceeding max not set")
+        XCTAssertEqual(formItem.getValue(), "0\n1\n2", "exceeding max not set")
 
         formItem.setValue("2")
         formItem.setValue("1")
         formItem.setValue("3")
-        XCTAssertEqual(formItem.getValue(), "0,3")
+        XCTAssertEqual(formItem.getValue(), "0\n3")
     }
 
     // If minSelections > options.count, minSelections will be set to options.count.
@@ -153,10 +153,10 @@ class ExperienceDataTests: XCTestCase {
         formItem.setValue("0")
         formItem.setValue("1")
         formItem.setValue("2")
-        XCTAssertEqual(formItem.getValue(), "0,1,2")
+        XCTAssertEqual(formItem.getValue(), "0\n1\n2")
 
         formItem.setValue("3")
-        XCTAssertEqual(formItem.getValue(), "0,1,2")
+        XCTAssertEqual(formItem.getValue(), "0\n1\n2")
     }
 }
 
@@ -172,6 +172,7 @@ extension ExperienceComponent.OptionSelectModel {
         self.init(
             id: UUID(),
             label: ExperienceComponent.TextModel(id: UUID(), text: "Label", style: nil),
+            errorLabel: nil,
             selectMode: selectMode,
             options: options,
             defaultValue: defaultValue,
