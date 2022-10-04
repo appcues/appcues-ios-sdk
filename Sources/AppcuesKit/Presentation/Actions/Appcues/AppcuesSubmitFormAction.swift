@@ -61,6 +61,9 @@ internal class AppcuesSubmitFormAction: ExperienceAction, ExperienceActionQueueT
         if stepState.stepFormIsComplete {
             return queue
         } else {
+            // Update the UI to show error states
+            stepState.shouldShowErrors = true
+
             var truncatedQueue = queue
             // Remove this action and all subsequent
             truncatedQueue.removeSubrange(index..<truncatedQueue.count)

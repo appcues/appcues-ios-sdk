@@ -24,9 +24,10 @@ internal struct AppcuesTextInput: View {
     var body: some View {
         let style = AppcuesStyle(from: model.style)
         let textFieldStyle = AppcuesStyle(from: model.textFieldStyle)
+        let errorTintColor = stepState.shouldShowError(for: model.id) ? Color(dynamicColor: model.errorLabel?.style?.foregroundColor) : nil
 
         VStack(alignment: style.horizontalAlignment, spacing: 0) {
-            ExperienceComponent.text(model.label).view
+            TintedTextView(model: model.label, tintColor: errorTintColor)
 
             let binding = stepState.formBinding(for: model.id)
 
@@ -34,6 +35,11 @@ internal struct AppcuesTextInput: View {
                 .frame(height: height)
                 .overlay(placeholder(binding), alignment: .topLeading)
                 .applyAllAppcues(textFieldStyle)
+                .overlay(errorBorder(errorTintColor, textFieldStyle))
+
+            if stepState.shouldShowError(for: model.id), let errorLabel = model.errorLabel {
+                AppcuesText(model: errorLabel)
+            }
         }
         .setupActions(on: viewModel, for: model.id)
         .applyAllAppcues(style)
@@ -41,9 +47,18 @@ internal struct AppcuesTextInput: View {
 
     @ViewBuilder func placeholder(_ binding: Binding<String>) -> some View {
         if let placeholder = model.placeholder, binding.wrappedValue.isEmpty {
-            ExperienceComponent.text(placeholder).view
+            AppcuesText(model: placeholder)
                 .padding(EdgeInsets(top: 16, leading: 16, bottom: 16, trailing: 16))
                 .allowsHitTesting(false)
         }
     }
+
+    // Can't use an `.ifLet()` on the MultilineTextView since it changes the view identity and causes focus issues.
+    @ViewBuilder func errorBorder(_ color: Color?, _ style: AppcuesStyle) -> some View {
+        if let color = color {
+            RoundedRectangle(cornerRadius: style.cornerRadius ?? 0)
+                .stroke(color, lineWidth: max(style.borderWidth ?? 0, 1))
+        }
+    }
+
 }

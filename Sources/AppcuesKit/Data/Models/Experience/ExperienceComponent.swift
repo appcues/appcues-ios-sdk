@@ -160,6 +160,7 @@ extension ExperienceComponent {
         let id: UUID
 
         let label: TextModel
+        let errorLabel: TextModel?
         let placeholder: TextModel?
         let defaultValue: String?
         // swiftlint:disable:next discouraged_optional_boolean
@@ -197,6 +198,7 @@ extension ExperienceComponent {
         let id: UUID
 
         let label: TextModel
+        let errorLabel: TextModel?
         let selectMode: SelectMode
         let options: [FormOptionModel]
         let defaultValue: [String]?
