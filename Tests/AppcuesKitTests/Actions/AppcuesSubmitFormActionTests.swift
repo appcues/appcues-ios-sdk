@@ -33,6 +33,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         let expectedFormItem = ExperienceData.FormItem(model: ExperienceComponent.TextInputModel(
             id: UUID(),
             label: ExperienceComponent.TextModel(id: UUID(), text: "Form label", style: nil),
+            errorLabel: nil,
             placeholder: nil,
             defaultValue: "default value",
             required: true,
