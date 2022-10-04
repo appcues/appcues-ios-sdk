@@ -229,7 +229,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingExperienceLastStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(ExperienceData.mock, Experience.StepIndex(group: 1, item: 0), markComplete: false)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(ExperienceData.mock, Experience.StepIndex(group: 1, item: 0), markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
