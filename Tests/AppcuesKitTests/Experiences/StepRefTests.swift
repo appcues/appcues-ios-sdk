@@ -84,4 +84,14 @@ class StepRefTests: XCTestCase {
 
         XCTAssertFalse(StepReference.index(1) == StepReference.offset(1))
     }
+
+    func testNegativeOffsetCheck() throws {
+        XCTAssertTrue(StepReference.offset(-1).isNegativeOffset)
+        XCTAssertTrue(StepReference.offset(-2).isNegativeOffset)
+        
+        XCTAssertFalse(StepReference.offset(1).isNegativeOffset)
+        XCTAssertFalse(StepReference.index(0).isNegativeOffset)
+        XCTAssertFalse(StepReference.index(2).isNegativeOffset)
+        XCTAssertFalse(StepReference.stepID(UUID(uuidString: "149f335f-15f6-4d8a-9e38-29a4ca435fd2")!).isNegativeOffset)
+    }
 }
