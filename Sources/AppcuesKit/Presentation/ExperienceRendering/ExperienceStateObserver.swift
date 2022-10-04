@@ -15,45 +15,7 @@ internal protocol ExperienceStateObserver: AnyObject {
 }
 
 @available(iOS 13.0, *)
-extension ExperienceStateMachine.State {
-    var isStepCompleted: Bool {
-        switch self {
-        case let .endingStep(experience, stepIndex, _, markComplete):
-            return markComplete || stepIndex == experience.stepIndices.last
-        default:
-            return false
-        }
-    }
-
-    var isExperienceCompleted: Bool {
-        switch self {
-        case let .endingExperience(experience, stepIndex, markComplete):
-            return markComplete || stepIndex == experience.stepIndices.last
-        default:
-            return false
-        }
-    }
-}
-
-@available(iOS 13.0, *)
 extension Result where Success == ExperienceStateMachine.State, Failure == ExperienceStateMachine.ExperienceError {
-    var isStepCompleted: Bool {
-        switch self {
-        case let .success(state):
-            return state.isStepCompleted
-        default:
-            return false
-        }
-    }
-
-    var isExperienceCompleted: Bool {
-        switch self {
-        case let .success(state):
-            return state.isExperienceCompleted
-        default:
-            return false
-        }
-    }
 
     /// Check if the result pertains to a specific experience ID.
     func matches(instanceID: UUID?) -> Bool {
@@ -118,12 +80,12 @@ extension ExperienceStateMachine {
                 trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
                 trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
-            case let .success(.endingStep(experience, stepIndex, _, _)):
-                if result.isStepCompleted {
+            case let .success(.endingStep(experience, stepIndex, _, markComplete)):
+                if markComplete {
                     trackLifecycleEvent(.stepCompleted, LifecycleEvent.properties(experience, stepIndex))
                 }
-            case let .success(.endingExperience(experience, stepIndex, _)):
-                if result.isExperienceCompleted {
+            case let .success(.endingExperience(experience, stepIndex, markComplete)):
+                if markComplete {
                     trackLifecycleEvent(.experienceCompleted, LifecycleEvent.properties(experience))
                 } else {
                     trackLifecycleEvent(.experienceDismissed, LifecycleEvent.properties(experience, stepIndex))

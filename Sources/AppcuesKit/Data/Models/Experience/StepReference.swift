@@ -26,6 +26,15 @@ internal enum StepReference: Equatable {
         }
     }
 
+    var isNegativeOffset: Bool {
+        switch self {
+        case .offset(let offset) where offset < 0:
+            return true
+        default:
+            return false
+        }
+    }
+
     @available(iOS 13.0, *)
     func resolve(experience: ExperienceData, currentIndex: Experience.StepIndex) -> Experience.StepIndex? {
         switch self {
