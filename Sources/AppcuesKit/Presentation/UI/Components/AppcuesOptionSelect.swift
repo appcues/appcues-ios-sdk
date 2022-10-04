@@ -17,9 +17,10 @@ internal struct AppcuesOptionSelect: View {
 
     var body: some View {
         let style = AppcuesStyle(from: model.style)
+        let errorTintColor = stepState.shouldShowError(for: model.id) ? Color(dynamicColor: model.errorLabel?.style?.foregroundColor) : nil
 
         VStack(alignment: style.horizontalAlignment, spacing: 0) {
-            ExperienceComponent.text(model.label).view
+            TintedTextView(model: model.label, tintColor: errorTintColor)
 
             switch (model.selectMode, model.displayFormat) {
             case (.single, .picker):
@@ -40,16 +41,23 @@ internal struct AppcuesOptionSelect: View {
                     items
                 }
             }
+
+            if stepState.shouldShowError(for: model.id), let errorLabel = model.errorLabel {
+                AppcuesText(model: errorLabel)
+            }
         }
         .setupActions(on: viewModel, for: model.id)
         .applyAllAppcues(style)
     }
 
     @ViewBuilder var items: some View {
+        let primaryColor = stepState.shouldShowError(for: model.id) ? Color(dynamicColor: model.errorLabel?.style?.foregroundColor) : nil
+
         ForEach(model.options) { option in
             let binding = stepState.formBinding(for: model.id, value: option.value)
             SelectToggleView(
                 selected: binding,
+                primaryColor: primaryColor,
                 model: model
             ) {
                 if binding.wrappedValue {

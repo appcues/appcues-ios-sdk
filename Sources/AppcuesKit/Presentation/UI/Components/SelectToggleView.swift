@@ -16,11 +16,12 @@ internal struct SelectToggleView<Content: View>: View {
     }
 
     @Binding var selected: Bool
+    let primaryColor: Color?
     let model: ExperienceComponent.OptionSelectModel
     @ViewBuilder var content: Content
 
     @ViewBuilder var control: some View {
-        Appearance(model.selectMode).symbol(selected: selected, model: model)
+        Appearance(model.selectMode).symbol(selected: selected, primaryColor: primaryColor, model: model)
             .imageScale(.large)
             // Ensure the minimum size leaves enough space to be an adequate touch target.
             .frame(minWidth: 48, minHeight: 48)
@@ -71,8 +72,16 @@ extension SelectToggleView.Appearance {
     }
 
     @ViewBuilder
-    func symbol(selected: Bool, model: ExperienceComponent.OptionSelectModel) -> some View {
-        let primaryColor = selected ? Color(dynamicColor: model.selectedColor) :  Color(dynamicColor: model.unselectedColor)
+    func symbol(selected: Bool, primaryColor: Color?, model: ExperienceComponent.OptionSelectModel) -> some View {
+        let primaryColor: Color? = {
+            if let primaryColor = primaryColor {
+                return primaryColor
+            } else if selected {
+                return Color(dynamicColor: model.selectedColor)
+            } else {
+                return Color(dynamicColor: model.unselectedColor)
+            }
+        }()
 
         switch (self, selected) {
         case (.checkbox, true):

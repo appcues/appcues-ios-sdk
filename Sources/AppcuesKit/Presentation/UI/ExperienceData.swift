@@ -81,6 +81,7 @@ extension ExperienceData {
 
     class StepState: ObservableObject {
         @Published var formItems: [UUID: FormItem]
+        @Published var shouldShowErrors = false
 
         var stepFormIsComplete: Bool {
             !formItems.contains { !$0.value.isSatisfied }
@@ -104,6 +105,10 @@ extension ExperienceData {
                 set: { _ in
                     self.formItems[key]?.setValue(value)
                 })
+        }
+
+        func shouldShowError(for key: UUID) -> Bool {
+            shouldShowErrors && !(formItems[key]?.isSatisfied ?? false)
         }
     }
 
