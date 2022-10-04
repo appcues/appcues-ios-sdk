@@ -121,10 +121,10 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         switch state {
         case .endingExperience:
             experienceDidDisappear()
-        case let .renderingStep(_, _, package, _) where package.wrapperController.isBeingDismissed:
+        case let .renderingStep(experience, stepIndex, package, _) where package.wrapperController.isBeingDismissed:
             experienceDidDisappear()
             // Update state in response to UI changes that have happened already (a call to UIViewController.dismiss).
-            try? transition(.endExperience(markComplete: false))
+            try? transition(.endExperience(markComplete: stepIndex == experience.stepIndices.last))
         default:
             break
         }
@@ -136,7 +136,7 @@ extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
         case let .renderingStep(experience, stepIndex, package, _):
             let targetStepId = package.steps[newPageIndex].id
             if let newStepIndex = experience.stepIndex(for: targetStepId) {
-                state = .endingStep(experience, stepIndex, package, markComplete: true)
+                state = .endingStep(experience, stepIndex, package, markComplete: newPageIndex > oldPageIndex)
                 state = .beginningStep(experience, stepIndex, package, isFirst: false)
                 state = .renderingStep(experience, newStepIndex, package, isFirst: false)
             }

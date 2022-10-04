@@ -65,9 +65,9 @@ extension ExperienceStateMachine {
                 )
             case let (.endingStep(experience, currentIndex, _, _), .startStep(stepRef)):
                 return Transition.fromEndingStepToBeginningStep(experience, currentIndex, stepRef, traitComposer)
-            case let (.endingExperience(experience, _, _), .reset):
+            case let (.endingExperience(experience, _, markComplete), .reset):
                 var sideEffect: SideEffect?
-                if self.isExperienceCompleted {
+                if markComplete {
                     sideEffect = .processActions(experience.postExperienceActions)
                 }
                 return Transition(toState: .idling, sideEffect: sideEffect)
@@ -180,7 +180,8 @@ extension ExperienceStateMachine.Transition {
         }
 
         // Moving to a new step is an interaction that indicates the ending step is completed
-        return .init(toState: .endingStep(experience, stepIndex, package, markComplete: true), sideEffect: sideEffect)
+        // unless the step reference explicitly has an offset that's negative.
+        return .init(toState: .endingStep(experience, stepIndex, package, markComplete: !stepRef.isNegativeOffset), sideEffect: sideEffect)
     }
 
     static func fromEndingStepToBeginningStep(
