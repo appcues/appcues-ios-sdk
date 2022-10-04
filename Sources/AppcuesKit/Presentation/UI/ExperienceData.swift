@@ -131,7 +131,7 @@ extension ExperienceData {
                 case .single(let value):
                     return value
                 case .multi(let values, _):
-                    return values.joined(separator: ",")
+                    return values.joined(separator: "\n")
                 }
             }
         }
