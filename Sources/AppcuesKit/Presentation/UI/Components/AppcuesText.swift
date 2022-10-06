@@ -19,7 +19,7 @@ internal struct AppcuesText: View {
 
         Text(model.text)
             .applyTextStyle(style)
-            .setupActions(on: viewModel, for: model.id)
+            .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
     }
 }
