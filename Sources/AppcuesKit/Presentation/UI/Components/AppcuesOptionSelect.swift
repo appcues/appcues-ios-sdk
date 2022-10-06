@@ -46,7 +46,7 @@ internal struct AppcuesOptionSelect: View {
                 AppcuesText(model: errorLabel)
             }
         }
-        .setupActions(on: viewModel, for: model.id)
+        .setupActions(on: viewModel, for: model)
         .applyAllAppcues(style)
     }
 

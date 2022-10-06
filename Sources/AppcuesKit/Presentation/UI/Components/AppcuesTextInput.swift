@@ -41,7 +41,7 @@ internal struct AppcuesTextInput: View {
                 AppcuesText(model: errorLabel)
             }
         }
-        .setupActions(on: viewModel, for: model.id)
+        .setupActions(on: viewModel, for: model)
         .applyAllAppcues(style)
     }
 

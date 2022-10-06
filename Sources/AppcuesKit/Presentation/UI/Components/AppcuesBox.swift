@@ -22,7 +22,7 @@ internal struct AppcuesBox: View {
                 AnyView($0.view)
             }
         }
-        .setupActions(on: viewModel, for: model.id)
+        .setupActions(on: viewModel, for: model)
         .applyAllAppcues(style)
     }
 }

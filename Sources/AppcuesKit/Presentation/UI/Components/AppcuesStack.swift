@@ -24,7 +24,7 @@ internal struct AppcuesStack: View {
                     AnyView($0.view)
                 }
             }
-            .setupActions(on: viewModel, for: model.id)
+            .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
         case (.horizontal, .center),
             (.horizontal, .none):
@@ -33,7 +33,7 @@ internal struct AppcuesStack: View {
                     AnyView($0.view)
                 }
             }
-            .setupActions(on: viewModel, for: model.id)
+            .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
         case (.horizontal, .equal):
             HStack(alignment: style.verticalAlignment, spacing: CGFloat(model.spacing ?? 0)) {
@@ -48,7 +48,7 @@ internal struct AppcuesStack: View {
                 }
             }
             .fixedSize(horizontal: false, vertical: true)
-            .setupActions(on: viewModel, for: model.id)
+            .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
         }
     }

@@ -10,21 +10,21 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 extension View {
-    func setupActions(on viewModel: ExperienceStepViewModel, for id: UUID) -> some View {
-        let actions = viewModel.actions(for: id)
+    func setupActions(on viewModel: ExperienceStepViewModel, for componentModel: ComponentModel) -> some View {
+        let actions = viewModel.actions(for: componentModel.id)
         // simultaneousGesture is needed to make a Button support any of these gestures.
         return self
             .ifLet(actions[.tap]) { view, actionHandlers in
                 view.simultaneousGesture(TapGesture().onEnded {
-                    viewModel.enqueueActions(actionHandlers, type: "Button Tapped", componentID: id)
+                    viewModel.enqueueActions(actionHandlers, type: "Button Tapped", viewDescription: componentModel.textDescription)
                 })
                 .accessibilityAction {
-                    viewModel.enqueueActions(actionHandlers, type: "Button Activated", componentID: id)
+                    viewModel.enqueueActions(actionHandlers, type: "Button Activated", viewDescription: componentModel.textDescription)
                 }
             }
             .ifLet(actions[.longPress]) { view, actionHandlers in
                 view.simultaneousGesture(LongPressGesture().onEnded { _ in
-                    viewModel.enqueueActions(actionHandlers, type: "Button Long Pressed", componentID: id)
+                    viewModel.enqueueActions(actionHandlers, type: "Button Long Pressed", viewDescription: componentModel.textDescription)
                 })
             }
     }

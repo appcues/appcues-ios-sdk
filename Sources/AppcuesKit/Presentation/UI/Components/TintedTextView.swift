@@ -20,7 +20,7 @@ internal struct TintedTextView: View {
 
         Text(model.text)
             .applyTextStyle(style)
-            .setupActions(on: viewModel, for: model.id)
+            .setupActions(on: viewModel, for: model)
             .ifLet(tintColor) { view, val in
                 view.foregroundColor(val)
             }

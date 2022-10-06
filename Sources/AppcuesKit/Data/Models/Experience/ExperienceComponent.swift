@@ -28,29 +28,6 @@ internal indirect enum ExperienceComponent {
     case optionSelect(OptionSelectModel)
     case textInput(TextInputModel)
 
-    func component(matching id: UUID) -> ExperienceComponent? {
-        switch self {
-        case .stack(let model):
-            return model.id == id ? self : model.items.compactMapFirst { $0.component(matching: id) }
-        case .box(let model):
-            return model.id == id ? self : model.items.compactMapFirst { $0.component(matching: id) }
-        case .text(let model):
-            return model.id == id ? self : nil
-        case .button(let model):
-            return model.id == id ? self : model.content.component(matching: id)
-        case .image(let model):
-            return model.id == id ? self : nil
-        case .spacer(let model):
-            return model.id == id ? self : nil
-        case .embed(let model):
-            return model.id == id ? self : nil
-        case .optionSelect(let model):
-            return model.id == id ? self : nil
-        case .textInput(let model):
-            return model.id == id ? self : nil
-        }
-    }
-
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
         case .stack(let model): return model[keyPath: keyPath]

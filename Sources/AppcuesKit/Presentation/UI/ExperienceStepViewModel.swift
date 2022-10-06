@@ -45,11 +45,11 @@ internal class ExperienceStepViewModel: ObservableObject {
         self.actionRegistry = nil
     }
 
-    func enqueueActions(_ actions: [Experience.Action], type: String, componentID: UUID) {
+    func enqueueActions(_ actions: [Experience.Action], type: String, viewDescription: String?) {
         actionRegistry?.enqueue(
             actionModels: actions,
             interactionType: type,
-            viewDescription: step.content.component(matching: componentID)?.textDescription)
+            viewDescription: viewDescription)
     }
 
     func actions(for id: UUID) -> [ActionType?: [Experience.Action]] {
