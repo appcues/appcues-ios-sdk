@@ -9,6 +9,7 @@
 import XCTest
 @testable import AppcuesKit
 
+@available(iOS 13.0, *)
 class StepRefTests: XCTestCase {
     typealias SI = Experience.StepIndex
 
@@ -85,13 +86,13 @@ class StepRefTests: XCTestCase {
         XCTAssertFalse(StepReference.index(1) == StepReference.offset(1))
     }
 
-    func testNegativeOffsetCheck() throws {
-        XCTAssertTrue(StepReference.offset(-1).isNegativeOffset)
-        XCTAssertTrue(StepReference.offset(-2).isNegativeOffset)
-        
-        XCTAssertFalse(StepReference.offset(1).isNegativeOffset)
-        XCTAssertFalse(StepReference.index(0).isNegativeOffset)
-        XCTAssertFalse(StepReference.index(2).isNegativeOffset)
-        XCTAssertFalse(StepReference.stepID(UUID(uuidString: "149f335f-15f6-4d8a-9e38-29a4ca435fd2")!).isNegativeOffset)
+    func testStepIndexComparison() throws {
+        XCTAssertTrue(Experience.StepIndex(group: 0, item: 0) < Experience.StepIndex(group: 0, item: 1))
+        XCTAssertFalse(Experience.StepIndex(group: 0, item: 1) < Experience.StepIndex(group: 0, item: 1))
+        XCTAssertFalse(Experience.StepIndex(group: 0, item: 2) < Experience.StepIndex(group: 0, item: 1))
+
+        XCTAssertTrue(Experience.StepIndex(group: 1, item: 0) < Experience.StepIndex(group: 2, item: 0))
+        XCTAssertFalse(Experience.StepIndex(group: 1, item: 0) < Experience.StepIndex(group: 0, item: 1))
+        XCTAssertFalse(Experience.StepIndex(group: 2, item: 0) < Experience.StepIndex(group: 1, item: 1))
     }
 }
