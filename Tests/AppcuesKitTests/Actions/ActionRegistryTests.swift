@@ -33,10 +33,12 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Assert
-        actionRegistry.enqueue(actionModels: [actionModel])
+        actionRegistry.enqueue(
+            actionModels: [actionModel],
+            interactionType: "Button Tapped",
+            viewDescription: "My Button")
         waitForExpectations(timeout: 1)
     }
-
 
     func testUnknownAction() throws {
         // Arrange
@@ -52,7 +54,10 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Assert
-        actionRegistry.enqueue(actionModels: [actionModel])
+        actionRegistry.enqueue(
+            actionModels: [actionModel],
+            interactionType: "Button Tapped",
+            viewDescription: "My Button")
         waitForExpectations(timeout: 1)
 
     }
@@ -77,7 +82,10 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction2.self)
 
         // Assert
-        actionRegistry.enqueue(actionModels: [actionModel])
+        actionRegistry.enqueue(
+            actionModels: [actionModel],
+            interactionType: "Button Tapped",
+            viewDescription: "My Button")
         waitForExpectations(timeout: 1)
     }
 
@@ -93,7 +101,11 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Act
-        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel, actionModel, actionModel])
+        actionRegistry.enqueue(
+            actionModels: [actionModel, actionModel, actionModel, actionModel, actionModel],
+            interactionType: "Button Tapped",
+            viewDescription: "My Button")
+
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -116,9 +128,16 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Act
-        actionRegistry.enqueue(actionModels: [delayedActionModel])
+        actionRegistry.enqueue(
+            actionModels: [delayedActionModel],
+            interactionType: "Button Tapped",
+            viewDescription: "My Button")
+
         // Enqueue more while the delayed one is processing
-        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel, actionModel])
+        actionRegistry.enqueue(
+            actionModels: [actionModel, actionModel, actionModel, actionModel],
+            interactionType: "Button Tapped",
+            viewDescription: "Another Button")
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -141,7 +160,10 @@ class ActionRegistryTests: XCTestCase {
         actionRegistry.register(action: TestAction.self)
 
         // Act
-        actionRegistry.enqueue(actionModels: [actionModel, actionModel, actionModel2, actionModel, actionModel])
+        actionRegistry.enqueue(
+            actionModels: [actionModel, actionModel, actionModel2, actionModel, actionModel],
+            interactionType: "Button Tapped",
+            viewDescription: "My Button")
 
         // Assert
 
