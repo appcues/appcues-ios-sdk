@@ -654,19 +654,6 @@ extension FLAnimatedImage {
     }
 }
 
-private extension Sequence {
-    // Functionally the same as Array.compactMap().first(), except returns immediately upon finding the first item.
-    func compactMapFirst<ElementOfResult>(_ transform: (Element) throws -> ElementOfResult?) rethrows -> ElementOfResult? {
-        for item in self {
-            if let result = try transform(item) {
-                return result
-            }
-        }
-
-        return nil
-    }
-}
-
 private extension FLAnimatedImage {
     class CacheSettingProxy: NSObject {
         weak var image: FLAnimatedImage?
