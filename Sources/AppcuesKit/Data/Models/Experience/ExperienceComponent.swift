@@ -11,6 +11,9 @@ import Foundation
 internal protocol ComponentModel {
     var id: UUID { get }
     var style: ExperienceComponent.Style? { get }
+
+    /// The text value of the component (including any children).
+    var textDescription: String? { get }
 }
 
 @dynamicMemberLookup
@@ -24,6 +27,29 @@ internal indirect enum ExperienceComponent {
     case embed(EmbedModel)
     case optionSelect(OptionSelectModel)
     case textInput(TextInputModel)
+
+    func component(matching id: UUID) -> ExperienceComponent? {
+        switch self {
+        case .stack(let model):
+            return model.id == id ? self : model.items.compactMapFirst { $0.component(matching: id) }
+        case .box(let model):
+            return model.id == id ? self : model.items.compactMapFirst { $0.component(matching: id) }
+        case .text(let model):
+            return model.id == id ? self : nil
+        case .button(let model):
+            return model.id == id ? self : model.content.component(matching: id)
+        case .image(let model):
+            return model.id == id ? self : nil
+        case .spacer(let model):
+            return model.id == id ? self : nil
+        case .embed(let model):
+            return model.id == id ? self : nil
+        case .optionSelect(let model):
+            return model.id == id ? self : nil
+        case .textInput(let model):
+            return model.id == id ? self : nil
+        }
+    }
 
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
@@ -101,6 +127,8 @@ extension ExperienceComponent {
         let items: [ExperienceComponent]
 
         let style: Style?
+
+        var textDescription: String? { items.compactMap { $0.textDescription }.joined(separator: " ") }
     }
 
     struct BoxModel: ComponentModel, Decodable {
@@ -108,6 +136,8 @@ extension ExperienceComponent {
         let items: [ExperienceComponent]
 
         let style: Style?
+
+        var textDescription: String? { items.compactMap { $0.textDescription }.joined(separator: " ") }
     }
 
     struct TextModel: ComponentModel, Decodable {
@@ -115,6 +145,8 @@ extension ExperienceComponent {
         let text: String
 
         let style: Style?
+
+        var textDescription: String? { text }
     }
 
     struct ButtonModel: ComponentModel, Decodable {
@@ -122,6 +154,8 @@ extension ExperienceComponent {
         let content: ExperienceComponent
 
         let style: Style?
+
+        var textDescription: String? { content.textDescription }
     }
 
     struct ImageModel: ComponentModel, Decodable {
@@ -143,6 +177,8 @@ extension ExperienceComponent {
             self.accessibilityLabel = nil
             self.style = nil
         }
+
+        var textDescription: String? { accessibilityLabel }
     }
 
     struct EmbedModel: ComponentModel, Decodable {
@@ -150,6 +186,8 @@ extension ExperienceComponent {
         let embed: String
         let intrinsicSize: IntrinsicSize?
         let style: Style?
+
+        var textDescription: String? { nil }
     }
 
     struct TextInputModel: ComponentModel, Decodable {
@@ -172,6 +210,8 @@ extension ExperienceComponent {
         let cursorColor: Style.DynamicColor?
 
         let style: Style?
+
+        var textDescription: String? { label.textDescription }
     }
 
     struct FormOptionModel: Decodable, Identifiable {
@@ -212,6 +252,8 @@ extension ExperienceComponent {
         let pickerStyle: Style?
 
         let style: Style?
+
+        var textDescription: String? { label.textDescription }
     }
 
     struct SpacerModel: ComponentModel, Decodable {
@@ -219,6 +261,8 @@ extension ExperienceComponent {
         let spacing: Double?
 
         let style: Style?
+
+        var textDescription: String? { nil }
     }
 
     struct Style: Decodable {

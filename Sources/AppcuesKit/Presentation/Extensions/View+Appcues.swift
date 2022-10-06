@@ -16,15 +16,15 @@ extension View {
         return self
             .ifLet(actions[.tap]) { view, actionHandlers in
                 view.simultaneousGesture(TapGesture().onEnded {
-                    viewModel.enqueueActions(actionHandlers)
+                    viewModel.enqueueActions(actionHandlers, type: "Button Tapped", componentID: id)
                 })
                 .accessibilityAction {
-                    viewModel.enqueueActions(actionHandlers)
+                    viewModel.enqueueActions(actionHandlers, type: "Button Activated", componentID: id)
                 }
             }
             .ifLet(actions[.longPress]) { view, actionHandlers in
                 view.simultaneousGesture(LongPressGesture().onEnded { _ in
-                    viewModel.enqueueActions(actionHandlers)
+                    viewModel.enqueueActions(actionHandlers, type: "Button Long Pressed", componentID: id)
                 })
             }
     }

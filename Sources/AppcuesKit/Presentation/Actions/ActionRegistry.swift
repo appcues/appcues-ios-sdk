@@ -68,11 +68,21 @@ internal class ActionRegistry {
     }
 
     /// Enqueue an experience action data model to be executed.
-    func enqueue(actionModels: [Experience.Action]) {
+    func enqueue(actionModels: [Experience.Action], interactionType: String, viewDescription: String?) {
         let actionInstances = actionModels.compactMap {
             actions[$0.type]?.init(config: $0.config)
         }
-        enqueue(actionInstances: actionInstances)
+
+        // As a heuristic, take the last action that's `MetadataSettingAction`, since that's most likely
+        // to be the action that we'd want to see in the event export.
+        let primaryAction = actionInstances.reversed().compactMapFirst { $0 as? MetadataSettingAction }
+        let interactionAction = AppcuesStepInteractionAction(
+            interactionType: interactionType,
+            viewDescription: viewDescription ?? "",
+            category: primaryAction?.category ?? "",
+            destination: primaryAction?.destination ?? "")
+
+        enqueue(actionInstances: [interactionAction] + actionInstances)
     }
 
     // Queue transforms are applied in the order of the original queue,
