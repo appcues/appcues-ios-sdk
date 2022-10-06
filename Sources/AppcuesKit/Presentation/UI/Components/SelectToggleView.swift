@@ -74,10 +74,10 @@ extension SelectToggleView.Appearance {
     @ViewBuilder
     func symbol(selected: Bool, primaryColor: Color?, model: ExperienceComponent.OptionSelectModel) -> some View {
         let primaryColor: Color? = {
-            if let primaryColor = primaryColor {
-                return primaryColor
-            } else if selected {
+            if selected {
                 return Color(dynamicColor: model.selectedColor)
+            } else if let primaryColor = primaryColor {
+                return primaryColor
             } else {
                 return Color(dynamicColor: model.unselectedColor)
             }
