@@ -26,15 +26,6 @@ internal enum StepReference: Equatable {
         }
     }
 
-    var isNegativeOffset: Bool {
-        switch self {
-        case .offset(let offset) where offset < 0:
-            return true
-        default:
-            return false
-        }
-    }
-
     @available(iOS 13.0, *)
     func resolve(experience: ExperienceData, currentIndex: Experience.StepIndex) -> Experience.StepIndex? {
         switch self {
@@ -50,7 +41,7 @@ internal enum StepReference: Equatable {
 }
 
 extension Experience {
-    struct StepIndex: Equatable, CustomStringConvertible {
+    struct StepIndex: Equatable, Comparable, CustomStringConvertible {
         static var initial = StepIndex(group: 0, item: 0)
 
         var group: Int
@@ -69,6 +60,10 @@ extension Experience {
 
             self.group = parts[0]
             self.item = parts[1]
+        }
+
+        static func < (lhs: Experience.StepIndex, rhs: Experience.StepIndex) -> Bool {
+            lhs.group < rhs.group || (lhs.group == rhs.group && lhs.item < rhs.item)
         }
     }
 }

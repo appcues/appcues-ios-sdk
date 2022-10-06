@@ -181,7 +181,7 @@ extension ExperienceStateMachine.Transition {
 
         // Moving to a new step is an interaction that indicates the ending step is completed
         // unless the step reference explicitly has an offset that's negative.
-        return .init(toState: .endingStep(experience, stepIndex, package, markComplete: !stepRef.isNegativeOffset), sideEffect: sideEffect)
+        return .init(toState: .endingStep(experience, stepIndex, package, markComplete: newStepIndex > stepIndex), sideEffect: sideEffect)
     }
 
     static func fromEndingStepToBeginningStep(
