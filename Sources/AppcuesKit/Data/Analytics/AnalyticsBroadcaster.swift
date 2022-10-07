@@ -23,15 +23,48 @@ internal class AnalyticsBroadcaster: AnalyticsSubscribing {
     func track(update: TrackingUpdate) {
         guard let delegate = appcues?.analyticsDelegate else { return }
 
+        var properties = update.properties
+        properties?.values.sanitize()
+
         switch update.type {
         case let .event(name, _):
-            delegate.didTrack(analytic: .event, value: name, properties: update.properties, isInternal: update.isInternal)
+            delegate.didTrack(analytic: .event, value: name, properties: properties, isInternal: update.isInternal)
         case let .screen(title):
-            delegate.didTrack(analytic: .screen, value: title, properties: update.properties, isInternal: update.isInternal)
+            delegate.didTrack(analytic: .screen, value: title, properties: properties, isInternal: update.isInternal)
         case let .group(groupID):
-            delegate.didTrack(analytic: .group, value: groupID, properties: update.properties, isInternal: update.isInternal)
+            delegate.didTrack(analytic: .group, value: groupID, properties: properties, isInternal: update.isInternal)
         case .profile:
-            delegate.didTrack(analytic: .identify, value: storage.userID, properties: update.properties, isInternal: update.isInternal)
+            delegate.didTrack(analytic: .identify, value: storage.userID, properties: properties, isInternal: update.isInternal)
+        }
+    }
+}
+
+// Implemented an extension on MutableCollection rather than duplicating code for Dictionary<String, Any> and Array<Any>.
+private extension MutableCollection where Element == Any {
+    /// Transform a collection of properties to be standardized for consumption outside the SDK.
+    ///
+    /// In-place sanitizing of the MutableCollection values.
+    /// It's required to be this way because Dictionary doesn't conform to MutableCollection, only Dictionary.Values.
+    mutating func sanitize() {
+        for key in self.indices {
+            if #available(iOS 13.0, *), let stepState = self[key] as? ExperienceData.StepState {
+                // This needs to be separate from the switch for the version check,
+                // but it also means the switch applies to the dictionary value, ensuring it's also sanitized.
+                self[key] = stepState.formattedAsAny() ?? NSNull()
+            }
+
+            switch self[key] {
+            case let date as Date:
+                self[key] = date.millisecondsSince1970
+            case var dict as [String: Any]:
+                dict.values.sanitize()
+                self[key] = dict
+            case var arr as [Any]:
+                arr.sanitize()
+                self[key] = arr
+            default:
+                break
+            }
         }
     }
 }
