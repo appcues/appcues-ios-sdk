@@ -67,6 +67,78 @@ class AnalyticsBroadcasterTests: XCTestCase {
         ["key": "value"].verifyPropertiesMatch(delegate.lastProperties)
         XCTAssertEqual(delegate.lastIsInternal, false)
     }
+
+    func testBroadcastSanitizesDates() throws {
+        // Arrange
+        let update = TrackingUpdate(
+            type: .event(name: "some event", interactive: false),
+            properties: [
+                "someDate": Date(timeIntervalSince1970: 1665160001)
+            ],
+            isInternal: false)
+
+        // Act
+        broadcaster.track(update: update)
+
+        // Assert
+        XCTAssertEqual(delegate.lastAnalytic, .event)
+        XCTAssertEqual(delegate.lastValue, "some event")
+        [
+            "someDate": 1665160001000
+        ].verifyPropertiesMatch(delegate.lastProperties)
+        XCTAssertEqual(delegate.lastIsInternal, false)
+    }
+
+    func testBroadcastSanitizesStepState() throws {
+        // Arrange
+        let expectedFormItem = ExperienceData.FormItem(model: ExperienceComponent.TextInputModel(
+            id: UUID(uuidString: "85259845-9661-463d-a90a-f500ad7f7dcf")!,
+            label: ExperienceComponent.TextModel(id: UUID(), text: "Form label", style: nil),
+            errorLabel: nil,
+            placeholder: nil,
+            defaultValue: "default value",
+            required: true,
+            numberOfLines: nil,
+            maxLength: nil,
+            dataType: nil,
+            textFieldStyle: nil,
+            cursorColor: nil,
+            style: nil))
+
+        let update = TrackingUpdate(
+            type: .event(name: "appcues:v2:step_interaction", interactive: false),
+            properties: [
+                "interactionType": "Form Submitted",
+                "interactionData": [
+                    "formResponse": ExperienceData.StepState(formItems: [
+                        UUID(uuidString: "85259845-9661-463d-a90a-f500ad7f7dcf")!: expectedFormItem
+                    ])
+                ]
+            ],
+            isInternal: true)
+
+        // Act
+        broadcaster.track(update: update)
+
+        // Assert
+        XCTAssertEqual(delegate.lastAnalytic, .event)
+        XCTAssertEqual(delegate.lastValue, "appcues:v2:step_interaction")
+        [
+            "interactionType": "Form Submitted",
+            "interactionData": [
+                "formResponse": [
+                    [
+                        "fieldId": "85259845-9661-463D-A90A-F500AD7F7DCF",
+                        "fieldType": "textInput",
+                        "fieldRequired": true,
+                        "value": "default value",
+                        "label": "Form label"
+                    ]
+                ]
+            ]
+        ].verifyPropertiesMatch(delegate.lastProperties)
+        XCTAssertEqual(delegate.lastIsInternal, true)
+    }
 }
 
 class MockAnalyticsDelegate: AppcuesAnalyticsDelegate {
