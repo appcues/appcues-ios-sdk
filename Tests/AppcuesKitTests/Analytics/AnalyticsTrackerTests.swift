@@ -91,28 +91,54 @@ class AnalyticsTrackerTests: XCTestCase {
 // Helpers to test an Activity request body is as expected
 extension Dictionary where Key == String, Value == Any {
 
-    func verifyPropertiesMatch(_ other: [String: Any]?) {
+    func verifyPropertiesMatch(_ other: [String: Any]?, file: StaticString = #file, line: UInt = #line) {
         guard let other = other else {
             XCTFail("dictionary of actual values must not be nil")
             return
         }
-        XCTAssertEqual(Set(self.keys), Set(other.keys))
+        XCTAssertEqual(Set(self.keys), Set(other.keys), file: file, line: line)
         self.keys.forEach { key in
             switch(self[key], other[key]) {
             case let (val1 as String, val2 as String):
-                XCTAssertEqual(val1, val2)
-            case let (val1 as Int, val2 as Int):
-                XCTAssertEqual(val1, val2)
-            case let (val1 as Double, val2 as Double):
-                XCTAssertEqual(val1, val2)
-            case let (val1 as Bool, val2 as Bool):
-                XCTAssertEqual(val1, val2)
+                XCTAssertEqual(val1, val2, file: file, line: line)
+            case let (val1 as NSNumber, val2 as NSNumber):
+                XCTAssertEqual(val1, val2, file: file, line: line)
+            case let (val1 as [Any], val2 as [Any]):
+                val1.verifyPropertiesMatch(val2, file: file, line: line)
             case let (val1 as [String: Any], val2 as [String: Any]):
-                val1.verifyPropertiesMatch(val2)
+                val1.verifyPropertiesMatch(val2, file: file, line: line)
             case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
-                XCTAssertEqual(val1, val2)
+                XCTAssertEqual(val1, val2, file: file, line: line)
             default:
-                XCTFail("\(self[key] ?? "nil") does not match \(other[key] ?? "nil").")
+                XCTFail("\(self[key] ?? "nil") does not match \(other[key] ?? "nil").", file: file, line: line)
+            }
+        }
+    }
+}
+
+extension Array where Element == Any {
+
+    func verifyPropertiesMatch(_ other: [Any]?, file: StaticString = #file, line: UInt = #line) {
+        guard let other = other else {
+            XCTFail("dictionary of actual values must not be nil")
+            return
+        }
+        XCTAssertEqual(self.count, other.count, file: file, line: line)
+
+        zip(self, other).forEach { (selfVal, otherVal) in
+            switch(selfVal, otherVal) {
+            case let (val1 as String, val2 as String):
+                XCTAssertEqual(val1, val2, file: file, line: line)
+            case let (val1 as NSNumber, val2 as NSNumber):
+                XCTAssertEqual(val1, val2, file: file, line: line)
+            case let (val1 as [Any], val2 as [Any]):
+                val1.verifyPropertiesMatch(val2, file: file, line: line)
+            case let (val1 as [String: Any], val2 as [String: Any]):
+                val1.verifyPropertiesMatch(val2, file: file, line: line)
+            case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
+                XCTAssertEqual(val1, val2, file: file, line: line)
+            default:
+                XCTFail("\(selfVal) does not match \(otherVal).", file: file, line: line)
             }
         }
     }
