@@ -100,6 +100,10 @@ extension View {
                 view.overlay(
                     RoundedRectangle(cornerRadius: style.cornerRadius ?? 0)
                         .stroke(val1, lineWidth: val2)
+                        // The RoundedRectangle overlay is added centered on the edge of the view, so
+                        // half of the width is outside the view bounds. Add padding for that to
+                        // ensure the border never gets half cropped out.
+                        .padding(val2 / 2)
                 )
             }
     }
