@@ -36,14 +36,14 @@ internal struct AppcuesStack: View {
             .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
         case (.horizontal, .equal):
-            HStack(alignment: style.verticalAlignment, spacing: CGFloat(model.spacing ?? 0)) {
+            EqualWidthStack(alignment: style.verticalAlignment, spacing: CGFloat(model.spacing ?? 0), itemCount: model.items.count) {
                 ForEach(model.items) {
                     let itemAlignment = Alignment(
                         vertical: $0.style?.verticalAlignment,
                         horizontal: $0.style?.horizontalAlignment
                     )
-                    // `maxWidth: .infinity` sets equal widths
-                    // `maxHeight: .infinity` combined with `.fixedSize` below set equal heights
+                    // `maxWidth: .infinity` allows for horizontal alignment options to work
+                    // `maxHeight: .infinity` allows for vertical alignment options to work
                     AnyView($0.view.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: itemAlignment ?? .center))
                 }
             }
