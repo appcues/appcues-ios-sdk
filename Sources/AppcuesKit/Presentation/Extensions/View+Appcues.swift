@@ -96,14 +96,15 @@ extension View {
 
     func applyBorderStyle(_ style: AppcuesStyle) -> some View {
         self
-            .ifLet(style.borderColor, style.borderWidth) { view, val1, val2 in
+            .ifLet(style.borderColor, style.borderWidth) { view, color, width in
                 view.overlay(
-                    RoundedRectangle(cornerRadius: style.cornerRadius ?? 0)
-                        .stroke(val1, lineWidth: val2)
+                    // Need to adjust the corner radius to match the radius applied to the view.
+                    RoundedRectangle(cornerRadius: (style.cornerRadius ?? 0) - width / 2)
+                        .stroke(color, lineWidth: width)
                         // The RoundedRectangle overlay is added centered on the edge of the view, so
                         // half of the width is outside the view bounds. Add padding for that to
                         // ensure the border never gets half cropped out.
-                        .padding(val2 / 2)
+                        .padding(width / 2)
                 )
             }
     }
