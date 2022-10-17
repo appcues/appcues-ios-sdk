@@ -59,7 +59,7 @@ internal struct Experience {
     // TODO: Handle experience-level actions
     let traits: [Trait]
     let steps: [Step]
-    let experimentID: UUID?
+    let experimentID: String?
 
     // Post experience actions
     let redirectURL: URL?
@@ -77,7 +77,10 @@ extension Experience: Decodable {
         case publishedAt
         case traits
         case steps
-        case experimentID = "experiment_id"
+        // note: the actual json key is "experiment_id", however, we use a JSON decoder with
+        // decoder.keyDecodingStrategy = .convertFromSnakeCase
+        // which causes it to convert to "experimentId" prior to usage in these CodingKeys
+        case experimentID = "experimentId"
         case redirectURL = "redirectUrl"
         case nextContentID = "nextContentId"
     }

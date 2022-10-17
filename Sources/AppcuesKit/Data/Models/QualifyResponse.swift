@@ -22,7 +22,7 @@ internal struct QualifyResponse {
     let experiences: [Experience]
     let performedQualification: Bool
     let qualificationReason: QualificationReason?
-    let experiments: [UUID: Experiment]?
+    let experiments: [String: Experiment]?
 }
 
 extension QualifyResponse: Decodable {
@@ -39,6 +39,6 @@ extension QualifyResponse: Decodable {
         performedQualification = try container.decode(Bool.self, forKey: .performedQualification)
         // Optional try so that an unknown reason is treated as nil rather than failing the decode.
         qualificationReason = try? container.decode(QualificationReason.self, forKey: .qualificationReason)
-        experiments = try? container.decode([UUID: Experiment].self, forKey: .experiments)
+        experiments = try? container.decode([String: Experiment].self, forKey: .experiments)
     }
 }

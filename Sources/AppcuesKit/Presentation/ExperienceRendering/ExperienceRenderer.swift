@@ -17,7 +17,7 @@ internal protocol ExperienceRendering: AnyObject {
               completion: ((Result<Void, Error>) -> Void)?)
     func show(qualifiedExperiences: [Experience],
               priority: RenderPriority,
-              experiments: [UUID: Experiment],
+              experiments: [String: Experiment],
               completion: ((Result<Void, Error>) -> Void)?)
     func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
     func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?)
@@ -67,7 +67,7 @@ internal class ExperienceRenderer: ExperienceRendering {
             analyticsPublisher.publish(TrackingUpdate(
                 type: .event(name: "appcues:experiment_entered", interactive: false),
                 properties: [
-                    "experimentId": experimentID.uuidString.lowercased(),
+                    "experimentId": experimentID,
                     "group": group.rawValue
                 ],
                 isInternal: true))
@@ -118,7 +118,7 @@ internal class ExperienceRenderer: ExperienceRendering {
 
     func show(qualifiedExperiences: [Experience],
               priority: RenderPriority,
-              experiments: [UUID: Experiment],
+              experiments: [String: Experiment],
               completion: ((Result<Void, Error>) -> Void)?) {
         guard let experience = qualifiedExperiences.first else {
             // If given an empty list of qualified experiences, complete with a success because this function has completed without error.
