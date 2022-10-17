@@ -21,5 +21,6 @@ internal struct AppcuesText: View {
             .applyTextStyle(style)
             .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
