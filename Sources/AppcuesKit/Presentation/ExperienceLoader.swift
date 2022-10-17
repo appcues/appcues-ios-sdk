@@ -44,7 +44,11 @@ internal class ExperienceLoader: ExperienceLoading {
         ) { [weak self] (result: Result<Experience, Error>) in
             switch result {
             case .success(let experience):
-                self?.experienceRenderer.show(experience: experience, priority: .normal, published: published, completion: completion)
+                self?.experienceRenderer.show(experience: experience,
+                                              priority: .normal,
+                                              published: published,
+                                              experiment: nil,
+                                              completion: completion)
             case .failure(let error):
                 self?.config.logger.error("Loading experience %{public}s failed with error %{public}s", experienceID, "\(error)")
                 completion?(.failure(error))

@@ -112,9 +112,9 @@ class MockExperienceLoader: ExperienceLoading {
 
 class MockExperienceRenderer: ExperienceRendering {
 
-    var onShowExperience: ((Experience, RenderPriority, Bool, ((Result<Void, Error>) -> Void)?) -> Void)?
-    func show(experience: Experience, priority: RenderPriority, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-        onShowExperience?(experience, priority, published, completion)
+    var onShowExperience: ((Experience, RenderPriority, Bool, Experiment?, ((Result<Void, Error>) -> Void)?) -> Void)?
+    func show(experience: Experience, priority: RenderPriority, published: Bool, experiment: Experiment?, completion: ((Result<Void, Error>) -> Void)?) {
+        onShowExperience?(experience, priority, published, experiment, completion)
     }
 
     var onShowStep: ((StepReference, (() -> Void)?) -> Void)?
@@ -122,9 +122,9 @@ class MockExperienceRenderer: ExperienceRendering {
         onShowStep?(stepRef, completion)
     }
 
-    var onShowQualifiedExperiences: (([Experience], RenderPriority, ((Result<Void, Error>) -> Void)?) -> Void)?
-    func show(qualifiedExperiences: [Experience], priority: RenderPriority, completion: ((Result<Void, Error>) -> Void)?) {
-        onShowQualifiedExperiences?(qualifiedExperiences, priority, completion)
+    var onShowQualifiedExperiences: (([Experience], RenderPriority, [UUID: Experiment], ((Result<Void, Error>) -> Void)?) -> Void)?
+    func show(qualifiedExperiences: [Experience], priority: RenderPriority, experiments: [UUID: Experiment], completion: ((Result<Void, Error>) -> Void)?) {
+        onShowQualifiedExperiences?(qualifiedExperiences, priority, experiments, completion)
     }
 
     var onDismissCurrentExperience: ((Bool, ((Result<Void, Error>) -> Void)?) -> Void)?

@@ -96,6 +96,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                     experienceRenderer.show(
                         qualifiedExperiences: qualifyResponse.experiences,
                         priority: qualifyResponse.renderPriority,
+                        experiments: qualifyResponse.experiments ?? [:],
                         completion: nil)
                 } else {
                     self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")

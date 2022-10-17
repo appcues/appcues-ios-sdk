@@ -68,6 +68,7 @@ extension Experience {
                     Step.Child(fixedID: "03652bd5-f0cb-44f0-9274-e95b4441d857")
                 )
             ],
+            experimentID: nil,
             redirectURL: nil,
             nextContentID: "abc")
     }
@@ -87,6 +88,7 @@ extension Experience {
                     ]
                 )
             ],
+            experimentID: nil,
             redirectURL: nil,
             nextContentID: nil)
     }
@@ -106,6 +108,7 @@ extension Experience {
                     ]
                 )
             ],
+            experimentID: nil,
             redirectURL: nil,
             nextContentID: "abc")
     }
