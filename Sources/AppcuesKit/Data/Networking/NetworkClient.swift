@@ -120,7 +120,7 @@ extension NetworkClient {
 }
 
 extension Date {
-    var millisecondsSince1970: Int64 {
-        return Int64((self.timeIntervalSince1970 * 1_000.0).rounded())
+    var millisecondsSince1970: Double {
+        return (self.timeIntervalSince1970 * 1_000.0).rounded()
     }
 }
