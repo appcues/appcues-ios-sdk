@@ -308,6 +308,105 @@ class ExperienceRendererTests: XCTestCase {
         // Assert
         waitForExpectations(timeout: 1)
     }
+
+    func testShowControlExperimentFail() throws {
+        // Arrange
+        let failureExpectation = expectation(description: "Failure completion called")
+        let presentExpectation = expectation(description: "Experience presented")
+        presentExpectation.isInverted = true
+        let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
+        let experiment = Experiment(group: .control)
+        let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
+        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+
+        // Act
+        experienceRenderer.show(experience: experience.model, priority: .low, published: true, experiment: experiment) { result in
+            if case .failure = result {
+                failureExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testShowExposedExperiment() throws {
+        // Arrange
+        let completionExpectation = expectation(description: "Completion called")
+        let presentExpectation = expectation(description: "Experience presented")
+        let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
+        let experiment = Experiment(group: .exposed)
+        let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
+        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+
+        // Act
+        experienceRenderer.show(experience: experience.model, priority: .low, published: true, experiment: experiment) { result in
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testExperimentEnteredControlAnalytics() throws {
+        // Arrange
+        let analyticsExpectation = expectation(description: "Triggered experiment_entered analytics")
+        let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
+        let experiment = Experiment(group: .control)
+        let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
+        let properties: [String: Any] = [
+            "experimentId": experimentID.uuidString.lowercased(),
+            "group": "control"
+        ]
+        var experimentUpdate: TrackingUpdate?
+        appcues.analyticsPublisher.onPublish = { update in
+            if case let .event(name, interactive) = update.type,
+                name == "appcues:experiment_entered",
+                !interactive {
+                experimentUpdate = update
+                analyticsExpectation.fulfill()
+            }
+        }
+
+        // Act
+        experienceRenderer.show(experience: experience.model, priority: .low, published: true, experiment: experiment, completion: nil)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        properties.verifyPropertiesMatch(experimentUpdate?.properties)
+    }
+
+    func testExperimentEnteredExposedAnalytics() throws {
+        // Arrange
+        let analyticsExpectation = expectation(description: "Triggered experiment_entered analytics")
+        let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
+        let experiment = Experiment(group: .exposed)
+        let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
+        let properties: [String: Any] = [
+            "experimentId": experimentID.uuidString.lowercased(),
+            "group": "exposed"
+        ]
+        var experimentUpdate: TrackingUpdate?
+        appcues.analyticsPublisher.onPublish = { update in
+            if case let .event(name, interactive) = update.type,
+                name == "appcues:experiment_entered",
+                !interactive {
+                experimentUpdate = update
+                analyticsExpectation.fulfill()
+            }
+        }
+
+        // Act
+        experienceRenderer.show(experience: experience.model, priority: .low, published: true, experiment: experiment, completion: nil)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        properties.verifyPropertiesMatch(experimentUpdate?.properties)
+    }
 }
 
 private extension ExperienceData {
