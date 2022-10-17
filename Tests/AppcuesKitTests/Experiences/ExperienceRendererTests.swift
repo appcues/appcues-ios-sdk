@@ -314,7 +314,7 @@ class ExperienceRendererTests: XCTestCase {
         let failureExpectation = expectation(description: "Failure completion called")
         let presentExpectation = expectation(description: "Experience presented")
         presentExpectation.isInverted = true
-        let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
+        let experimentID = "6ce90d1d-4de2-41a6-bc93-07ae23b728c5"
         let experiment = Experiment(group: .control)
         let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
@@ -335,7 +335,7 @@ class ExperienceRendererTests: XCTestCase {
         // Arrange
         let completionExpectation = expectation(description: "Completion called")
         let presentExpectation = expectation(description: "Experience presented")
-        let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
+        let experimentID = "6ce90d1d-4de2-41a6-bc93-07ae23b728c5"
         let experiment = Experiment(group: .exposed)
         let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
@@ -355,11 +355,11 @@ class ExperienceRendererTests: XCTestCase {
     func testExperimentEnteredControlAnalytics() throws {
         // Arrange
         let analyticsExpectation = expectation(description: "Triggered experiment_entered analytics")
-        let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
+        let experimentID = "6ce90d1d-4de2-41a6-bc93-07ae23b728c5"
         let experiment = Experiment(group: .control)
         let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
         let properties: [String: Any] = [
-            "experimentId": experimentID.uuidString.lowercased(),
+            "experimentId": experimentID,
             "group": "control"
         ]
         var experimentUpdate: TrackingUpdate?
@@ -383,11 +383,11 @@ class ExperienceRendererTests: XCTestCase {
     func testExperimentEnteredExposedAnalytics() throws {
         // Arrange
         let analyticsExpectation = expectation(description: "Triggered experiment_entered analytics")
-        let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
+        let experimentID = "6ce90d1d-4de2-41a6-bc93-07ae23b728c5"
         let experiment = Experiment(group: .exposed)
         let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
         let properties: [String: Any] = [
-            "experimentId": experimentID.uuidString.lowercased(),
+            "experimentId": experimentID,
             "group": "exposed"
         ]
         var experimentUpdate: TrackingUpdate?
