@@ -68,7 +68,7 @@ internal class ExperienceRenderer: ExperienceRendering {
                 type: .event(name: "appcues:experiment_entered", interactive: false),
                 properties: [
                     "experimentId": experimentID.uuidString.lowercased(),
-                    "group": group
+                    "group": group.rawValue
                 ],
                 isInternal: true))
 

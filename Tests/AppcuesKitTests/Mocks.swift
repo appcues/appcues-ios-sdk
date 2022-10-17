@@ -113,6 +113,26 @@ extension Experience {
             nextContentID: "abc")
     }
 
+    static func mockWithExperiment(experimentID: UUID) -> Experience {
+        Experience(
+            id: UUID(uuidString: "09f3b0a2-c4b1-4bbe-9fb3-81061169f5f5")!,
+            name: "Mock Experience: Single step with experiment",
+            type: "mobile",
+            publishedAt: 1632142800000,
+            traits: [],
+            steps: [
+                Experience.Step(
+                    fixedID: "05d19cf7-60b5-45de-ae37-13a1706d4e37",
+                    children: [
+                        Step.Child(fixedID: "c25236ad-9587-4865-8b58-2817f1c1421a")
+                    ]
+                )
+            ],
+            experimentID: experimentID,
+            redirectURL: nil,
+            nextContentID: nil)
+    }
+
 }
 
 extension Experience.Step {
@@ -169,6 +189,7 @@ extension ExperienceData {
     static func mockWithForm(defaultValue: String?, attributeName: String? = nil) -> ExperienceData {
         ExperienceData(experience: .mockWithForm(defaultValue: defaultValue, attributeName: attributeName ))
     }
+    static func mockWithExperiment(experimentID: UUID) -> ExperienceData { ExperienceData(experience: .mockWithExperiment(experimentID: experimentID)) }
 
     @available(iOS 13.0, *)
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
