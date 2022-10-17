@@ -82,7 +82,10 @@ internal class ActionRegistry {
             category: primaryAction?.category ?? "",
             destination: primaryAction?.destination ?? "")
 
-        enqueue(actionInstances: [interactionAction] + actionInstances)
+        // Directly enqueue the interactionAction separately from the others so that it can't be modified by the queue transformation.
+        actionQueue.append(interactionAction)
+
+        enqueue(actionInstances: actionInstances)
     }
 
     // Queue transforms are applied in the order of the original queue,
