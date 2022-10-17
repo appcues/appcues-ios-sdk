@@ -47,7 +47,7 @@ class ActivityProcessorTests: XCTestCase {
                 let data = try NetworkClient.encoder.encode(activity)
                 XCTAssertEqual(data, body)
                 onPostExpectation.fulfill()
-                completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil)))
+                completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil, experiments: nil)))
             } catch {
                 XCTFail()
             }
@@ -95,7 +95,7 @@ class ActivityProcessorTests: XCTestCase {
                     XCTAssertEqual("user1", userID)
                     let data = try NetworkClient.encoder.encode(activity1)
                     XCTAssertEqual(data, body)
-                    completion(.success(QualifyResponse(experiences: [], performedQualification: false, qualificationReason: nil)))
+                    completion(.success(QualifyResponse(experiences: [], performedQualification: false, qualificationReason: nil, experiments: nil)))
                     retryExpectation.fulfill()
                 } else if postCount == 3 {
                     // this should be the synchronous attempt for activity 2
@@ -104,7 +104,7 @@ class ActivityProcessorTests: XCTestCase {
                     XCTAssertEqual("user2", userID)
                     let data = try NetworkClient.encoder.encode(activity2)
                     XCTAssertEqual(data, body)
-                    completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil)))
+                    completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil, experiments: nil)))
                     onPostExpectation2.fulfill()
                 } else {
                     XCTFail()
@@ -159,7 +159,7 @@ class ActivityProcessorTests: XCTestCase {
                     XCTAssertEqual("user2", userID)
                     let data = try NetworkClient.encoder.encode(activity2)
                     XCTAssertEqual(data, body)
-                    completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil)))
+                    completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil, experiments: nil)))
                     onPostExpectation2.fulfill()
                 } else {
                     XCTFail()
@@ -266,7 +266,7 @@ class ActivityProcessorTests: XCTestCase {
                     XCTAssertEqual("user2", userID)
                     let data = try NetworkClient.encoder.encode(activity2)
                     XCTAssertEqual(data, body)
-                    completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil)))
+                    completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil, experiments: nil)))
                     onPostExpectation2.fulfill()
                 } else {
                     XCTFail()
@@ -307,7 +307,7 @@ class ActivityProcessorTests: XCTestCase {
         let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
 
         appcues.networking.onPost = { endpoint, body, completion in
-            completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil)))
+            completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil, experiments: nil)))
             onPostExpectation.fulfill()
         }
 
@@ -326,7 +326,7 @@ class ActivityProcessorTests: XCTestCase {
         return Activity(accountID: "00000", userID: userID, events: [event], profileUpdate: nil, groupID: nil, groupUpdate: nil)
     }
 
-    private let mockExperience = Experience(id: UUID(), name: "test_experience", type: "mobile", publishedAt: 1632142800000, traits: [], steps: [], redirectURL: nil, nextContentID: nil)
+    private let mockExperience = Experience(id: UUID(), name: "test_experience", type: "mobile", publishedAt: 1632142800000, traits: [], steps: [], experimentID: nil, redirectURL: nil, nextContentID: nil)
 
 }
 

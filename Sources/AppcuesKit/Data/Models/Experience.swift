@@ -59,6 +59,7 @@ internal struct Experience {
     // TODO: Handle experience-level actions
     let traits: [Trait]
     let steps: [Step]
+    let experimentID: UUID?
 
     // Post experience actions
     let redirectURL: URL?
@@ -70,7 +71,15 @@ internal struct Experience {
 
 extension Experience: Decodable {
     private enum CodingKeys: String, CodingKey {
-        case id, name, type, publishedAt, traits, steps, redirectURL = "redirectUrl", nextContentID = "nextContentId"
+        case id
+        case name
+        case type
+        case publishedAt
+        case traits
+        case steps
+        case experimentID = "experiment_id"
+        case redirectURL = "redirectUrl"
+        case nextContentID = "nextContentId"
     }
 }
 
