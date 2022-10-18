@@ -9,13 +9,5 @@
 import Foundation
 
 internal struct Experiment: Decodable {
-
-    enum ExperimentGroup: String, Decodable {
-        case control
-        case exposed
-    }
-
-    // making this optional so an unknown experiment group does not fail
-    // the entire qualify response deserialization
-    let group: ExperimentGroup?
+    let group: String
 }

@@ -62,18 +62,18 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
 
         // check if this experience is part of an active experiment
-        if let experiment = experiment, let experimentID = experience.experimentID, let group = experiment.group {
+        if let experimentID = experience.experimentID, let group = experiment?.group {
             // always send analytics for experiment_entered, with the group
             analyticsPublisher.publish(TrackingUpdate(
                 type: .event(name: "appcues:experiment_entered", interactive: false),
                 properties: [
                     "experimentId": experimentID,
-                    "group": group.rawValue
+                    "group": group
                 ],
                 isInternal: true))
 
             // if this user is in the control group, it should not show
-            if group == .control {
+            if group == "control" {
                 completion?(.failure(ExperienceRendererError.experimentControl))
                 return
             }
