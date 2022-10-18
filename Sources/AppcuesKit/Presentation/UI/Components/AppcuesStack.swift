@@ -47,7 +47,6 @@ internal struct AppcuesStack: View {
                     AnyView($0.view.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: itemAlignment ?? .center))
                 }
             }
-            .fixedSize(horizontal: false, vertical: true)
             .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
         }
