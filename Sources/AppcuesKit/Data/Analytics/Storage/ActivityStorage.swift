@@ -13,7 +13,7 @@ import Foundation
 internal struct ActivityStorage: Codable {
     let accountID: String
     let userID: String
-    let requestID: String
+    let requestID: UUID
     let data: Data
     let created: Date
 
@@ -28,7 +28,7 @@ internal struct ActivityStorage: Codable {
         }
         self.accountID = activity.accountID
         self.userID = activity.userID
-        self.requestID = activity.requestID.uuidString
+        self.requestID = activity.requestID
         self.data = data
         self.created = Date()
     }

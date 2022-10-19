@@ -90,5 +90,8 @@ internal class SessionMonitor: SessionMonitoring {
 
         // ensure any pending in-memory analytics get processed asap
         tracker.flush()
+
+        // clear out pending metrics
+        SdkMetrics.clear()
     }
 }

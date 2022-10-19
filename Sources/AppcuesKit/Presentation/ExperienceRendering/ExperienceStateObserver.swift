@@ -76,7 +76,9 @@ extension ExperienceStateMachine {
                 break
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: true)):
                 storage.lastContentShownAt = Date()
-                trackLifecycleEvent(.experienceStarted, LifecycleEvent.properties(experience))
+                let metrics = SdkMetrics.trackRender(experience.requestID)
+                let experienceStartProps = LifecycleEvent.properties(experience).merging(metrics) { _, new in new }
+                trackLifecycleEvent(.experienceStarted, experienceStartProps)
                 trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
                 trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))

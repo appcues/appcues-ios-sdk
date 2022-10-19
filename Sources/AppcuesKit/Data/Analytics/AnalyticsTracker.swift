@@ -46,14 +46,14 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             syncQueue.sync {
                 flushWorkItem?.cancel()
                 pendingActivity.append(activity)
-                flushPendingActivity()
+                flushPendingActivity(trackedAt: update.timestamp) // immediately flush, eligible for qualification, so track timing
             }
 
         case .flushThenSend:
             syncQueue.sync {
                 flushWorkItem?.cancel()
-                flushPendingActivity()
-                flush(activity)
+                flushPendingActivity() // no timing tracking on pending background activity
+                flush(activity, trackedAt: update.timestamp) // immediately flush, eligible for qualification, so track timing
             }
 
         case .queue:
@@ -62,7 +62,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 if flushWorkItem == nil {
                     let workItem = DispatchWorkItem { [weak self] in
                         self?.syncQueue.sync {
-                            self?.flushPendingActivity()
+                            self?.flushPendingActivity() // no timing tracking on background actvity flush
                         }
                     }
                     flushWorkItem = workItem
@@ -80,31 +80,41 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         }
     }
 
-    private func flushPendingActivity() {
+    private func flushPendingActivity(trackedAt: Date? = nil) {
         flushWorkItem = nil
         let merged = pendingActivity.merge()
         pendingActivity = []
-        flush(merged)
+        flush(merged, trackedAt: trackedAt)
     }
 
-    private func flush(_ activity: Activity?) {
+    private func flush(_ activity: Activity?, trackedAt: Date?) {
         guard let activity = activity else { return }
+        // `trackedAt` value is only sent in cases of immediate qualification-eligible tracking, for SDK metrics
+        SdkMetrics.tracked(activity.requestID, time: trackedAt)
         activityProcessor.process(activity) { [weak self] result in
             switch result {
             case .success(let qualifyResponse):
-                if #available(iOS 13.0, *) {
-                    self?.process(qualifyResponse: qualifyResponse)
+                if !qualifyResponse.experiences.isEmpty {
+                    if #available(iOS 13.0, *) {
+                        self?.process(qualifyResponse: qualifyResponse, activity: activity)
+                    } else {
+                        self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
+                        // nothing will render, we can remove tracking
+                        SdkMetrics.remove(activity.requestID)
+                    }
                 } else {
-                    self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
+                    // common case, nothing qualified - we know there was nothing to render, so just remove tracking
+                    SdkMetrics.remove(activity.requestID)
                 }
             case .failure(let error):
                 self?.config.logger.error("Failed processing qualify response: %{public}s", "\(error)")
+                SdkMetrics.remove(activity.requestID)
             }
         }
     }
 
     @available(iOS 13.0, *)
-    private func process(qualifyResponse: QualifyResponse) {
+    private func process(qualifyResponse: QualifyResponse, activity: Activity) {
         if let experienceRenderer = container?.resolve(ExperienceRendering.self) {
             let experiments = qualifyResponse.experiments ?? []
             let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.map {
@@ -112,7 +122,11 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 if let experimentID = $0.experimentID {
                     experiment = experiments.first { $0.experimentID == experimentID }
                 }
-                return ExperienceData($0, priority: qualifyResponse.renderPriority, published: true, experiment: experiment)
+                return ExperienceData($0,
+                                      priority: qualifyResponse.renderPriority,
+                                      published: true,
+                                      experiment: experiment,
+                                      requestID: activity.requestID)
             }
             experienceRenderer.show(qualifiedExperiences: qualifiedExperienceData, completion: nil)
         }

@@ -40,7 +40,7 @@ class ActivityProcessorTests: XCTestCase {
         let onPostExpectation = expectation(description: "Activity request")
         let resultCallbackExpectation = expectation(description: "Process result")
         let activity = generateMockActivity(userID: "user1", event: Event(name: "eventName", attributes: ["my_key": "my_value", "another_key": 33]))
-        appcues.networking.onPost = { endpoint, body, completion in
+        appcues.networking.onPost = { endpoint, body, requestId, completion in
             do {
                 let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
                 guard case .qualify(activity.userID) = apiEndpoint else { return XCTFail() }
@@ -80,7 +80,7 @@ class ActivityProcessorTests: XCTestCase {
         let activity2 = generateMockActivity(userID: "user2", event: Event(name: "event2", attributes: ["my_key": "my_value2", "another_key": 34]))
         var postCount = 0
 
-        appcues.networking.onPost = { endpoint, body, completion in
+        appcues.networking.onPost = { endpoint, body, requestId, completion in
             do {
                 postCount += 1
                 if postCount == 1 {
@@ -145,7 +145,7 @@ class ActivityProcessorTests: XCTestCase {
         let activity2 = generateMockActivity(userID: "user2", event: Event(name: "event2", attributes: ["my_key": "my_value2", "another_key": 34]))
         var postCount = 0
 
-        appcues.networking.onPost = { endpoint, body, completion in
+        appcues.networking.onPost = { endpoint, body, requestId, completion in
             do {
                 postCount += 1
                 if postCount == 1 {
@@ -195,7 +195,7 @@ class ActivityProcessorTests: XCTestCase {
         var currentError = URLError(networkIssues.first!)
         resultCallbackExpectation.expectedFulfillmentCount = networkIssues.count
 
-        appcues.networking.onPost = { endpoint, body, completion in
+        appcues.networking.onPost = { endpoint, body, requestId, completion in
             completion(.failure(currentError))
         }
 
@@ -220,7 +220,7 @@ class ActivityProcessorTests: XCTestCase {
         var currentError = URLError(networkIssues.first!)
         resultCallbackExpectation.expectedFulfillmentCount = networkIssues.count
 
-        appcues.networking.onPost = { endpoint, body, completion in
+        appcues.networking.onPost = { endpoint, body, requestId, completion in
             completion(.failure(currentError))
         }
 
@@ -252,7 +252,7 @@ class ActivityProcessorTests: XCTestCase {
         let activity2 = generateMockActivity(userID: "user2", event: Event(name: "event2", attributes: ["my_key": "my_value2", "another_key": 34]))
         var postCount = 0
 
-        appcues.networking.onPost = { endpoint, body, completion in
+        appcues.networking.onPost = { endpoint, body, requestId, completion in
             do {
                 postCount += 1
                 if postCount == 1 {
@@ -306,7 +306,7 @@ class ActivityProcessorTests: XCTestCase {
         let resultCallbackExpectation = expectation(description: "Process result 1")
         let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
 
-        appcues.networking.onPost = { endpoint, body, completion in
+        appcues.networking.onPost = { endpoint, body, requestId, completion in
             completion(.success(QualifyResponse(experiences: [self.mockExperience], performedQualification: true, qualificationReason: nil, experiments: nil)))
             onPostExpectation.fulfill()
         }

@@ -10,7 +10,7 @@ import Foundation
 
 internal protocol Networking: AnyObject {
     func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void)
-    func post<T: Decodable>(to endpoint: Endpoint, body: Data, completion: @escaping (_ result: Result<T, Error>) -> Void)
+    func post<T: Decodable>(to endpoint: Endpoint, body: Data, requestId: UUID?, completion: @escaping (_ result: Result<T, Error>) -> Void)
 }
 
 internal class NetworkClient: Networking {
@@ -31,10 +31,13 @@ internal class NetworkClient: Networking {
         var request = URLRequest(url: requestURL)
         request.httpMethod = "GET"
 
-        handleRequest(request, completion: completion)
+        handleRequest(request, requestId: nil, completion: completion)
     }
 
-    func post<T: Decodable>(to endpoint: Endpoint, body: Data, completion: @escaping (_ result: Result<T, Error>) -> Void) {
+    func post<T: Decodable>(to endpoint: Endpoint,
+                            body: Data,
+                            requestId: UUID?,
+                            completion: @escaping (_ result: Result<T, Error>) -> Void) {
         guard let requestURL = endpoint.url(config: config, storage: storage) else {
             completion(.failure(NetworkingError.invalidURL))
             return
@@ -44,11 +47,15 @@ internal class NetworkClient: Networking {
         request.httpMethod = "POST"
         request.httpBody = body
 
-        handleRequest(request, completion: completion)
+        handleRequest(request, requestId: requestId, completion: completion)
     }
 
-    private func handleRequest<T: Decodable>(_ urlRequest: URLRequest, completion: @escaping (_ result: Result<T, Error>) -> Void) {
+    private func handleRequest<T: Decodable>(_ urlRequest: URLRequest,
+                                             requestId: UUID?,
+                                             completion: @escaping (_ result: Result<T, Error>) -> Void) {
+        SdkMetrics.requested(requestId)
         let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
+            SdkMetrics.responded(requestId)
             if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
                 let data = String(data: data ?? Data(), encoding: .utf8) ?? ""
 

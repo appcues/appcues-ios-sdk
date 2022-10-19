@@ -43,14 +43,14 @@ internal class ActivityFileStorage: ActivityStoring {
 
         let jsonString = activity.toString()
         if let jsonData = jsonString.data(using: .utf8) {
-            let file = storageDirectory.appendingPathComponent(activity.requestID)
+            let file = storageDirectory.appendingPathComponent(activity.requestID.uuidString)
             // will replace if exists (shouldnt)
             FileManager.default.createFile(atPath: file.path, contents: jsonData)
         }
     }
 
     func remove(_ activity: ActivityStorage) {
-        let file = storageDirectory.appendingPathComponent(activity.requestID)
+        let file = storageDirectory.appendingPathComponent(activity.requestID.uuidString)
         try? FileManager.default.removeItem(atPath: file.path)
     }
 

@@ -242,13 +242,13 @@ class MockNetworking: Networking {
         }
     }
 
-    var onPost: ((Endpoint, Data, ((Result<Any, Error>) -> Void)) -> Void)?
-    func post<T>(to endpoint: Endpoint, body: Data, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
+    var onPost: ((Endpoint, Data, UUID?, ((Result<Any, Error>) -> Void)) -> Void)?
+    func post<T>(to endpoint: Endpoint, body: Data, requestId: UUID?, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
         guard let onPost = onPost else {
             completion(.failure(MockError.noMock))
             return
         }
-        onPost(endpoint, body) { result in
+        onPost(endpoint, body, requestId) { result in
             switch result {
             case .success(let value):
                 if let converted = value as? T {
