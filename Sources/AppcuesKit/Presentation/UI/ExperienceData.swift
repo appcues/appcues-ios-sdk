@@ -12,10 +12,16 @@ import SwiftUI
 @dynamicMemberLookup
 internal class ExperienceData {
     let model: Experience
+    let priority: RenderPriority
+    let published: Bool
+    let experiment: Experiment?
     private let formState: FormState
 
-    internal init(experience: Experience) {
+    internal init(_ experience: Experience, priority: RenderPriority = .normal, published: Bool = true, experiment: Experiment? = nil) {
         self.model = experience
+        self.priority = priority
+        self.published = published
+        self.experiment = experiment
         self.formState = FormState(experience: experience)
     }
 

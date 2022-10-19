@@ -236,7 +236,7 @@ class ExperienceStateMachineTests: XCTestCase {
         // Arrange
         let experience = Experience(id: UUID(), name: "Empty experience", type: "mobile", publishedAt: 1632142800000, traits: [], steps: [], experimentID: nil, redirectURL: nil, nextContentID: nil)
         let initialState: State = .idling
-        let action: Action = .startExperience(ExperienceData(experience: experience))
+        let action: Action = .startExperience(ExperienceData(experience))
         let stateMachine = givenState(is: initialState)
 
         // Act

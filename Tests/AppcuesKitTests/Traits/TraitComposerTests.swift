@@ -60,7 +60,7 @@ class TraitComposerTests: XCTestCase {
             nextContentID: nil)
 
         // Act
-        _ = try traitComposer.package(experience: ExperienceData(experience: experience), stepIndex: Experience.StepIndex(group: 0, item: 0))
+        _ = try traitComposer.package(experience: ExperienceData(experience), stepIndex: Experience.StepIndex(group: 0, item: 0))
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -91,7 +91,7 @@ class TraitComposerTests: XCTestCase {
             backdropDecoratingExpectation: backdropDecoratingExpectation)
 
         // Act
-        _ = try traitComposer.package(experience: ExperienceData(experience: experience), stepIndex: Experience.StepIndex(group: 0, item: 0))
+        _ = try traitComposer.package(experience: ExperienceData(experience), stepIndex: Experience.StepIndex(group: 0, item: 0))
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -113,7 +113,7 @@ class TraitComposerTests: XCTestCase {
             backdropDecoratingExpectation: expectation(description: "Backdrop decorate called"))
 
         // Act
-        _ = try traitComposer.package(experience: ExperienceData(experience: experience), stepIndex: Experience.StepIndex(group: 1, item: 0))
+        _ = try traitComposer.package(experience: ExperienceData(experience), stepIndex: Experience.StepIndex(group: 1, item: 0))
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -129,7 +129,7 @@ class TraitComposerTests: XCTestCase {
         let experience = makeTestExperience()
 
         // Act/Assert
-        XCTAssertThrowsError(try traitComposer.package(experience: ExperienceData(experience: experience), stepIndex: Experience.StepIndex(group: 0, item: 0)))
+        XCTAssertThrowsError(try traitComposer.package(experience: ExperienceData(experience), stepIndex: Experience.StepIndex(group: 0, item: 0)))
     }
 
     func testPackagePresenter() throws {
@@ -163,7 +163,7 @@ class TraitComposerTests: XCTestCase {
 
 
         // Act
-        let package = try traitComposer.package(experience: ExperienceData(experience: experience), stepIndex: Experience.StepIndex(group: 0, item: 0))
+        let package = try traitComposer.package(experience: ExperienceData(experience), stepIndex: Experience.StepIndex(group: 0, item: 0))
 
         try package.presenter(nil)
         package.dismisser(nil)
@@ -198,7 +198,7 @@ class TraitComposerTests: XCTestCase {
             experimentID: nil,
             redirectURL: nil,
             nextContentID: nil)
-        let experienceData = ExperienceData(experience: experience)
+        let experienceData = ExperienceData(experience)
 
         // Act
         XCTAssertThrowsError(try traitComposer.package(experience: experienceData, stepIndex: Experience.StepIndex(group: 0, item: 0))) { error in
