@@ -59,13 +59,13 @@ commands:
           command: brew install mint
       - restore_cache:
           name: Restore swift build package cache
-          key: 3-mint-{{ checksum "Mintfile" }}
+          key: 4-mint-{{ checksum "Mintfile" }}
       - run:
           name: Install swift build packages
           command: mint bootstrap
       - save_cache:
           name: Save swift build package cache
-          key: 3-mint-{{ checksum "Mintfile" }}
+          key: 4-mint-{{ checksum "Mintfile" }}
           paths:
             - /usr/local/lib/mint
 
