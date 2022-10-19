@@ -18,9 +18,9 @@ orbs:
 #        EXECUTORS
 # -------------------------
 executors:
-  xcode_13:
+  xcode_14:
     macos:
-      xcode: 13.0.0
+      xcode: 14.0.0
     working_directory: /Users/distiller/project
     shell: /bin/bash --login -o pipefail
     environment:
@@ -74,7 +74,7 @@ commands:
 # -------------------------
 jobs:
   validate_code:
-    executor: xcode_13
+    executor: xcode_14
     steps:
       - install_with_cache
       - run:
@@ -90,7 +90,7 @@ jobs:
           channel: team-mobile-bots
 
   deploy_example:
-    executor: xcode_13
+    executor: xcode_14
     steps:
       - install_with_cache
       - run:
