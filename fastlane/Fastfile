@@ -18,8 +18,7 @@ platform :ios do
     Dir.chdir("..") do
       sh("mint run xcodegen")
     end
-    run_tests(scheme: "Appcues",
-              devices: ["iPhone 13"])
+    run_tests(scheme: "Appcues", devices: ["iPhone 14"])
   end
 
   desc "Sanity check to make sure the cocoapods example app compiles"
