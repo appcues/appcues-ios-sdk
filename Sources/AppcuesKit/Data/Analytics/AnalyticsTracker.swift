@@ -93,11 +93,15 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             switch result {
             case .success(let qualifyResponse):
                 if #available(iOS 13.0, *), let experienceRenderer = self?.container?.resolve(ExperienceRendering.self) {
-                    experienceRenderer.show(
-                        qualifiedExperiences: qualifyResponse.experiences,
-                        priority: qualifyResponse.renderPriority,
-                        experiments: qualifyResponse.experiments ?? [:],
-                        completion: nil)
+                    let experiments = qualifyResponse.experiments ?? [:]
+                    let qualifiedExperienceData = qualifyResponse.experiences.map {
+                        var experiment: Experiment?
+                        if let experimentID = $0.experimentID {
+                            experiment = experiments[experimentID]
+                        }
+                        return ExperienceData($0, priority: qualifyResponse.renderPriority, published: true, experiment: experiment)
+                    }
+                    experienceRenderer.show(qualifiedExperiences: qualifiedExperienceData, completion: nil)
                 } else {
                     self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
                 }

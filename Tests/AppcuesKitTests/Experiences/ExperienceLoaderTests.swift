@@ -29,9 +29,9 @@ class ExperienceLoaderTests: XCTestCase {
             )
             return .success(Experience.mock)
         }
-        appcues.experienceRenderer.onShowExperience = { experience, priority, published, experiment, completion in
-            XCTAssertEqual(priority, .normal)
-            XCTAssertTrue(published)
+        appcues.experienceRenderer.onShowExperience = { experience, completion in
+            XCTAssertEqual(experience.priority, .normal)
+            XCTAssertTrue(experience.published)
             completion?(.success(()))
         }
 
@@ -57,9 +57,9 @@ class ExperienceLoaderTests: XCTestCase {
             )
             return .success(Experience.mock)
         }
-        appcues.experienceRenderer.onShowExperience = { experience, priority, published, experiment, completion in
-            XCTAssertEqual(priority, .normal)
-            XCTAssertFalse(published)
+        appcues.experienceRenderer.onShowExperience = { experience, completion in
+            XCTAssertEqual(experience.priority, .normal)
+            XCTAssertFalse(experience.published)
             completion?(.success(()))
         }
 
