@@ -335,6 +335,12 @@ extension DebugViewModel {
                 .map { ($0.key, String(describing: $0.value)) }
             properties["_identity"] = nil
 
+            // flatten the nested `_sdkMetrics` properties into individual top level items.
+            let metricProps = (properties["_sdkMetrics"] as? [String: Any] ?? [:])
+                .sortedWithAutoProperties()
+                .map { ($0.key, String(describing: $0.value)) }
+            properties["_sdkMetrics"] = nil
+
             // flatten the nested `interactionData` properties into individual top level items.
             var interactionData = (properties["interactionData"] as? [String: Any] ?? [:])
             let formResponse = (interactionData["formResponse"] as? ExperienceData.StepState)?.formattedAsDebugData()
@@ -363,6 +369,10 @@ extension DebugViewModel {
 
             if !autoProps.isEmpty {
                 groups.append(("Identity Auto-properties", autoProps))
+            }
+
+            if !metricProps.isEmpty {
+                groups.append(("SDK Metrics", metricProps))
             }
 
             return groups

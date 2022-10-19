@@ -24,7 +24,7 @@ internal class ActivityProcessor: ActivityProcessing {
     // sent as first time requests - not fail/retry items that should be sent again...yet
     //
     // keep this list so they can be ignored when gathering up the stored files to attempt a retry with
-    private var processingItems: Set<String> = []
+    private var processingItems: Set<UUID> = []
 
     private let syncQueue = DispatchQueue(label: "appcues-activity-processor")
 
@@ -136,7 +136,8 @@ internal class ActivityProcessor: ActivityProcessing {
 
     private func handleActivity(activity: ActivityStorage, completion: @escaping () -> Void) {
         networking.post(to: APIEndpoint.activity(userID: activity.userID),
-                        body: activity.data) { [weak self] (result: Result<ActivityResponse, Error>) in
+                        body: activity.data,
+                        requestId: nil) { [weak self] (result: Result<ActivityResponse, Error>) in
             guard let self = self else { return }
             var success = true
             if case let .failure(error) = result, error.requiresRetry { success = false }
@@ -147,7 +148,8 @@ internal class ActivityProcessor: ActivityProcessing {
 
     private func handleQualify(activity: ActivityStorage, completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
         networking.post(to: APIEndpoint.qualify(userID: activity.userID),
-                        body: activity.data) { [weak self] (result: Result<QualifyResponse, Error>) in
+                        body: activity.data,
+                        requestId: activity.requestID) { [weak self] (result: Result<QualifyResponse, Error>) in
             guard let self = self else { return }
             var success = true
             if case let .failure(error) = result, error.requiresRetry { success = false }
