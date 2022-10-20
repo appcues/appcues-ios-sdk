@@ -36,7 +36,7 @@ class AnalyticsTrackerTests: XCTestCase {
             onRequestExpectation.fulfill()
         }
 
-        let update = TrackingUpdate(type: .profile, properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
+        let update = TrackingUpdate(type: .profile(interactive: true), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
 
         // Act
         tracker.track(update: update)

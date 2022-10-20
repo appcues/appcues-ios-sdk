@@ -77,7 +77,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
 
     func testProfile() throws {
         // Arrange
-        let update = TrackingUpdate(type: .profile, properties: ["CUSTOM": "value"], isInternal: false)
+        let update = TrackingUpdate(type: .profile(interactive: true), properties: ["CUSTOM": "value"], isInternal: false)
 
         // Act
         let decorated = decorator.decorate(update)

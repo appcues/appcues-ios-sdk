@@ -185,6 +185,7 @@ extension ExperienceComponent {
         let dataType: DataType?
         let textFieldStyle: Style?
         let cursorColor: Style.DynamicColor?
+        let attributeName: String?
 
         let style: Style?
 
@@ -227,6 +228,7 @@ extension ExperienceComponent {
         let unselectedColor: Style.DynamicColor?
         let accentColor: Style.DynamicColor?
         let pickerStyle: Style?
+        let attributeName: String?
 
         let style: Style?
 

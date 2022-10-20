@@ -317,7 +317,7 @@ public class Appcues: NSObject {
             // and clear any stored group information - will have to be reset as needed
             storage.groupID = nil
         }
-        analyticsPublisher.publish(TrackingUpdate(type: .profile, properties: properties, isInternal: false))
+        analyticsPublisher.publish(TrackingUpdate(type: .profile(interactive: true), properties: properties, isInternal: false))
     }
 }
 

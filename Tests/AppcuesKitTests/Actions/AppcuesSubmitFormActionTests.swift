@@ -42,6 +42,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             dataType: nil,
             textFieldStyle: nil,
             cursorColor: nil,
+            attributeName: nil,
             style: nil))
 
         var completionCount = 0
@@ -66,7 +67,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(updates.count, 2)
 
-        XCTAssertEqual(updates[0].type, .profile)
+        XCTAssertEqual(updates[0].type, .profile(interactive: false))
         XCTAssertEqual(updates[1].type, .event(name: "appcues:v2:step_interaction", interactive: false))
 
         [
@@ -137,5 +138,31 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         XCTAssertTrue(updatedQueue[1] === action)
         XCTAssertTrue(updatedQueue[2] === action1)
         XCTAssertTrue(updatedQueue[3] === action2)
+    }
+
+    func testCustomProfileAttribute() throws {
+        // Arrange
+        var updates: [TrackingUpdate] = []
+
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
+            ExperienceData.mockWithForm(defaultValue: "default value", attributeName: "myAttribute")
+        }
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
+            .initial
+        }
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            updates.append(trackingUpdate)
+        }
+
+        let action = AppcuesSubmitFormAction(config: nil)
+
+        // Act
+        action?.execute(inContext: appcues, completion: { })
+
+        // Assert
+        [
+            "_appcuesForm_form-label": "default value",
+            "myAttribute": "default value"
+        ].verifyPropertiesMatch(updates[0].properties)
     }
 }

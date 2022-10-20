@@ -38,7 +38,7 @@ internal class AppcuesSubmitFormAction: ExperienceAction, ExperienceActionQueueT
             .merging(LifecycleEvent.properties(experienceData, stepIndex)) { first, _ in first }
 
         analyticsPublisher.publish(TrackingUpdate(
-            type: .profile,
+            type: .profile(interactive: false),
             properties: stepState.formattedAsProfileUpdate(),
             isInternal: true))
 
