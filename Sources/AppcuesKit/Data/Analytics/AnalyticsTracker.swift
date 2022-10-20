@@ -93,11 +93,11 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             switch result {
             case .success(let qualifyResponse):
                 if #available(iOS 13.0, *), let experienceRenderer = self?.container?.resolve(ExperienceRendering.self) {
-                    let experiments = qualifyResponse.experiments ?? [:]
+                    let experiments = qualifyResponse.experiments ?? []
                     let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.map {
                         var experiment: Experiment?
                         if let experimentID = $0.experimentID {
-                            experiment = experiments[experimentID]
+                            experiment = experiments.first { $0.experimentID == experimentID }
                         }
                         return ExperienceData($0, priority: qualifyResponse.renderPriority, published: true, experiment: experiment)
                     }
