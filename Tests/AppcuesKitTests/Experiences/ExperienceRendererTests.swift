@@ -317,7 +317,7 @@ class ExperienceRendererTests: XCTestCase {
         let presentExpectation = expectation(description: "Experience presented")
         presentExpectation.isInverted = true
         let experimentID = "6ce90d1d-4de2-41a6-bc93-07ae23b728c5"
-        let experiment = Experiment(group: "control")
+        let experiment = Experiment(group: "control", experimentID: experimentID)
         let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
@@ -338,7 +338,7 @@ class ExperienceRendererTests: XCTestCase {
         let completionExpectation = expectation(description: "Completion called")
         let presentExpectation = expectation(description: "Experience presented")
         let experimentID = "6ce90d1d-4de2-41a6-bc93-07ae23b728c5"
-        let experiment = Experiment(group: "exposed")
+        let experiment = Experiment(group: "exposed", experimentID: experimentID)
         let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
@@ -358,7 +358,7 @@ class ExperienceRendererTests: XCTestCase {
         // Arrange
         let analyticsExpectation = expectation(description: "Triggered experiment_entered analytics")
         let experimentID = "6ce90d1d-4de2-41a6-bc93-07ae23b728c5"
-        let experiment = Experiment(group: "control")
+        let experiment = Experiment(group: "control", experimentID: experimentID)
         let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
         let properties: [String: Any] = [
             "experimentId": experimentID,
@@ -386,7 +386,7 @@ class ExperienceRendererTests: XCTestCase {
         // Arrange
         let analyticsExpectation = expectation(description: "Triggered experiment_entered analytics")
         let experimentID = "6ce90d1d-4de2-41a6-bc93-07ae23b728c5"
-        let experiment = Experiment(group: "exposed")
+        let experiment = Experiment(group: "exposed", experimentID: experimentID)
         let experience = ExperienceData.mockWithExperiment(experimentID: experimentID)
         let properties: [String: Any] = [
             "experimentId": experimentID,
