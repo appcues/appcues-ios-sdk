@@ -141,23 +141,21 @@ extension Activity {
     }
 
     mutating func append(_ activity: Activity) {
-        // the only thing we support merging here is additional events.
-        // if the user or group, or any associated user or group properties are updated,
-        // those cause any pending activity to be flushed, then the user or group
-        // activity immediately flushed as an individual item - there is no concept
-        // of merging content across user or group updates.  The reason is that the
-        // activity prior to that update needs to be associated to the correct user/group
-        // and the activity after that update needs to be associated with the new user/group
+        // this will merge any additional events or profile updates.
+        // we do not support any update to the user ID or group ID here, as a change
+        // in those values would trigger an immediate flush of pending items then the new update
+        // sent. The reason is that the activity prior to that update needs to be associated to
+        // the previous user/group and the activity after that update needs to be associated with
+        // the new user/group
         if let newEvents = activity.events {
             let existingEvents = events ?? []
             events = existingEvents + newEvents
+        }
 
-            // additional events can also cause autoproperty updates, merge those in
-            newEvents.forEach {
-                if let autoProps = $0.autoProperties {
-                    profileUpdate = (profileUpdate ?? [:]).merging(autoProps) { _, new in new }
-                }
-            }
+        // merge in any updated auto props from events or other pending profile updates
+        if let newProfileUpdate = activity.profileUpdate {
+            let existingProfileUpdate = profileUpdate ?? [:]
+            profileUpdate = existingProfileUpdate.merging(newProfileUpdate) { _, new in new }
         }
     }
 }

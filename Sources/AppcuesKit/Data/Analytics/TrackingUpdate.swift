@@ -13,7 +13,7 @@ internal struct TrackingUpdate {
     enum TrackingType: Equatable {
         case event(name: String, interactive: Bool)
         case screen(String)
-        case profile
+        case profile(interactive: Bool)
         case group(String?)
     }
 
@@ -45,7 +45,13 @@ internal struct TrackingUpdate {
         case .screen:
             return .queueThenFlush
 
-        case .group, .profile:
+        case let .profile(interactive):
+            // a profile update would only be non-interactive if it was not affecting the
+            // user login status at all, just updating some attributes that can be batched
+            // with the next event. If a new profile update comes in prior to this, the queued
+            return interactive ? .flushThenSend : .queue
+
+        case .group:
             return .flushThenSend
         }
     }

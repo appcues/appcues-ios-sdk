@@ -157,9 +157,3 @@ extension TrackingUpdate {
         }
     }
 }
-
-extension Event {
-    var autoProperties: [String: Any]? {
-        return attributes?["_identity"] as? [String: Any]
-    }
-}

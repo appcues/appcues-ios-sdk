@@ -138,6 +138,7 @@ extension ExperienceData {
 
         fileprivate let type: String
         fileprivate let label: String
+        fileprivate let attributeName: String?
         fileprivate var underlyingValue: ValueType
         fileprivate let validators: [Validator]
         fileprivate let required: Bool
@@ -149,6 +150,7 @@ extension ExperienceData {
         init(model: ExperienceComponent.TextInputModel) {
             self.type = "textInput"
             self.label = model.label.text
+            self.attributeName = model.attributeName
             self.underlyingValue = .single(model.defaultValue ?? "")
             self.validators = model.validators()
             self.required = model.required ?? false
@@ -157,6 +159,7 @@ extension ExperienceData {
         init(model: ExperienceComponent.OptionSelectModel) {
             self.type = "optionSelect"
             self.label = model.label.text
+            self.attributeName = model.attributeName
             switch model.selectMode {
             case .single:
                 self.underlyingValue = .single(model.defaultValue?.first ?? "")
@@ -209,6 +212,10 @@ extension ExperienceData.StepState {
 
         formItems.forEach { _, item in
             update["_appcuesForm_\(item.label.asSlug)"] = item.getValue()
+
+            if let attributeName = item.attributeName {
+                update[attributeName] = item.getValue()
+            }
         }
 
         return update

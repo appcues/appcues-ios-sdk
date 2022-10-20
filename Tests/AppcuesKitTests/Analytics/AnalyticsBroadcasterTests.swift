@@ -59,7 +59,7 @@ class AnalyticsBroadcasterTests: XCTestCase {
 
     func testBroadcastProfile() throws {
         // Act
-        broadcaster.track(update: TrackingUpdate(type: .profile, properties: ["key": "value"], context: nil, isInternal: false))
+        broadcaster.track(update: TrackingUpdate(type: .profile(interactive: true), properties: ["key": "value"], context: nil, isInternal: false))
 
         // Assert
         XCTAssertEqual(delegate.lastAnalytic, .identify)
@@ -103,6 +103,7 @@ class AnalyticsBroadcasterTests: XCTestCase {
             dataType: nil,
             textFieldStyle: nil,
             cursorColor: nil,
+            attributeName: nil,
             style: nil))
 
         let update = TrackingUpdate(
