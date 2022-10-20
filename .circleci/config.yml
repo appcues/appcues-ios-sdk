@@ -48,7 +48,7 @@ commands:
           key: 2-gems-{{ checksum "Gemfile.lock" }}
       - run:
           name: Install gem dependencies
-          command: bundle check || bundle install --path vendor/bundle
+          command: bundle check || bundle install --deployment --path vendor/bundle
       - save_cache:
           name: Save gem cache
           key: 2-gems-{{ checksum "Gemfile.lock" }}
