@@ -21,6 +21,9 @@ internal struct SdkMetrics {
     // the time when the network response was received
     private var respondedAt: Date?
 
+    // the time when the UI presentation began
+    private var renderStartAt: Date?
+
     static func clear() {
         metrics.removeAll()
     }
@@ -45,6 +48,12 @@ internal struct SdkMetrics {
         metrics[id]?.respondedAt = time
     }
 
+    static func renderStart(_ id: UUID?, time: Date = Date()) {
+        guard let id = id else { return }
+        // only capture if record is already created -- a known analytics tracking time
+        metrics[id]?.renderStartAt = time
+    }
+
     static func remove(_ id: UUID) {
         metrics.removeValue(forKey: id)
     }
@@ -54,16 +63,18 @@ internal struct SdkMetrics {
               let timings = metrics[id],
               let trackedAt = timings.trackedAt,
               let requestedAt = timings.requestedAt,
-              let respondedAt = timings.respondedAt else {
+              let respondedAt = timings.respondedAt,
+              let renderStartAt = timings.renderStartAt else {
             return [:]
         }
 
         let renderedAt = Date()
 
-        let timeTotal = Int(renderedAt.millisecondsSince1970 - trackedAt.millisecondsSince1970)
-        let timeAfterResponse = Int(renderedAt.millisecondsSince1970 - respondedAt.millisecondsSince1970)
-        let timeNetwork = Int(respondedAt.millisecondsSince1970 - requestedAt.millisecondsSince1970)
         let timeBeforeRequest = Int(requestedAt.millisecondsSince1970 - trackedAt.millisecondsSince1970)
+        let timeNetwork = Int(respondedAt.millisecondsSince1970 - requestedAt.millisecondsSince1970)
+        let timeProcessingResponse = Int(renderStartAt.millisecondsSince1970 - respondedAt.millisecondsSince1970)
+        let timePresenting = Int(renderedAt.millisecondsSince1970 - renderStartAt.millisecondsSince1970)
+        let timeTotal = Int(renderedAt.millisecondsSince1970 - trackedAt.millisecondsSince1970)
 
         // remove this item now that we've tracked it
         remove(id)
@@ -72,7 +83,8 @@ internal struct SdkMetrics {
             "_sdkMetrics": [
                 "timeBeforeRequest": timeBeforeRequest,
                 "timeNetwork": timeNetwork,
-                "timeAfterResponse": timeAfterResponse,
+                "timeProcessingResponse": timeProcessingResponse,
+                "timePresenting": timePresenting,
                 "timeTotal": timeTotal
             ]
         ]

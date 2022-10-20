@@ -256,6 +256,7 @@ extension ExperienceStateMachine {
             objc_setAssociatedObject(package.wrapperController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
 
             do {
+                SdkMetrics.renderStart(experience.requestID)
                 try package.presenter {
                     try? machine.transition(.renderStep)
                 }
