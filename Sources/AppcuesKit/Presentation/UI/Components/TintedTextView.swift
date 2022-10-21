@@ -25,5 +25,6 @@ internal struct TintedTextView: View {
                 view.foregroundColor(val)
             }
             .applyAllAppcues(style)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }

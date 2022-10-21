@@ -210,7 +210,7 @@ extension ExperienceComponent {
         }
 
         enum DisplayFormat: String, Decodable {
-            case verticalList, horizontalList, picker
+            case verticalList, horizontalList, picker, nps
         }
 
         let id: UUID

@@ -30,13 +30,15 @@ internal struct AppcuesOptionSelect: View {
                             .tag(option.value)
                     }
                 }
+            case (.single, .nps):
+                NPSView(model: model)
             case (_, .horizontalList):
                 HStack(alignment: model.controlPosition?.verticalAlignment ?? .center, spacing: 0) {
                     items
                 }
             case (_, .verticalList),
                 // fallbacks
-                (_, .none), (.multi, .picker):
+                (_, .none), (.multi, .picker), (.multi, .nps):
                 VStack(alignment: model.controlPosition?.horizontalAlignment ?? .center, spacing: 0) {
                     items
                 }
