@@ -48,10 +48,10 @@ internal class ExperienceRenderer: ExperienceRendering {
             return
         }
 
-        if !(experience.experiment?.shouldExecute() ?? true) {
+        guard experience.experiment?.shouldExecute ?? true else {
             // if we get here, it means we did have an experiment, but it was the control group and
             // we should not continue. So track experiment_entered analytics for it (always)..
-            experience.experiment?.track(appcues: appcues)
+            track(experiment: experience.experiment)
             // and exit early
             completion?(.failure(ExperienceRendererError.experimentControl))
             return
@@ -71,7 +71,7 @@ internal class ExperienceRenderer: ExperienceRendering {
 
         // if we get here, either we did not have an experiment, or it is active and did not exit early (not control group).
         // if an active experiment does exist, it should now track the experiment_entered analytic
-        experience.experiment?.track(appcues: appcues)
+        track(experiment: experience.experiment)
 
         // only track analytics on published experiences (not previews)
         // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
@@ -197,5 +197,20 @@ internal class ExperienceRenderer: ExperienceRendering {
 
     func getCurrentStepIndex() -> Experience.StepIndex? {
         stateMachine.state.currentStepIndex
+    }
+
+    private func track(experiment: Experiment?) {
+        guard let experiment = experiment,
+              let analyticsPublisher = appcues?.container.resolve(AnalyticsPublishing.self) else {
+            return
+        }
+
+        analyticsPublisher.publish(TrackingUpdate(
+            type: .event(name: "appcues:experiment_entered", interactive: false),
+            properties: [
+                "experimentId": experiment.experimentID,
+                "group": experiment.group
+            ],
+            isInternal: true))
     }
 }
