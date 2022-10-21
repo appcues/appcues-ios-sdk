@@ -92,22 +92,29 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         activityProcessor.process(activity) { [weak self] result in
             switch result {
             case .success(let qualifyResponse):
-                if #available(iOS 13.0, *), let experienceRenderer = self?.container?.resolve(ExperienceRendering.self) {
-                    let experiments = qualifyResponse.experiments ?? []
-                    let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.map {
-                        var experiment: Experiment?
-                        if let experimentID = $0.experimentID {
-                            experiment = experiments.first { $0.experimentID == experimentID }
-                        }
-                        return ExperienceData($0, priority: qualifyResponse.renderPriority, published: true, experiment: experiment)
-                    }
-                    experienceRenderer.show(qualifiedExperiences: qualifiedExperienceData, completion: nil)
+                if #available(iOS 13.0, *) {
+                    self?.process(qualifyResponse: qualifyResponse)
                 } else {
                     self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
                 }
             case .failure(let error):
                 self?.config.logger.error("Failed processing qualify response: %{public}s", "\(error)")
             }
+        }
+    }
+
+    @available(iOS 13.0, *)
+    private func process(qualifyResponse: QualifyResponse) {
+        if let experienceRenderer = container?.resolve(ExperienceRendering.self) {
+            let experiments = qualifyResponse.experiments ?? []
+            let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.map {
+                var experiment: Experiment?
+                if let experimentID = $0.experimentID {
+                    experiment = experiments.first { $0.experimentID == experimentID }
+                }
+                return ExperienceData($0, priority: qualifyResponse.renderPriority, published: true, experiment: experiment)
+            }
+            experienceRenderer.show(qualifiedExperiences: qualifiedExperienceData, completion: nil)
         }
     }
 }
