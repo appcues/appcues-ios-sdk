@@ -208,7 +208,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         analyticsPublisher.publish(TrackingUpdate(
             type: .event(name: "appcues:experiment_entered", interactive: false),
             properties: [
-                "experimentId": experiment.experimentID,
+                "experimentId": experiment.experimentID.uuidString.lowercased(),
                 "group": experiment.group
             ],
             isInternal: true))

@@ -55,7 +55,6 @@ class TraitComposerTests: XCTestCase {
             steps: [
                 .child(Experience.Step.Child(traits: []))
             ],
-            experimentID: nil,
             redirectURL: nil,
             nextContentID: nil)
 
@@ -157,7 +156,6 @@ class TraitComposerTests: XCTestCase {
             steps: [
                 .child(Experience.Step.Child(traits: []))
             ],
-            experimentID: nil,
             redirectURL: nil,
             nextContentID: nil)
 
@@ -195,7 +193,6 @@ class TraitComposerTests: XCTestCase {
                     actions: [:]
                 ))
             ],
-            experimentID: nil,
             redirectURL: nil,
             nextContentID: nil)
         let experienceData = ExperienceData(experience)
@@ -271,7 +268,6 @@ class TraitComposerTests: XCTestCase {
                         ])
                 ]))
             ],
-            experimentID: nil,
             redirectURL: nil,
             nextContentID: nil)
     }
