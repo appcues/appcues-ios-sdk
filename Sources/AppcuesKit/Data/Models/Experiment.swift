@@ -10,7 +10,8 @@ import Foundation
 
 internal struct Experiment {
     let group: String
-    let experimentID: String
+    let experimentID: UUID
+    let experienceID: UUID
 
     var shouldExecute: Bool {
         return group != "control"
@@ -21,5 +22,6 @@ extension Experiment: Decodable {
     private enum CodingKeys: String, CodingKey {
         case group
         case experimentID = "experimentId"
+        case experienceID = "experienceId"
     }
 }
