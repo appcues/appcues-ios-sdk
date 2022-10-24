@@ -161,14 +161,16 @@ internal class ActivityProcessor: ActivityProcessing {
     }
 
     private func postProcess(activity: ActivityStorage, success: Bool) {
-        // if it was successful (or retry not enabled), no retry needed - clean out the file
-        if success {
-            self.activityStorage.remove(activity)
-        }
+        syncQueue.sync {
+            // if it was successful (or retry not enabled), no retry needed - clean out the file
+            if success {
+                self.activityStorage.remove(activity)
+            }
 
-        // then, always remove it from the list of current items "in flight" - this allows
-        // a later retry to run, if it was needed
-        self.processingItems.remove(activity.requestID)
+            // then, always remove it from the list of current items "in flight" - this allows
+            // a later retry to run, if it was needed
+            self.processingItems.remove(activity.requestID)
+        }
     }
 
 }
