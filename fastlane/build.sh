@@ -10,6 +10,9 @@ SIMULATOR_ARCHIVE_PATH="${BUILD_FOLDER_NAME}/simulator.xcarchive"
 IOS_DEVICE_ARCHIVE_PATH="${BUILD_FOLDER_NAME}/iOS.xcarchive"
 ZIP_NAME="${XCFRAMEWORK_NAME}.zip"
 
+# Ensure the project file is up to date before trying to archive
+mint run xcodegen
+
 xcodebuild archive -quiet -scheme ${PROJECT_NAME} -destination="iOS Simulator" -archivePath "${SIMULATOR_ARCHIVE_PATH}" -sdk iphonesimulator SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES || exit 1
 xcodebuild archive -quiet -scheme ${PROJECT_NAME} -destination="iOS" -archivePath "${IOS_DEVICE_ARCHIVE_PATH}" -sdk iphoneos SKIP_INSTALL=NO BUILD_LIBRARIES_FOR_DISTRIBUTION=YES || exit 1
 
