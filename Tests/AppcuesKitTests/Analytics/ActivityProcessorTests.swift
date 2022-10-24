@@ -321,6 +321,28 @@ class ActivityProcessorTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testThreadSafety() throws {
+        // Arrange
+        let dispatchGroup = DispatchGroup()
+        let completeExpectation = expectation(description: "multi thread")
+        completeExpectation.expectedFulfillmentCount = 100
+        let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
+
+        // Act
+        // Process activity on 100 threads
+        for _ in 0..<100 {
+            dispatchGroup.enter()
+            DispatchQueue.global().async {
+                self.processor.process(activity) { _ in
+                    completeExpectation.fulfill()
+                }
+                dispatchGroup.leave()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
 
     private func generateMockActivity(userID: String, event: Event) -> Activity {
         return Activity(accountID: "00000", userID: userID, events: [event], profileUpdate: nil, groupID: nil, groupUpdate: nil)
