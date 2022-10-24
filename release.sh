@@ -135,7 +135,7 @@ sed -i '' -e "s/$version/$newVersion/g" Appcues.podspec
 git commit -am "🍏 Update version to $newVersion"
 git push
 # gh release will make both the tag and the release itself.
-gh release create $newVersion -F $tempFile -t $newVersion
+gh release create $newVersion -F $tempFile -t $newVersion --target $branch
 
 # remove the tempfile.
 rm $tempFile
