@@ -93,6 +93,14 @@ internal class ExperienceStepViewController: UIViewController {
         }
 
         stepView.scrollView.scrollIndicatorInsets = stepView.scrollView.contentInset
+
+        // Scroll the first responder into view.
+        // This happens automatically in some cases (eg UITextField), but is a bit janky and this is smoother.
+        // Also UITextView doesn't automatically scroll to visible as expected and so requires this implementation.
+        if let targetView = view.firstResponder {
+            let frameInScrollView = stepView.scrollView.convert(targetView.frame, from: targetView)
+            stepView.scrollView.scrollRectToVisible(frameInScrollView, animated: false)
+        }
     }
 }
 
