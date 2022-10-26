@@ -49,6 +49,17 @@ internal class ExperienceStepViewController: UIViewController {
         stepView.contentView.addSubview(contentViewController.view)
         contentViewController.view.pin(to: stepView.contentView.layoutMarginsGuide)
         contentViewController.didMove(toParent: self)
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(adjustForKeyboard),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(adjustForKeyboard),
+            name: UIResponder.keyboardWillChangeFrameNotification,
+            object: nil)
     }
 
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
@@ -65,6 +76,23 @@ internal class ExperienceStepViewController: UIViewController {
         if motion == .motionShake {
             notificationCenter?.post(name: .shakeToRefresh, object: self)
         }
+    }
+
+    @objc
+    private func adjustForKeyboard(notification: Notification) {
+        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+
+        if notification.name == UIResponder.keyboardWillHideNotification {
+            stepView.scrollView.contentInset.bottom = 0
+        } else {
+            let keyboardFrameInScreen = keyboardValue.cgRectValue
+            let keyboardFrameInView = stepView.scrollView.convert(keyboardFrameInScreen, from: view.window)
+            let intersection = stepView.scrollView.bounds.intersection(keyboardFrameInView)
+
+            stepView.scrollView.contentInset.bottom = intersection.height - view.safeAreaInsets.bottom
+        }
+
+        stepView.scrollView.scrollIndicatorInsets = stepView.scrollView.contentInset
     }
 }
 
