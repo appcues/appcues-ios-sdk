@@ -50,6 +50,8 @@ internal struct MultilineTextView: UIViewRepresentable {
         }
         textView.textContentType = model.dataType?.textContentType
 
+        textView.inputAccessoryView = DismissToolbar(textView: textView)
+
         return textView
     }
 
@@ -69,6 +71,8 @@ internal struct MultilineTextView: UIViewRepresentable {
         }
         textField.textContentType = model.dataType?.textContentType
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        textField.inputAccessoryView = DismissToolbar(textField: textField)
 
         return textField
     }
@@ -134,6 +138,44 @@ extension MultilineTextView {
 
         override func editingRect(forBounds bounds: CGRect) -> CGRect {
             return self.textRect(forBounds: bounds)
+        }
+    }
+
+    /// A `UIToolbar` that include a "Done" button to end editing. Use as an `inputAccessoryView`.
+    ///
+    /// This exists over just creating a `UIToolbar` because `MultilineTextView` is a struct
+    /// and so can't have an `@objc` method for the selector.
+    class DismissToolbar: UIToolbar {
+        weak var view: UIView?
+
+        init(textView: UITextView) {
+            self.view = textView
+            super.init(frame: .zero)
+            setup()
+        }
+
+        init(textField: UITextField) {
+            self.view = textField
+            super.init(frame: .zero)
+            setup()
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        private func setup() {
+            items = [
+                UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+                UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissKeyboard))
+            ]
+            sizeToFit()
+        }
+
+        @objc
+        private func dismissKeyboard() {
+            view?.endEditing(true)
         }
     }
 }

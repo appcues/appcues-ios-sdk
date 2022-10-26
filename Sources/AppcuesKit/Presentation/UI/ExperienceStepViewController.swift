@@ -104,6 +104,9 @@ extension ExperienceStepViewController {
             view.translatesAutoresizingMaskIntoConstraints = false
             // Force a consistent safe area behavior regardless of whether the content scrolls
             view.contentInsetAdjustmentBehavior = .always
+
+            // For text input blocks, we want scrolling the modal content to be able to dismiss the keyboard.
+            view.keyboardDismissMode = .interactive
             return view
         }()
 
