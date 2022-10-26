@@ -78,7 +78,13 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             sessionProperties["_lastBrowserLanguage"] = Locale.preferredLanguages[0]
         }
 
-        let merged = applicationProperties.merging(sessionProperties.compactMapValues { $0 }) { _, new in new }
+        let merged = applicationProperties
+            .merging(sessionProperties.compactMapValues { $0 }) { _, new in new }
+            .merging(config.additionalAutoProperties) { current, _ in
+                // if any addition props passed in have name conflicts with system props,
+                // this will prefer the value from the system property.
+                current
+            }
 
         if case .profile = tracking.type {
             // profile updates have auto props merged in at root level
