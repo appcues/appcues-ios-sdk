@@ -118,7 +118,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         if let experienceRenderer = container?.resolve(ExperienceRendering.self) {
             let experiments = qualifyResponse.experiments ?? []
             let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.map { experience in
-                var experiment = experiments.first { $0.experienceID == experience.id }
+                let experiment = experiments.first { $0.experienceID == experience.id }
                 return ExperienceData(experience,
                                       priority: qualifyResponse.renderPriority,
                                       published: true,
