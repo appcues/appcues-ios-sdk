@@ -44,6 +44,11 @@ extension View {
 
     func applyInternalLayout(_ style: AppcuesStyle) -> some View {
         self
+            // Padding values should be treated with the corner radius too, so apply here.
+            // Need to adjust the corner radius to match the inside of the border.
+            .ifLet(style.cornerRadius) { view, val in
+                view.cornerRadius(max(0, val - (style.borderWidth ?? 0)), padding: style.padding)
+            }
             .padding(style.padding)
             .applyBorderStyle(style)
             .frame(width: style.width, height: style.height)
