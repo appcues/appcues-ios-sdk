@@ -10,7 +10,7 @@ import Foundation
 
 @available(iOS 13.0, *)
 internal protocol ExperienceLoading: AnyObject {
-    func load(experienceID: String, published: Bool, completion: ((Result<Void, Error>) -> Void)?)
+    func load(experienceID: String, published: Bool, triggeredBy: ExperienceTrigger, completion: ((Result<Void, Error>) -> Void)?)
 }
 
 @available(iOS 13.0, *)
@@ -33,7 +33,7 @@ internal class ExperienceLoader: ExperienceLoading {
         notificationCenter.addObserver(self, selector: #selector(refreshPreview), name: .shakeToRefresh, object: nil)
     }
 
-    func load(experienceID: String, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+    func load(experienceID: String, published: Bool, triggeredBy: ExperienceTrigger, completion: ((Result<Void, Error>) -> Void)?) {
 
         let endpoint = published ?
             APIEndpoint.content(experienceID: experienceID) :
@@ -45,7 +45,7 @@ internal class ExperienceLoader: ExperienceLoading {
             switch result {
             case .success(let experience):
                 self?.experienceRenderer.show(
-                    experience: ExperienceData(experience, priority: .normal, published: published),
+                    experience: ExperienceData(experience, triggeredBy: triggeredBy, priority: .normal, published: published),
                     completion: completion)
             case .failure(let error):
                 self?.config.logger.error("Loading experience %{public}s failed with error %{public}s", experienceID, "\(error)")
@@ -60,6 +60,6 @@ internal class ExperienceLoader: ExperienceLoading {
     private func refreshPreview(notification: Notification) {
         guard let experienceID = lastPreviewExperienceID else { return }
 
-        load(experienceID: experienceID, published: false, completion: nil)
+        load(experienceID: experienceID, published: false, triggeredBy: .preview, completion: nil)
     }
 }

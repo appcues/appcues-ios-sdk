@@ -16,14 +16,17 @@ internal class ExperienceData {
     let published: Bool
     let experiment: Experiment?
     let requestID: UUID?
+    let triggeredBy: ExperienceTrigger
     private let formState: FormState
 
     internal init(_ experience: Experience,
+                  triggeredBy: ExperienceTrigger,
                   priority: RenderPriority = .normal,
                   published: Bool = true,
                   experiment: Experiment? = nil,
                   requestID: UUID? = nil) {
         self.model = experience
+        self.triggeredBy = triggeredBy
         self.priority = priority
         self.published = published
         self.experiment = experiment

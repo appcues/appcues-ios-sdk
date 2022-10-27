@@ -190,7 +190,7 @@ public class Appcues: NSObject {
             return
         }
 
-        experienceLoader.load(experienceID: experienceID, published: true) { result in
+        experienceLoader.load(experienceID: experienceID, published: true, triggeredBy: .showCall) { result in
             switch result {
             case .success:
                 completion?(true, nil)

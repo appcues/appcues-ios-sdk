@@ -120,6 +120,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.map { experience in
                 let experiment = experiments.first { $0.experienceID == experience.id }
                 return ExperienceData(experience,
+                                      triggeredBy: .qualification(reason: qualifyResponse.qualificationReason?.rawValue),
                                       priority: qualifyResponse.renderPriority,
                                       published: true,
                                       experiment: experiment,
