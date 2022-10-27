@@ -45,6 +45,7 @@ extension View {
     func applyInternalLayout(_ style: AppcuesStyle) -> some View {
         self
             .padding(style.padding)
+            .applyBorderStyle(style)
             .frame(width: style.width, height: style.height)
             .if(style.fillWidth) { view in
                 view.frame(maxWidth: .infinity)
@@ -94,10 +95,13 @@ extension View {
             }
     }
 
-    func applyBorderStyle(_ style: AppcuesStyle) -> some View {
+    private func applyBorderStyle(_ style: AppcuesStyle) -> some View {
         self
             .ifLet(style.borderColor, style.borderWidth) { view, color, width in
-                view.overlay(
+                view
+                    // The border should account for space in the layout, not just be an overlay.
+                    .padding(width)
+                    .overlay(
                     // Need to adjust the corner radius to match the radius applied to the view.
                     RoundedRectangle(cornerRadius: (style.cornerRadius ?? 0) - width / 2)
                         .stroke(color, lineWidth: width)
@@ -121,7 +125,6 @@ extension View {
                 .applyForegroundStyle(style)
                 .applyInternalLayout(style)
                 .applyBackgroundStyle(style)
-                .applyBorderStyle(style)
                 .applyExternalLayout(style)
         )
     }
