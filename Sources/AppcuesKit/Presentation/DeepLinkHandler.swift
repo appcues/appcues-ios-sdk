@@ -100,15 +100,11 @@ internal class DeepLinkHandler: DeepLinkHandling {
     private func handle(action: Action) {
         switch action {
         case .preview(let experienceID):
-            container?.resolve(ExperienceLoading.self).load(experienceID: experienceID,
-                                                            published: false,
-                                                            triggeredBy: .preview,
-                                                            completion: nil)
+            container?.resolve(ExperienceLoading.self)
+                .load(experienceID: experienceID, published: false, triggeredBy: .preview, completion: nil)
         case .show(let experienceID):
-            container?.resolve(ExperienceLoading.self).load(experienceID: experienceID,
-                                                            published: true,
-                                                            triggeredBy: .deepLink,
-                                                            completion: nil)
+            container?.resolve(ExperienceLoading.self)
+                .load(experienceID: experienceID, published: true, triggeredBy: .deepLink, completion: nil)
         case .debugger(let destination):
             container?.resolve(UIDebugging.self).show(destination: destination)
         case .verifyInstall(let token):

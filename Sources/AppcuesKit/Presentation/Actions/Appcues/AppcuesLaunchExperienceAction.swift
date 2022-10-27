@@ -13,12 +13,12 @@ internal class AppcuesLaunchExperienceAction: ExperienceAction {
     static let type = "@appcues/launch-experience"
 
     let experienceID: String
-    let triggedBy: ExperienceTrigger?
+    let triggeredBy: ExperienceTrigger?
 
     required init?(config: [String: Any]?) {
         if let experienceID = config?["experienceID"] as? String {
             self.experienceID = experienceID
-            self.triggedBy = nil
+            self.triggeredBy = nil
         } else {
             return nil
         }
@@ -29,7 +29,7 @@ internal class AppcuesLaunchExperienceAction: ExperienceAction {
 
         // This is used when a flow is triggered as a post flow action from another flow.
         // The triggedBy value is set during the StateMachine processing of post-flow actions.
-        self.triggedBy = triggeredBy
+        self.triggeredBy = triggeredBy
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
@@ -41,12 +41,8 @@ internal class AppcuesLaunchExperienceAction: ExperienceAction {
         // If no triggeredBy value is passedin, we know it was not triggered by a post-flow action
         // and we can use the standard `.launchExperienceAction` case, for a normal link within a flow
         // that launches another flow from a button, for example.
-        let triggeredBy = self.triggedBy ?? .launchExperienceAction(fromExperienceID: currentExperienceId)
+        let triggeredBy = self.triggeredBy ?? .launchExperienceAction(fromExperienceID: currentExperienceId)
 
-        experienceLoading.load(experienceID: experienceID,
-                               published: true,
-                               triggeredBy: triggeredBy) { _  in
-            completion()
-        }
+        experienceLoading.load(experienceID: experienceID, published: true, triggeredBy: triggeredBy) { _  in completion() }
     }
 }
