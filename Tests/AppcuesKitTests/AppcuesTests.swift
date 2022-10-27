@@ -142,9 +142,10 @@ class AppcuesTests: XCTestCase {
         appcues.sessionID = UUID()
         var completionCount = 0
         var experienceShownCount = 0
-        appcues.experienceLoader.onLoad = { experienceID, published, completion in
+        appcues.experienceLoader.onLoad = { experienceID, published, triggeredBy, completion in
             XCTAssertEqual(true, published)
             XCTAssertEqual("1234", experienceID)
+            guard case .showCall = triggeredBy else { return XCTFail() }
             experienceShownCount += 1
             completion?(.success(()))
         }
@@ -166,7 +167,7 @@ class AppcuesTests: XCTestCase {
         appcues.sessionID = nil
         var completionCount = 0
         var experienceShownCount = 0
-        appcues.experienceLoader.onLoad = { experienceID, published, completion in
+        appcues.experienceLoader.onLoad = { experienceID, published, triggeredBy, completion in
             experienceShownCount += 1
             completion?(.failure(AppcuesError.noActiveSession))
         }

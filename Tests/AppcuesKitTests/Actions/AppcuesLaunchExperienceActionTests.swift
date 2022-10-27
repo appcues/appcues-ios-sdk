@@ -35,8 +35,9 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
         // Arrange
         var completionCount = 0
         var loadCount = 0
-        appcues.experienceLoader.onLoad = { contentID, published, completion in
+        appcues.experienceLoader.onLoad = { contentID, published, triggeredBy, completion in
             XCTAssertEqual(contentID, "123")
+            guard case .launchExperienceAction = triggeredBy else { return XCTFail() }
             loadCount += 1
             completion?(.success(()))
         }
@@ -54,8 +55,9 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
         // Arrange
         var completionCount = 0
         var loadCount = 0
-        appcues.experienceLoader.onLoad = { contentID, published, completion in
+        appcues.experienceLoader.onLoad = { contentID, published, triggeredBy, completion in
             XCTAssertEqual(contentID, "123")
+            guard case .launchExperienceAction = triggeredBy else { return XCTFail() }
             loadCount += 1
             completion?(.failure(AppcuesError.noActiveSession))
         }

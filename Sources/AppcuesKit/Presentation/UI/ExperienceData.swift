@@ -20,7 +20,7 @@ internal class ExperienceData {
     private let formState: FormState
 
     internal init(_ experience: Experience,
-                  triggeredBy: ExperienceTrigger,
+                  triggeredBy: ExperienceTrigger = .unknown,
                   priority: RenderPriority = .normal,
                   published: Bool = true,
                   experiment: Experiment? = nil,
