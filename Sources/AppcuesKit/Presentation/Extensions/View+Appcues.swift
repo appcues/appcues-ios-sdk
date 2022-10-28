@@ -129,7 +129,7 @@ extension View {
 
 @available(iOS 13.0, *)
 extension Text {
-    func applyTextStyle(_ style: AppcuesStyle) -> some View {
+    func applyTextStyle(_ style: AppcuesStyle, text: String) -> some View {
         self
             .ifLet(style.letterSpacing) { view, val in
                 view.kerning(val)
@@ -137,5 +137,13 @@ extension Text {
             .ifLet(style.textAlignment) { view, val in
                 view.multilineTextAlignment(val)
             }
+            // The following two lines allow text to scale down in cases where it is too
+            // large to fit in the bounds available, and otherwise unnatural clipping
+            // or wrapping would occur. For example, a large emoji in a side-by-side layout.
+            // SwiftUI requires a line limit to be set for the minimumScaleFactor to be applied,
+            // and it must be set to 1 line in the case of a single large character for scaling
+            // to be applied.
+            .lineLimit(text.count == 1 ? 1 : Int.max)
+            .minimumScaleFactor(text.count == 1 ? 0.1 : 0.5)
     }
 }

@@ -18,7 +18,7 @@ internal struct AppcuesText: View {
         let style = AppcuesStyle(from: model.style)
 
         Text(model.text)
-            .applyTextStyle(style)
+            .applyTextStyle(style, text: model.text)
             .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
             .fixedSize(horizontal: false, vertical: true)
