@@ -15,6 +15,7 @@ internal class DialogContainerView: UIView {
         let view = UIView(frame: .zero)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.clipsToBounds = true
+        view.layoutMargins = .zero
         return view
     }()
 
@@ -43,7 +44,7 @@ internal class DialogContainerView: UIView {
             dialogView.bottomAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.bottomAnchor),
             dialogView.centerYAnchor.constraint(equalTo: centerYAnchor),
             // this is required so the dialogView has an initial non-zero height, after which it can start sizing to the content.
-            dialogView.heightAnchor.constraint(greaterThanOrEqualToConstant: 1),
+            dialogView.layoutMarginsGuide.bottomAnchor.constraint(greaterThanOrEqualTo: dialogView.layoutMarginsGuide.topAnchor, constant: 1),
             dialogView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor),
             dialogView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor)
         ])
