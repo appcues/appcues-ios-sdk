@@ -30,7 +30,7 @@ internal class DialogContainerViewController: UIViewController {
 
     override func loadView() {
         view = containerView
-        embedChildViewController(dialogViewController, inSuperview: containerView.dialogView)
+        embedChildViewController(dialogViewController, inSuperview: containerView.dialogView, respectLayoutMargins: true)
     }
 
     func configureStyle(_ style: ExperienceComponent.Style?) -> Self {
@@ -38,7 +38,14 @@ internal class DialogContainerViewController: UIViewController {
         containerView.dialogView.layer.cornerRadius = style?.cornerRadius ?? 0
 
         containerView.dialogView.layer.borderColor = UIColor(dynamicColor: style?.borderColor)?.cgColor
-        containerView.dialogView.layer.borderWidth = CGFloat(style?.borderWidth) ?? 0
+        if let borderWidth = CGFloat(style?.borderWidth) {
+            containerView.dialogView.layer.borderWidth = borderWidth
+            containerView.dialogView.layoutMargins = UIEdgeInsets(
+                top: borderWidth,
+                left: borderWidth,
+                bottom: borderWidth,
+                right: borderWidth)
+        }
 
         containerView.shadowLayer = CAShapeLayer(shadowModel: style?.shadow)
 
