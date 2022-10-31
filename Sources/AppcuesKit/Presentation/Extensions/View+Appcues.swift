@@ -129,7 +129,7 @@ extension View {
 
 @available(iOS 13.0, *)
 extension Text {
-    func applyTextStyle(_ style: AppcuesStyle, text: String) -> some View {
+    func applyTextStyle(_ style: AppcuesStyle, model: ExperienceComponent.TextModel) -> some View {
         self
             .ifLet(style.letterSpacing) { view, val in
                 view.kerning(val)
@@ -143,7 +143,8 @@ extension Text {
             // SwiftUI requires a line limit to be set for the minimumScaleFactor to be applied,
             // and it must be set to 1 line in the case of a single large character for scaling
             // to be applied.
-            .lineLimit(text.count == 1 ? 1 : Int.max)
-            .minimumScaleFactor(text.count == 1 ? 0.1 : 0.5)
+            .lineLimit(model.text.count == 1 ? 1 : Int.max)
+            // Allow scaling down to a minimum of 10pt font, from the original size, to try to fit.
+            .minimumScaleFactor(min(10.0 / (model.style?.fontSize ?? UIFont.labelFontSize), 1.0))
     }
 }
