@@ -107,8 +107,11 @@ extension View {
                     // The border should account for space in the layout, not just be an overlay.
                     .padding(width)
                     .overlay(
+                    // Note that the `cornerRadius` here is really only needed for the *inner* edge of the border.
+                    // The `cornerRadius` modifier in `applyBackgroundStyle` takes care of rounding off the *outer* edge appropriately
+                    // (which is why a cornerRadius of 0 here is ok).
                     // Need to adjust the corner radius to match the radius applied to the view.
-                    RoundedRectangle(cornerRadius: (style.cornerRadius ?? 0) - width / 2)
+                    RoundedRectangle(cornerRadius: max(0, (style.cornerRadius ?? 0) - width / 2))
                         .stroke(color, lineWidth: width)
                         // The RoundedRectangle overlay is added centered on the edge of the view, so
                         // half of the width is outside the view bounds. Add padding for that to
