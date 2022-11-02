@@ -169,7 +169,7 @@ extension ExperienceComponent {
 
     struct TextInputModel: ComponentModel, Decodable {
         enum DataType: String, Decodable {
-            case text, number, email, phone, name, address
+            case text, number, email, phone, name, address, url
         }
 
         let id: UUID
