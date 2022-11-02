@@ -46,8 +46,7 @@ internal class AppcuesStepInteractionAction: ExperienceAction {
 
         if let experienceData = experienceRenderer.getCurrentExperienceData(),
            let stepIndex = experienceRenderer.getCurrentStepIndex() {
-            interactionProperties = interactionProperties
-                .merging(LifecycleEvent.properties(experienceData, stepIndex)) { first, _ in first }
+            interactionProperties = LifecycleEvent.properties(experienceData, stepIndex).merging(interactionProperties)
         }
 
         analyticsPublisher.publish(TrackingUpdate(
