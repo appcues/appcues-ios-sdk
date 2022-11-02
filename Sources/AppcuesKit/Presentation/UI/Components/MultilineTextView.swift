@@ -191,6 +191,8 @@ extension ExperienceComponent.TextInputModel.DataType {
             return .emailAddress
         case .phone:
             return .phonePad
+        case .url:
+            return .URL
         }
     }
 
@@ -206,6 +208,8 @@ extension ExperienceComponent.TextInputModel.DataType {
             return .name
         case .address:
             return .fullStreetAddress
+        case .url:
+            return .URL
         }
     }
 }
