@@ -30,12 +30,11 @@ internal class AppcuesSubmitFormAction: ExperienceAction, ExperienceActionQueueT
               let stepIndex = experienceRenderer.getCurrentStepIndex(),
               let stepState = experienceData.state(for: stepIndex) else { return }
 
-        let interactionProperties = [
+        let interactionProperties = LifecycleEvent.properties(experienceData, stepIndex).merging([
             "interactionType": "Form Submitted",
             // Passing the actual StepState model is safe because of specific handling in `encodeSkippingInvalid`.
             "interactionData": [ "formResponse": stepState ]
-        ]
-            .merging(LifecycleEvent.properties(experienceData, stepIndex)) { first, _ in first }
+        ])
 
         analyticsPublisher.publish(TrackingUpdate(
             type: .profile(interactive: false),

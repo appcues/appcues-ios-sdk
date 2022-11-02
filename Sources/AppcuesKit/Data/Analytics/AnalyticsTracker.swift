@@ -178,7 +178,7 @@ extension Activity {
         // merge in any updated auto props from events or other pending profile updates
         if let newProfileUpdate = activity.profileUpdate {
             let existingProfileUpdate = profileUpdate ?? [:]
-            profileUpdate = existingProfileUpdate.merging(newProfileUpdate) { _, new in new }
+            profileUpdate = existingProfileUpdate.merging(newProfileUpdate)
         }
     }
 }
