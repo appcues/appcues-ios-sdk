@@ -33,9 +33,24 @@ internal class AppcuesLinkAction: ExperienceAction {
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
-        // SFSafariViewController only supports HTTP and HTTPS URLs and crashes otherwise, so check to be safe.
-        if !openExternally && ["http", "https"].contains(url.scheme?.lowercased()) {
-            urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true, completion: completion)
+        let isWebLink = ["http", "https"].contains(url.scheme?.lowercased())
+
+        // SFSafariViewController only supports HTTP and HTTPS URLs and crashes otherwise,
+        // and scheme links crash the universal link opener, so check here to be sure we route safely.
+        if isWebLink {
+            // Check try opening the link as if it's a universal link, and if not,
+            // then fall back to the desired in-app or external browser.
+            let successfullyHandledUniversalLink = urlOpener.open(potentialUniversalLink: url)
+
+            if successfullyHandledUniversalLink {
+                completion()
+            } else {
+                if openExternally {
+                    urlOpener.open(url, options: [:]) { _ in completion() }
+                } else {
+                    urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true, completion: completion)
+                }
+            }
         } else {
             urlOpener.open(url, options: [:]) { _ in completion() }
         }
