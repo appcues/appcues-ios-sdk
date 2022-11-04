@@ -13,9 +13,10 @@ internal protocol TopControllerGetting {
 }
 internal protocol URLOpening {
     func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey: Any], completionHandler: ((Bool) -> Void)?)
+    func open(potentialUniversalLink: URL) -> Bool
 }
 
-extension UIApplication: TopControllerGetting, URLOpening {
+extension UIApplication: TopControllerGetting {
 
     @available(iOS 13.0, *)
     var activeWindowScenes: [UIWindowScene] {
@@ -61,5 +62,17 @@ extension UIApplication: TopControllerGetting, URLOpening {
             return topViewController(controller: presented)
         }
         return controller
+    }
+}
+
+extension UIApplication: URLOpening {
+    func open(potentialUniversalLink url: URL) -> Bool {
+        let userActivity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
+        userActivity.webpageURL = url
+        // Pass some metadata to allow the `NSUserActivity` handler to know a link is coming from the Appcues SDK.
+        userActivity.userInfo = [
+            "referrer": "Appcues"
+        ]
+        return delegate?.application?(UIApplication.shared, continue: userActivity) { _ in } ?? false
     }
 }
