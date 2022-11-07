@@ -38,6 +38,17 @@ class DeepLinkNavigator {
             default: return nil
             }
         }
+
+        /// Init from universal link path.
+        init?(path: String) {
+            switch path.lowercased() {
+            case "/signin/": self = .signIn
+            case "/events/": self = .events
+            case "/profile/": self = .profile
+            case "/group/": self = .group
+            default: return nil
+            }
+        }
     }
 
     /// Link origins
@@ -84,13 +95,7 @@ class DeepLinkNavigator {
 
     private var storedHandler: (() -> Void)?
 
-    func handle(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        guard
-            let url = URLContexts.first?.url,
-            url.scheme == "appcues-example",
-            let target = DeepLink(host: url.host)
-        else { return }
-
+    func handle(deepLink: DeepLink, in scene: UIScene, show experienceID: String? = nil) {
         let handler = {
             guard
                 let windowScene = scene as? UIWindowScene,
@@ -100,7 +105,7 @@ class DeepLinkNavigator {
                 return
             }
 
-            switch (origin, target) {
+            switch (origin, deepLink) {
             case (.signIn, .signIn), (.events, .events), (.profile, .profile), (.group, .group):
                 // Linking to current screen, no changes needed
                 break
@@ -111,14 +116,13 @@ class DeepLinkNavigator {
                 controller.performSegue(withIdentifier: "signin", sender: nil)
                 fallthrough
             case (_, _):
-                if let targetIndex = target.tabIndex {
+                if let targetIndex = deepLink.tabIndex {
                     window.tabController?.selectedIndex = targetIndex
                 }
             }
 
             // Show Appcues content by ID in the "experience" query parameter
-            let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
-            if let appcuesExperienceID = urlComponents?.queryItems?.first(where: { $0.name == "experience" })?.value {
+            if let appcuesExperienceID = experienceID {
                 Appcues.shared.show(experienceID: appcuesExperienceID)
             }
         }
@@ -131,6 +135,19 @@ class DeepLinkNavigator {
         @unknown default:
             storedHandler = handler
         }
+    }
+
+    func handle(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard
+            let url = URLContexts.first?.url,
+            url.scheme == "appcues-example",
+            let target = DeepLink(host: url.host)
+        else { return }
+
+        let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let appcuesExperienceID = urlComponents?.queryItems?.first(where: { $0.name == "experience" })?.value
+
+        handle(deepLink: target, in: scene, show: appcuesExperienceID)
     }
 
     func didBecomeActive() {
