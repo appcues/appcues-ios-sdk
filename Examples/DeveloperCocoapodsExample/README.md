@@ -62,7 +62,7 @@ The app supports the following deep links.
 
 The app supports the following universal links.
 
-> These links only work when this example app is compiled with the Appcues Team ID and Bundle ID specified in the test server[apple-app-site-association](https://appcues-mobile-links.netlify.app/.well-known/apple-app-site-association) file.
+> These links only work when this example app is compiled with the Appcues Team ID and Bundle ID specified in the test server [apple-app-site-association](https://appcues-mobile-links.netlify.app/.well-known/apple-app-site-association) file.
 
 | Screen  | Link                      |
 | ------- | ------------------------- |

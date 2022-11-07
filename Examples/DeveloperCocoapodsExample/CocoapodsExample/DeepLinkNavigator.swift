@@ -41,13 +41,8 @@ class DeepLinkNavigator {
 
         /// Init from universal link path.
         init?(path: String) {
-            switch path.lowercased() {
-            case "/signin/": self = .signIn
-            case "/events/": self = .events
-            case "/profile/": self = .profile
-            case "/group/": self = .group
-            default: return nil
-            }
+            // Expect a value like "/events/", so trim slashes.
+            self.init(host: path.trimmingCharacters(in: CharacterSet(charactersIn: "/")))
         }
     }
 
