@@ -91,17 +91,46 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1, "A non http(s) link must always open externally, even if that means overriding the config")
     }
+
+    func testExecuteUniversal() throws {
+        // Arrange
+        var completionCount = 0
+        var openCount = 0
+        let mockURLOpener = MockURLOpener()
+        mockURLOpener.onUniversalOpen = { url in
+            XCTAssertEqual(url.absoluteString, "https://appcues.com")
+            openCount += 1
+            return true
+        }
+        mockURLOpener.onOpen = { url in
+            XCTFail("Shouldn't be called since the URL should be handled by the universal link")
+        }
+        let action = AppcuesLinkAction(config: ["url": "https://appcues.com", "openExternally": true])
+        action?.urlOpener = mockURLOpener
+
+        // Act
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(openCount, 1)
+    }
 }
 
 @available(iOS 13.0, *)
 extension AppcuesLinkActionTests {
     class MockURLOpener: TopControllerGetting, URLOpening {
         var onOpen: ((URL) -> Void)?
+        var onUniversalOpen: ((URL) -> Bool)?
         var onPresent: ((UIViewController) -> Void)?
 
         func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey : Any], completionHandler: ((Bool) -> Void)?) {
             onOpen?(url)
             completionHandler?(true)
+        }
+
+        func open(potentialUniversalLink: URL) -> Bool {
+            onUniversalOpen?(potentialUniversalLink) ?? false
         }
 
         func topViewController() -> UIViewController? {
