@@ -19,6 +19,13 @@ platform :ios do
       sh("mint run xcodegen")
     end
     run_tests(scheme: "Appcues", devices: ["iPhone 14"])
+    slather(
+      scheme: "Appcues",
+      proj: "Appcues.xcodeproj",
+      cobertura_xml: true,
+      ignore: ["Tests/*"],
+      output_directory: "fastlane/test_output"
+    )
   end
 
   desc "Sanity check to make sure the cocoapods example app compiles"
