@@ -13,6 +13,7 @@ parameters:
 # -------------------------
 orbs:
   slack: circleci/slack@4.4.4
+  codecov: codecov/codecov@3.1.1
 
 # -------------------------
 #        EXECUTORS
@@ -80,10 +81,10 @@ jobs:
       - run:
           name: Run fastlane tests
           command: bundle exec fastlane validate_code
-      - store_artifacts:
-          path: output
       - store_test_results:
-          path: output/scan
+          path: fastlane/test_output
+      - codecov/upload:
+          file: "fastlane/test_output/cobertura.xml"
       - slack/notify:
           event: fail
           template: basic_fail_1
