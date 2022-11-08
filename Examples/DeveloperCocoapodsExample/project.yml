@@ -16,7 +16,7 @@ targets:
       path: AppcuesCocoapodsExample.entitlements
       properties:
         com.apple.developer.associated-domains:
-          - applinks:appcues-mobile-links.netlify.app?mode=developer
+          - applinks:appcues-mobile-links.netlify.app
     postbuildScripts:
     - name: SwiftLint
       script: 'if which mint >/dev/null; then
