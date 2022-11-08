@@ -12,6 +12,11 @@ targets:
     platform: iOS
     sources:
     - path: CocoapodsExample
+    entitlements:
+      path: AppcuesCocoapodsExample.entitlements
+      properties:
+        com.apple.developer.associated-domains:
+          - applinks:appcues-mobile-links.netlify.app?mode=developer
     postbuildScripts:
     - name: SwiftLint
       script: 'if which mint >/dev/null; then
