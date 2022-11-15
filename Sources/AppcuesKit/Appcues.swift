@@ -67,6 +67,9 @@ public class Appcues: NSObject {
     /// The delegate object that observes published analytics events
     @objc public weak var analyticsDelegate: AppcuesAnalyticsDelegate?
 
+    /// The delegate object that handles application screen navigation during experience presentation.
+    @objc public weak var navigationDelegate: AppcuesNavigationDelegate?
+
     var sessionID: UUID?
     var isActive: Bool { sessionID != nil }
 

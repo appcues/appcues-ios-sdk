@@ -46,12 +46,25 @@ internal class AppcuesLinkAction: ExperienceAction {
                 completion()
             } else {
                 if openExternally {
-                    urlOpener.open(url, options: [:]) { _ in completion() }
+                    openLink(appcues: appcues, completion: completion)
                 } else {
                     urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true, completion: completion)
                 }
             }
         } else {
+            openLink(appcues: appcues, completion: completion)
+        }
+    }
+
+    private func openLink(appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
+        if let delegate = appcues.navigationDelegate {
+            // if a delegate is provided from the host application, preference is to use it for
+            // handling navigation and invoking the completion handler.
+            delegate.navigate(to: url) { _ in completion() }
+        } else {
+            // if no delegate provided, fall back to automatic handling behavior provided by the
+            // UIApplication - caveat, the completion callback may execute before the app has
+            // fully navigated to the destination.
             urlOpener.open(url, options: [:]) { _ in completion() }
         }
     }

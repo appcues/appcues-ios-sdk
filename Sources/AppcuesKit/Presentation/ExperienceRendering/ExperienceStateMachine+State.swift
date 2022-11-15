@@ -154,7 +154,7 @@ extension ExperienceStateMachine.Transition {
             let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
             return .init(
                 toState: .beginningStep(experience, stepIndex, package, isFirst: true),
-                sideEffect: .presentContainer(experience, stepIndex, package)
+                sideEffect: .presentContainer(experience, stepIndex, package, [])
             )
         } catch {
             return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "\(error)"), reset: true))
@@ -198,11 +198,15 @@ extension ExperienceStateMachine.Transition {
                 sideEffect: .error(.step(experience, currentIndex, "Step at \(stepRef) does not exist"), reset: false))
         }
 
+        let stepGroup = experience.steps[stepIndex.group]
+        let navigationActions = stepGroup.actions[stepGroup.id.uuidString.lowercased()]?.filter { $0.trigger == "navigate" } ?? []
+
         do {
+            // moving to a new step group / container, we may need to navigate the app to a new screen
             let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
             return .init(
                 toState: .beginningStep(experience, stepIndex, package, isFirst: false),
-                sideEffect: .presentContainer(experience, stepIndex, package)
+                sideEffect: .presentContainer(experience, stepIndex, package, navigationActions)
             )
         } catch {
             return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "\(error)"), reset: true))
