@@ -102,7 +102,7 @@ Initializing the SDK requires you to provide two values, an Appcues account ID, 
 
 #### Supporting Debugging and Experience Previewing
 
-Supporting debugging and experience previewing is not required for the Appcues iOS SDK to function, but it is necessary for the optimal Appcues builder experience. Refer to the [Debug Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/debugging) for details.
+During installation, follow the steps outlined in [Configuring the Appcues URL Scheme](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/urlschemeconfiguring). This is necessary for the optimal Appcues builder experience, to support debugging and experience preview. Refer to the [Debug Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/debugging) for details about using the Appcues debugger.
 
 ### Identifying Users
 
