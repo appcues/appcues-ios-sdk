@@ -15,5 +15,5 @@ public protocol AppcuesNavigationDelegate: AnyObject {
     /// - Parameters:
     ///   - url: The URL of the destination to navigate.
     ///   - completion: Closure to invoke when navigation is completed, passing `true` if successfully navigated, `false` if not.
-    func navigate(to url: URL, completion: (Bool) -> Void)
+    func navigate(to url: URL, completion: @escaping (Bool) -> Void)
 }

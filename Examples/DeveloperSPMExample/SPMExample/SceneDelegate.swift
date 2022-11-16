@@ -20,11 +20,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new
         // (see `application:configurationForConnectingSceneSession` instead).
 
+        // Provide the scene to the the DeepLinkNavigator instance
+        deepLinkNavigator.scene = scene
+
         // Handle Appcues deep links.
         let unhandledURLContexts = Appcues.shared.filterAndHandle(connectionOptions.urlContexts)
 
         // Handle app-specific deep links.
-        deepLinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
+        deepLinkNavigator.handle(openURLContexts: unhandledURLContexts)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -32,12 +35,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This occurs shortly after the scene enters the background, or when its session is discarded.
         // Release any resources associated with this scene that can be re-created the next time the scene connects.
         // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
+
+        // Remove the scene reference in the DeepLinkNavigator instance
+        deepLinkNavigator.scene = nil
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         deepLinkNavigator.didBecomeActive()
+
+        Appcues.shared.navigationDelegate = deepLinkNavigator
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
@@ -61,6 +69,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let unhandledURLContexts = Appcues.shared.filterAndHandle(URLContexts)
 
         // Handle app-specific deep links.
-        deepLinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
+        deepLinkNavigator.handle(openURLContexts: unhandledURLContexts)
     }
 }
