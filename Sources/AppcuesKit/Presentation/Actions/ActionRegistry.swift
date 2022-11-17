@@ -14,6 +14,11 @@ internal class ActionRegistry {
 
     private var actions: [String: ExperienceAction.Type] = [:]
 
+    private var isProcessing = false
+    private var actionQueue: [ExperienceAction] = [] {
+        didSet { processFirstAction() }
+    }
+
     private weak var appcues: Appcues?
 
     init(container: DIContainer) {
@@ -42,9 +47,19 @@ internal class ActionRegistry {
         actions[action.type] = action
     }
 
-    /// Enqueue an array of experience actions instance to be executed. This version is used for post-completion actions on an experience.
-    func enqueue(actionInstances: [ExperienceAction]) {
-        execute(transformQueue(actionInstances))
+    private func processFirstAction() {
+        guard !isProcessing, let appcues = appcues else { return }
+
+        if let actionInstance = actionQueue.first {
+            isProcessing = true
+            actionInstance.execute(inContext: appcues) {
+                DispatchQueue.main.async {
+                    // On completion, remove the action, which triggers the didSet to process the remaining action handlers.
+                    self.isProcessing = false
+                    self.actionQueue.removeFirst()
+                }
+            }
+        }
     }
 
     /// Enqueue an array of experience action data models to be executed. This version is for non-interactive action execution,
@@ -54,6 +69,11 @@ internal class ActionRegistry {
             actions[$0.type]?.init(config: $0.config)
         }
         execute(transformQueue(actionInstances), completion: completion)
+    }
+
+    /// Enqueue an array of experience actions instance to be executed. This version is used for post-completion actions on an experience.
+    func enqueue(actionInstances: [ExperienceAction]) {
+        actionQueue.append(contentsOf: transformQueue(actionInstances))
     }
 
     /// Enqueue an array of experience action data models to be executed. This version is used for interactive actions that are taken
@@ -72,8 +92,10 @@ internal class ActionRegistry {
             category: primaryAction?.category ?? "",
             destination: primaryAction?.destination ?? "")
 
-        // Include the interactionAction separately from the others so that it can't be modified by the queue transformation.
-        execute([interactionAction] + transformQueue(actionInstances))
+        // Directly enqueue the interactionAction separately from the others so that it can't be modified by the queue transformation.
+        actionQueue.append(interactionAction)
+
+        enqueue(actionInstances: actionInstances)
     }
 
     // Queue transforms are applied in the order of the original queue,
