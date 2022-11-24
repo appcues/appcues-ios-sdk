@@ -56,14 +56,14 @@ public protocol ContainerCreatingTrait: ExperienceTrait {
 
     /// Create the container controller for experience step(s).
     /// - Parameter stepControllers: Array of controllers being presented.
-    /// - Parameter targetPageIndex: The index in the `stepControllers` that should be displayed with primary focus.
+    /// - Parameter pageMonitor: The object that maintains the page state metadata for the container.
     /// - Returns: A `UIViewController` that contains the `stepControllers` as children.
     ///
     /// `stepControllers` is guaranteed to be non-empty and may frequently have only a single item.
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
     /// ending the attempt to display the experience.
-    func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController
+    func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController
 }
 
 /// A trait that modifies the container view controller created by an ``ContainerCreatingTrait``.
