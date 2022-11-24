@@ -64,8 +64,9 @@ internal class TraitComposer: TraitComposing {
             return stepViewController
         }
 
+        let pageMonitor = PageMonitor(numberOfPages: stepControllers.count, currentPage: targetPageIndex)
         let containerController = try (decomposedTraits.containerCreating ?? DefaultContainerCreatingTrait())
-            .createContainer(for: stepControllers, targetPageIndex: targetPageIndex)
+            .createContainer(for: stepControllers, with: pageMonitor)
         try decomposedTraits.containerDecorating.forEach { try $0.decorate(containerController: containerController) }
 
         let wrappedContainerViewController = try decomposedTraits.wrapperCreating?.createWrapper(around: containerController) ?? containerController
@@ -139,8 +140,8 @@ extension TraitComposer {
         init() {}
         required init?(config: [String: Any]?, level: ExperienceTraitLevel) {}
 
-        func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {
-            DefaultContainerViewController(stepControllers: stepControllers, targetPageIndex: targetPageIndex)
+        func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
+            DefaultContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
         }
     }
 }
