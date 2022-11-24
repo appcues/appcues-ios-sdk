@@ -152,8 +152,8 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
     }
 
     // MARK: ContainerCreatingTrait
-    func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {
-        return SampleExperienceContainerViewController(stepControllers: stepControllers)
+    func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
+        return SampleExperienceContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
     }
 
     // MARK: ContainerDecoratingTrait
@@ -190,8 +190,8 @@ class SampleExperienceContainerViewController: ExperienceContainerViewController
     weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
     let pageMonitor: PageMonitor
 
-    init(stepControllers: [UIViewController]) {
-        self.pageMonitor = PageMonitor(numberOfPages: stepControllers.count, currentPage: 0)
+    init(stepControllers: [UIViewController], pageMonitor: PageMonitor) {
+        self.pageMonitor = pageMonitor
 
         super.init(nibName: nil, bundle: nil)
 
