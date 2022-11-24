@@ -15,8 +15,8 @@ internal class AppcuesCarouselTrait: ContainerCreatingTrait {
     required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
     }
 
-    func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {
-        CarouselContainerViewController(stepControllers: stepControllers, targetPageIndex: targetPageIndex)
+    func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
+        CarouselContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
     }
 }
 
@@ -28,17 +28,14 @@ extension AppcuesCarouselTrait {
         weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
         let pageMonitor: PageMonitor
 
-        var targetPageIndex: Int?
-
         private lazy var carouselView = ExperienceCarouselView()
 
         private let stepControllers: [UIViewController]
 
         /// **Note:** `stepControllers` are expected to have a preferredContentSize specified.
-        init(stepControllers: [UIViewController], targetPageIndex: Int = 0) {
-            self.pageMonitor = PageMonitor(numberOfPages: stepControllers.count, currentPage: 0)
+        init(stepControllers: [UIViewController], pageMonitor: PageMonitor) {
             self.stepControllers = stepControllers
-            self.targetPageIndex = targetPageIndex
+            self.pageMonitor = pageMonitor
 
             super.init(nibName: nil, bundle: nil)
 
@@ -62,10 +59,6 @@ extension AppcuesCarouselTrait {
         override func viewDidLoad() {
             super.viewDidLoad()
 
-            carouselView.scrollHandler = { [weak self] visibleItems, point, environment in
-                self?.scrollHandler(visibleItems, point, environment)
-            }
-
             carouselView.collectionView.register(StepPageCell.self, forCellWithReuseIdentifier: StepPageCell.reuseID)
             carouselView.collectionView.dataSource = self
             carouselView.collectionView.delegate = self
@@ -74,13 +67,6 @@ extension AppcuesCarouselTrait {
         override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
             lifecycleHandler?.containerWillAppear()
-
-            if let pageIndex = targetPageIndex {
-                targetPageIndex = nil
-                DispatchQueue.main.async {
-                    self.navigate(to: pageIndex, animated: false)
-                }
-            }
         }
 
         override func viewDidAppear(_ animated: Bool) {
@@ -192,6 +178,18 @@ extension AppcuesCarouselTrait {
         }
 
         func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+            // Need to wait for collectionView layout to complete before we can properly scroll to the correct initial item,
+            // so viewWillAppear is too early (unless we `DispatchQueue.main.async`) and viewDidAppear is too late.
+            // The nil check ensures this will only run on the first cell display.
+            if carouselView.scrollHandler == nil {
+                navigate(to: pageMonitor.currentPage, animated: false)
+
+                // Add scroll handler which tracks step progress after the correct initial step is set
+                carouselView.scrollHandler = { [weak self] visibleItems, point, environment in
+                    self?.scrollHandler(visibleItems, point, environment)
+                }
+            }
+
             let controller = stepControllers[indexPath.row]
             addChild(controller)
             controller.didMove(toParent: self)

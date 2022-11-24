@@ -14,8 +14,6 @@ internal class DefaultContainerViewController: ExperienceContainerViewController
     weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
     let pageMonitor: PageMonitor
 
-    var targetPageIndex: Int?
-
     private let stepControllers: [UIViewController]
 
     private lazy var stepContainerView = UIView()
@@ -27,10 +25,9 @@ internal class DefaultContainerViewController: ExperienceContainerViewController
     }()
 
     /// **Note:** `stepControllers` are expected to have a preferredContentSize specified.
-    init(stepControllers: [UIViewController], targetPageIndex: Int = 0) {
-        self.pageMonitor = PageMonitor(numberOfPages: stepControllers.count, currentPage: 0)
+    init(stepControllers: [UIViewController], pageMonitor: PageMonitor) {
         self.stepControllers = stepControllers
-        self.targetPageIndex = targetPageIndex
+        self.pageMonitor = pageMonitor
 
         super.init(nibName: nil, bundle: nil)
 
@@ -53,17 +50,12 @@ internal class DefaultContainerViewController: ExperienceContainerViewController
         view.addSubview(stepContainerView)
         stepContainerView.pin(to: view)
 
-        navigate(to: targetPageIndex ?? 0, animated: false)
+        navigate(to: pageMonitor.currentPage, animated: false)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         lifecycleHandler?.containerWillAppear()
-
-        if let pageIndex = targetPageIndex {
-            targetPageIndex = nil
-            self.navigate(to: pageIndex, animated: false)
-        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
