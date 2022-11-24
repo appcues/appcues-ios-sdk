@@ -421,7 +421,7 @@ class ExperienceRendererTests: XCTestCase {
 private extension ExperienceData {
     @available(iOS 13.0, *)
     func packageWithDelay(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
-        let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()])
+        let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()], pageMonitor: PageMonitor(numberOfPages: 1, currentPage: 0))
         return ExperiencePackage(
             traitInstances: [],
             steps: self.steps[0].items,

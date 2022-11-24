@@ -202,7 +202,7 @@ extension ExperienceData {
     }
 
     func package(onPresent: @escaping (() -> Void), onDismiss: @escaping (() -> Void)) -> ExperiencePackage {
-        let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()])
+        let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()], pageMonitor: PageMonitor(numberOfPages: 1, currentPage: 0))
         return ExperiencePackage(
             traitInstances: [],
             steps: self.steps[0].items,
