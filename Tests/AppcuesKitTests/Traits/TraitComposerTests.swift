@@ -172,7 +172,8 @@ class TraitComposerTests: XCTestCase {
 
     func testDefaultContainerCreatingTrait() throws {
         let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(config: [:], level: .group))
-        let container = try traitInstance.createContainer(for: [], targetPageIndex: 0)
+        let pageMonitor = PageMonitor(numberOfPages: 0, currentPage: 0)
+        let container = try traitInstance.createContainer(for: [], with: pageMonitor)
         XCTAssertTrue(container is DefaultContainerViewController)
     }
 
@@ -324,9 +325,9 @@ extension TraitComposerTests {
 
         // ContainerCreatingTrait
 
-        func createContainer(for stepControllers: [UIViewController], targetPageIndex: Int) throws -> ExperienceContainerViewController {
+        func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
             containerCreatingExpectation?.fulfill()
-            return DefaultContainerViewController(stepControllers: stepControllers, targetPageIndex: targetPageIndex)
+            return DefaultContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
         }
 
         // ContainerDecoratingTrait
