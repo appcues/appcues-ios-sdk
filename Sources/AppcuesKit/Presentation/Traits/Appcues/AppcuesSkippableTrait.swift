@@ -13,21 +13,36 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
     static var type: String = "@appcues/skippable"
 
     private weak var containerController: UIViewController?
+    private weak var view: UIViewController.CloseButton?
+    private var gestureRecognizer: UITapGestureRecognizer?
 
     required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
     }
 
     func decorate(containerController: ExperienceContainerViewController) throws {
         self.containerController = containerController
-        containerController.addDismissButton()
+        self.view = containerController.addDismissButton()
 
         // Allow interactive dismissal
         containerController.isModalInPresentation = false
     }
 
+    func undecorate(containerController: ExperienceContainerViewController) throws {
+        view?.removeFromSuperview()
+        containerController.isModalInPresentation = true
+    }
+
     func decorate(backdropView: UIView) throws {
-        backdropView.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: #selector(didTapBackground)))
+        let recognizer = gestureRecognizer ?? UITapGestureRecognizer(target: self, action: #selector(didTapBackground))
+
+        backdropView.addGestureRecognizer(recognizer)
+        gestureRecognizer = recognizer
+    }
+
+    func undecorate(backdropView: UIView) throws {
+        if let gestureRecognizer = gestureRecognizer {
+            backdropView.removeGestureRecognizer(gestureRecognizer)
+        }
     }
 
     @objc
@@ -38,7 +53,8 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
 
 @available(iOS 13.0, *)
 private extension UIViewController {
-    func addDismissButton() {
+    @discardableResult
+    func addDismissButton() -> CloseButton {
         let dismissButton = CloseButton()
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
         dismissButton.addTarget(self, action: #selector(dismissButtonTapped), for: .touchUpInside)
@@ -51,6 +67,8 @@ private extension UIViewController {
             view.safeAreaLayoutGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: dismissButton.trailingAnchor, multiplier: 1),
             dismissButton.topAnchor.constraint(equalToSystemSpacingBelow: view.safeAreaLayoutGuide.topAnchor, multiplier: 1)
         ])
+
+        return dismissButton
     }
 
     @objc
