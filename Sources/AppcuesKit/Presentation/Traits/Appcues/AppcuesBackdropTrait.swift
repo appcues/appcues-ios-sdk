@@ -25,4 +25,8 @@ internal class AppcuesBackdropTrait: BackdropDecoratingTrait {
     func decorate(backdropView: UIView) throws {
         backdropView.backgroundColor = backgroundColor
     }
+
+    func undecorate(backdropView: UIView) throws {
+        backdropView.backgroundColor = nil
+    }
 }
