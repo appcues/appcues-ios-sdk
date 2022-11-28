@@ -115,6 +115,32 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
     }
+
+    func testExecuteUniversalDisabled() throws {
+        // Arrange
+        var completionCount = 0
+        var openCount = 0
+        let mockURLOpener = MockURLOpener()
+        mockURLOpener.onUniversalOpen = { url in
+            XCTFail("Shouldn't be called since universal link handling is disabled")
+            return false
+        }
+        mockURLOpener.onOpen = { url in
+            XCTAssertEqual(url.absoluteString, "https://appcues.com")
+            openCount += 1
+        }
+        let action = AppcuesLinkAction(config: ["url": "https://appcues.com", "openExternally": true])
+        action?.urlOpener = mockURLOpener
+        let config = Appcues.Config(accountID: "00000", applicationID: "abc").enableUniversalLinks(false)
+        let appcuesDisabledUniversalLinks = MockAppcues(config: config)
+
+        // Act
+        action?.execute(inContext: appcuesDisabledUniversalLinks, completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(openCount, 1)
+    }
 }
 
 @available(iOS 13.0, *)
