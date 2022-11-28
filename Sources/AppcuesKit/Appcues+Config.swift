@@ -155,7 +155,7 @@ public extension Appcues {
         ///
         /// When this property is enabled, the SDK will pass web links that are triggered by an experience back to the host
         /// application to process. The host application should implement the `application(_:continue:restorationHandler:)`
-        /// in its `ApplicationDelegate`, to return `true` if the link provided in the given `NSUserActivity` has been handled
+        /// in its `ApplicationDelegate` to return `true` if the link provided in the given `NSUserActivity` has been handled
         /// as a universal link inside the current application, or `false` if not. When a value of `true` is returned, this informs the SDK
         /// that no further link handling is needed. When a value of `false` is returned, the SDK will continue handling the link and open
         /// the web destination in the browser.
