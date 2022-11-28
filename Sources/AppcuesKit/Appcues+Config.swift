@@ -41,6 +41,8 @@ public extension Appcues {
 
         var additionalAutoProperties: [String: Any] = [:]
 
+        var enableUniversalLinks = true
+
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
         /// - Parameter applicationID: Appcues Application ID - a string containing a UUID,
@@ -146,6 +148,29 @@ public extension Appcues {
         @objc
         public func additionalAutoProperties(_ additionalAutoProperties: [String: Any]) -> Self {
             self.additionalAutoProperties = self.additionalAutoProperties.merging(additionalAutoProperties)
+            return self
+        }
+
+        /// Set the universal link handling preference for the configuration.
+        ///
+        /// When this property is enabled, the SDK will pass web links that are triggered by an experience back to the host
+        /// application to process. The host application should implement the `application(_:continue:restorationHandler:)`
+        /// in its `ApplicationDelegate`, to return `true` if the link provided in the given `NSUserActivity` has been handled
+        /// as a universal link inside the current application, or `false` if not. When a value of `true` is returned, this informs the SDK
+        /// that no further link handling is needed. When a value of `false` is returned, the SDK will continue handling the link and open
+        /// the web destination in the browser.
+        ///
+        /// When this property is disabled, any web links triggered by an experience will always be opened in the browser, regardless of
+        /// whether it was a universal link that may have been intended to deep link to another screen in the app.
+        ///
+        /// The default value for this configuration is `true`.
+        ///
+        /// - Parameter enabled: Whether universal link handling is enabled.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        @objc
+        public func enableUniversalLinks(_ enabled: Bool) -> Self {
+            self.enableUniversalLinks = enabled
             return self
         }
     }

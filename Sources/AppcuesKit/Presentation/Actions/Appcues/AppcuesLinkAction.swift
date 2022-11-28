@@ -40,7 +40,7 @@ internal class AppcuesLinkAction: ExperienceAction {
         if isWebLink {
             // Check try opening the link as if it's a universal link, and if not,
             // then fall back to the desired in-app or external browser.
-            let successfullyHandledUniversalLink = urlOpener.open(potentialUniversalLink: url)
+            let successfullyHandledUniversalLink = appcues.config.enableUniversalLinks && urlOpener.open(potentialUniversalLink: url)
 
             if successfullyHandledUniversalLink {
                 completion()
