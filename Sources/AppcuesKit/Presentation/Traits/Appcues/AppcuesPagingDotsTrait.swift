@@ -13,7 +13,8 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
 
     let style: ExperienceComponent.Style?
 
-    var containerController: ExperienceContainerViewController?
+    private weak var containerController: ExperienceContainerViewController?
+    private weak var view: UIView?
 
     required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
         self.style = config?["style", decodedAs: ExperienceComponent.Style.self]
@@ -71,6 +72,11 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
         pageControl.currentPage = containerController.pageMonitor.currentPage
 
         self.containerController = containerController
+        self.view = pageWrapView
+    }
+
+    func undecorate(containerController: ExperienceContainerViewController) throws {
+        view?.removeFromSuperview()
     }
 
     @objc

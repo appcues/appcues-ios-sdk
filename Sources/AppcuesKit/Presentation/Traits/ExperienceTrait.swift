@@ -71,11 +71,22 @@ public protocol ContainerCreatingTrait: ExperienceTrait {
 public protocol ContainerDecoratingTrait: ExperienceTrait {
 
     /// Modify a container view controller.
-    /// - Parameter containerController: The `UIViewController` to modify.
+    /// - Parameter containerController: The `ExperienceContainerViewController` to modify.
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
     /// ending the attempt to display the experience.
     func decorate(containerController: ExperienceContainerViewController) throws
+
+    /// Remove the decoratation from a container view controller.
+    /// - Parameter containerController: The `ExperienceContainerViewController` to modify.
+    ///
+    /// A call to ``undecorate(containerController:)`` should remove all modifications performed by ``decorate(containerController:)``.
+    ///
+    /// This method will only be called for traits applied at the step level when navigating between steps in a group.
+    ///
+    /// If this method cannot properly remove the trait behavior, it may throw an error of type ``TraitError``,
+    /// ending presentation of the experience.
+    func undecorate(containerController: ExperienceContainerViewController) throws
 }
 
 /// A trait that modifies the backdrop `UIView` that may be included in the presented experience.
@@ -91,6 +102,17 @@ public protocol BackdropDecoratingTrait: ExperienceTrait {
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
     /// ending the attempt to display the experience.
     func decorate(backdropView: UIView) throws
+
+    /// Remove the decoratation from a backdrop view.
+    /// - Parameter backdropView: The `UIView` to modify.
+    ///
+    /// A call to ``undecorate(backdropView:)`` should remove all modifications performed by ``decorate(backdropView:)``.
+    ///
+    /// This method will only be called for traits applied at the step level when navigating between steps in a group.
+    ///
+    /// If this method cannot properly remove the trait behavior, it may throw an error of type ``TraitError``,
+    /// ending presentation of the experience.
+    func undecorate(backdropView: UIView) throws
 }
 
 /// A trait that creates a `UIViewController` that wraps the ``ExperienceContainerViewController``.
