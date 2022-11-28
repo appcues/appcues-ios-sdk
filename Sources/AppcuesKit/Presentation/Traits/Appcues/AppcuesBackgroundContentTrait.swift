@@ -15,6 +15,8 @@ internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDeco
     let level: ExperienceTraitLevel
     let content: ExperienceComponent
 
+    private weak var backgroundViewController: UIViewController?
+
     required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
         self.level = level
 
@@ -39,10 +41,17 @@ internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDeco
 
         let emptyViewModel = ExperienceStepViewModel()
 
-        applyBackground(with: emptyViewModel, parent: containerController)
+        backgroundViewController = applyBackground(with: emptyViewModel, parent: containerController)
     }
 
-    private func applyBackground(with viewModel: ExperienceStepViewModel, parent viewController: UIViewController) {
+    func undecorate(containerController: ExperienceContainerViewController) throws {
+        if let backgroundViewController = backgroundViewController {
+            containerController.unembedChildViewController(backgroundViewController)
+        }
+    }
+
+    @discardableResult
+    private func applyBackground(with viewModel: ExperienceStepViewModel, parent viewController: UIViewController) -> UIViewController {
         // Must have the environmentObject to avoid a crash.
         let backgroundContentVC = AppcuesHostingController(rootView: content.view
             .edgesIgnoringSafeArea(.all)
@@ -66,5 +75,7 @@ internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDeco
         backgroundContentVC.didMove(toParent: viewController)
 
         viewController.view.clipsToBounds = true
+
+        return backgroundContentVC
     }
 }

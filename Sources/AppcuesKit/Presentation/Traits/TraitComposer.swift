@@ -48,18 +48,21 @@ internal class TraitComposer: TraitComposing {
             decomposedTraits.append(contentsOf: DecomposedTraits(traits: traitRegistry.instances(for: childStep.traits, level: .step)), ignoringDecorators: true)
         }
 
-        let stepModelsWithDecorators: [(Experience.Step.Child, [StepDecoratingTrait])] = stepModels.map { stepModel in
+        let stepModelsWithTraits: [(step: Experience.Step.Child, decomposedTraits: DecomposedTraits)] = stepModels.map { stepModel in
             let decomposedStepTraits = DecomposedTraits(traits: traitRegistry.instances(for: stepModel.traits, level: .step))
-            return (stepModel, decomposedTraits.stepDecorators + decomposedStepTraits.stepDecorators)
+            return (stepModel, decomposedStepTraits)
         }
 
-        let stepControllers: [ExperienceStepViewController] = try stepModelsWithDecorators.map { step, decorators in
-            let viewModel = ExperienceStepViewModel(step: step, actionRegistry: actionRegistry)
+        let stepControllers: [ExperienceStepViewController] = try stepModelsWithTraits.map {
+            let viewModel = ExperienceStepViewModel(step: $0.step, actionRegistry: actionRegistry)
             let stepViewController = ExperienceStepViewController(
                 viewModel: viewModel,
                 stepState: experience.state(for: experience.steps[stepIndex.group].items[stepIndex.item].id),
                 notificationCenter: notificationCenter)
-            try decorators.forEach { try $0.decorate(stepController: stepViewController) }
+            // Apply any StepDecoratingTraits that may be set at the experience or group level
+            try decomposedTraits.stepDecorating.forEach { try $0.decorate(stepController: stepViewController) }
+            // Apply StepDecoratingTraits set at the step level
+            try $0.decomposedTraits.stepDecorating.forEach { try $0.decorate(stepController: stepViewController) }
             return stepViewController
         }
 
@@ -74,13 +77,40 @@ internal class TraitComposer: TraitComposing {
             let backdropView = UIView()
             try decomposedTraits.backdropDecorating.forEach { try $0.decorate(backdropView: backdropView) }
             wrapperCreating.addBackdrop(backdropView: backdropView, to: wrappedContainerViewController)
+
+            // Apply initial decorators for the target step
+            try stepModelsWithTraits[targetPageIndex].decomposedTraits.containerDecorating.forEach {
+                try $0.decorate(containerController: containerController)
+            }
+            try stepModelsWithTraits[targetPageIndex].decomposedTraits.backdropDecorating.forEach {
+                try $0.decorate(backdropView: backdropView)
+            }
+
+            // Watch page changes and update the decorations accordingly
+            pageMonitor.addObserver { newIndex, previousIndex in
+                try? stepModelsWithTraits[previousIndex].decomposedTraits.containerDecorating.forEach {
+                    try $0.undecorate(containerController: containerController)
+                }
+
+                try? stepModelsWithTraits[newIndex].decomposedTraits.containerDecorating.forEach {
+                    try $0.decorate(containerController: containerController)
+                }
+
+                try? stepModelsWithTraits[previousIndex].decomposedTraits.backdropDecorating.forEach {
+                    try $0.undecorate(backdropView: backdropView)
+                }
+
+                try? stepModelsWithTraits[newIndex].decomposedTraits.backdropDecorating.forEach {
+                    try $0.decorate(backdropView: backdropView)
+                }
+            }
         }
 
         let unwrappedPresenting = try decomposedTraits.presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
 
         return ExperiencePackage(
             traitInstances: decomposedTraits.allTraitInstances,
-            steps: stepModelsWithDecorators.map { $0.0 },
+            steps: stepModelsWithTraits.map { $0.0 },
             containerController: containerController,
             wrapperController: wrappedContainerViewController,
             presenter: { try unwrappedPresenting.present(viewController: wrappedContainerViewController, completion: $0) },
@@ -94,7 +124,7 @@ extension TraitComposer {
     class DecomposedTraits {
         private(set) var allTraitInstances: [ExperienceTrait]
 
-        private(set) var stepDecorators: [StepDecoratingTrait]
+        private(set) var stepDecorating: [StepDecoratingTrait]
         private(set) var containerCreating: ContainerCreatingTrait?
         private(set) var containerDecorating: [ContainerDecoratingTrait]
         private(set) var backdropDecorating: [BackdropDecoratingTrait]
@@ -104,7 +134,7 @@ extension TraitComposer {
         init(traits: [ExperienceTrait]) {
             allTraitInstances = traits
 
-            stepDecorators = traits.compactMap { ($0 as? StepDecoratingTrait) }
+            stepDecorating = traits.compactMap { ($0 as? StepDecoratingTrait) }
             containerCreating = traits.compactMapFirst { ($0 as? ContainerCreatingTrait) }
             containerDecorating = traits.compactMap { ($0 as? ContainerDecoratingTrait) }
             backdropDecorating = traits.compactMap { ($0 as? BackdropDecoratingTrait) }
@@ -119,11 +149,10 @@ extension TraitComposer {
             allTraitInstances.append(contentsOf: newTraits.allTraitInstances)
 
             if !ignoringDecorators {
-                stepDecorators.append(contentsOf: newTraits.stepDecorators)
+                stepDecorating.append(contentsOf: newTraits.stepDecorating)
+                containerDecorating.append(contentsOf: newTraits.containerDecorating)
+                backdropDecorating.append(contentsOf: newTraits.backdropDecorating)
             }
-            // TODO: move these two into the above if when we're implementing the scoped decorator approach.
-            containerDecorating.append(contentsOf: newTraits.containerDecorating)
-            backdropDecorating.append(contentsOf: newTraits.backdropDecorating)
 
             containerCreating = newTraits.containerCreating ?? containerCreating
             wrapperCreating = newTraits.wrapperCreating ?? wrapperCreating
