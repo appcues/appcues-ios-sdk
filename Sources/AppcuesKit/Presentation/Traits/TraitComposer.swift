@@ -39,18 +39,17 @@ internal class TraitComposer: TraitComposing {
         // Start with experience-level traits
         let decomposedTraits = DecomposedTraits(traits: traitRegistry.instances(for: experience.traits, level: .experience))
 
-        // Add step-group-level traits
+        // Add step-group-level traits and top-level-step traits
         switch experience.steps[stepIndex.group] {
         case .group(let stepGroup):
             decomposedTraits.append(contentsOf: DecomposedTraits(traits: traitRegistry.instances(for: stepGroup.traits, level: .group)))
-        case .child:
-            // Traits for a single step are handled below with the stepModels.
-            break
+        case .child(let childStep):
+            // Decorator traits for a single step are handled below with the stepModels.
+            decomposedTraits.append(contentsOf: DecomposedTraits(traits: traitRegistry.instances(for: childStep.traits, level: .step)), ignoringDecorators: true)
         }
 
         let stepModelsWithDecorators: [(Experience.Step.Child, [StepDecoratingTrait])] = stepModels.map { stepModel in
             let decomposedStepTraits = DecomposedTraits(traits: traitRegistry.instances(for: stepModel.traits, level: .step))
-            decomposedTraits.append(contentsOf: decomposedStepTraits, ignoringDecorators: true)
             return (stepModel, decomposedTraits.stepDecorators + decomposedStepTraits.stepDecorators)
         }
 
