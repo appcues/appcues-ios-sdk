@@ -118,6 +118,80 @@ class TraitComposerTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testTraitSpecificity() throws {
+        // Verify that for the single instance trait types, a group-level trait replaces an experience level one.
+
+        // Arrange
+        traitRegistry.register(trait: TestTrait.self)
+        traitRegistry.register(trait: TestPresentingTrait.self)
+
+        let experienceLevelStepDecoratingExpectation = expectation(description: "Step decorate called")
+        // ContainerCreating should be superceded by the more specific groupLevelContainerCreatingExpectation
+        let experienceLevelContainerCreatingExpectation = expectation(description: "Create container called")
+        experienceLevelContainerCreatingExpectation.isInverted = true
+        let experienceLevelContainerDecoratingExpectation = expectation(description: "Container decorate called")
+        // WrapperCreating should be superceded by the more specific groupLevelWrapperCreatingExpectation
+        let experienceLevelWrapperCreatingExpectation = expectation(description: "Create wrapper called")
+        experienceLevelWrapperCreatingExpectation.isInverted = true
+        let experienceLevelBackdropDecoratingExpectation = expectation(description: "Backdrop decorate called")
+
+        let groupLevelStepDecoratingExpectation = expectation(description: "Step decorate called")
+        let groupLevelContainerCreatingExpectation = expectation(description: "Create container called")
+        let groupLevelContainerDecoratingExpectation = expectation(description: "Container decorate called")
+        let groupLevelWrapperCreatingExpectation = expectation(description: "Create wrapper called")
+        let groupLevelBackdropDecoratingExpectation = expectation(description: "Backdrop decorate called")
+
+
+        let experience = Experience(
+            id: UUID(),
+            name: "test",
+            type: "mobile",
+            publishedAt: 1632142800000,
+            traits: [
+                Experience.Trait(
+                    type: "@test/presenting",
+                    config: [:]),
+                Experience.Trait(
+                    type: "@test/trait",
+                    config: [
+                        "stepDecoratingExpectation": experienceLevelStepDecoratingExpectation as Any,
+                        "containerCreatingExpectation": experienceLevelContainerCreatingExpectation as Any,
+                        "containerDecoratingExpectation": experienceLevelContainerDecoratingExpectation as Any,
+                        "wrapperCreatingExpectation": experienceLevelWrapperCreatingExpectation as Any,
+                        "backdropDecoratingExpectation": experienceLevelBackdropDecoratingExpectation as Any
+                    ])
+            ],
+            steps: [
+                .group(Experience.Step.Group(
+                    id: UUID(uuidString: "d9fbd360-2832-4c8e-a79e-c1731982f1f1")!,
+                    type: "group",
+                    children: [
+                        Experience.Step.Child(traits: [])
+                    ],
+                    traits: [
+                        Experience.Trait(
+                            type: "@test/trait",
+                            config: [
+                                "stepDecoratingExpectation": groupLevelStepDecoratingExpectation as Any,
+                                "containerCreatingExpectation": groupLevelContainerCreatingExpectation as Any,
+                                "containerDecoratingExpectation": groupLevelContainerDecoratingExpectation as Any,
+                                "wrapperCreatingExpectation": groupLevelWrapperCreatingExpectation as Any,
+                                "backdropDecoratingExpectation": groupLevelBackdropDecoratingExpectation as Any
+                            ])
+                    ],
+                    actions: [:]
+                ))
+            ],
+            redirectURL: nil,
+            nextContentID: nil)
+
+        // Act
+        _ = try traitComposer.package(experience: ExperienceData(experience), stepIndex: Experience.StepIndex(group: 0, item: 0))
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
     func testMissingPresentingTraitThrows() throws {
         // Verify that an experience without a presenting trait throws an error.
 
