@@ -104,13 +104,23 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
     }
 
     private func handle(url: URL?, completion: ((Bool) -> Void)?) {
-        guard
-            let url = url,
-            let target = DeepLink(url: url),
-            let windowScene = scene as? UIWindowScene,
+        guard let url = url else {
+            // no valid URL given, cannot navigate
+            completion?(false)
+            return
+        }
+
+        guard let target = DeepLink(url: url) else {
+            // the link was not a known deep link for this application, so pass along off to OS to handle
+            UIApplication.shared.open(url, options: [:]) { success in completion?(success) }
+            return
+        }
+
+        guard let windowScene = scene as? UIWindowScene,
             let window = windowScene.windows.first(where: { $0.isKeyWindow }),
             let origin = AppScreen(rootController: window.rootViewController)
         else {
+            // cannot find the screen information to navigate, fail navigation
             completion?(false)
             return
         }
