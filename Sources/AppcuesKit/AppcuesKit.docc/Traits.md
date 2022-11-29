@@ -117,7 +117,7 @@ Trait capabilities are applied in a defined sequence, and a trait with multiple 
 
 ![Begin Step X -> Create Step View -> Step Decorating -> Container Creating -> Container Decorating -> Wrapper Creating -> Backdrop Decorating -> Presenting](trait-flow.png)
 
-> A trait with multiple capabilities may, in certain circumstances, not have all its capabilities applied. A ``BackdropDecoratingTrait`` will not be applied if no ``WrapperCreatingTrait`` is present. Additionally, single trait capabilities (i.e. ``ContainerCreatingTrait``, ``WrapperCreatingTrait``, and ``PresentingTrait``) will ignore all but the first trait model providing the capabilitity. The order of precedence is experience-level traits and then step-level traits, in their order in the experience object. 
+> A trait with multiple capabilities may, in certain circumstances, not have all its capabilities applied. A ``BackdropDecoratingTrait`` will not be applied if no ``WrapperCreatingTrait`` is present. Additionally, single trait capabilities (i.e. ``ContainerCreatingTrait``, ``WrapperCreatingTrait``, and ``PresentingTrait``) will ignore all but the first trait model in the most specific context that provides thes capability. Additionally, ``ContainerCreatingTrait``, ``WrapperCreatingTrait``, and ``PresentingTrait`` capabilities provided at the step level within a group are ignored.
 
 ## Error Handling
 
