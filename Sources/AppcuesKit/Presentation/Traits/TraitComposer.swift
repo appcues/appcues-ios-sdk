@@ -113,7 +113,7 @@ extension TraitComposer {
             presenting = traits.compactMapFirst { ($0 as? PresentingTrait) }
         }
 
-        /// Combine two `DecomposedTrait` instances. For trait types where a single instance is allowed, prefer the current one.
+        /// Combine two `DecomposedTrait` instances. For trait types where a single instance is allowed, take the newer, more specific one.
         ///
         /// Step-level traits will want to set `ignoreDecorators` to avoid contributing their traits to other steps in the group.
         func append(contentsOf newTraits: DecomposedTraits, ignoringDecorators: Bool = false) {
@@ -126,9 +126,9 @@ extension TraitComposer {
             containerDecorating.append(contentsOf: newTraits.containerDecorating)
             backdropDecorating.append(contentsOf: newTraits.backdropDecorating)
 
-            containerCreating = containerCreating ?? newTraits.containerCreating
-            wrapperCreating = wrapperCreating ?? newTraits.wrapperCreating
-            presenting = presenting ?? newTraits.presenting
+            containerCreating = newTraits.containerCreating ?? containerCreating
+            wrapperCreating = newTraits.wrapperCreating ?? wrapperCreating
+            presenting = newTraits.presenting ?? presenting
         }
     }
 
