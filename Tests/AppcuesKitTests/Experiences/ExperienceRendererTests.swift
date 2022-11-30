@@ -318,7 +318,7 @@ class ExperienceRendererTests: XCTestCase {
         presentExpectation.isInverted = true
         let experience = ExperienceData.singleStepMock
         let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
-        let experiment = Experiment(group: "control", experimentID: experimentID, experienceID: experience.id)
+        let experiment = Experiment(group: "control", experimentID: experimentID, experienceID: experience.id, goalID: "my-goal", contentType: "my-content-type")
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
@@ -339,7 +339,7 @@ class ExperienceRendererTests: XCTestCase {
         let presentExpectation = expectation(description: "Experience presented")
         let experience = ExperienceData.singleStepMock
         let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
-        let experiment = Experiment(group: "exposed", experimentID: experimentID, experienceID: experience.id)
+        let experiment = Experiment(group: "exposed", experimentID: experimentID, experienceID: experience.id, goalID: "my-goal", contentType: "my-content-type")
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
@@ -359,10 +359,13 @@ class ExperienceRendererTests: XCTestCase {
         let analyticsExpectation = expectation(description: "Triggered experiment_entered analytics")
         let experience = ExperienceData.singleStepMock
         let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
-        let experiment = Experiment(group: "control", experimentID: experimentID, experienceID: experience.id)
+        let experiment = Experiment(group: "control", experimentID: experimentID, experienceID: experience.id, goalID: "my-goal", contentType: "my-content-type")
         let properties: [String: Any] = [
-            "experimentId": experimentID.uuidString.lowercased(),
-            "group": "control"
+            "experimentId": experimentID.appcuesFormatted,
+            "experimentGroup": "control",
+            "experimentExperienceId": experience.id.appcuesFormatted,
+            "experimentGoalId": "my-goal",
+            "experimentContentType": "my-content-type"
         ]
         var experimentUpdate: TrackingUpdate?
         appcues.analyticsPublisher.onPublish = { update in
@@ -387,10 +390,13 @@ class ExperienceRendererTests: XCTestCase {
         let analyticsExpectation = expectation(description: "Triggered experiment_entered analytics")
         let experience = ExperienceData.singleStepMock
         let experimentID = UUID(uuidString: "6ce90d1d-4de2-41a6-bc93-07ae23b728c5")!
-        let experiment = Experiment(group: "exposed", experimentID: experimentID, experienceID: experience.id)
+        let experiment = Experiment(group: "exposed", experimentID: experimentID, experienceID: experience.id, goalID: "my-goal", contentType: "my-content-type")
         let properties: [String: Any] = [
-            "experimentId": experimentID.uuidString.lowercased(),
-            "group": "exposed"
+            "experimentId": experimentID.appcuesFormatted,
+            "experimentGroup": "exposed",
+            "experimentExperienceId": experience.id.appcuesFormatted,
+            "experimentGoalId": "my-goal",
+            "experimentContentType": "my-content-type"
         ]
         var experimentUpdate: TrackingUpdate?
         appcues.analyticsPublisher.onPublish = { update in

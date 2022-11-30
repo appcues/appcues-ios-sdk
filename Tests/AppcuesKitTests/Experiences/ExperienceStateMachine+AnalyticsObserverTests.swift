@@ -272,7 +272,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "version": 1632142800000,
             "experienceType": "mobile",
             "message": "error",
-            "errorId": "A6D6E248-FAFF-4789-A03C-BD7F520C1181"
+            "errorId": "a6d6e248-faff-4789-a03c-bd7f520c1181"
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
@@ -309,7 +309,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0",
             "message": "error",
-            "errorId": "A6D6E248-FAFF-4789-A03C-BD7F520C1181"
+            "errorId": "a6d6e248-faff-4789-a03c-bd7f520c1181"
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(

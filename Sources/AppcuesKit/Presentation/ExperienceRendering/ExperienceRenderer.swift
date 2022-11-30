@@ -208,8 +208,11 @@ internal class ExperienceRenderer: ExperienceRendering {
         analyticsPublisher.publish(TrackingUpdate(
             type: .event(name: "appcues:experiment_entered", interactive: false),
             properties: [
-                "experimentId": experiment.experimentID.uuidString.lowercased(),
-                "group": experiment.group
+                "experimentId": experiment.experimentID.appcuesFormatted,
+                "experimentGroup": experiment.group,
+                "experimentExperienceId": experiment.experienceID.appcuesFormatted,
+                "experimentContentType": experiment.contentType,
+                "experimentGoalId": experiment.goalID
             ],
             isInternal: true))
     }
