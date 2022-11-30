@@ -12,6 +12,8 @@ internal struct Experiment {
     let group: String
     let experimentID: UUID
     let experienceID: UUID
+    let goalID: String
+    let contentType: String
 
     var shouldExecute: Bool {
         return group != "control"
@@ -23,5 +25,7 @@ extension Experiment: Decodable {
         case group
         case experimentID = "experimentId"
         case experienceID = "experienceId"
+        case goalID = "goalId"
+        case contentType
     }
 }

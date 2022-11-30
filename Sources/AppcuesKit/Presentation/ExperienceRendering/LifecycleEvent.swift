@@ -33,7 +33,7 @@ internal enum LifecycleEvent: String, CaseIterable {
                            _ stepIndex: Experience.StepIndex? = nil,
                            error: ErrorBody? = nil) -> [String: Any] {
         var properties: [String: Any] = [
-            "experienceId": experience.id.uuidString.lowercased(),
+            "experienceId": experience.id.appcuesFormatted,
             "experienceName": experience.name,
             "experienceType": experience.type
             // TODO: Add locale values to analytics for localized experiences
@@ -46,7 +46,7 @@ internal enum LifecycleEvent: String, CaseIterable {
         }
 
         if let stepIndex = stepIndex, let step = experience.step(at: stepIndex) {
-            properties["stepId"] = step.id.uuidString.lowercased()
+            properties["stepId"] = step.id.appcuesFormatted
             properties["stepType"] = step.type
             // stepIndex is added primarily for use by the debugger
             properties["stepIndex"] = stepIndex.description
@@ -54,7 +54,7 @@ internal enum LifecycleEvent: String, CaseIterable {
 
         if let error = error {
             properties["message"] = error.message
-            properties["errorId"] = error.id.uuidString
+            properties["errorId"] = error.id.appcuesFormatted
         }
 
         return properties

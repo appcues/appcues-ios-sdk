@@ -1,5 +1,5 @@
 //
-//  UUID+Init.swift
+//  UUID+Custom.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2022-04-08.
@@ -14,5 +14,9 @@ extension UUID {
 
     static func create() -> UUID {
         return UUID.generator()
+    }
+
+    var appcuesFormatted: String {
+        return uuidString.lowercased()
     }
 }
