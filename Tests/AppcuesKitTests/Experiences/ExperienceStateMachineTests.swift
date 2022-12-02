@@ -75,6 +75,9 @@ class ExperienceStateMachineTests: XCTestCase {
         // of the completed change. This being properly set is tested in
         // test_stateIsIdling_whenStartExperience_transitionsToRenderingStep
         package.containerController.lifecycleHandler = stateMachine
+        package.pageMonitor.addObserver { newIndex, oldIndex in
+            stateMachine.containerNavigated(from: oldIndex, to: newIndex)
+        }
 
         // Act
         try stateMachine.transition(action)
