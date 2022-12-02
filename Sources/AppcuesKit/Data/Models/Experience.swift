@@ -15,6 +15,19 @@ internal protocol StepModel {
     var actions: [String: [Experience.Action]] { get }
 }
 
+internal enum LossyExperience {
+    case decoded(Experience)
+    case failed(FailedExperience)
+}
+
+internal struct FailedExperience: Decodable {
+    let id: UUID
+    let name: String?
+    let type: String?
+    let publishedAt: Int?
+    var error: String?
+}
+
 internal struct Experience {
 
     @dynamicMemberLookup
