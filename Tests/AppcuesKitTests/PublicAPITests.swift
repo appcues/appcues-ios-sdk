@@ -161,8 +161,16 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
         // no-op
     }
 
+    func undecorate(containerController: AppcuesKit.ExperienceContainerViewController) throws {
+        // no-op
+    }
+
     // MARK: BackdropDecoratingTrait
     func decorate(backdropView: UIView) throws {
+        // no-op
+    }
+
+    func undecorate(backdropView: UIView) throws {
         // no-op
     }
 
