@@ -82,14 +82,3 @@ extension QualifyResponse: Decodable {
         experiences = decodedExperiences
     }
 }
-
-extension Array where Element == LossyExperience {
-    func parsed() -> [Experience] {
-        return self.compactMap {
-            if case let .decoded(experience) = $0 {
-                return experience
-            }
-            return nil
-        }
-    }
-}
