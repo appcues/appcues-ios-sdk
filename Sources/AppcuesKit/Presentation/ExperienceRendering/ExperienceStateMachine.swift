@@ -259,6 +259,18 @@ extension ExperienceStateMachine {
 
             package.containerController.lifecycleHandler = machine
 
+            package.pageMonitor.addObserver { [weak machine, weak package] newIndex, oldIndex in
+                do {
+                    try package?.stepDecoratingTraitUpdater(newIndex, oldIndex)
+                    machine?.containerNavigated(from: oldIndex, to: newIndex)
+                } catch {
+                    // Report a fatal error and dismiss the experience
+                    let errorTargetStepIndex = Experience.StepIndex(group: stepIndex.group, item: newIndex)
+                    try? machine?.transition(.reportError(.step(experience, errorTargetStepIndex, "\(error)"), fatal: true))
+                    package?.dismisser({})
+                }
+            }
+
             // This flag tells automatic screen tracking to ignore screens that the SDK is presenting
             objc_setAssociatedObject(package.wrapperController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
 

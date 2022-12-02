@@ -41,10 +41,6 @@ extension AppcuesCarouselTrait {
 
             // By default modals cannot be interactively dismissed. The `@appcues/skippable` trait overrides this.
             self.isModalInPresentation = true
-
-            pageMonitor.addObserver { [weak self] newIndex, oldIndex in
-                self?.lifecycleHandler?.containerNavigated(from: oldIndex, to: newIndex)
-            }
         }
 
         @available(*, unavailable)
