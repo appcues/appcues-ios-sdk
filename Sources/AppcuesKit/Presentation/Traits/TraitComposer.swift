@@ -50,6 +50,7 @@ internal class TraitComposer: TraitComposing {
 
         let stepModelsWithTraits: [(step: Experience.Step.Child, decomposedTraits: DecomposedTraits)] = stepModels.map { stepModel in
             let decomposedStepTraits = DecomposedTraits(traits: traitRegistry.instances(for: stepModel.traits, level: .step))
+            decomposedStepTraits.propagateDecorators(from: decomposedTraits)
             return (stepModel, decomposedStepTraits)
         }
 
@@ -59,9 +60,6 @@ internal class TraitComposer: TraitComposing {
                 viewModel: viewModel,
                 stepState: experience.state(for: $0.step.id),
                 notificationCenter: notificationCenter)
-            // Apply any StepDecoratingTraits that may be set at the experience or group level
-            try decomposedTraits.stepDecorating.forEach { try $0.decorate(stepController: stepViewController) }
-            // Apply StepDecoratingTraits set at the step level
             try $0.decomposedTraits.stepDecorating.forEach { try $0.decorate(stepController: stepViewController) }
             return stepViewController
         }
@@ -69,13 +67,10 @@ internal class TraitComposer: TraitComposing {
         let pageMonitor = PageMonitor(numberOfPages: stepControllers.count, currentPage: targetPageIndex)
         let containerController = try (decomposedTraits.containerCreating ?? DefaultContainerCreatingTrait())
             .createContainer(for: stepControllers, with: pageMonitor)
-        try decomposedTraits.containerDecorating.forEach { try $0.decorate(containerController: containerController) }
-
         let wrappedContainerViewController = try decomposedTraits.wrapperCreating?.createWrapper(around: containerController) ?? containerController
 
         if let wrapperCreating = decomposedTraits.wrapperCreating {
             let backdropView = UIView()
-            try decomposedTraits.backdropDecorating.forEach { try $0.decorate(backdropView: backdropView) }
             wrapperCreating.addBackdrop(backdropView: backdropView, to: wrappedContainerViewController)
 
             // Apply initial decorators for the target step
@@ -157,6 +152,30 @@ extension TraitComposer {
             containerCreating = newTraits.containerCreating ?? containerCreating
             wrapperCreating = newTraits.wrapperCreating ?? wrapperCreating
             presenting = newTraits.presenting ?? presenting
+        }
+
+        func propagateDecorators(from parentTraits: DecomposedTraits) {
+            var existingStepDecoratingTypes = Set(stepDecorating.map { type(of: $0).type })
+            parentTraits.stepDecorating.reversed().forEach {
+                // If we can insert the type into the existing set of types, then it doesn't exist in the array, so propagate it
+                if existingStepDecoratingTypes.insert(type(of: $0).type).inserted {
+                    stepDecorating.insert($0, at: 0)
+                }
+            }
+
+            var existingContainerDecoratingTypes = Set(containerDecorating.map { type(of: $0).type })
+            parentTraits.containerDecorating.reversed().forEach {
+                if existingContainerDecoratingTypes.insert(type(of: $0).type).inserted {
+                    containerDecorating.insert($0, at: 0)
+                }
+            }
+
+            var existingBackdropDecoratingTypes = Set(backdropDecorating.map { type(of: $0).type })
+            parentTraits.backdropDecorating.reversed().forEach {
+                if existingBackdropDecoratingTypes.insert(type(of: $0).type).inserted {
+                    backdropDecorating.insert($0, at: 0)
+                }
+            }
         }
     }
 
