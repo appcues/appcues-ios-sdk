@@ -203,12 +203,15 @@ extension ExperienceData {
 
     @available(iOS 13.0, *)
     func package(onPresent: @escaping (() -> Void), onDismiss: @escaping (() -> Void)) -> ExperiencePackage {
-        let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()], pageMonitor: PageMonitor(numberOfPages: 1, currentPage: 0))
+        let pageMonitor = PageMonitor(numberOfPages: 1, currentPage: 0)
+        let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()], pageMonitor: pageMonitor)
         return ExperiencePackage(
             traitInstances: [],
+            stepDecoratingTraitUpdater: { new, prev in },
             steps: self.steps[0].items,
             containerController: containerController,
             wrapperController: containerController,
+            pageMonitor: pageMonitor,
             presenter: {
                 containerController.mockIsBeingPresented = true
                 containerController.lifecycleHandler?.containerWillAppear()
