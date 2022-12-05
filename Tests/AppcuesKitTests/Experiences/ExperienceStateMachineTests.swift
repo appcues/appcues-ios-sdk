@@ -246,6 +246,21 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(stateMachine.state, initialState)
     }
 
+    func test_stateIsIdling_whenStartFailedExperience_noTransition() throws {
+        // Arrange
+        let failedExperience = FailedExperience(id: UUID(), name: "Invalid experience", type: "mobile", publishedAt: 1632142800000, error: "could not decode")
+        let initialState: State = .idling
+        let experienceData = ExperienceData(failedExperience.skeletonExperience, error: failedExperience.error)
+        let action: Action = .startExperience(experienceData)
+        let stateMachine = givenState(is: initialState)
+
+        // Act
+        try stateMachine.transition(action)
+
+        // Assert
+        XCTAssertEqual(stateMachine.state, initialState)
+    }
+
     func test_stateIsIdling_whenStartExperienceDelegateBlocks_noTransition() throws {
         // Arrange
         let experience = ExperienceData.mock

@@ -133,6 +133,11 @@ extension ExperienceStateMachine.State: CustomStringConvertible {
 @available(iOS 13.0, *)
 extension ExperienceStateMachine.Transition {
     static func fromIdlingToBeginningExperience(_ experience: ExperienceData) -> Self {
+        // handle errors that occurred prior to starting the experience - such as flow deserialization issues
+        if let error = experience.error, !error.isEmpty {
+            return .init(toState: nil, sideEffect: .error(.experience(experience, error), reset: true))
+        }
+
         guard !experience.steps.isEmpty else {
             return .init(toState: nil, sideEffect: .error(.experience(experience, "Experience has 0 steps"), reset: true))
         }
