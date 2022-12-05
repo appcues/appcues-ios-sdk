@@ -171,15 +171,18 @@ extension Experience.Action: Decodable {
 
 }
 
-// utility to quickly extract the list of valid Experiences from an array of
-// LossyExperience values
-extension Array where Element == LossyExperience {
-    func parsed() -> [Experience] {
-        return self.compactMap {
-            if case let .decoded(experience) = $0 {
-                return experience
-            }
-            return nil
-        }
+extension FailedExperience {
+    // This is a synthetically generated Experience from the known values of the FailedExperience that
+    // did not parse fully from JSON. It is only used for error reporting purposes, generating a flow issue
+    // to help diagnose the parsing error.
+    var skeletonExperience: Experience {
+        Experience(id: id,
+                   name: name ?? "",
+                   type: type ?? "",
+                   publishedAt: publishedAt,
+                   traits: [],
+                   steps: [],
+                   redirectURL: nil,
+                   nextContentID: nil)
     }
 }

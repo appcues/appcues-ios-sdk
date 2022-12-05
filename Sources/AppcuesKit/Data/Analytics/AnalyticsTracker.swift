@@ -117,13 +117,25 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     private func process(qualifyResponse: QualifyResponse, activity: Activity) {
         if let experienceRenderer = container?.resolve(ExperienceRendering.self) {
             let experiments = qualifyResponse.experiments ?? []
-            let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.parsed().map { experience in
+            let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.map { item in
+                var error: String?
+                let experience: Experience
+
+                switch item {
+                case let .decoded(success):
+                    experience = success
+                case let .failed(failure):
+                    experience = failure.skeletonExperience
+                    error = failure.error
+                }
+
                 let experiment = experiments.first { $0.experienceID == experience.id }
                 return ExperienceData(experience,
                                       priority: qualifyResponse.renderPriority,
                                       published: true,
                                       experiment: experiment,
-                                      requestID: activity.requestID)
+                                      requestID: activity.requestID,
+                                      error: error)
             }
             experienceRenderer.show(qualifiedExperiences: qualifiedExperienceData, completion: nil)
         }
