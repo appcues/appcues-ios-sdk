@@ -56,14 +56,8 @@ extension QualifyResponse: Decodable {
                     let experience = try experienceContainer.decode(Experience.self)
                     decodedExperiences.append(.decoded(experience))
                     continue
-                } catch let DecodingError.dataCorrupted(context) {
-                    errorMessage = "\(context)"
-                } catch let DecodingError.keyNotFound(key, context) {
-                    errorMessage = "key '\(key)' not found: \(context.debugDescription) codingPath: \(context.codingPath)"
-                } catch let DecodingError.valueNotFound(value, context) {
-                    errorMessage = "value '\(value)' not found: \(context.debugDescription) codingPath: \(context.codingPath)"
-                } catch let DecodingError.typeMismatch(type, context) {
-                    errorMessage = "type '\(type)' mismatch: \(context.debugDescription) codingPath: \(context.codingPath)"
+                } catch let error as DecodingError {
+                    errorMessage = error.decodingErrorMessage
                 } catch {
                     errorMessage = "error: \(error)"
                 }

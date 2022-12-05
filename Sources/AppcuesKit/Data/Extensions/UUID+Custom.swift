@@ -12,11 +12,11 @@ import Foundation
 extension UUID {
     static var generator: () -> UUID = UUID.init
 
-    static func create() -> UUID {
-        return UUID.generator()
-    }
-
     var appcuesFormatted: String {
         return uuidString.lowercased()
+    }
+
+    static func create() -> UUID {
+        return UUID.generator()
     }
 }
