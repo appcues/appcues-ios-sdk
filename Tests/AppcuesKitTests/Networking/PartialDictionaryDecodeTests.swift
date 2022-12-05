@@ -11,14 +11,6 @@ import XCTest
 
 class PartialDictionaryDecodeTests: XCTestCase {
 
-    var encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        if #available(iOS 11.0, *) {
-            encoder.outputFormatting = .sortedKeys
-        }
-        return encoder
-    }()
-
     func testDecode() throws {
         // Arrange
         let data = #"""
