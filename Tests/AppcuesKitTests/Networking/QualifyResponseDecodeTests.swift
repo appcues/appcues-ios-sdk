@@ -225,8 +225,8 @@ class QualifyResponseDecodeTests: XCTestCase {
         XCTAssertEqual("c9c11671-f418-451e-9b4a-33d54ed5299f", item7.id.appcuesFormatted)
 
 
-        XCTAssertTrue(item0.error!.starts(with: "key 'CodingKeys(stringValue: \"type\", intValue: nil)' not found"))
-        XCTAssertTrue(item5.error!.starts(with: "value 'String' not found: Expected String value but found null instead"))
-        XCTAssertTrue(item7.error!.starts(with: "type 'String' mismatch: Expected to decode String but found a number instead"))
+        XCTAssertTrue(item0.error!.starts(with: "Error parsing Experience JSON data: key 'CodingKeys(stringValue: \"type\", intValue: nil)' not found"))
+        XCTAssertTrue(item5.error!.starts(with: "Error parsing Experience JSON data: value 'String' not found: Expected String value but found null instead"))
+        XCTAssertTrue(item7.error!.starts(with: "Error parsing Experience JSON data: type 'String' mismatch: Expected to decode String but found a number instead"))
     }
 }
