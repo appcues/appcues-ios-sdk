@@ -58,7 +58,7 @@ class ActivityProcessorTests: XCTestCase {
             guard case let .success(taco) = result else { return XCTFail() }
             XCTAssertEqual(true, taco.performedQualification)
             XCTAssertEqual(1, taco.experiences.count)
-            XCTAssertEqual(self.mockExperience.name, taco.experiences.decoded().first?.name)
+            XCTAssertEqual(self.mockExperience.name, taco.experiences.first?.parsed.0.name)
             resultCallbackExpectation.fulfill()
         }
 
@@ -123,7 +123,7 @@ class ActivityProcessorTests: XCTestCase {
             guard case let .success(taco) = result else { return XCTFail() }
             XCTAssertEqual(true, taco.performedQualification)
             XCTAssertEqual(1, taco.experiences.count)
-            XCTAssertEqual(self.mockExperience.name, taco.experiences.decoded().first?.name)
+            XCTAssertEqual(self.mockExperience.name, taco.experiences.first?.parsed.0.name)
             resultCallbackExpectation2.fulfill()
 
         }
@@ -179,7 +179,7 @@ class ActivityProcessorTests: XCTestCase {
             guard case let .success(taco) = result else { return XCTFail() }
             XCTAssertEqual(true, taco.performedQualification)
             XCTAssertEqual(1, taco.experiences.count)
-            XCTAssertEqual(self.mockExperience.name, taco.experiences.decoded().first?.name)
+            XCTAssertEqual(self.mockExperience.name, taco.experiences.first?.parsed.0.name)
             XCTAssertEqual(0, self.mockStorage.count) // all cleared out
             resultCallbackExpectation2.fulfill()
 
@@ -287,7 +287,7 @@ class ActivityProcessorTests: XCTestCase {
             guard case let .success(taco) = result else { return XCTFail() }
             XCTAssertEqual(true, taco.performedQualification)
             XCTAssertEqual(1, taco.experiences.count)
-            XCTAssertEqual(self.mockExperience.name, taco.experiences.decoded().first?.name)
+            XCTAssertEqual(self.mockExperience.name, taco.experiences.first?.parsed.0.name)
             XCTAssertEqual(0, self.mockStorage.count) // all cleared out
             resultCallbackExpectation2.fulfill()
 
@@ -363,16 +363,5 @@ extension XCTestCase {
         }
         // We use a buffer here to avoid flakiness with Timer on CI
         wait(for: [waitExpectation], timeout: duration + 0.5)
-    }
-}
-
-extension Array where Element == LossyExperience {
-    func decoded() -> [Experience] {
-        return self.compactMap {
-            if case let .decoded(experience) = $0 {
-                return experience
-            }
-            return nil
-        }
     }
 }

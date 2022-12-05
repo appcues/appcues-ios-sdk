@@ -18,6 +18,15 @@ internal protocol StepModel {
 internal enum LossyExperience {
     case decoded(Experience)
     case failed(FailedExperience)
+
+    var parsed: (Experience, error: String?) {
+        switch self {
+        case let .decoded(experience):
+            return (experience, nil)
+        case let .failed(failedExperience):
+            return (failedExperience.skeletonExperience, failedExperience.error)
+        }
+    }
 }
 
 internal struct FailedExperience: Decodable {
@@ -26,6 +35,20 @@ internal struct FailedExperience: Decodable {
     let type: String?
     let publishedAt: Int?
     var error: String?
+
+    // This is a synthetically generated Experience from the known values of the FailedExperience that
+    // did not parse fully from JSON. It is only used for error reporting purposes, generating a flow issue
+    // to help diagnose the parsing error.
+    var skeletonExperience: Experience {
+        Experience(id: id,
+                   name: name ?? "",
+                   type: type ?? "",
+                   publishedAt: publishedAt,
+                   traits: [],
+                   steps: [],
+                   redirectURL: nil,
+                   nextContentID: nil)
+    }
 }
 
 internal struct Experience {
@@ -169,20 +192,4 @@ extension Experience.Action: Decodable {
         config = (try? container.decode([String: Any].self, forKey: .config)) ?? [:]
     }
 
-}
-
-extension FailedExperience {
-    // This is a synthetically generated Experience from the known values of the FailedExperience that
-    // did not parse fully from JSON. It is only used for error reporting purposes, generating a flow issue
-    // to help diagnose the parsing error.
-    var skeletonExperience: Experience {
-        Experience(id: id,
-                   name: name ?? "",
-                   type: type ?? "",
-                   publishedAt: publishedAt,
-                   traits: [],
-                   steps: [],
-                   redirectURL: nil,
-                   nextContentID: nil)
-    }
 }
