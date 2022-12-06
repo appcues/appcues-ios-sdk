@@ -87,7 +87,7 @@ internal class TraitComposer: TraitComposing {
             let viewModel = ExperienceStepViewModel(step: step, actionRegistry: actionRegistry)
             let stepViewController = ExperienceStepViewController(
                 viewModel: viewModel,
-                stepState: experience.state(for: experience.steps[stepIndex.group].items[stepIndex.item].id),
+                stepState: experience.state(for: step.id),
                 notificationCenter: notificationCenter)
             try decorators.forEach { try $0.decorate(stepController: stepViewController) }
             return stepViewController
