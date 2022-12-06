@@ -46,12 +46,16 @@ internal class AppcuesLinkAction: ExperienceAction {
                 completion()
             } else {
                 if openExternally {
-                    openLink(appcues: appcues, completion: completion)
+                    // since we know it is not a univeral link at this point, and it is a web link requesting to open
+                    // externally - we will launch the link directly here with the urlOpener and not pass through the
+                    // navigationDelegate in the openLink function
+                    urlOpener.open(url, options: [:]) { _ in completion() }
                 } else {
                     urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true, completion: completion)
                 }
             }
         } else {
+            // pass to this helper that will optionally allow a navigationDelegate to handle
             openLink(appcues: appcues, completion: completion)
         }
     }

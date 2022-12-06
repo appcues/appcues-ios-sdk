@@ -199,7 +199,7 @@ extension ExperienceStateMachine.Transition {
         }
 
         let stepGroup = experience.steps[stepIndex.group]
-        let navigationActions = stepGroup.actions[stepGroup.id.uuidString.lowercased()]?.filter { $0.trigger == "navigate" } ?? []
+        let navigationActions = stepGroup.actions[stepGroup.id.appcuesFormatted]?.filter { $0.trigger == "navigate" } ?? []
 
         do {
             // moving to a new step group / container, we may need to navigate the app to a new screen
