@@ -109,16 +109,42 @@ extension Experience {
             redirectURL: nil,
             nextContentID: "abc")
     }
+
+    static func mockWithStepActions(actions: [Experience.Action]) -> Experience {
+        Experience(
+            id: UUID(uuidString: "ded7b50f-bc24-42de-a0fa-b1f10fc10d00")!,
+            name: "Mock Experience: actions on second group",
+            type: "mobile",
+            publishedAt: 1632142800000,
+            traits: [],
+            steps: [
+                Experience.Step(
+                    fixedID: "fb529214-3c78-4d6d-ba93-b55d22497ca1",
+                    children: [
+                        Step.Child(fixedID: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
+                    ]
+                ),
+                Experience.Step(
+                    fixedID: "149f335f-15f6-4d8a-9e38-29a4ca435fd2",
+                    children: [
+                        Step.Child(fixedID: "0c8eb697-8aa6-4eed-a291-69ed3aa85237")
+                    ],
+                    actions: ["149f335f-15f6-4d8a-9e38-29a4ca435fd2" : actions]
+                )
+            ],
+            redirectURL: nil,
+            nextContentID: nil)
+    }
 }
 
 extension Experience.Step {
-    init(fixedID: String, children: [Child]) {
+    init(fixedID: String, children: [Child], actions: [String: [Experience.Action]] = [:]) {
         self = .group(Group(
             id: UUID(uuidString: fixedID) ?? UUID(),
             type: "group",
             children: children,
             traits: [],
-            actions: [:]
+            actions: actions
         ))
     }
 }
@@ -165,9 +191,17 @@ extension ExperienceData {
     static func mockWithForm(defaultValue: String?, attributeName: String? = nil) -> ExperienceData {
         ExperienceData(.mockWithForm(defaultValue: defaultValue, attributeName: attributeName ))
     }
+    static func mockWithStepActions(actions: [Experience.Action]) -> ExperienceData {
+        ExperienceData(.mockWithStepActions(actions: actions))
+    }
 
     @available(iOS 13.0, *)
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
+        package(onPresent: { presentExpectation?.fulfill() }, onDismiss: { dismissExpectation?.fulfill()} )
+    }
+
+    @available(iOS 13.0, *)
+    func package(onPresent: @escaping (() -> Void), onDismiss: @escaping (() -> Void)) -> ExperiencePackage {
         let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()])
         return ExperiencePackage(
             traitInstances: [],
@@ -179,7 +213,7 @@ extension ExperienceData {
                 containerController.lifecycleHandler?.containerWillAppear()
                 containerController.lifecycleHandler?.containerDidAppear()
                 containerController.mockIsBeingPresented = false
-                presentExpectation?.fulfill()
+                onPresent()
                 $0?()
             },
             dismisser: {
@@ -187,7 +221,7 @@ extension ExperienceData {
                 containerController.lifecycleHandler?.containerWillDisappear()
                 containerController.lifecycleHandler?.containerDidDisappear()
                 containerController.mockIsBeingDismissed = false
-                dismissExpectation?.fulfill()
+                onDismiss()
                 $0?()
             })
     }
