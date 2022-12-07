@@ -20,6 +20,16 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
             case profile
             case group
 
+            init?(path: String?) {
+                switch path?.lowercased() {
+                case "signin": self = .signIn
+                case "events": self = .events
+                case "profile": self = .profile
+                case "group": self = .group
+                default: return nil
+                }
+            }
+
             var tabIndex: Int? {
                 // needs to match Main.storyboard
                 switch self {
@@ -35,17 +45,21 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
         let experienceID: String?
 
         init?(url: URL) {
-            guard url.scheme == "appcues-example" else { return nil }
-
-            switch url.host?.lowercased() {
-            case "signin": destination = .signIn
-            case "events": destination = .events
-            case "profile": destination = .profile
-            case "group": destination = .group
-            default: return nil
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return nil }
+            if url.scheme == "appcues-example" {
+                // try to handle as a scheme link
+                guard let destination = Destination(path: url.host) else { return nil }
+                self.destination = destination
+                self.experienceID = components.experienceID
+            } else if url.host == "appcues-mobile-links.netlify.app" {
+                // try to handle as a universal link to our associated domain
+                guard let destination = Destination(path: components.path) else { return nil }
+                self.destination = destination
+                self.experienceID = components.experienceID
+            } else {
+                // not a supported deep link URL
+                return nil
             }
-
-            experienceID = url.experienceID
         }
     }
 
@@ -95,25 +109,26 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
 
     var scene: UIScene?
 
-    func handle(openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        handle(url: URLContexts.first?.url, completion: nil)
-    }
-
+    // conforming to AppcuesNavigationDelegate for navigation requests coming from the Appcues SDK
     func navigate(to url: URL, completion: @escaping (Bool) -> Void) {
         handle(url: url, completion: completion)
     }
 
-    private func handle(url: URL?, completion: ((Bool) -> Void)?) {
+    // called by scheme links or universal links attempting to deep link into our application
+    // returns `true` if the link was a known deep link destination and was sent for processing, `false`
+    // if an unknown link and not handled. The completion block indicates full link processing completed async.
+    @discardableResult
+    func handle(url: URL?, completion: ((Bool) -> Void)? = nil) -> Bool {
         guard let url = url else {
             // no valid URL given, cannot navigate
             completion?(false)
-            return
+            return false
         }
 
         guard let target = DeepLink(url: url) else {
             // the link was not a known deep link for this application, so pass along off to OS to handle
             UIApplication.shared.open(url, options: [:]) { success in completion?(success) }
-            return
+            return false
         }
 
         guard let windowScene = scene as? UIWindowScene,
@@ -122,7 +137,7 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
         else {
             // cannot find the screen information to navigate, fail navigation
             completion?(false)
-            return
+            return false
         }
 
         let handler = { self.navigate(from: origin, to: target, in: window, completion: completion) }
@@ -141,6 +156,8 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
             // experiences that are passed in through the AppcuesNavigationDelegate
             handler()
         }
+
+        return true
     }
 
     private func navigate(from origin: AppScreen, to target: DeepLink, in window: UIWindow, completion: ((Bool) -> Void)?) {
@@ -178,11 +195,10 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
     }
 }
 
-private extension URL {
+private extension URLComponents {
     // Support for showing Appcues content by ID in the "experience" query parameter
     var experienceID: String? {
-        let urlComponents = URLComponents(url: self, resolvingAgainstBaseURL: false)
-        return urlComponents?.queryItems?.first { $0.name == "experience" }?.value
+        return queryItems?.first { $0.name == "experience" }?.value
     }
 }
 

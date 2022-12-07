@@ -27,7 +27,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let unhandledURLContexts = Appcues.shared.filterAndHandle(connectionOptions.urlContexts)
 
         // Handle app-specific deep links.
-        deepLinkNavigator.handle(openURLContexts: unhandledURLContexts)
+        deepLinkNavigator.handle(url: unhandledURLContexts.first?.url)
+
+        // Handle app-specific universal links.
+        connectionOptions.userActivities.forEach { userActivity in
+            guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+                let incomingURL = userActivity.webpageURL else {
+                return
+            }
+
+            // Handle app-specific universal links.
+            deepLinkNavigator.handle(url: incomingURL)
+        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -69,6 +80,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let unhandledURLContexts = Appcues.shared.filterAndHandle(URLContexts)
 
         // Handle app-specific deep links.
-        deepLinkNavigator.handle(openURLContexts: unhandledURLContexts)
+        deepLinkNavigator.handle(url: unhandledURLContexts.first?.url)
+    }
+
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+            let incomingURL = userActivity.webpageURL else {
+            return
+        }
+
+        // Handle app-specific universal links.
+        deepLinkNavigator.handle(url: incomingURL)
     }
 }

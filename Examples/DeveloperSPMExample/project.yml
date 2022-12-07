@@ -11,6 +11,11 @@ targets:
     platform: iOS
     sources:
     - path: SPMExample
+    entitlements:
+      path: AppcuesSPMExample.entitlements
+      properties:
+        com.apple.developer.associated-domains:
+          - applinks:appcues-mobile-links.netlify.app
     postbuildScripts:
     - name: SwiftLint
       script: 'if which mint >/dev/null; then
