@@ -53,3 +53,15 @@ The app supports the following deep links.
 | Events  | appcues-example://events  |
 | Profile | appcues-example://profile |
 | Group   | appcues-example://group   |
+
+## Universal Links
+
+The app supports the following universal links.
+
+> These links only work when this example app is compiled with the Appcues Team ID and Bundle ID specified in the test server [apple-app-site-association](https://appcues-mobile-links.netlify.app/.well-known/apple-app-site-association) file.
+
+| Screen  | Link                      |
+| ------- | ------------------------- |
+| Events  | https://appcues-mobile-links.netlify.app/events  |
+| Profile | https://appcues-mobile-links.netlify.app/profile |
+| Group   | https://appcues-mobile-links.netlify.app/group   |

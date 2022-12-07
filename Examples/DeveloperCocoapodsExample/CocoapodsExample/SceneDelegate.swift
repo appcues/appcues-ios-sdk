@@ -20,24 +20,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This delegate does not imply the connecting scene or session are new
         // (see `application:configurationForConnectingSceneSession` instead).
 
+        // Provide the scene to the the DeepLinkNavigator instance
+        deepLinkNavigator.scene = scene
+
         // Handle Appcues deep links.
         let unhandledURLContexts = Appcues.shared.filterAndHandle(connectionOptions.urlContexts)
 
         // Handle app-specific deep links.
-        deepLinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
+        deepLinkNavigator.handle(url: unhandledURLContexts.first?.url)
 
         // Handle app-specific universal links.
         connectionOptions.userActivities.forEach { userActivity in
             guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-                let incomingURL = userActivity.webpageURL,
-                let components = URLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+                let incomingURL = userActivity.webpageURL else {
                 return
             }
 
             // Handle app-specific universal links.
-            if let deepLink = DeepLinkNavigator.DeepLink(path: components.path) {
-                deepLinkNavigator.handle(deepLink: deepLink, in: scene)
-            }
+            deepLinkNavigator.handle(url: incomingURL)
         }
     }
 
@@ -46,12 +46,17 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This occurs shortly after the scene enters the background, or when its session is discarded.
         // Release any resources associated with this scene that can be re-created the next time the scene connects.
         // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
+
+        // Remove the scene reference in the DeepLinkNavigator instance
+        deepLinkNavigator.scene = nil
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         deepLinkNavigator.didBecomeActive()
+
+        Appcues.shared.navigationDelegate = deepLinkNavigator
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
@@ -75,19 +80,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let unhandledURLContexts = Appcues.shared.filterAndHandle(URLContexts)
 
         // Handle app-specific deep links.
-        deepLinkNavigator.handle(scene, openURLContexts: unhandledURLContexts)
+        deepLinkNavigator.handle(url: unhandledURLContexts.first?.url)
     }
 
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-            let incomingURL = userActivity.webpageURL,
-            let components = URLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+            let incomingURL = userActivity.webpageURL else {
             return
         }
 
         // Handle app-specific universal links.
-        if let deepLink = DeepLinkNavigator.DeepLink(path: components.path) {
-            deepLinkNavigator.handle(deepLink: deepLink, in: scene)
-        }
+        deepLinkNavigator.handle(url: incomingURL)
     }
 }

@@ -43,6 +43,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return false
     }
     */
+
+    // The Appcues link action uses this method to handle universal links.
+    func application(
+        _ application: UIApplication,
+        continue userActivity: NSUserActivity,
+        restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void
+    ) -> Bool {
+        // Get URL components from the incoming user activity.
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let incomingURL = userActivity.webpageURL else {
+            return false
+        }
+
+        if let sceneDelegate = application.connectedScenes.first(where: { $0.delegate is SceneDelegate })?.delegate as? SceneDelegate {
+            return sceneDelegate.deepLinkNavigator.handle(url: incomingURL)
+        } else {
+            return false
+        }
+    }
 }
 
 extension Appcues {
