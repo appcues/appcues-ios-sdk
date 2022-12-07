@@ -230,6 +230,56 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(stateMachine.state, .idling)
     }
 
+    func test_stateIsRenderingStep_whenStartStep_executesNavigationActionsBeforeTransition() throws {
+        // when the next step group has actions on "navigate" trigger, they are executed sequentially
+        // before presenting the next group container
+
+        // Arrange
+        var executionSequence: [String] = []
+        let action1ExecutionExpectation = expectation(description: "Action 1 executed")
+        let action2ExecutionExpectation = expectation(description: "Action 2 executed")
+        let presentExpectation = expectation(description: "Experience presented")
+        let action1 = Experience.Action(
+            trigger: "navigate",
+            type: TestAction.type,
+            config: ["onExecute": {
+                executionSequence.append("action1")
+                action1ExecutionExpectation.fulfill()
+            }])
+        let action2 = Experience.Action(
+            trigger: "navigate",
+            type: TestAction.type,
+            config: ["onExecute": {
+                executionSequence.append("action2")
+                action2ExecutionExpectation.fulfill()
+            }])
+        let actionRegistry = appcues.container.resolve(ActionRegistry.self)
+        actionRegistry.register(action: TestAction.self)
+        let experience = ExperienceData.mockWithStepActions(actions: [action1, action2])
+        let package: ExperiencePackage = experience.package(onPresent: {
+            executionSequence.append("present")
+            presentExpectation.fulfill()
+        }, onDismiss: {})
+        appcues.traitComposer.onPackage = { _, _ in
+            return package
+        }
+
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
+        let action: Action = .startStep(StepReference.offset(1))
+        let stateMachine = givenState(is: initialState)
+
+        // Act
+        try stateMachine.transition(action)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(
+            stateMachine.state,
+            .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: false)
+        )
+        XCTAssertEqual(["action1", "action2", "present"], executionSequence)
+    }
+
     // MARK: Error Transitions
 
     func test_stateIsIdling_whenStartExperienceWithNoSteps_noTransition() throws {
@@ -470,5 +520,23 @@ private class ListingObserver: ExperienceStateObserver {
     func evaluateIfSatisfied(result: StateResult) -> Bool {
         results.append(result)
         return false
+    }
+}
+
+@available(iOS 13.0, *)
+private extension ExperienceStateMachineTests {
+    class TestAction: ExperienceAction {
+        static let type = "@test/action"
+
+        var onExecute: (() -> Void)?
+
+        required init?(config: [String: Any]?) {
+            onExecute = config?["onExecute"] as? (() -> Void)
+        }
+
+        func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
+            onExecute?()
+            completion()
+        }
     }
 }
