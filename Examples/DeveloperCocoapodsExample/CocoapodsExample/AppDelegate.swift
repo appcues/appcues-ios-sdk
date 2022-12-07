@@ -52,15 +52,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         // Get URL components from the incoming user activity.
         guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
-            let incomingURL = userActivity.webpageURL,
-            let components = URLComponents(url: incomingURL, resolvingAgainstBaseURL: true) else {
+              let incomingURL = userActivity.webpageURL else {
             return false
         }
 
-        if let deepLink = DeepLinkNavigator.DeepLink(path: components.path),
-           let scene = application.connectedScenes.first(where: { $0.delegate is SceneDelegate }) {
-            (scene.delegate as? SceneDelegate)?.deepLinkNavigator.handle(deepLink: deepLink, in: scene)
-            return true
+        if let sceneDelegate = application.connectedScenes.first(where: { $0.delegate is SceneDelegate })?.delegate as? SceneDelegate {
+            return sceneDelegate.deepLinkNavigator.handle(url: incomingURL)
         } else {
             return false
         }
