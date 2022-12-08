@@ -152,9 +152,22 @@ extension ExperienceStateMachine.Transition {
         let stepIndex = Experience.StepIndex.initial
         do {
             let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
+
+            // for pre-step navigation actions - only allow these to execute if this experience is being launched for some
+            // other reason than qualification (i.e. deep links, preview, manual show). For any qualified experience, the initial
+            // starting state of the experience is determined solely by flow settings determining the trigger
+            // (i.e. trigger on certain screen).
+            let navigationActions: [Experience.Action]
+            if case .qualification = experience.trigger {
+                navigationActions = []
+            } else {
+                let stepGroup = experience.steps[stepIndex.group]
+                navigationActions = stepGroup.actions[stepGroup.id.appcuesFormatted]?.filter { $0.trigger == "navigate" } ?? []
+            }
+
             return .init(
                 toState: .beginningStep(experience, stepIndex, package, isFirst: true),
-                sideEffect: .presentContainer(experience, stepIndex, package, [])
+                sideEffect: .presentContainer(experience, stepIndex, package, navigationActions)
             )
         } catch {
             return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "\(error)"), reset: true))
