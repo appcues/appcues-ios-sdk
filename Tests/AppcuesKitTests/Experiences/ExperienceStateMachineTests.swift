@@ -255,7 +255,7 @@ class ExperienceStateMachineTests: XCTestCase {
             }])
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
-        let experience = ExperienceData.mockWithStepActions(actions: [action1, action2])
+        let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .qualification(reason: nil))
         let package: ExperiencePackage = experience.package(onPresent: {
             executionSequence.append("present")
             presentExpectation.fulfill()
@@ -276,6 +276,108 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(
             stateMachine.state,
             .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: false)
+        )
+        XCTAssertEqual(["action1", "action2", "present"], executionSequence)
+    }
+
+    func test_stateIsIdling_whenStartExperience_doesNotExecutesNavigationActionsOnQualifiedExperience() throws {
+        // when the first step group has actions on "navigate" trigger, and the flow is triggered from
+        // qualification in a certain context - the pre-step actions should not execute before the flow starts
+
+        // Arrange
+        var executionSequence: [String] = []
+        let action1ExecutionExpectation = expectation(description: "Action 1 executed")
+        action1ExecutionExpectation.isInverted = true
+        let action2ExecutionExpectation = expectation(description: "Action 2 executed")
+        action2ExecutionExpectation.isInverted = true
+        let presentExpectation = expectation(description: "Experience presented")
+        let action1 = Experience.Action(
+            trigger: "navigate",
+            type: TestAction.type,
+            config: ["onExecute": {
+                executionSequence.append("action1")
+                action1ExecutionExpectation.fulfill()
+            }])
+        let action2 = Experience.Action(
+            trigger: "navigate",
+            type: TestAction.type,
+            config: ["onExecute": {
+                executionSequence.append("action2")
+                action2ExecutionExpectation.fulfill()
+            }])
+        let actionRegistry = appcues.container.resolve(ActionRegistry.self)
+        actionRegistry.register(action: TestAction.self)
+        let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .qualification(reason: nil))
+        let package: ExperiencePackage = experience.package(onPresent: {
+            executionSequence.append("present")
+            presentExpectation.fulfill()
+        }, onDismiss: {})
+        appcues.traitComposer.onPackage = { _, _ in
+            return package
+        }
+
+        let initialState: State = .idling
+        let action: Action = .startExperience(experience)
+        let stateMachine = givenState(is: initialState)
+
+        // Act
+        try stateMachine.transition(action)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(
+            stateMachine.state,
+            .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
+        )
+        XCTAssertEqual(["present"], executionSequence)
+    }
+
+    func test_stateIsIdling_whenStartExperience_executesNavigationActionsOnNonQualifiedExperience() throws {
+        // when the first step group has actions on "navigate" trigger, and the flow is triggered from
+        // something other than qualification - the pre-step actions should execute before the flow starts
+
+        // Arrange
+        var executionSequence: [String] = []
+        let action1ExecutionExpectation = expectation(description: "Action 1 executed")
+        let action2ExecutionExpectation = expectation(description: "Action 2 executed")
+        let presentExpectation = expectation(description: "Experience presented")
+        let action1 = Experience.Action(
+            trigger: "navigate",
+            type: TestAction.type,
+            config: ["onExecute": {
+                executionSequence.append("action1")
+                action1ExecutionExpectation.fulfill()
+            }])
+        let action2 = Experience.Action(
+            trigger: "navigate",
+            type: TestAction.type,
+            config: ["onExecute": {
+                executionSequence.append("action2")
+                action2ExecutionExpectation.fulfill()
+            }])
+        let actionRegistry = appcues.container.resolve(ActionRegistry.self)
+        actionRegistry.register(action: TestAction.self)
+        let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .deepLink)
+        let package: ExperiencePackage = experience.package(onPresent: {
+            executionSequence.append("present")
+            presentExpectation.fulfill()
+        }, onDismiss: {})
+        appcues.traitComposer.onPackage = { _, _ in
+            return package
+        }
+
+        let initialState: State = .idling
+        let action: Action = .startExperience(experience)
+        let stateMachine = givenState(is: initialState)
+
+        // Act
+        try stateMachine.transition(action)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(
+            stateMachine.state,
+            .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
         )
         XCTAssertEqual(["action1", "action2", "present"], executionSequence)
     }

@@ -122,7 +122,8 @@ extension Experience {
                     fixedID: "fb529214-3c78-4d6d-ba93-b55d22497ca1",
                     children: [
                         Step.Child(fixedID: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
-                    ]
+                    ],
+                    actions: ["fb529214-3c78-4d6d-ba93-b55d22497ca1" : actions]
                 ),
                 Experience.Step(
                     fixedID: "149f335f-15f6-4d8a-9e38-29a4ca435fd2",
@@ -191,8 +192,8 @@ extension ExperienceData {
     static func mockWithForm(defaultValue: String?, attributeName: String? = nil) -> ExperienceData {
         ExperienceData(.mockWithForm(defaultValue: defaultValue, attributeName: attributeName ), trigger: .showCall)
     }
-    static func mockWithStepActions(actions: [Experience.Action]) -> ExperienceData {
-        ExperienceData(.mockWithStepActions(actions: actions), trigger: .showCall)
+    static func mockWithStepActions(actions: [Experience.Action], trigger: ExperienceTrigger) -> ExperienceData {
+        ExperienceData(.mockWithStepActions(actions: actions), trigger: trigger)
     }
 
     @available(iOS 13.0, *)
