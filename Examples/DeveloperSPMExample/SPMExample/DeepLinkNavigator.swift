@@ -53,7 +53,8 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
                 self.experienceID = components.experienceID
             } else if url.host == "appcues-mobile-links.netlify.app" {
                 // try to handle as a universal link to our associated domain
-                guard let destination = Destination(path: components.path) else { return nil }
+                let path = components.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+                guard let destination = Destination(path: path) else { return nil }
                 self.destination = destination
                 self.experienceID = components.experienceID
             } else {
