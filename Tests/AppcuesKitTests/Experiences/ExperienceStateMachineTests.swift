@@ -189,7 +189,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let action: Action = .endExperience(markComplete: true)
         let stateMachine = givenState(is: initialState)
 
-        appcues.experienceLoader.onLoad = { contentID, published, completion in
+        appcues.experienceLoader.onLoad = { contentID, published, trigger, completion in
             XCTAssertEqual(contentID, ExperienceData.mock.nextContentID)
             XCTAssertTrue(published)
             nextContentLoadedExpectation.fulfill()
@@ -218,7 +218,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let action: Action = .endExperience(markComplete: false)
         let stateMachine = givenState(is: initialState)
 
-        appcues.experienceLoader.onLoad = { contentID, published, completion in
+        appcues.experienceLoader.onLoad = { contentID, published, trigger, completion in
             XCTFail("no next content should be shown")
         }
 
@@ -286,7 +286,7 @@ class ExperienceStateMachineTests: XCTestCase {
         // Arrange
         let experience = Experience(id: UUID(), name: "Empty experience", type: "mobile", publishedAt: 1632142800000, traits: [], steps: [], redirectURL: nil, nextContentID: nil)
         let initialState: State = .idling
-        let action: Action = .startExperience(ExperienceData(experience))
+        let action: Action = .startExperience(ExperienceData(experience, trigger: .showCall))
         let stateMachine = givenState(is: initialState)
 
         // Act
@@ -300,7 +300,7 @@ class ExperienceStateMachineTests: XCTestCase {
         // Arrange
         let failedExperience = FailedExperience(id: UUID(), name: "Invalid experience", type: "mobile", publishedAt: 1632142800000, error: "could not decode")
         let initialState: State = .idling
-        let experienceData = ExperienceData(failedExperience.skeletonExperience, error: failedExperience.error)
+        let experienceData = ExperienceData(failedExperience.skeletonExperience, trigger: .showCall, error: failedExperience.error)
         let action: Action = .startExperience(experienceData)
         let stateMachine = givenState(is: initialState)
 
