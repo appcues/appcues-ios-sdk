@@ -35,7 +35,7 @@ class ExperienceRendererTests: XCTestCase {
         appcues.analyticsPublisher.onPublish = { _ in eventExpectation.fulfill() }
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true)) { result in
             if case .success = result {
                 completionExpectation.fulfill()
             }
@@ -60,7 +60,7 @@ class ExperienceRendererTests: XCTestCase {
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
         // Set up first experience
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true)) { result in
             if case .success = result {
                 preconditionExpectation.fulfill()
             }
@@ -68,7 +68,7 @@ class ExperienceRendererTests: XCTestCase {
         XCTAssertEqual(XCTWaiter().wait(for: [preconditionExpectation], timeout: 1), .completed)
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .normal, published: true)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .normal, published: true)) { result in
             print(result)
             if case .success = result {
                 completionExpectation.fulfill()
@@ -94,7 +94,7 @@ class ExperienceRendererTests: XCTestCase {
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
         // Set up first experience
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true)) { result in
             if case .success = result {
                 preconditionExpectation.fulfill()
             }
@@ -103,7 +103,7 @@ class ExperienceRendererTests: XCTestCase {
         // NOTE: No waiting for initial .show() to complete like the test case above does.
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .normal, published: true)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .normal, published: true)) { result in
             print(result)
             if case .success = result {
                 completionExpectation.fulfill()
@@ -124,7 +124,7 @@ class ExperienceRendererTests: XCTestCase {
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
         // Set up first experience
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true)) { result in
             if case .success = result {
                 preconditionExpectation.fulfill()
             }
@@ -132,7 +132,7 @@ class ExperienceRendererTests: XCTestCase {
         XCTAssertEqual(XCTWaiter().wait(for: [preconditionExpectation, presentExpectation], timeout: 1), .completed)
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true)) { result in
             print(result)
             if case .failure(ExperienceStateMachine.ExperienceError.experienceAlreadyActive) = result {
                 failureExpectation.fulfill()
@@ -158,7 +158,7 @@ class ExperienceRendererTests: XCTestCase {
         appcues.analyticsPublisher.onPublish = { _ in eventExpectation.fulfill() }
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: false)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: false)) { result in
             if case .success = result {
                 completionExpectation.fulfill()
             }
@@ -191,8 +191,8 @@ class ExperienceRendererTests: XCTestCase {
 
         // Act
         experienceRenderer.show(qualifiedExperiences: [
-            ExperienceData(brokenExperience.model, priority: .low),
-            ExperienceData(validExperience.model, priority: .low)]) { result in
+            ExperienceData(brokenExperience.model, trigger: .qualification(reason: nil), priority: .low),
+            ExperienceData(validExperience.model, trigger: .qualification(reason: nil), priority: .low)]) { result in
             print(result)
             if case .success = result {
                 completionExpectation.fulfill()
@@ -211,7 +211,7 @@ class ExperienceRendererTests: XCTestCase {
         let experience = ExperienceData.mock
         var preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true), completion: nil)
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true), completion: nil)
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Now that we've shown the first step, set the expectation for the 2nd step transition that we're testing
@@ -239,7 +239,7 @@ class ExperienceRendererTests: XCTestCase {
         let experience = ExperienceData.mock
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation, dismissExpectation: dismissExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true), completion: nil)
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true), completion: nil)
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
@@ -265,13 +265,13 @@ class ExperienceRendererTests: XCTestCase {
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(firstExperienceInstance.model, priority: .low, published: true)) { result in
+        experienceRenderer.show(experience: ExperienceData(firstExperienceInstance.model, trigger: .showCall, priority: .low, published: true)) { result in
             if case .success = result {
                 completionExpectation.fulfill()
             }
         }
 
-        experienceRenderer.show(experience: ExperienceData(secondExperienceInstance.model, priority: .low, published: true)) { result in
+        experienceRenderer.show(experience: ExperienceData(secondExperienceInstance.model, trigger: .showCall, priority: .low, published: true)) { result in
             if case let .failure(error) = result {
                 XCTAssertEqual(
                     error as! ExperienceStateMachine.ExperienceError,
@@ -299,7 +299,7 @@ class ExperienceRendererTests: XCTestCase {
         let experience = ExperienceData.singleStepMock
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation, dismissExpectation: dismissExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true), completion: nil)
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true), completion: nil)
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
@@ -323,7 +323,7 @@ class ExperienceRendererTests: XCTestCase {
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true, experiment: experiment)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true, experiment: experiment)) { result in
             if case .failure = result {
                 failureExpectation.fulfill()
             }
@@ -344,7 +344,7 @@ class ExperienceRendererTests: XCTestCase {
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true, experiment: experiment)) { result in
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true, experiment: experiment)) { result in
             if case .success = result {
                 completionExpectation.fulfill()
             }
@@ -378,7 +378,7 @@ class ExperienceRendererTests: XCTestCase {
         }
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true, experiment: experiment), completion: nil)
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true, experiment: experiment), completion: nil)
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -409,7 +409,7 @@ class ExperienceRendererTests: XCTestCase {
         }
 
         // Act
-        experienceRenderer.show(experience: ExperienceData(experience.model, priority: .low, published: true, experiment: experiment), completion: nil)
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true, experiment: experiment), completion: nil)
 
         // Assert
         waitForExpectations(timeout: 1)

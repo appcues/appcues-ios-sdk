@@ -32,13 +32,14 @@ class ExperienceLoaderTests: XCTestCase {
         appcues.experienceRenderer.onShowExperience = { experience, completion in
             XCTAssertEqual(experience.priority, .normal)
             XCTAssertTrue(experience.published)
+            guard case .showCall = experience.trigger else { return XCTFail() }
             completion?(.success(()))
         }
 
         let completionExpectation = expectation(description: "Completion called")
 
         // Act
-        experienceLoader.load(experienceID: "123", published: true) { result in
+        experienceLoader.load(experienceID: "123", published: true, trigger: .showCall) { result in
             if case .success = result {
                 completionExpectation.fulfill()
             }
@@ -60,13 +61,14 @@ class ExperienceLoaderTests: XCTestCase {
         appcues.experienceRenderer.onShowExperience = { experience, completion in
             XCTAssertEqual(experience.priority, .normal)
             XCTAssertFalse(experience.published)
+            guard case .preview = experience.trigger else { return XCTFail() }
             completion?(.success(()))
         }
 
         let completionExpectation = expectation(description: "Completion called")
 
         // Act
-        experienceLoader.load(experienceID: "123", published: false) { result in
+        experienceLoader.load(experienceID: "123", published: false, trigger: .preview) { result in
             if case .success = result {
                 completionExpectation.fulfill()
             }
@@ -85,7 +87,7 @@ class ExperienceLoaderTests: XCTestCase {
         let completionExpectation = expectation(description: "Completion called")
 
         // Act
-        experienceLoader.load(experienceID: "123", published: true) { result in
+        experienceLoader.load(experienceID: "123", published: true, trigger: .showCall) { result in
             if case .failure = result {
                 completionExpectation.fulfill()
             }
@@ -100,7 +102,7 @@ class ExperienceLoaderTests: XCTestCase {
         let reloadExpectation = expectation(description: "Data loaded called")
 
         // Load the initial preview
-        experienceLoader.load(experienceID: "123", published: false, completion: nil)
+        experienceLoader.load(experienceID: "123", published: false, trigger: .preview, completion: nil)
 
         appcues.networking.onGet = { endpoint in
             XCTAssertEqual(
@@ -125,9 +127,9 @@ class ExperienceLoaderTests: XCTestCase {
         reloadExpectation.isInverted = true
 
         // Load the initial preview
-        experienceLoader.load(experienceID: "123", published: false, completion: nil)
+        experienceLoader.load(experienceID: "123", published: false, trigger: .preview, completion: nil)
         // Load a published experience
-        experienceLoader.load(experienceID: "abc", published: true, completion: nil)
+        experienceLoader.load(experienceID: "abc", published: true, trigger: .preview, completion: nil)
 
         appcues.networking.onGet = { endpoint in
             reloadExpectation.fulfill()

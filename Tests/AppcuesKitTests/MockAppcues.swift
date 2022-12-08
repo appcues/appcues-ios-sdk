@@ -104,9 +104,9 @@ class MockStorage: DataStoring {
 
 class MockExperienceLoader: ExperienceLoading {
 
-    var onLoad: ((String, Bool, ((Result<Void, Error>) -> Void)?) -> Void)?
-    func load(experienceID: String, published: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-        onLoad?(experienceID, published, completion)
+    var onLoad: ((String, Bool, ExperienceTrigger, ((Result<Void, Error>) -> Void)?) -> Void)?
+    func load(experienceID: String, published: Bool, trigger: ExperienceTrigger, completion: ((Result<Void, Error>) -> Void)?) {
+        onLoad?(experienceID, published, trigger, completion)
     }
 }
 

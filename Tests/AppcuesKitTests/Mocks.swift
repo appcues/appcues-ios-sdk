@@ -186,13 +186,13 @@ extension Experience.Step.Child {
 }
 
 extension ExperienceData {
-    static var mock: ExperienceData { ExperienceData(.mock) }
-    static var singleStepMock: ExperienceData { ExperienceData(.singleStepMock) }
+    static var mock: ExperienceData { ExperienceData(.mock, trigger: .showCall) }
+    static var singleStepMock: ExperienceData { ExperienceData(.singleStepMock, trigger: .showCall) }
     static func mockWithForm(defaultValue: String?, attributeName: String? = nil) -> ExperienceData {
-        ExperienceData(.mockWithForm(defaultValue: defaultValue, attributeName: attributeName ))
+        ExperienceData(.mockWithForm(defaultValue: defaultValue, attributeName: attributeName ), trigger: .showCall)
     }
     static func mockWithStepActions(actions: [Experience.Action]) -> ExperienceData {
-        ExperienceData(.mockWithStepActions(actions: actions))
+        ExperienceData(.mockWithStepActions(actions: actions), trigger: .showCall)
     }
 
     @available(iOS 13.0, *)
