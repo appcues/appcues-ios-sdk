@@ -51,6 +51,44 @@ internal struct FailedExperience: Decodable {
     }
 }
 
+// a helper that deserializes a collection of traits and also enforces that
+// no trait types are duplicated within the collection
+internal struct TraitCollection: Decodable {
+    var traits: [Experience.Trait]
+
+    init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+
+        var traits: [Experience.Trait] = []
+        var traitTypes = Set<String>()
+        var duplicates = Set<String>()
+
+        if let count = container.count {
+            traits.reserveCapacity(count)
+        }
+
+        while !container.isAtEnd {
+            let trait = try container.decode(Experience.Trait.self)
+            if traitTypes.insert(trait.type).inserted {
+                // normal case, capture the decoded trait for our resulting array
+                traits.append(trait)
+            } else {
+                // a dupe was found and this will end up causing a decoding error below
+                duplicates.insert(trait.type)
+            }
+        }
+
+        if !duplicates.isEmpty {
+            let message = "multiple traits of same type are not supported: \(duplicates.joined(separator: ","))"
+            throw DecodingError.dataCorrupted(
+                DecodingError.Context(codingPath: decoder.codingPath,
+                                      debugDescription: message))
+        }
+
+        self.traits = traits
+    }
+}
+
 internal struct Experience {
 
     @dynamicMemberLookup
@@ -115,6 +153,18 @@ extension Experience: Decodable {
         case redirectURL = "redirectUrl"
         case nextContentID = "nextContentId"
     }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        type = try container.decode(String.self, forKey: .type)
+        publishedAt = try? container.decode(Int.self, forKey: .publishedAt)
+        traits = try container.decode(TraitCollection.self, forKey: .traits).traits
+        steps = try container.decode([Step].self, forKey: .steps)
+        redirectURL = try? container.decode(URL.self, forKey: .redirectURL)
+        nextContentID = try? container.decode(String.self, forKey: .nextContentID)
+    }
 }
 
 extension Experience {
@@ -142,6 +192,36 @@ extension Experience.Step: Decodable {
         let children: [Child]
         let traits: [Experience.Trait]
         let actions: [String: [Experience.Action]]
+
+        private enum CodingKeys: CodingKey {
+            case id
+            case type
+            case children
+            case traits
+            case actions
+        }
+
+        // additional constructor used in tests
+        init(id: UUID,
+             type: String,
+             children: [Child],
+             traits: [Experience.Trait],
+             actions: [String: [Experience.Action]]) {
+            self.id = id
+            self.type = type
+            self.children = children
+            self.traits = traits
+            self.actions = actions
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(UUID.self, forKey: .id)
+            type = try container.decode(String.self, forKey: .type)
+            children = try container.decode([Child].self, forKey: .children)
+            traits = try container.decode(TraitCollection.self, forKey: .traits).traits
+            actions = try container.decode([String: [Experience.Action]].self, forKey: .actions)
+        }
     }
 
     struct Child: StepModel, Decodable {
@@ -150,6 +230,37 @@ extension Experience.Step: Decodable {
         let content: ExperienceComponent
         let traits: [Experience.Trait]
         let actions: [String: [Experience.Action]]
+
+        private enum CodingKeys: CodingKey {
+            case id
+            case type
+            case content
+            case traits
+            case actions
+        }
+
+        // additional constructor required for ExperienceStepViewModel usage in background content case
+        // and used in tests
+        init(id: UUID,
+             type: String,
+             content: ExperienceComponent,
+             traits: [Experience.Trait],
+             actions: [String: [Experience.Action]]) {
+            self.id = id
+            self.type = type
+            self.content = content
+            self.traits = traits
+            self.actions = actions
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = try container.decode(UUID.self, forKey: .id)
+            type = try container.decode(String.self, forKey: .type)
+            content = try container.decode(ExperienceComponent.self, forKey: .content)
+            traits = try container.decode(TraitCollection.self, forKey: .traits).traits
+            actions = try container.decode([String: [Experience.Action]].self, forKey: .actions)
+        }
     }
 
     init(from decoder: Decoder) throws {
