@@ -153,16 +153,12 @@ extension ExperienceStateMachine.Transition {
         do {
             let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
 
-            // for pre-step navigation actions - only allow these to execute if this experience is being launched for some
-            // other reason than qualification (i.e. deep links, preview, manual show). For any qualified experience, the initial
-            // starting state of the experience is determined solely by flow settings determining the trigger
-            // (i.e. trigger on certain screen).
             let navigationActions: [Experience.Action]
-            if case .qualification = experience.trigger {
-                navigationActions = []
-            } else {
+            if experience.trigger.shouldNavigateBeforeRender {
                 let stepGroup = experience.steps[stepIndex.group]
                 navigationActions = stepGroup.actions[stepGroup.id.appcuesFormatted]?.filter { $0.trigger == "navigate" } ?? []
+            } else {
+                navigationActions = []
             }
 
             return .init(

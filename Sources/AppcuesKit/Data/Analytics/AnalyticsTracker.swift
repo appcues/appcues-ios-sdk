@@ -121,7 +121,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 let (experience, error) = item.parsed
                 let experiment = experiments.first { $0.experienceID == experience.id }
                 return ExperienceData(experience,
-                                      trigger: .qualification(reason: qualifyResponse.qualificationReason?.rawValue),
+                                      trigger: .qualification(reason: qualifyResponse.qualificationReason),
                                       priority: qualifyResponse.renderPriority,
                                       published: true,
                                       experiment: experiment,
