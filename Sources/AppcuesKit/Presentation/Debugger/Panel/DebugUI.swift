@@ -49,6 +49,7 @@ internal enum DebugUI {
                 .navigationBarTitle(Text("Debugger"))
                 .navigationBarHidden(true)
             }
+            .navigationViewStyle(StackNavigationViewStyle())
         }
     }
 
