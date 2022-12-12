@@ -131,8 +131,8 @@ class ExperienceDecodeTests: XCTestCase {
 
         // Assert
         XCTAssertNil(experience)
-        XCTAssertNotNil(error)
-        XCTAssertTrue(error!.contains("multiple traits of same type are not supported: step-trait"))
+        let unwrappedError = try XCTUnwrap(error)
+        XCTAssertTrue(unwrappedError.contains("multiple traits of same type are not supported: step-trait"))
     }
 
     func testDuplicateGroupTraitDecode() throws {
@@ -192,8 +192,8 @@ class ExperienceDecodeTests: XCTestCase {
 
         // Assert
         XCTAssertNil(experience)
-        XCTAssertNotNil(error)
-        XCTAssertTrue(error!.contains("multiple traits of same type are not supported: group-trait"))
+        let unwrappedError = try XCTUnwrap(error)
+        XCTAssertTrue(unwrappedError.contains("multiple traits of same type are not supported: group-trait"))
     }
 
     func testDuplicateExperienceTraitDecode() throws {
@@ -253,7 +253,7 @@ class ExperienceDecodeTests: XCTestCase {
 
         // Assert
         XCTAssertNil(experience)
-        XCTAssertNotNil(error)
-        XCTAssertTrue(error!.contains("multiple traits of same type are not supported: experience-trait"))
+        let unwrappedError = try XCTUnwrap(error)
+        XCTAssertTrue(unwrappedError.contains("multiple traits of same type are not supported: experience-trait"))
     }
 }
