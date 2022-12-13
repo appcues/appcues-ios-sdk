@@ -15,14 +15,14 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
     let presentationStyle: PresentationStyle
     let modalStyle: ExperienceComponent.Style?
 
-    required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
-        if let presentationStyle = PresentationStyle(rawValue: config?["presentationStyle"] as? String ?? "") {
+    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
+        if let presentationStyle: PresentationStyle = config["presentationStyle"] {
             self.presentationStyle = presentationStyle
         } else {
             return nil
         }
 
-        self.modalStyle = config?["style", decodedAs: ExperienceComponent.Style.self]
+        self.modalStyle = config["style"]
     }
 
     func decorate(stepController: UIViewController) throws {
@@ -79,7 +79,7 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
 
 @available(iOS 13.0, *)
 extension AppcuesModalTrait {
-    enum PresentationStyle: String {
+    enum PresentationStyle: String, Decodable {
         case full
         case dialog
         case sheet

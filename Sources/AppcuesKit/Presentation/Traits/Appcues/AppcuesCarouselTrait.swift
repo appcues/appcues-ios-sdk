@@ -12,7 +12,7 @@ import UIKit
 internal class AppcuesCarouselTrait: ContainerCreatingTrait {
     static let type = "@appcues/carousel"
 
-    required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
+    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
     }
 
     func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {

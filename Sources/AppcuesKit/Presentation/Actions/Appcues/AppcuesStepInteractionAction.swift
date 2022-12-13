@@ -19,7 +19,7 @@ internal class AppcuesStepInteractionAction: ExperienceAction {
     let category: String
     let destination: String
 
-    required init?(config: [String: Any]?) {
+    required init?(config: DecodingExperienceConfig) {
         // An internal-only action, so can't be initialized from an Experience.Action model.
         return nil
     }
