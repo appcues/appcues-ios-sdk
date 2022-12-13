@@ -16,8 +16,8 @@ internal class AppcuesCloseAction: ExperienceAction {
 
     let markComplete: Bool
 
-    required init?(config: [String: Any]?) {
-        markComplete = config?["markComplete"] as? Bool ?? false
+    required init?(config: DecodingExperienceConfig) {
+        markComplete = config["markComplete"] ?? false
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
