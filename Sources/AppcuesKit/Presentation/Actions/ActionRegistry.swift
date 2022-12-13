@@ -70,7 +70,7 @@ internal class ActionRegistry {
     /// Enqueue an experience action data model to be executed.
     func enqueue(actionModels: [Experience.Action], interactionType: String, viewDescription: String?) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(config: $0.config)
+            actions[$0.type]?.init(config: DecodingExperienceConfig($0.config))
         }
 
         // As a heuristic, take the last action that's `MetadataSettingAction`, since that's most likely

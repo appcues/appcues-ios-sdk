@@ -18,10 +18,10 @@ internal class AppcuesLinkAction: ExperienceAction {
     let url: URL
     let openExternally: Bool
 
-    required init?(config: [String: Any]?) {
-        if let url = URL(string: config?["url"] as? String ?? "") {
+    required init?(config: DecodingExperienceConfig) {
+        if let url = URL(string: config["url"] ?? "") {
             self.url = url
-            self.openExternally = (config?["openExternally"] as? Bool) ?? false
+            self.openExternally = config["openExternally"] ?? false
         } else {
             return nil
         }

@@ -14,13 +14,13 @@ internal class AppcuesContinueAction: ExperienceAction {
 
     let stepReference: StepReference
 
-    required init?(config: [String: Any]?) {
-        if let index = config?["index"] as? Int {
+    required init?(config: DecodingExperienceConfig) {
+        if let index: Int = config["index"] {
             stepReference = .index(index)
-        } else if let offset = config?["offset"] as? Int {
+        } else if let offset: Int = config["offset"] {
             stepReference = .offset(offset)
-        } else if let stepID = UUID(uuidString: config?["stepID"] as? String ?? "") {
-            stepReference = .stepID(stepID)
+        } else if let stepID: String = config["stepID"], let uuid = UUID(uuidString: stepID) {
+            stepReference = .stepID(uuid)
         } else {
             // Default to continuing to next step
             stepReference = .offset(1)
