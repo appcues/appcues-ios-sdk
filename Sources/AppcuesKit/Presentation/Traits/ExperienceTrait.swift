@@ -33,7 +33,7 @@ public protocol ExperienceTrait {
     /// Initializer from an `Experience.Trait` data model.
     ///
     /// This initializer should verify the config has any required properties and return `nil` if not.
-    init?(config: [String: Any]?, level: ExperienceTraitLevel)
+    init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel)
 }
 
 /// A trait that modifies the `UIViewController` that encapsulates the contents of a specific step in the experience.
