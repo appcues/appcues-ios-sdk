@@ -12,6 +12,8 @@ import SwiftUI
 internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDecoratingTrait {
     static let type = "@appcues/background-content"
 
+    weak var metadataDelegate: TraitMetadataDelegate?
+
     let level: ExperienceTraitLevel
     let content: ExperienceComponent
 

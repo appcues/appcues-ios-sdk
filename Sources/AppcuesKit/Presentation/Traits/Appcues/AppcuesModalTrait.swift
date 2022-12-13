@@ -12,6 +12,8 @@ import UIKit
 internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
     static let type = "@appcues/modal"
 
+    weak var metadataDelegate: TraitMetadataDelegate?
+
     let presentationStyle: PresentationStyle
     let modalStyle: ExperienceComponent.Style?
 

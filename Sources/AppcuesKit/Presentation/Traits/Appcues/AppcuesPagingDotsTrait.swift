@@ -11,6 +11,8 @@ import UIKit
 internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
     static let type = "@appcues/paging-dots"
 
+    weak var metadataDelegate: TraitMetadataDelegate?
+
     let style: ExperienceComponent.Style?
 
     private weak var containerController: ExperienceContainerViewController?
