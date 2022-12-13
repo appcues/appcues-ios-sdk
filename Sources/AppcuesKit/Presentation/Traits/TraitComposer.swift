@@ -186,7 +186,7 @@ extension TraitComposer {
         let groupID: String? = nil
 
         init() {}
-        required init?(config: [String: Any]?, level: ExperienceTraitLevel) {}
+        required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {}
 
         func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
             DefaultContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
