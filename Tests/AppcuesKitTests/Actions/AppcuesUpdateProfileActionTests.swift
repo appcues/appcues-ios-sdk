@@ -20,8 +20,8 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesUpdateProfileAction(config: ["profile_attribute": "value"])
-        let failedAction = AppcuesUpdateProfileAction(config: nil)
+        let action = AppcuesUpdateProfileAction(config: DecodingExperienceConfig(["profile_attribute": "value"]))
+        let failedAction = AppcuesUpdateProfileAction(config: DecodingExperienceConfig(nil))
 
         // Assert
         XCTAssertEqual(AppcuesUpdateProfileAction.type, "@appcues/update-profile")
@@ -36,12 +36,18 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
         var identifyCount = 0
         appcues.onIdentify = { userID, properties in
             XCTAssertEqual(userID, "user-id")
-            XCTAssertEqual(properties?.count, 1)
+            XCTAssertEqual(properties?.count, 3)
             XCTAssertEqual(properties?["profile_attribute"] as? String, "value")
+            XCTAssertEqual(properties?["int_value"] as? Int, 5)
+            XCTAssertEqual(properties?["bool_value"] as? Bool, false)
 
             identifyCount += 1
         }
-        let action = AppcuesUpdateProfileAction(config: ["profile_attribute": "value"])
+        let action = AppcuesUpdateProfileAction(config: DecodingExperienceConfig([
+            "profile_attribute": "value",
+            "int_value": 5,
+            "bool_value": false
+        ]))
 
         // Act
         action?.execute(inContext: appcues, completion: { completionCount += 1 })
