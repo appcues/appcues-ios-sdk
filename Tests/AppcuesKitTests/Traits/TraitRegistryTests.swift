@@ -64,8 +64,6 @@ private extension TraitRegistryTests {
     class TestTrait: ExperienceTrait {
         static let type = "@test/trait"
 
-        var groupID: String?
-
-        required init?(config: [String: Any]?, level: ExperienceTraitLevel) {}
+        required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {}
     }
 }
