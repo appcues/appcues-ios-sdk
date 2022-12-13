@@ -14,8 +14,8 @@ internal class AppcuesTrackAction: ExperienceAction {
 
     let eventName: String
 
-    required init?(config: [String: Any]?) {
-        if let eventName = config?["eventName"] as? String {
+    required init?(config: DecodingExperienceConfig) {
+        if let eventName: String = config["eventName"] {
             self.eventName = eventName
         } else {
             return nil

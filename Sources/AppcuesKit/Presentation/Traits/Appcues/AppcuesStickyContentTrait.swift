@@ -15,8 +15,8 @@ internal class AppcuesStickyContentTrait: StepDecoratingTrait {
     let edge: Edge
     let content: ExperienceComponent
 
-    required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
-        if let edge = Edge(config?["edge"] as? String), let content = config?["content", decodedAs: ExperienceComponent.self] {
+    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
+        if let edge = Edge(config["edge"]), let content: ExperienceComponent = config["content"] {
             self.edge = edge
             self.content = content
         } else {

@@ -15,8 +15,8 @@ internal class AppcuesLaunchExperienceAction: ExperienceAction {
     let experienceID: String
     let trigger: ExperienceTrigger?
 
-    required init?(config: [String: Any]?) {
-        if let experienceID = config?["experienceID"] as? String {
+    required init?(config: DecodingExperienceConfig) {
+        if let experienceID: String = config["experienceID"] {
             self.experienceID = experienceID
             self.trigger = nil
         } else {

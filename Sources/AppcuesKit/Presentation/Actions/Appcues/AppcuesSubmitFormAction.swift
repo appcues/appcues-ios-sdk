@@ -14,8 +14,8 @@ internal class AppcuesSubmitFormAction: ExperienceAction, ExperienceActionQueueT
 
     let skipValidation: Bool
 
-    required init?(config: [String: Any]?) {
-        self.skipValidation = config?["skipValidation"] as? Bool ?? false
+    required init?(config: DecodingExperienceConfig) {
+        self.skipValidation = config["skipValidation"] ?? false
     }
 
     func execute(inContext appcues: Appcues, completion: ActionRegistry.Completion) {
