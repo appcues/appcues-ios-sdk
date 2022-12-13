@@ -14,6 +14,7 @@ internal class TraitRegistry {
 
     init(container: DIContainer) {
         // Register default traits
+        register(trait: AppcuesStepTransitionAnimationTrait.self)
         register(trait: AppcuesModalTrait.self)
         register(trait: AppcuesCarouselTrait.self)
         register(trait: AppcuesStickyContentTrait.self)
