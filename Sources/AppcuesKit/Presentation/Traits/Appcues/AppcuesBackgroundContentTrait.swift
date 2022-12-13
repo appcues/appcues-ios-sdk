@@ -17,10 +17,10 @@ internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDeco
 
     private weak var backgroundViewController: UIViewController?
 
-    required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
+    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
         self.level = level
 
-        if let content = config?["content", decodedAs: ExperienceComponent.self] {
+        if let content: ExperienceComponent = config["content"] {
             self.content = content
         } else {
             return nil

@@ -16,8 +16,8 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
     private weak var containerController: ExperienceContainerViewController?
     private weak var view: UIView?
 
-    required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
-        self.style = config?["style", decodedAs: ExperienceComponent.Style.self]
+    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
+        self.style = config["style"]
     }
 
     func decorate(containerController: ExperienceContainerViewController) throws {
