@@ -12,6 +12,8 @@ import SwiftUI
 internal class AppcuesStickyContentTrait: StepDecoratingTrait {
     static let type = "@appcues/sticky-content"
 
+    weak var metadataDelegate: TraitMetadataDelegate?
+
     let edge: Edge
     let content: ExperienceComponent
 
