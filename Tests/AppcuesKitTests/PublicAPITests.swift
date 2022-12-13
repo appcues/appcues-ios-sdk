@@ -132,7 +132,7 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
 
     static var type: String = "@sample/trait"
 
-    required init?(config: [String : Any]?, level: ExperienceTraitLevel) {
+    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
         // Do not add `@unknown default` here, since we want to know about new cases
         switch level {
         case .experience:
@@ -143,7 +143,7 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
             break
         }
 
-        _ = config?["key", decodedAs: String.self]
+        let _: String? = config["key"]
     }
 
     // MARK: StepDecoratingTrait
@@ -245,7 +245,7 @@ class SampleExperienceContainerViewController: ExperienceContainerViewController
 class SampleAction: ExperienceAction {
     static var type: String = "@sample/action"
 
-    required init?(config: [String : Any]?) {
+    required init?(config: DecodingExperienceConfig) {
         // no-op
     }
 
