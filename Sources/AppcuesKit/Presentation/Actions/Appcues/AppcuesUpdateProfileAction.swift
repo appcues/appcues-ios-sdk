@@ -14,8 +14,9 @@ internal class AppcuesUpdateProfileAction: ExperienceAction {
 
     let properties: [String: Any]
 
-    required init?(config: [String: Any]?) {
-        if let properties = config {
+    required init?(config: DecodingExperienceConfig) {
+        let properties = config.safeValues
+        if !properties.isEmpty {
             self.properties = properties
         } else {
             return nil
