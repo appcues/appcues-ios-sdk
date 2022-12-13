@@ -10,6 +10,12 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 internal struct AppcuesOptionSelect: View {
+    private struct OptionItem: Identifiable {
+        var id: String
+        let content: ExperienceComponent
+        let isSelected: Binding<Bool>
+    }
+
     let model: ExperienceComponent.OptionSelectModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
@@ -55,19 +61,30 @@ internal struct AppcuesOptionSelect: View {
     @ViewBuilder var items: some View {
         let primaryColor = stepState.shouldShowError(for: model.id) ? Color(dynamicColor: model.errorLabel?.style?.foregroundColor) : nil
 
-        ForEach(model.options) { option in
-            let binding = stepState.formBinding(for: model.id, value: option.value)
-            SelectToggleView(
-                selected: binding,
-                primaryColor: primaryColor,
-                model: model
-            ) {
-                if binding.wrappedValue {
-                    (option.selectedContent ?? option.content).view
-                } else {
-                    option.content.view
-                }
+        // each option and its selection state
+        let selections: [Binding<Bool>] = model.options.map { stepState.formBinding(for: model.id, value: $0.value) }
+
+        // determine if leading fill is supported for items prior to selected item
+        let allowLeadingFill = (model.leadingFill ?? false) && model.selectMode == .single && model.controlPosition == .hidden
+
+        // first item, if any, selected - to check for leading fill
+        let firstSelectedIndex = selections.firstIndex { $0.wrappedValue }
+
+        let optionItems: [OptionItem] = model.options.enumerated().map { index, item in
+            let isSelected = selections[index]
+            var content = (isSelected.wrappedValue) ? (item.selectedContent ?? item.content) : item.content
+            if allowLeadingFill,
+                let firstSelectedIndex = firstSelectedIndex,
+                index < firstSelectedIndex,
+                let selectedContent = item.selectedContent {
+                // this overrides an unselected item with selected content styling in the leadingFill case
+                content = selectedContent
             }
+            return OptionItem(id: item.id, content: content, isSelected: isSelected)
+        }
+
+        ForEach(optionItems) { item in
+            SelectToggleView(selected: item.isSelected, primaryColor: primaryColor, model: model) { item.content.view }
         }
     }
 }

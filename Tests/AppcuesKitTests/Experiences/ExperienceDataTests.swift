@@ -185,6 +185,7 @@ extension ExperienceComponent.OptionSelectModel {
             accentColor: nil,
             pickerStyle: nil,
             attributeName: nil,
+            leadingFill: nil,
             style: nil
         )
     }
