@@ -20,8 +20,8 @@ class AppcuesTrackActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesTrackAction(config: ["eventName": "My Custom Event"])
-        let failedAction = AppcuesTrackAction(config: [:])
+        let action = AppcuesTrackAction(config: DecodingExperienceConfig(["eventName": "My Custom Event"]))
+        let failedAction = AppcuesTrackAction(config: DecodingExperienceConfig([:]))
 
         // Assert
         XCTAssertEqual(AppcuesTrackAction.type, "@appcues/track")
@@ -39,7 +39,7 @@ class AppcuesTrackActionTests: XCTestCase {
             XCTAssertNil(trackingUpdate.properties)
             trackCount += 1
         }
-        let action = AppcuesTrackAction(config: ["eventName": "My Custom Event"])
+        let action = AppcuesTrackAction(config: DecodingExperienceConfig(["eventName": "My Custom Event"]))
 
         // Act
         action?.execute(inContext: appcues, completion: { completionCount += 1 })
