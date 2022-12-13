@@ -274,17 +274,17 @@ class ExperienceStateMachineTests: XCTestCase {
         let action1 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": {
+            config: ["onExecute": DecodableExecuteBlock {
                 executionSequence.append("action1")
                 action1ExecutionExpectation.fulfill()
-            }])
+            }].toDecodableDict())
         let action2 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": {
+            config: ["onExecute": DecodableExecuteBlock {
                 executionSequence.append("action2")
                 action2ExecutionExpectation.fulfill()
-            }])
+            }].toDecodableDict())
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
         let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .qualification(reason: nil))
@@ -326,17 +326,17 @@ class ExperienceStateMachineTests: XCTestCase {
         let action1 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": {
+            config: ["onExecute": DecodableExecuteBlock {
                 executionSequence.append("action1")
                 action1ExecutionExpectation.fulfill()
-            }])
+            }].toDecodableDict())
         let action2 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": {
+            config: ["onExecute": DecodableExecuteBlock {
                 executionSequence.append("action2")
                 action2ExecutionExpectation.fulfill()
-            }])
+            }].toDecodableDict())
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
         let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .qualification(reason: nil))
@@ -376,17 +376,17 @@ class ExperienceStateMachineTests: XCTestCase {
         let action1 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": {
+            config: ["onExecute": DecodableExecuteBlock {
                 executionSequence.append("action1")
                 action1ExecutionExpectation.fulfill()
-            }])
+            }].toDecodableDict())
         let action2 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": {
+            config: ["onExecute": DecodableExecuteBlock {
                 executionSequence.append("action2")
                 action2ExecutionExpectation.fulfill()
-            }])
+            }].toDecodableDict())
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
         let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .deepLink)
@@ -664,13 +664,44 @@ private extension ExperienceStateMachineTests {
 
         var onExecute: (() -> Void)?
 
-        required init?(config: [String: Any]?) {
-            onExecute = config?["onExecute"] as? (() -> Void)
+        required init?(config: DecodingExperienceConfig) {
+            let executeBlock: DecodableExecuteBlock? = config["onExecute"]
+            onExecute = executeBlock?.block
         }
 
         func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
             onExecute?()
             completion()
+        }
+    }
+
+    // A simple closure isn't Decodable for use in TestAction, so fake it with this wrapper
+    // that stores the expectation in a static var to "decode" from
+    struct DecodableExecuteBlock: Decodable {
+        private static var blockStore: [UUID: () -> Void] = [:]
+
+        let block: () -> Void
+        private let blockID: UUID
+
+        init(block: @escaping () -> Void) {
+            self.block = block
+            self.blockID = UUID()
+            Self.blockStore[blockID] = block
+        }
+
+        enum CodingKeys: CodingKey {
+            case blockID
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            self.blockID = try container.decode(UUID.self, forKey: .blockID)
+            if let block = Self.blockStore[blockID] {
+                self.block = block
+            } else {
+                throw DecodingError.valueNotFound(XCTestExpectation.self, .init(codingPath: [], debugDescription: "cant find block"))
+            }
         }
     }
 }

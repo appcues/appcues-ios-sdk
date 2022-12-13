@@ -45,12 +45,12 @@ class TraitComposerTests: XCTestCase {
                 Experience.Trait(
                     type: "@test/trait",
                     config: [
-                        "stepDecoratingExpectation": stepDecoratingExpectation as Any,
-                        "containerCreatingExpectation": containerCreatingExpectation as Any,
-                        "containerDecoratingExpectation": containerDecoratingExpectation as Any,
-                        "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
-                        "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
-                    ])
+                        "stepDecoratingExpectation": stepDecoratingExpectation,
+                        "containerCreatingExpectation": containerCreatingExpectation,
+                        "containerDecoratingExpectation": containerDecoratingExpectation,
+                        "wrapperCreatingExpectation": wrapperCreatingExpectation,
+                        "backdropDecoratingExpectation": backdropDecoratingExpectation
+                    ].toDecodableDict())
             ],
             steps: [
                 .child(Experience.Step.Child(traits: []))
@@ -165,21 +165,21 @@ class TraitComposerTests: XCTestCase {
                 Experience.Trait(
                     type: "@test/trait",
                     config: [
-                        "stepDecoratingExpectation": experienceLevelStepDecoratingExpectation as Any,
-                        "containerCreatingExpectation": experienceLevelContainerCreatingExpectation as Any,
-                        "containerDecoratingExpectation": experienceLevelContainerDecoratingExpectation as Any,
-                        "wrapperCreatingExpectation": experienceLevelWrapperCreatingExpectation as Any,
-                        "backdropDecoratingExpectation": experienceLevelBackdropDecoratingExpectation as Any
-                    ]),
+                        "stepDecoratingExpectation": experienceLevelStepDecoratingExpectation,
+                        "containerCreatingExpectation": experienceLevelContainerCreatingExpectation,
+                        "containerDecoratingExpectation": experienceLevelContainerDecoratingExpectation,
+                        "wrapperCreatingExpectation": experienceLevelWrapperCreatingExpectation,
+                        "backdropDecoratingExpectation": experienceLevelBackdropDecoratingExpectation
+                    ].toDecodableDict()),
                 Experience.Trait(
                     type: "@test/trait-2",
                     config: [
-                        "stepDecoratingExpectation": experienceLevel2StepDecoratingExpectation as Any,
-                        "containerCreatingExpectation": experienceLevel2ContainerCreatingExpectation as Any,
-                        "containerDecoratingExpectation": experienceLevel2ContainerDecoratingExpectation as Any,
-                        "wrapperCreatingExpectation": experienceLevel2WrapperCreatingExpectation as Any,
-                        "backdropDecoratingExpectation": experienceLevel2BackdropDecoratingExpectation as Any
-                    ])
+                        "stepDecoratingExpectation": experienceLevel2StepDecoratingExpectation,
+                        "containerCreatingExpectation": experienceLevel2ContainerCreatingExpectation,
+                        "containerDecoratingExpectation": experienceLevel2ContainerDecoratingExpectation,
+                        "wrapperCreatingExpectation": experienceLevel2WrapperCreatingExpectation,
+                        "backdropDecoratingExpectation": experienceLevel2BackdropDecoratingExpectation
+                    ].toDecodableDict())
             ],
             steps: [
                 .group(Experience.Step.Group(
@@ -192,12 +192,12 @@ class TraitComposerTests: XCTestCase {
                         Experience.Trait(
                             type: "@test/trait",
                             config: [
-                                "stepDecoratingExpectation": groupLevelStepDecoratingExpectation as Any,
-                                "containerCreatingExpectation": groupLevelContainerCreatingExpectation as Any,
-                                "containerDecoratingExpectation": groupLevelContainerDecoratingExpectation as Any,
-                                "wrapperCreatingExpectation": groupLevelWrapperCreatingExpectation as Any,
-                                "backdropDecoratingExpectation": groupLevelBackdropDecoratingExpectation as Any
-                            ])
+                                "stepDecoratingExpectation": groupLevelStepDecoratingExpectation,
+                                "containerCreatingExpectation": groupLevelContainerCreatingExpectation,
+                                "containerDecoratingExpectation": groupLevelContainerDecoratingExpectation,
+                                "wrapperCreatingExpectation": groupLevelWrapperCreatingExpectation,
+                                "backdropDecoratingExpectation": groupLevelBackdropDecoratingExpectation
+                            ].toDecodableDict())
                     ],
                     actions: [:]
                 ))
@@ -245,7 +245,7 @@ class TraitComposerTests: XCTestCase {
                     config: [
                         "presentExpectation": presentExpectation,
                         "removeExpectation": removeExpectation
-                    ]),
+                    ].toDecodableDict()),
             ],
             steps: [
                 .child(Experience.Step.Child(traits: []))
@@ -265,7 +265,7 @@ class TraitComposerTests: XCTestCase {
     }
 
     func testDefaultContainerCreatingTrait() throws {
-        let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(config: [:], level: .group))
+        let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(config: DecodingExperienceConfig([:]), level: .group))
         let pageMonitor = PageMonitor(numberOfPages: 0, currentPage: 0)
         let container = try traitInstance.createContainer(for: [], with: pageMonitor)
         XCTAssertTrue(container is DefaultContainerViewController)
@@ -304,8 +304,8 @@ class TraitComposerTests: XCTestCase {
     func testDecompose() throws {
         // Arrange
         let traits: [ExperienceTrait] = [
-            try XCTUnwrap(TestTrait(config: nil, level: .experience)),
-            try XCTUnwrap(TestPresentingTrait(config: nil, level: .experience))
+            try XCTUnwrap(TestTrait(config: DecodingExperienceConfig(nil), level: .experience)),
+            try XCTUnwrap(TestPresentingTrait(config: DecodingExperienceConfig(nil), level: .experience))
         ]
 
         // Act
@@ -324,10 +324,10 @@ class TraitComposerTests: XCTestCase {
     func testAppendDecomposedTraits() throws {
         // Arrange
         let experienceTraits: [ExperienceTrait] = [
-            try XCTUnwrap(TestTrait(config: nil, level: .experience)),
-            try XCTUnwrap(TestPresentingTrait(config: nil, level: .experience))
+            try XCTUnwrap(TestTrait(config: DecodingExperienceConfig(nil), level: .experience)),
+            try XCTUnwrap(TestPresentingTrait(config: DecodingExperienceConfig(nil), level: .experience))
         ]
-        let groupTrait = try XCTUnwrap(TestTrait(config: nil, level: .experience))
+        let groupTrait = try XCTUnwrap(TestTrait(config: DecodingExperienceConfig(nil), level: .experience))
         let decomposedTraits = TraitComposer.DecomposedTraits(traits: experienceTraits)
 
         // Act
@@ -346,11 +346,11 @@ class TraitComposerTests: XCTestCase {
     func testPropagateDecomposedTraits() throws {
         // Arrange
         let experienceTraits: [ExperienceTrait] = [
-            try XCTUnwrap(Test2Trait(config: nil, level: .experience)),
-            try XCTUnwrap(Test3Trait(config: nil, level: .group))
+            try XCTUnwrap(Test2Trait(config: DecodingExperienceConfig(nil), level: .experience)),
+            try XCTUnwrap(Test3Trait(config: DecodingExperienceConfig(nil), level: .group))
         ]
         let decomposedTraits = TraitComposer.DecomposedTraits(traits: experienceTraits)
-        let stepTrait = try XCTUnwrap(TestTrait(config: nil, level: .experience))
+        let stepTrait = try XCTUnwrap(TestTrait(config: DecodingExperienceConfig(nil), level: .experience))
         let decomposedStepTraits = TraitComposer.DecomposedTraits(traits: [stepTrait])
 
         // Act
@@ -403,7 +403,7 @@ class TraitComposerTests: XCTestCase {
                                 "containerDecoratingExpectation": containerDecoratingExpectation as Any,
                                 "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
                                 "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
-                            ]),
+                            ].toDecodableDict()),
                         Experience.Trait(
                             type: "@test/trait",
                             config: [
@@ -412,7 +412,7 @@ class TraitComposerTests: XCTestCase {
                                 "containerDecoratingExpectation": containerDecoratingExpectation as Any,
                                 "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
                                 "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
-                            ])
+                            ].toDecodableDict())
                     ],
                     actions: [:]
                 )),
@@ -428,7 +428,7 @@ class TraitComposerTests: XCTestCase {
                             "containerDecoratingExpectation": containerDecoratingExpectation as Any,
                             "wrapperCreatingExpectation": wrapperCreatingExpectation as Any,
                             "backdropDecoratingExpectation": backdropDecoratingExpectation as Any
-                        ])
+                        ].toDecodableDict())
                 ]))
             ],
             redirectURL: nil,
@@ -473,18 +473,19 @@ extension TraitComposerTests {
 
         var backdropDecoratingExpectation: XCTestExpectation?
 
-        required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
-            self.groupID = config?["groupID"] as? String
+        required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
+            self.groupID = config["groupID"]
 
-            stepDecoratingExpectation = config?["stepDecoratingExpectation"] as? XCTestExpectation
-
-            containerCreatingExpectation = config?["containerCreatingExpectation"] as? XCTestExpectation
-
-            containerDecoratingExpectation = config?["containerDecoratingExpectation"] as? XCTestExpectation
-
-            wrapperCreatingExpectation = config?["wrapperCreatingExpectation"] as? XCTestExpectation
-
-            backdropDecoratingExpectation = config?["backdropDecoratingExpectation"] as? XCTestExpectation
+            let decodableStepDecoratingExpectation: DecodableExpectation? = config["stepDecoratingExpectation"]
+            stepDecoratingExpectation = decodableStepDecoratingExpectation?.expectation
+            let decodableContainerCreatingExpectation: DecodableExpectation? = config["containerCreatingExpectation"]
+            containerCreatingExpectation = decodableContainerCreatingExpectation?.expectation
+            let decodableContainerDecoratingExpectation: DecodableExpectation? = config["containerDecoratingExpectation"]
+            containerDecoratingExpectation = decodableContainerDecoratingExpectation?.expectation
+            let decodableWrapperCreatingExpectation: DecodableExpectation? = config["wrapperCreatingExpectation"]
+            wrapperCreatingExpectation = decodableWrapperCreatingExpectation?.expectation
+            let decodableBackdropDecoratingExpectation: DecodableExpectation? = config["backdropDecoratingExpectation"]
+            backdropDecoratingExpectation = decodableBackdropDecoratingExpectation?.expectation
         }
 
         // StepDecoratingTrait
@@ -540,11 +541,13 @@ extension TraitComposerTests {
         var presentExpectation: XCTestExpectation?
         var removeExpectation: XCTestExpectation?
 
-        required init?(config: [String: Any]?, level: ExperienceTraitLevel) {
-            self.groupID = config?["groupID"] as? String
+        required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
+            self.groupID = config["groupID"]
 
-            presentExpectation = config?["presentExpectation"] as? XCTestExpectation
-            removeExpectation = config?["removeExpectation"] as? XCTestExpectation
+            let decodablePresentExpectation: DecodableExpectation? = config["presentExpectation"]
+            presentExpectation = decodablePresentExpectation?.expectation
+            let decodableRemoveExpectation: DecodableExpectation? = config["removeExpectation"]
+            removeExpectation = decodableRemoveExpectation?.expectation
         }
 
         func present(viewController: UIViewController, completion: (() -> Void)?) throws {
