@@ -30,6 +30,8 @@ public protocol ExperienceTrait {
     /// Must be unique and should be formatted `@org/name` (e.g. `@appcues/modal`).
     static var type: String { get }
 
+    weak var metadataDelegate: TraitMetadataDelegate? { get set }
+
     /// Initializer from an `Experience.Trait` data model.
     ///
     /// This initializer should verify the config has any required properties and return `nil` if not.
