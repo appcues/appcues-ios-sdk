@@ -20,10 +20,10 @@ class AppcuesContinueActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let indexAction = AppcuesContinueAction(config: ["index": 1])
-        let offsetAction = AppcuesContinueAction(config: ["offset": -1])
-        let stepIDAction = AppcuesContinueAction(config: ["stepID": "8ebcb374-0eff-45a5-9d62-ffee52d8a57b"])
-        let defaultAction = AppcuesContinueAction(config: nil)
+        let indexAction = AppcuesContinueAction(config: DecodingExperienceConfig(["index": 1]))
+        let offsetAction = AppcuesContinueAction(config: DecodingExperienceConfig(["offset": -1]))
+        let stepIDAction = AppcuesContinueAction(config: DecodingExperienceConfig(["stepID": "8ebcb374-0eff-45a5-9d62-ffee52d8a57b"]))
+        let defaultAction = AppcuesContinueAction(config: DecodingExperienceConfig(nil))
 
 
         // Assert
@@ -49,7 +49,7 @@ class AppcuesContinueActionTests: XCTestCase {
             }
             completion?()
         }
-        let action = AppcuesContinueAction(config: nil)
+        let action = AppcuesContinueAction(config: DecodingExperienceConfig(nil))
 
         // Act
         action?.execute(inContext: appcues, completion: { completionCount += 1 })

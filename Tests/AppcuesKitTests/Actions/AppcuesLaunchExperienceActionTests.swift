@@ -21,8 +21,8 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesLaunchExperienceAction(config: ["experienceID": "123"])
-        let failedAction = AppcuesLaunchExperienceAction(config: [:])
+        let action = AppcuesLaunchExperienceAction(config: DecodingExperienceConfig(["experienceID": "123"]))
+        let failedAction = AppcuesLaunchExperienceAction(config: DecodingExperienceConfig([:]))
 
         // Assert
         XCTAssertEqual(AppcuesLaunchExperienceAction.type, "@appcues/launch-experience")
@@ -40,7 +40,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
             loadCount += 1
             completion?(.success(()))
         }
-        let action = AppcuesLaunchExperienceAction(config: ["experienceID": "123"])
+        let action = AppcuesLaunchExperienceAction(config: DecodingExperienceConfig(["experienceID": "123"]))
 
         // Act
         action?.execute(inContext: appcues, completion: { completionCount += 1 })
@@ -59,7 +59,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
             loadCount += 1
             completion?(.failure(AppcuesError.noActiveSession))
         }
-        let action = AppcuesLaunchExperienceAction(config: ["experienceID": "123"])
+        let action = AppcuesLaunchExperienceAction(config: DecodingExperienceConfig(["experienceID": "123"]))
 
         // Act
         action?.execute(inContext: appcues, completion: { completionCount += 1 })
