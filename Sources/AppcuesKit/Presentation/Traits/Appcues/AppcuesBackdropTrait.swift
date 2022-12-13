@@ -12,6 +12,8 @@ import UIKit
 internal class AppcuesBackdropTrait: BackdropDecoratingTrait {
     static var type: String = "@appcues/backdrop"
 
+    weak var metadataDelegate: TraitMetadataDelegate?
+
     let backgroundColor: UIColor
 
     required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
@@ -23,10 +25,24 @@ internal class AppcuesBackdropTrait: BackdropDecoratingTrait {
     }
 
     func decorate(backdropView: UIView) throws {
-        backdropView.backgroundColor = backgroundColor
+        guard let metadataDelegate = metadataDelegate else {
+            backdropView.backgroundColor = backgroundColor
+            return
+        }
+
+        metadataDelegate.set(["backdropBackgroundColor": backgroundColor])
+
+        metadataDelegate.registerHandler(for: Self.type, animating: true) { metadata in
+            backdropView.backgroundColor = metadata["backdropBackgroundColor"]
+        }
     }
 
     func undecorate(backdropView: UIView) throws {
-        backdropView.backgroundColor = nil
+        guard let metadataDelegate = metadataDelegate else {
+            backdropView.backgroundColor = nil
+            return
+        }
+
+        metadataDelegate.unset(keys: [ "backdropBackgroundColor" ])
     }
 }

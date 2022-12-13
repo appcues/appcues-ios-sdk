@@ -12,6 +12,8 @@ import UIKit
 internal class AppcuesCarouselTrait: ContainerCreatingTrait {
     static let type = "@appcues/carousel"
 
+    weak var metadataDelegate: TraitMetadataDelegate?
+
     required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
     }
 

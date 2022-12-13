@@ -12,6 +12,8 @@ import UIKit
 internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecoratingTrait {
     static var type: String = "@appcues/skippable"
 
+    weak var metadataDelegate: TraitMetadataDelegate?
+
     private weak var containerController: UIViewController?
     private weak var view: UIViewController.CloseButton?
     private var gestureRecognizer: UITapGestureRecognizer?

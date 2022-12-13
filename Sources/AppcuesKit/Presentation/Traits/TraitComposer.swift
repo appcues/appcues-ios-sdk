@@ -38,21 +38,29 @@ internal class TraitComposer: TraitComposing {
 
         // Start with experience-level traits
         let decomposedTraits = DecomposedTraits(traits: traitRegistry.instances(for: experience.traits, level: .experience))
+        var allTraitInstances = decomposedTraits.allTraitInstances
 
         // Add step-group-level traits and top-level-step traits
         switch experience.steps[stepIndex.group] {
         case .group(let stepGroup):
-            decomposedTraits.append(contentsOf: DecomposedTraits(traits: traitRegistry.instances(for: stepGroup.traits, level: .group)))
+            let decomposedGroupTraits = DecomposedTraits(traits: traitRegistry.instances(for: stepGroup.traits, level: .group))
+            decomposedTraits.append(contentsOf: decomposedGroupTraits)
+            allTraitInstances.append(contentsOf: decomposedGroupTraits.allTraitInstances)
         case .child(let childStep):
-            // Decorator traits for a single step are handled below with the stepModels.
+            // Decorator traits and allTraitInstances for a single step are handled below with the stepModels.
             decomposedTraits.append(contentsOf: DecomposedTraits(traits: traitRegistry.instances(for: childStep.traits, level: .step)), ignoringDecorators: true)
         }
 
         let stepModelsWithTraits: [(step: Experience.Step.Child, decomposedTraits: DecomposedTraits)] = stepModels.map { stepModel in
             let decomposedStepTraits = DecomposedTraits(traits: traitRegistry.instances(for: stepModel.traits, level: .step))
             decomposedStepTraits.propagateDecorators(from: decomposedTraits)
+            allTraitInstances.append(contentsOf: decomposedStepTraits.allTraitInstances)
             return (stepModel, decomposedStepTraits)
         }
+
+        let metadataDelegate = TraitMetadataDelegate()
+        // Ensure the delegate is set for all the traits before we start applying any of them
+        allTraitInstances.forEach { $0.metadataDelegate = metadataDelegate }
 
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithTraits.map {
             let viewModel = ExperienceStepViewModel(step: $0.step, actionRegistry: actionRegistry)
@@ -79,6 +87,7 @@ internal class TraitComposer: TraitComposing {
         try stepModelsWithTraits[targetPageIndex].decomposedTraits.backdropDecorating.forEach {
             try $0.decorate(backdropView: backdropView)
         }
+        metadataDelegate.publish()
 
         let stepDecoratingTraitUpdater: (Int, Int) throws -> Void = { newIndex, previousIndex in
             // Remove old decorations
@@ -98,6 +107,8 @@ internal class TraitComposer: TraitComposing {
             try stepModelsWithTraits[newIndex].decomposedTraits.backdropDecorating.forEach {
                 try $0.decorate(backdropView: backdropView)
             }
+
+            metadataDelegate.publish()
         }
 
         let unwrappedPresenting = try decomposedTraits.presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
@@ -183,7 +194,7 @@ extension TraitComposer {
     class DefaultContainerCreatingTrait: ContainerCreatingTrait {
         static var type: String = "_defaultContainerCreatingTrait"
 
-        let groupID: String? = nil
+        weak var metadataDelegate: TraitMetadataDelegate?
 
         init() {}
         required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {}
