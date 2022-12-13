@@ -115,13 +115,15 @@ internal struct Experience {
 
     struct Trait {
         let type: String
-        let config: [String: Any]?
+        // Partially decode config so that it can be easily accessed by specific Traits with more type info.
+        let config: [String: KeyedDecodingContainer<JSONCodingKeys>]?
     }
 
     struct Action {
         let trigger: String
         let type: String
-        let config: [String: Any]?
+        // Partially decode config so that it can be easily accessed by specific Actions with more type info.
+        let config: [String: KeyedDecodingContainer<JSONCodingKeys>]?
     }
 
     let id: UUID
@@ -285,7 +287,7 @@ extension Experience.Trait: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         type = try container.decode(String.self, forKey: .type)
-        config = (try? container.partialDictionaryDecode([String: Any].self, forKey: .config)) ?? [:]
+        config = (try? container.partialDictionaryDecode(forKey: .config)) ?? [:]
     }
 }
 
@@ -301,7 +303,7 @@ extension Experience.Action: Decodable {
 
         trigger = try container.decode(String.self, forKey: .trigger)
         type = try container.decode(String.self, forKey: .type)
-        config = (try? container.decode([String: Any].self, forKey: .config)) ?? [:]
+        config = (try? container.partialDictionaryDecode(forKey: .config)) ?? [:]
     }
 
 }
