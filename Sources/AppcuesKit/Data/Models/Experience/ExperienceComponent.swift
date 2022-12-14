@@ -229,6 +229,8 @@ extension ExperienceComponent {
         let accentColor: Style.DynamicColor?
         let pickerStyle: Style?
         let attributeName: String?
+        // swiftlint:disable:next discouraged_optional_boolean
+        let leadingFill: Bool?
 
         let style: Style?
 
