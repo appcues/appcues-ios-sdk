@@ -158,10 +158,61 @@ class ExperienceDataTests: XCTestCase {
         formItem.setValue("3")
         XCTAssertEqual(formItem.getValue(), "0\n1\n2")
     }
+
+    func testLeadingFill() throws {
+        // Arrange
+        let model = ExperienceComponent.OptionSelectModel(
+            selectMode: .single,
+            optionCount: 5,
+            minSelections: nil,
+            maxSelections: nil,
+            defaultValue: ["3"],
+            leadingFill: true
+        )
+        var formItem = ExperienceData.FormItem(model: model)
+
+        // Act/Assert
+        XCTAssertEqual(formItem.getValue(), "3")
+        XCTAssertTrue(formItem.isSelected(searchValue: "1"))
+        XCTAssertTrue(formItem.isSelected(searchValue: "2"))
+        XCTAssertTrue(formItem.isSelected(searchValue: "3"))
+        XCTAssertFalse(formItem.isSelected(searchValue: "4"))
+        XCTAssertFalse(formItem.isSelected(searchValue: "5"))
+
+        formItem.setValue("1")
+        XCTAssertEqual(formItem.getValue(), "1")
+        XCTAssertTrue(formItem.isSelected(searchValue: "1"))
+        XCTAssertFalse(formItem.isSelected(searchValue: "2"))
+        XCTAssertFalse(formItem.isSelected(searchValue: "3"))
+        XCTAssertFalse(formItem.isSelected(searchValue: "4"))
+        XCTAssertFalse(formItem.isSelected(searchValue: "5"))
+
+    }
+
+    func testLeadingFillDoesNotApplyForMultiSelect() throws {
+        // Arrange
+        let model = ExperienceComponent.OptionSelectModel(
+            selectMode: .multi,
+            optionCount: 5,
+            minSelections: nil,
+            maxSelections: nil,
+            defaultValue: ["3"],
+            leadingFill: true
+        )
+        let formItem = ExperienceData.FormItem(model: model)
+
+        // Act/Assert
+        XCTAssertEqual(formItem.getValue(), "3")
+        XCTAssertFalse(formItem.isSelected(searchValue: "1"))
+        XCTAssertFalse(formItem.isSelected(searchValue: "2"))
+        XCTAssertTrue(formItem.isSelected(searchValue: "3"))
+        XCTAssertFalse(formItem.isSelected(searchValue: "4"))
+        XCTAssertFalse(formItem.isSelected(searchValue: "5"))
+    }
 }
 
 extension ExperienceComponent.OptionSelectModel {
-    init(selectMode: SelectMode, optionCount: Int, minSelections: UInt?, maxSelections: UInt?, defaultValue: [String]? = nil) {
+    init(selectMode: SelectMode, optionCount: Int, minSelections: UInt?, maxSelections: UInt?, defaultValue: [String]? = nil, leadingFill: Bool? = nil) {
         let options = (0..<optionCount).map {
             ExperienceComponent.FormOptionModel(
                 value: "\($0)",
@@ -178,13 +229,14 @@ extension ExperienceComponent.OptionSelectModel {
             defaultValue: defaultValue,
             minSelections: minSelections,
             maxSelections: maxSelections,
-            controlPosition: .leading,
+            controlPosition: .hidden,
             displayFormat: .verticalList,
             selectedColor: nil,
             unselectedColor: nil,
             accentColor: nil,
             pickerStyle: nil,
             attributeName: nil,
+            leadingFill: leadingFill,
             style: nil
         )
     }
