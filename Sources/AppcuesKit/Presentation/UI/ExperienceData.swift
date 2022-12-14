@@ -72,9 +72,9 @@ extension ExperienceData {
         @available(iOS 13.0, *)
         func isSatisfied(value: ExperienceData.FormItem.ValueType) -> Bool {
             switch (self, value) {
-            case (.nonEmpty, _), (.minSelections, .single):
+            case (.nonEmpty, _), (.minSelections, .single), (.minSelections, .singleLeadingFill):
                 return value.isSet
-            case (.maxSelections, .single):
+            case (.maxSelections, .single), (.maxSelections, .singleLeadingFill):
                 // Case should never apply, but logically it's always valid
                 return true
             case let (.minSelections(min), .multi(set, _)):
@@ -119,7 +119,7 @@ extension ExperienceData {
 
         func formBinding(for key: UUID, value: String) -> Binding<Bool> {
             return .init(
-                get: { self.formItems[key]?.contains(searchValue: value) ?? false },
+                get: { self.formItems[key]?.isSelected(searchValue: value) ?? false },
                 set: { _ in
                     self.formItems[key]?.setValue(value)
                 })
@@ -133,11 +133,13 @@ extension ExperienceData {
     struct FormItem: Equatable {
         enum ValueType: Equatable {
             case single(String)
+            // A single value, but where the selected state should be set for all values that precede the selected value.
+            case singleLeadingFill(String, orderedValues: [String])
             case multi([String], max: UInt?)
 
             var isSet: Bool {
                 switch self {
-                case .single(let value):
+                case .single(let value), .singleLeadingFill(let value, _):
                     return !value.isEmpty
                 case .multi(let values, _):
                     return !values.isEmpty
@@ -146,7 +148,7 @@ extension ExperienceData {
 
             var value: String {
                 switch self {
-                case .single(let value):
+                case .single(let value), .singleLeadingFill(let value, _):
                     return value
                 case .multi(let values, _):
                     return values.joined(separator: "\n")
@@ -180,7 +182,14 @@ extension ExperienceData {
             self.attributeName = model.attributeName
             switch model.selectMode {
             case .single:
-                self.underlyingValue = .single(model.defaultValue?.first ?? "")
+                if model.leadingFill ?? false && model.controlPosition == .hidden {
+                    self.underlyingValue = .singleLeadingFill(
+                        model.defaultValue?.first ?? "",
+                        orderedValues: model.options.map { $0.value }
+                    )
+                } else {
+                    self.underlyingValue = .single(model.defaultValue?.first ?? "")
+                }
             case .multi:
                 self.underlyingValue = .multi(model.defaultValue ?? [], max: model.trueMaxSelections)
             }
@@ -196,6 +205,8 @@ extension ExperienceData {
             switch underlyingValue {
             case .single:
                 underlyingValue = .single(newValue)
+            case .singleLeadingFill(_, let orderedValues):
+                underlyingValue = .singleLeadingFill(newValue, orderedValues: orderedValues)
             case .multi(var existingValues, let maxSelections):
                 if existingValues.contains(newValue) {
                     existingValues = existingValues.filter { $0 != newValue }
@@ -212,10 +223,17 @@ extension ExperienceData {
             }
         }
 
-        func contains(searchValue: String) -> Bool {
+        func isSelected(searchValue: String) -> Bool {
             switch underlyingValue {
-            case .single(let value):
-                return value == searchValue
+            case .single(let existingValue):
+                return existingValue == searchValue
+            case let .singleLeadingFill(existingValue, orderedValues):
+                if let existingValueIndex = orderedValues.firstIndex(of: existingValue),
+                   let searchValueIndex = orderedValues.firstIndex(of: searchValue) {
+                    return existingValueIndex >= searchValueIndex
+                } else {
+                    return false
+                }
             case .multi(let existingValues, _):
                 return existingValues.contains(searchValue)
             }
