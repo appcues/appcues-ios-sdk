@@ -132,6 +132,8 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
 
     static var type: String = "@sample/trait"
 
+    weak var metadataDelegate: TraitMetadataDelegate?
+
     required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
         // Do not add `@unknown default` here, since we want to know about new cases
         switch level {

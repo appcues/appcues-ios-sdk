@@ -461,6 +461,8 @@ extension TraitComposerTests {
     class TestTrait: StepDecoratingTrait, ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait, BackdropDecoratingTrait {
         class var type: String { "@test/trait" }
 
+        weak var metadataDelegate: AppcuesKit.TraitMetadataDelegate?
+
         let groupID: String?
 
         var stepDecoratingExpectation: XCTestExpectation?
@@ -535,6 +537,8 @@ extension TraitComposerTests {
 
     class TestPresentingTrait: PresentingTrait {
         static let type = "@test/presenting"
+
+        weak var metadataDelegate: AppcuesKit.TraitMetadataDelegate?
 
         let groupID: String?
 
