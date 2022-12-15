@@ -64,6 +64,8 @@ private extension TraitRegistryTests {
     class TestTrait: ExperienceTrait {
         static let type = "@test/trait"
 
+        weak var metadataDelegate: AppcuesKit.TraitMetadataDelegate?
+
         required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {}
     }
 }
