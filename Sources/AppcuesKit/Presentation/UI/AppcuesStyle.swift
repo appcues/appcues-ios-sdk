@@ -12,6 +12,7 @@ import SwiftUI
 internal struct AppcuesStyle {
     let padding: EdgeInsets
     let margin: EdgeInsets
+    let borderInset: EdgeInsets
     let height: CGFloat?
     let width: CGFloat?
     let fillWidth: Bool
@@ -33,7 +34,7 @@ internal struct AppcuesStyle {
     let borderColor: Color?
     let borderWidth: CGFloat?
 
-    init(from model: ExperienceComponent.Style?) {
+    init(from model: ExperienceComponent.Style?, contentMode: ContentMode? = nil, aspectRatio: CGFloat? = nil) {
         self.padding = EdgeInsets(
             top: model?.paddingTop ?? 0,
             leading: model?.paddingLeading ?? 0,
@@ -74,5 +75,27 @@ internal struct AppcuesStyle {
         self.cornerRadius = CGFloat(model?.cornerRadius)
         self.borderColor = Color(dynamicColor: model?.borderColor)
         self.borderWidth = CGFloat(model?.borderWidth)
+
+
+        // Border insets should only be applied on fixed size views - so for those with a
+        // fixed height, for instance, apply a top and bottom inset. For those with a
+        // fixed width, apply leading and trailing inset (or sometimes both).
+        // This is factored in the base style object created above. If size is not constrained,
+        // then any border is applied on top of the intrinsic size of the view - growing the
+        // overall view frame as needed.
+        //
+        // For images, they may also have one dimension defined and the other defined
+        // using an aspect ratio - so we have to handle that special case here and use a custom
+        // borderInset
+        let willApplyAspectRatio = contentMode != nil && aspectRatio != nil
+        let hasWidth = self.width != nil || self.fillWidth
+        let hasHeight = self.height != nil
+        let borderInsetSize: CGFloat = self.borderWidth ?? 0.0
+
+        self.borderInset = EdgeInsets(
+            top: hasHeight || (hasWidth && willApplyAspectRatio) ? borderInsetSize : 0,
+            leading: hasWidth || (hasHeight && willApplyAspectRatio) ? borderInsetSize : 0,
+            bottom: hasHeight || (hasWidth && willApplyAspectRatio) ? borderInsetSize : 0,
+            trailing: hasWidth || (hasHeight && willApplyAspectRatio) ? borderInsetSize : 0)
     }
 }

@@ -21,6 +21,8 @@ internal struct AppcuesButton: View {
             // handle tap in `.setupActions`
         } label: {
             model.content.view
+                // allocate space for any border that will be applied below
+                .padding(style.borderInset)
                 // If the button has a set width instead of sizing according to the content,
                 // the content may need to be aligned within the the expanded space.
                 // The `if` check is necessary since `maxWidth: .infinity` would blow things up
@@ -37,6 +39,7 @@ internal struct AppcuesButton: View {
         }
         .applyForegroundStyle(style)
         .applyBackgroundStyle(style)
+        .applyBorderStyle(style)
         .applyExternalLayout(style)
         .setupActions(on: viewModel, for: model)
     }
