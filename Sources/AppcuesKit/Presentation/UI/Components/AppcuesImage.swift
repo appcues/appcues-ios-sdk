@@ -17,12 +17,18 @@ internal struct AppcuesImage: View {
     @Environment(\.imageCache) var imageCache: SessionImageCache
 
     var body: some View {
-        let style = AppcuesStyle(from: model.style)
+        let contentMode = ContentMode(string: model.contentMode)
+
+        // special case for images - need to pass the content mode and aspectRatio values so we can properly
+        // set the borderInsets to use for this view
+        let style = AppcuesStyle(from: model.style, contentMode: contentMode, aspectRatio: model.intrinsicSize?.aspectRatio)
 
         content(placeholder: style.backgroundColor)
             .ifLet(model.accessibilityLabel) { view, val in
                 view.accessibility(label: Text(val))
             }
+            // allocate space for any border that will be applied below
+            .padding(style.borderInset)
             .setupActions(on: viewModel, for: model)
             .applyForegroundStyle(style)
             // set the aspect ratio before applying frame sizing
@@ -30,9 +36,11 @@ internal struct AppcuesImage: View {
                 view.aspectRatio(model.intrinsicSize?.aspectRatio, contentMode: val)
             }
             .applyInternalLayout(style)
+
             // clip before adding shadows
             .clipped()
             .applyBackgroundStyle(style)
+            .applyBorderStyle(style)
             .applyExternalLayout(style)
     }
 

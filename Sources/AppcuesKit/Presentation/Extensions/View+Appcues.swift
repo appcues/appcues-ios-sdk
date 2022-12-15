@@ -45,11 +45,14 @@ extension View {
     func applyInternalLayout(_ style: AppcuesStyle) -> some View {
         self
             .padding(style.padding)
-            .applyBorderStyle(style)
             .frame(width: style.width, height: style.height)
             .if(style.fillWidth) { view in
                 view.frame(maxWidth: .infinity)
             }
+            // this negative inset reserves space that will later be used to apply
+            // any border within the allocated frame size - only applies when a fixed
+            // sized frame is being used
+            .padding(style.borderInset * -1)
     }
 
     func applyBackgroundStyle(_ style: AppcuesStyle) -> some View {
@@ -83,6 +86,28 @@ extension View {
                     view.background(val.edgesIgnoringSafeArea(.all))
                 }
             }
+    }
+
+    func applyBorderStyle(_ style: AppcuesStyle) -> some View {
+        self
+            .ifLet(style.borderColor, style.borderWidth) { view, color, width in
+                view
+                    // The border should account for space in the layout, not just be an overlay.
+                    .padding(width)
+                    .overlay(
+                        // Note that the `cornerRadius` here is really only needed for the *inner* edge of the border.
+                        // The `cornerRadius` modifier a few lines below in this function takes care of rounding off
+                        // the *outer* edge appropriately (which is why a cornerRadius of 0 here is ok).
+                        // Need to adjust the corner radius to match the radius applied to the view.
+                        RoundedRectangle(cornerRadius: max(0, (style.cornerRadius ?? 0) - width / 2))
+                            .stroke(color, lineWidth: width)
+                            // The RoundedRectangle overlay is added centered on the edge of the view, so
+                            // half of the width is outside the view bounds. Add padding for that to
+                            // ensure the border never gets half cropped out.
+                            .padding(width / 2)
+                )
+            }
+            // cornerRadius and shadow are always applied after any border, on the final outer edge of the view
             .ifLet(style.cornerRadius) { view, val in
                 view.cornerRadius(val)
             }
@@ -92,27 +117,6 @@ extension View {
                     radius: val.radius,
                     x: val.x,
                     y: val.y)
-            }
-    }
-
-    private func applyBorderStyle(_ style: AppcuesStyle) -> some View {
-        self
-            .ifLet(style.borderColor, style.borderWidth) { view, color, width in
-                view
-                    // The border should account for space in the layout, not just be an overlay.
-                    .padding(width)
-                    .overlay(
-                    // Note that the `cornerRadius` here is really only needed for the *inner* edge of the border.
-                    // The `cornerRadius` modifier in `applyBackgroundStyle` takes care of rounding off the *outer* edge appropriately
-                    // (which is why a cornerRadius of 0 here is ok).
-                    // Need to adjust the corner radius to match the radius applied to the view.
-                    RoundedRectangle(cornerRadius: max(0, (style.cornerRadius ?? 0) - width / 2))
-                        .stroke(color, lineWidth: width)
-                        // The RoundedRectangle overlay is added centered on the edge of the view, so
-                        // half of the width is outside the view bounds. Add padding for that to
-                        // ensure the border never gets half cropped out.
-                        .padding(width / 2)
-                )
             }
     }
 
@@ -128,6 +132,7 @@ extension View {
                 .applyForegroundStyle(style)
                 .applyInternalLayout(style)
                 .applyBackgroundStyle(style)
+                .applyBorderStyle(style)
                 .applyExternalLayout(style)
         )
     }
