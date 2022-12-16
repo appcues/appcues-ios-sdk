@@ -245,17 +245,17 @@ class ExperienceStateMachineTests: XCTestCase {
         let action1 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": DecodableExecuteBlock {
+            config: TestAction.Config(onExecute: DecodableExecuteBlock {
                 executionSequence.append("action1")
                 action1ExecutionExpectation.fulfill()
-            }].toDecodableDict())
+            }))
         let action2 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": DecodableExecuteBlock {
+            config: TestAction.Config(onExecute: DecodableExecuteBlock {
                 executionSequence.append("action2")
                 action2ExecutionExpectation.fulfill()
-            }].toDecodableDict())
+            }))
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
         let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .qualification(reason: nil))
@@ -297,17 +297,17 @@ class ExperienceStateMachineTests: XCTestCase {
         let action1 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": DecodableExecuteBlock {
+            config: TestAction.Config(onExecute: DecodableExecuteBlock {
                 executionSequence.append("action1")
                 action1ExecutionExpectation.fulfill()
-            }].toDecodableDict())
+            }))
         let action2 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": DecodableExecuteBlock {
+            config: TestAction.Config(onExecute: DecodableExecuteBlock {
                 executionSequence.append("action2")
                 action2ExecutionExpectation.fulfill()
-            }].toDecodableDict())
+            }))
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
         let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .qualification(reason: nil))
@@ -347,17 +347,17 @@ class ExperienceStateMachineTests: XCTestCase {
         let action1 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": DecodableExecuteBlock {
+            config: TestAction.Config(onExecute: DecodableExecuteBlock {
                 executionSequence.append("action1")
                 action1ExecutionExpectation.fulfill()
-            }].toDecodableDict())
+            }))
         let action2 = Experience.Action(
             trigger: "navigate",
             type: TestAction.type,
-            config: ["onExecute": DecodableExecuteBlock {
+            config: TestAction.Config(onExecute: DecodableExecuteBlock {
                 executionSequence.append("action2")
                 action2ExecutionExpectation.fulfill()
-            }].toDecodableDict())
+            }))
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
         let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .deepLink)
@@ -631,13 +631,16 @@ private class ListingObserver: ExperienceStateObserver {
 @available(iOS 13.0, *)
 private extension ExperienceStateMachineTests {
     class TestAction: ExperienceAction {
+        struct Config: Decodable {
+            let onExecute: DecodableExecuteBlock?
+        }
         static let type = "@test/action"
 
         var onExecute: (() -> Void)?
 
-        required init?(config: DecodingExperienceConfig) {
-            let executeBlock: DecodableExecuteBlock? = config["onExecute"]
-            onExecute = executeBlock?.block
+        required init?(configuration: ExperiencePluginConfiguration) {
+            let config = configuration.decode(Config.self)
+            onExecute = config?.onExecute?.block
         }
 
         func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
