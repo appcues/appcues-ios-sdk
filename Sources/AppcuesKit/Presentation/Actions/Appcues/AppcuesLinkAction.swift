@@ -11,6 +11,12 @@ import SafariServices
 
 @available(iOS 13.0, *)
 internal class AppcuesLinkAction: ExperienceAction {
+    struct Config: Decodable {
+        let url: URL
+        // swiftlint:disable:next discouraged_optional_boolean
+        let openExternally: Bool?
+    }
+
     static let type = "@appcues/link"
 
     var urlOpener: TopControllerGetting & URLOpening = UIApplication.shared
@@ -18,13 +24,10 @@ internal class AppcuesLinkAction: ExperienceAction {
     let url: URL
     let openExternally: Bool
 
-    required init?(config: DecodingExperienceConfig) {
-        if let url = URL(string: config["url"] ?? "") {
-            self.url = url
-            self.openExternally = config["openExternally"] ?? false
-        } else {
-            return nil
-        }
+    required init?(configuration: ExperiencePluginConfiguration) {
+        guard let config = configuration.decode(Config.self) else { return nil }
+        self.url = config.url
+        self.openExternally = config.openExternally ?? false
     }
 
     init(url: URL, openExternally: Bool = false) {
