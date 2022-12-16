@@ -10,22 +10,22 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
+    struct Config: Decodable {
+        // swiftlint:disable identifier_name
+        let x: Double
+        let y: Double
+        let width: Double
+        let height: Double
+    }
     static let type: String = "@appcues/target-rectangle"
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
     private let rect: CGRect
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
-        // swiftlint:disable identifier_name
-        if let x: CGFloat = config["x"],
-           let y: CGFloat = config["y"],
-           let width: CGFloat = config["width"],
-           let height: CGFloat = config["height"] {
-            self.rect = CGRect(x: x, y: y, width: width, height: height)
-        } else {
-            return nil
-        }
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        guard let config = configuration.decode(Config.self) else { return nil }
+        self.rect = CGRect(x: config.x, y: config.y, width: config.width, height: config.height)
     }
 
     func decorate(backdropView: UIView) throws {
