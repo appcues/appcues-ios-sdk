@@ -9,17 +9,22 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
+    struct Config: Decodable {
+        let style: ExperienceComponent.Style?
+    }
+
     static let type = "@appcues/paging-dots"
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    let style: ExperienceComponent.Style?
+    private let style: ExperienceComponent.Style?
 
     private weak var containerController: ExperienceContainerViewController?
     private weak var view: UIView?
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
-        self.style = config["style"]
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        let config = configuration.decode(Config.self)
+        self.style = config?.style
     }
 
     func decorate(containerController: ExperienceContainerViewController) throws {

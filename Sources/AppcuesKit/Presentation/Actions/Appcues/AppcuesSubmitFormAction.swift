@@ -10,12 +10,17 @@ import Foundation
 
 @available(iOS 13.0, *)
 internal class AppcuesSubmitFormAction: ExperienceAction, ExperienceActionQueueTransforming {
+    struct Config: Decodable {
+        let skipValidation: Bool
+    }
+
     static let type = "@appcues/submit-form"
 
     let skipValidation: Bool
 
-    required init?(config: DecodingExperienceConfig) {
-        self.skipValidation = config["skipValidation"] ?? false
+    required init?(configuration: ExperiencePluginConfiguration) {
+        let config = configuration.decode(Config.self)
+        self.skipValidation = config?.skipValidation ?? false
     }
 
     func execute(inContext appcues: Appcues, completion: ActionRegistry.Completion) {

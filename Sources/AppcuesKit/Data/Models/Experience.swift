@@ -89,6 +89,10 @@ internal struct TraitCollection: Decodable {
     }
 }
 
+internal protocol PluginDecoder {
+    func decode<T: Decodable>(_ type: T.Type) -> T?
+}
+
 internal struct Experience {
 
     @dynamicMemberLookup
@@ -115,15 +119,13 @@ internal struct Experience {
 
     struct Trait {
         let type: String
-        // Partially decode config so that it can be easily accessed by specific Traits with more type info.
-        let config: [String: KeyedDecodingContainer<JSONCodingKeys>]?
+        let configDecoder: PluginDecoder
     }
 
     struct Action {
         let trigger: String
         let type: String
-        // Partially decode config so that it can be easily accessed by specific Actions with more type info.
-        let config: [String: KeyedDecodingContainer<JSONCodingKeys>]?
+        let configDecoder: PluginDecoder
     }
 
     let id: UUID
@@ -278,32 +280,54 @@ extension Experience.Step: Decodable {
 }
 
 extension Experience.Trait: Decodable {
-    private enum CodingKeys: CodingKey {
+    enum CodingKeys: CodingKey {
         case type
         case config
     }
 
+    private struct TraitDecoder: PluginDecoder {
+        private let container: KeyedDecodingContainer<Experience.Trait.CodingKeys>
+
+        init(_ container: KeyedDecodingContainer<Experience.Trait.CodingKeys>) {
+            self.container = container
+        }
+
+        func decode<T: Decodable>(_ type: T.Type) -> T? {
+            try? container.decode(T.self, forKey: .config)
+        }
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-
         type = try container.decode(String.self, forKey: .type)
-        config = (try? container.partialDictionaryDecode(forKey: .config)) ?? [:]
+        configDecoder = TraitDecoder(container)
     }
 }
 
 extension Experience.Action: Decodable {
-    private enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
         case trigger = "on"
         case type
         case config
     }
 
+    private struct ActionDecoder: PluginDecoder {
+        private let container: KeyedDecodingContainer<Experience.Action.CodingKeys>
+
+        init(_ container: KeyedDecodingContainer<Experience.Action.CodingKeys>) {
+            self.container = container
+        }
+
+        func decode<T: Decodable>(_ type: T.Type) -> T? {
+            try? container.decode(T.self, forKey: .config)
+        }
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-
         trigger = try container.decode(String.self, forKey: .trigger)
         type = try container.decode(String.self, forKey: .type)
-        config = (try? container.partialDictionaryDecode(forKey: .config)) ?? [:]
+        configDecoder = ActionDecoder(container)
     }
 
 }

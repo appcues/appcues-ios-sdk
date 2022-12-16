@@ -10,20 +10,23 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 internal class AppcuesStickyContentTrait: StepDecoratingTrait {
+    struct Config: Decodable {
+        let edge: String
+        let content: ExperienceComponent
+    }
+
     static let type = "@appcues/sticky-content"
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    let edge: Edge
-    let content: ExperienceComponent
+    private let edge: Edge
+    private let content: ExperienceComponent
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
-        if let edge = Edge(config["edge"]), let content: ExperienceComponent = config["content"] {
-            self.edge = edge
-            self.content = content
-        } else {
-            return nil
-        }
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        guard let config = configuration.decode(Config.self), let edge = Edge(config.edge) else { return nil }
+
+        self.content = config.content
+        self.edge = edge
     }
 
     func decorate(stepController viewController: UIViewController) throws {

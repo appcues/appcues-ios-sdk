@@ -10,23 +10,24 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDecoratingTrait {
+    struct Config: Decodable {
+        let content: ExperienceComponent
+    }
+
     static let type = "@appcues/background-content"
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    let level: ExperienceTraitLevel
-    let content: ExperienceComponent
+    private let level: ExperienceTraitLevel
+    private let content: ExperienceComponent
 
     private weak var backgroundViewController: UIViewController?
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
-        self.level = level
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        guard let config = configuration.decode(Config.self) else { return nil }
 
-        if let content: ExperienceComponent = config["content"] {
-            self.content = content
-        } else {
-            return nil
-        }
+        self.level = level
+        self.content = config.content
     }
 
     func decorate(stepController viewController: UIViewController) throws {
