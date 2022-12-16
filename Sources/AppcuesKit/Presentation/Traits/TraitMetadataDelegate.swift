@@ -14,7 +14,7 @@ public class TraitMetadataDelegate: NSObject {
     private var metadata: [String: Any?] = [:]
     private var previousMetadata: [String: Any?] = [:]
 
-    private var subscribers: [String: (TraitMetadata) -> Void] = [:]
+    private var nonAnimatingSubscribers: [String: (TraitMetadata) -> Void] = [:]
     private var viewAnimatingSubscribers: [String: (TraitMetadata) -> Void] = [:]
 
     public func set(_ newDict: [String: Any?]) {
@@ -32,7 +32,7 @@ public class TraitMetadataDelegate: NSObject {
     public func publish() {
         let traitMetadata = TraitMetadata(newData: metadata, previousData: previousMetadata)
 
-        subscribers.forEach { _, observer in observer(traitMetadata) }
+        nonAnimatingSubscribers.forEach { _, observer in observer(traitMetadata) }
 
         traitMetadata.viewAnimation {
             self.viewAnimatingSubscribers.forEach { _, block in block(traitMetadata) }
@@ -45,12 +45,12 @@ public class TraitMetadataDelegate: NSObject {
         if animating {
             viewAnimatingSubscribers[key] = observer
         } else {
-            subscribers[key] = observer
+            nonAnimatingSubscribers[key] = observer
         }
     }
 
     public func removeHandler(for key: String) {
-        subscribers.removeValue(forKey: key)
+        nonAnimatingSubscribers.removeValue(forKey: key)
         viewAnimatingSubscribers.removeValue(forKey: key)
     }
 
