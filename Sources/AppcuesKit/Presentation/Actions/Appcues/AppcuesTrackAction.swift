@@ -10,16 +10,17 @@ import Foundation
 
 @available(iOS 13.0, *)
 internal class AppcuesTrackAction: ExperienceAction {
+    struct Config: Decodable {
+        let eventName: String
+    }
+
     static let type = "@appcues/track"
 
     let eventName: String
 
-    required init?(config: DecodingExperienceConfig) {
-        if let eventName: String = config["eventName"] {
-            self.eventName = eventName
-        } else {
-            return nil
-        }
+    required init?(configuration: ExperiencePluginConfiguration) {
+        guard let config = configuration.decode(Config.self) else { return nil }
+        self.eventName = config.eventName
     }
 
     func execute(inContext appcues: Appcues, completion: ActionRegistry.Completion) {

@@ -66,7 +66,7 @@ internal class ActionRegistry {
     /// such as actions that execute as part of the navigation to a step.
     func enqueue(actionModels: [Experience.Action], completion: @escaping () -> Void) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(config: DecodingExperienceConfig($0.config))
+            actions[$0.type]?.init(configuration: ExperiencePluginConfiguration($0.configDecoder))
         }
         execute(transformQueue(actionInstances), completion: completion)
     }
@@ -80,7 +80,7 @@ internal class ActionRegistry {
     /// during an experience, such as button taps.
     func enqueue(actionModels: [Experience.Action], interactionType: String, viewDescription: String?) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(config: DecodingExperienceConfig($0.config))
+            actions[$0.type]?.init(configuration: ExperiencePluginConfiguration($0.configDecoder))
         }
 
         // As a heuristic, take the last action that's `MetadataSettingAction`, since that's most likely
