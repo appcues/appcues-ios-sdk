@@ -9,6 +9,10 @@
 import UIKit
 
 internal class AppcuesStepTransitionAnimationTrait: ContainerDecoratingTrait {
+    struct Config: Decodable {
+        let duration: Double?
+        let easing: String?
+    }
 
     static var type: String = "@appcues/step-transition-animation"
 
@@ -17,9 +21,10 @@ internal class AppcuesStepTransitionAnimationTrait: ContainerDecoratingTrait {
     private let duration: TimeInterval
     private let easing: Easing
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
-        self.duration = config["duration"] ?? 0.3
-        self.easing = config["easing"] ?? .linear
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        let config = configuration.decode(Config.self)
+        self.duration = config?.duration ?? 0.3
+        self.easing = Easing(rawValue: config?.easing ?? "") ?? .linear
     }
 
     func decorate(containerController: ExperienceContainerViewController) throws {

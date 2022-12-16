@@ -14,7 +14,7 @@ internal class AppcuesCarouselTrait: ContainerCreatingTrait {
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
     }
 
     func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {

@@ -10,6 +10,11 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
+    struct Config: Decodable {
+        let shape: String
+        let cornerRadius: Double?
+        let spreadRadius: Double?
+    }
     static let type: String = "@appcues/backdrop-keyhole"
 
     weak var metadataDelegate: TraitMetadataDelegate?
@@ -17,14 +22,19 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
     private let shape: KeyholeShape
     private let spreadRadius: CGFloat?
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
-        if let keyholeShape = KeyholeShape(config["shape"], cornerRadius: config["cornerRadius"]) {
-            self.shape = keyholeShape
-        } else {
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        guard let config = configuration.decode(Config.self),
+              let keyholeShape = KeyholeShape(config.shape, cornerRadius: config.cornerRadius) else {
             return nil
         }
 
-        self.spreadRadius = config["spreadRadius"]
+        self.shape = keyholeShape
+
+        if let spreadRadius = config.spreadRadius {
+            self.spreadRadius = spreadRadius
+        } else {
+            self.spreadRadius = nil
+        }
     }
 
     func decorate(backdropView: UIView) throws {
@@ -112,7 +122,7 @@ extension AppcuesBackdropKeyholeTrait {
         case rectangle(cornerRadius: CGFloat)
         case circle
 
-        init?(_ shape: String?, cornerRadius: CGFloat? = nil) {
+        init?(_ shape: String?, cornerRadius: Double? = nil) {
             switch shape {
             case "rectangle":
                 // fallback to a tiny value instead of 0 so the path can animate nicely to other values
