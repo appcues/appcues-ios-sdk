@@ -10,17 +10,24 @@ import Foundation
 
 @available(iOS 13.0, *)
 internal class AppcuesContinueAction: ExperienceAction {
+    struct Config: Decodable {
+        let index: Int?
+        let offset: Int?
+        let stepID: UUID?
+    }
+
     static let type = "@appcues/continue"
 
     let stepReference: StepReference
 
-    required init?(config: DecodingExperienceConfig) {
-        if let index: Int = config["index"] {
+    required init?(configuration: ExperiencePluginConfiguration) {
+        let config = configuration.decode(Config.self)
+        if let index = config?.index {
             stepReference = .index(index)
-        } else if let offset: Int = config["offset"] {
+        } else if let offset = config?.offset {
             stepReference = .offset(offset)
-        } else if let stepID: String = config["stepID"], let uuid = UUID(uuidString: stepID) {
-            stepReference = .stepID(uuid)
+        } else if let stepID = config?.stepID {
+            stepReference = .stepID(stepID)
         } else {
             // Default to continuing to next step
             stepReference = .offset(1)
