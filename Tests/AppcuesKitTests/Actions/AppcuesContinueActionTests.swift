@@ -20,10 +20,10 @@ class AppcuesContinueActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let indexAction = AppcuesContinueAction(config: DecodingExperienceConfig(["index": 1]))
-        let offsetAction = AppcuesContinueAction(config: DecodingExperienceConfig(["offset": -1]))
-        let stepIDAction = AppcuesContinueAction(config: DecodingExperienceConfig(["stepID": "8ebcb374-0eff-45a5-9d62-ffee52d8a57b"]))
-        let defaultAction = AppcuesContinueAction(config: DecodingExperienceConfig(nil))
+        let indexAction = AppcuesContinueAction(index: 1)
+        let offsetAction = AppcuesContinueAction(offset: -1)
+        let stepIDAction = AppcuesContinueAction(stepID: "8ebcb374-0eff-45a5-9d62-ffee52d8a57b")
+        let defaultAction = AppcuesContinueAction()
 
 
         // Assert
@@ -49,7 +49,7 @@ class AppcuesContinueActionTests: XCTestCase {
             }
             completion?()
         }
-        let action = AppcuesContinueAction(config: DecodingExperienceConfig(nil))
+        let action = AppcuesContinueAction()
 
         // Act
         action?.execute(inContext: appcues, completion: { completionCount += 1 })
@@ -57,5 +57,18 @@ class AppcuesContinueActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(showStepCount, 1)
+    }
+}
+
+extension AppcuesContinueAction {
+    convenience init?() {
+        self.init(configuration: ExperiencePluginConfiguration(nil))
+    }
+    convenience init?(index: Int? = nil, offset: Int? = nil, stepID: String? = nil) {
+        var uuid: UUID?
+        if let stepID = stepID {
+            uuid = UUID(uuidString: stepID)
+        }
+        self.init(configuration: ExperiencePluginConfiguration(AppcuesContinueAction.Config(index: index, offset: offset, stepID: uuid)))
     }
 }

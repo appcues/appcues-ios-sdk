@@ -20,7 +20,7 @@ class AppcuesCloseActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesCloseAction(config: DecodingExperienceConfig(nil))
+        let action = AppcuesCloseAction()
 
         // Assert
         XCTAssertEqual(AppcuesCloseAction.type, "@appcues/close")
@@ -36,7 +36,7 @@ class AppcuesCloseActionTests: XCTestCase {
             dismissCount += 1
             completion?(.success(()))
         }
-        let action = AppcuesCloseAction(config: DecodingExperienceConfig(nil))
+        let action = AppcuesCloseAction()
 
         // Act
         action?.execute(inContext: appcues, completion: { completionCount += 1 })
@@ -55,7 +55,7 @@ class AppcuesCloseActionTests: XCTestCase {
             dismissCount += 1
             completion?(.success(()))
         }
-        let action = AppcuesCloseAction(config: DecodingExperienceConfig(["markComplete": true]))
+        let action = AppcuesCloseAction(markComplete: true)
 
         // Act
         action?.execute(inContext: appcues, completion: { completionCount += 1 })
@@ -63,5 +63,14 @@ class AppcuesCloseActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(dismissCount, 1)
+    }
+}
+
+extension AppcuesCloseAction {
+    convenience init?() {
+        self.init(configuration: ExperiencePluginConfiguration(nil))
+    }
+    convenience init?(markComplete: Bool) {
+        self.init(configuration: ExperiencePluginConfiguration(AppcuesCloseAction.Config(markComplete: markComplete)))
     }
 }

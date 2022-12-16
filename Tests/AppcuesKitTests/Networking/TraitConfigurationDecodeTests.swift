@@ -74,9 +74,9 @@ class PartialDictionaryDecodeTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(trait.type, "@appcues/sticky-content")
-        let config = DecodingExperienceConfig(trait.config)
-        XCTAssertEqual(config["edge"], "bottom")
-        let content: ExperienceComponent = try XCTUnwrap(config["content"])
-        XCTAssertNotNil(content)
+        let decoder = trait.configDecoder
+        let config = try XCTUnwrap(decoder.decode(AppcuesStickyContentTrait.Config.self))
+        XCTAssertEqual(config.edge, "bottom")
+        XCTAssertEqual(config.content.id.appcuesFormatted, "a4ac4eb8-f833-4be1-8b14-d58562f11aa8")
     }
 }
