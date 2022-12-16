@@ -10,18 +10,19 @@ import Foundation
 
 @available(iOS 13.0, *)
 internal class AppcuesLaunchExperienceAction: ExperienceAction {
+    struct Config: Decodable {
+        let experienceID: String
+    }
+
     static let type = "@appcues/launch-experience"
 
     let experienceID: String
-    let trigger: ExperienceTrigger?
+    private let trigger: ExperienceTrigger?
 
-    required init?(config: DecodingExperienceConfig) {
-        if let experienceID: String = config["experienceID"] {
-            self.experienceID = experienceID
-            self.trigger = nil
-        } else {
-            return nil
-        }
+    required init?(configuration: ExperiencePluginConfiguration) {
+        guard let config = configuration.decode(Config.self) else { return nil }
+        self.experienceID = config.experienceID
+        self.trigger = nil
     }
 
     init(experienceID: String, trigger: ExperienceTrigger) {

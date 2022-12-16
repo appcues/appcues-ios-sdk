@@ -14,7 +14,7 @@ internal class AppcuesRequestReviewAction: ExperienceAction {
 
     static let type = "@appcues/request-review"
 
-    required init?(config: DecodingExperienceConfig) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         // No config
     }
 

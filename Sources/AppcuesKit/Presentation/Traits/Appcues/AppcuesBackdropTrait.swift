@@ -10,18 +10,22 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal class AppcuesBackdropTrait: BackdropDecoratingTrait {
+    struct Config: Decodable {
+        let backgroundColor: ExperienceComponent.Style.DynamicColor?
+    }
+
     static var type: String = "@appcues/backdrop"
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    let backgroundColor: UIColor
+    private let backgroundColor: UIColor
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
-        if let backgroundColor = UIColor(dynamicColor: config["backgroundColor"]) {
-            self.backgroundColor = backgroundColor
-        } else {
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        guard let config = configuration.decode(Config.self),
+              let backgroundColor = UIColor(dynamicColor: config.backgroundColor) else {
             return nil
         }
+        self.backgroundColor = backgroundColor
     }
 
     func decorate(backdropView: UIView) throws {
