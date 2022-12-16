@@ -31,11 +31,11 @@ class StepInteractionActionTests: XCTestCase {
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/continue",
-                    config: ["offset": 1].toDecodableDict()),
+                    config: AppcuesContinueAction.Config(index: nil, offset: 1, stepID: nil)),
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/track",
-                    config: ["eventName": "Some event"].toDecodableDict())
+                    config: AppcuesTrackAction.Config(eventName: "Some event"))
             ],
             interactionType: "Button Tapped",
             viewDescription: "My Button")
@@ -64,11 +64,11 @@ class StepInteractionActionTests: XCTestCase {
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/continue",
-                    config: ["offset": -1].toDecodableDict()),
+                    config: AppcuesContinueAction.Config(index: nil, offset: -1, stepID: nil)),
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/track",
-                    config: ["eventName": "Some event"].toDecodableDict())
+                    config: AppcuesTrackAction.Config(eventName: "Some event"))
             ],
             interactionType: "Button Tapped",
             viewDescription: "My Button")
@@ -97,11 +97,11 @@ class StepInteractionActionTests: XCTestCase {
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/close",
-                    config: ["markComplete": true].toDecodableDict()),
+                    config: AppcuesCloseAction.Config(markComplete: true)),
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/link",
-                    config: ["url": "https://appcues.com"].toDecodableDict())
+                    config: AppcuesLinkAction.Config(url: URL(string: "https://appcues.com")!, openExternally: nil))
             ],
             interactionType: "Button Tapped",
             viewDescription: "My Button")
@@ -130,11 +130,11 @@ class StepInteractionActionTests: XCTestCase {
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/link",
-                    config: ["url": "myapp://deeplink"].toDecodableDict()),
+                    config: AppcuesLinkAction.Config(url: URL(string: "myapp://deeplink")!, openExternally: nil)),
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/launch-experience",
-                    config: ["experienceID": "c1d5336f-6416-4805-9e82-4073c9b8cdb8"].toDecodableDict())
+                    config: AppcuesLaunchExperienceAction.Config(experienceID: "c1d5336f-6416-4805-9e82-4073c9b8cdb8"))
             ],
             interactionType: "Button Tapped",
             viewDescription: "My Button")
@@ -163,7 +163,7 @@ class StepInteractionActionTests: XCTestCase {
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/close",
-                    config: ["markComplete": true].toDecodableDict())
+                    config: AppcuesCloseAction.Config(markComplete: true))
             ],
             interactionType: "Button Tapped",
             viewDescription: "My Button")
@@ -192,7 +192,7 @@ class StepInteractionActionTests: XCTestCase {
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/continue",
-                    config: ["stepID": "c1ba5af5-df15-4e38-834b-c7c33ee91e44"].toDecodableDict())
+                    config: AppcuesContinueAction.Config(index: nil, offset: nil, stepID: UUID(uuidString: "c1ba5af5-df15-4e38-834b-c7c33ee91e44")))
             ],
             interactionType: "Button Tapped",
             viewDescription: "My Button")
