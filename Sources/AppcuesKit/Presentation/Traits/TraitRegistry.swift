@@ -23,6 +23,7 @@ internal class TraitRegistry {
         register(trait: AppcuesPagingDotsTrait.self)
         register(trait: AppcuesBackgroundContentTrait.self)
         register(trait: AppcuesTargetRectangleTrait.self)
+        register(trait: AppcuesBackdropKeyholeTrait.self)
     }
 
     func register(trait: ExperienceTrait.Type) {
