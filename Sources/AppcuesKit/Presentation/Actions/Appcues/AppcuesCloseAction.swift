@@ -11,13 +11,17 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal class AppcuesCloseAction: ExperienceAction {
+    struct Config: Decodable {
+        let markComplete: Bool
+    }
 
     static let type = "@appcues/close"
 
-    let markComplete: Bool
+    private let markComplete: Bool
 
-    required init?(config: DecodingExperienceConfig) {
-        markComplete = config["markComplete"] ?? false
+    required init?(configuration: ExperiencePluginConfiguration) {
+        let config = configuration.decode(Config.self)
+        markComplete = config?.markComplete ?? false
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {

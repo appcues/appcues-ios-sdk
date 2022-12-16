@@ -197,7 +197,7 @@ extension TraitComposer {
         weak var metadataDelegate: TraitMetadataDelegate?
 
         init() {}
-        required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {}
+        required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {}
 
         func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
             DefaultContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
