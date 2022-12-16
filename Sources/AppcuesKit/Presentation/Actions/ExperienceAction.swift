@@ -20,7 +20,7 @@ public protocol ExperienceAction {
     /// Initializer from an `Experience.Action` data model.
     ///
     /// This initializer should verify the config has any required properties and return `nil` if not.
-    init?(config: DecodingExperienceConfig)
+    init?(configuration: ExperiencePluginConfiguration)
 
     /// Execute the action.
     /// - Parameter appcues: The `Appcues` instance that displayed the experience triggering the action.

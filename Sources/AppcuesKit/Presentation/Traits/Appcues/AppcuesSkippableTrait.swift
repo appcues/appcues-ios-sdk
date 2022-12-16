@@ -18,7 +18,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
     private weak var view: UIViewController.CloseButton?
     private var gestureRecognizer: UITapGestureRecognizer?
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
     }
 
     func decorate(containerController: ExperienceContainerViewController) throws {

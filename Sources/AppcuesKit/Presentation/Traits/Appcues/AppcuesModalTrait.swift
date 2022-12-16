@@ -10,21 +10,22 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
-    static let type = "@appcues/modal"
+    struct Config: Decodable {
+        let presentationStyle: PresentationStyle
+        let style: ExperienceComponent.Style?
+    }
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    let presentationStyle: PresentationStyle
-    let modalStyle: ExperienceComponent.Style?
+    static let type = "@appcues/modal"
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
-        if let presentationStyle: PresentationStyle = config["presentationStyle"] {
-            self.presentationStyle = presentationStyle
-        } else {
-            return nil
-        }
+    private let presentationStyle: PresentationStyle
+    private let modalStyle: ExperienceComponent.Style?
 
-        self.modalStyle = config["style"]
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        guard let config = configuration.decode(Config.self) else { return nil }
+        self.presentationStyle = config.presentationStyle
+        self.modalStyle = config.style
     }
 
     func decorate(stepController: UIViewController) throws {
