@@ -26,7 +26,7 @@ class ActionRegistryTests: XCTestCase {
         let actionModel = Experience.Action(
             trigger: "tap",
             type: TestAction.type,
-            config: ["executionExpectation": executionExpectation].toDecodableDict()
+            config: TestAction.Config(expectation: executionExpectation)
         )
 
         // Act
@@ -47,7 +47,7 @@ class ActionRegistryTests: XCTestCase {
         let actionModel = Experience.Action(
             trigger: "tap",
             type: "@unknown/action",
-            config: ["executionExpectation": executionExpectation].toDecodableDict()
+            config: TestAction.Config(expectation: executionExpectation)
         )
 
         // Act
@@ -70,10 +70,7 @@ class ActionRegistryTests: XCTestCase {
         let actionModel = Experience.Action(
             trigger: "tap",
             type: TestAction.type,
-            config: [
-                "executionExpectation": executionExpectation,
-                "executionExpectation2": executionExpectation2
-            ].toDecodableDict()
+            config: TestAction.Config(expectation: executionExpectation, expectation2: executionExpectation2)
         )
 
         // Act
@@ -96,7 +93,7 @@ class ActionRegistryTests: XCTestCase {
         let actionModel = Experience.Action(
             trigger: "tap",
             type: TestAction.type,
-            config: ["executionExpectation": executionExpectation].toDecodableDict()
+            config: TestAction.Config(expectation: executionExpectation)
         )
         actionRegistry.register(action: TestAction.self)
 
@@ -118,12 +115,12 @@ class ActionRegistryTests: XCTestCase {
         let actionModel = Experience.Action(
             trigger: "tap",
             type: TestAction.type,
-            config: ["executionExpectation": executionExpectation].toDecodableDict()
+            config: TestAction.Config(expectation: executionExpectation)
         )
         let delayedActionModel = Experience.Action(
             trigger: "tap",
             type: TestAction.type,
-            config: ["executionExpectation": executionExpectation, "delay": 1.0].toDecodableDict()
+            config: TestAction.Config(expectation: executionExpectation, delay: 1.0)
         )
         actionRegistry.register(action: TestAction.self)
 
@@ -150,12 +147,12 @@ class ActionRegistryTests: XCTestCase {
         let actionModel = Experience.Action(
             trigger: "tap",
             type: TestAction.type,
-            config: ["executionExpectation": executionExpectation].toDecodableDict()
+            config: TestAction.Config(expectation: executionExpectation)
         )
         let actionModel2 = Experience.Action(
             trigger: "tap",
             type: TestAction.type,
-            config: ["executionExpectation": executionExpectation, "removeSubsequent": true].toDecodableDict()
+            config: TestAction.Config(expectation: executionExpectation, removeSubsequent: true)
         )
         actionRegistry.register(action: TestAction.self)
 
@@ -175,17 +172,42 @@ class ActionRegistryTests: XCTestCase {
 @available(iOS 13.0, *)
 private extension ActionRegistryTests {
     class TestAction: ExperienceAction, ExperienceActionQueueTransforming {
+        struct Config: Decodable {
+            let executionExpectation: DecodableExpectation?
+            let executionExpectation2: DecodableExpectation?
+            let delay: TimeInterval?
+            let removeSubsequent: Bool?
+
+            init(expectation: XCTestExpectation? = nil,
+                 expectation2: XCTestExpectation? = nil,
+                 delay: TimeInterval? = nil,
+                 removeSubsequent: Bool? = nil) {
+                self.delay = delay
+                self.removeSubsequent = removeSubsequent
+                if let expectation = expectation {
+                    self.executionExpectation = DecodableExpectation(expectation: expectation)
+                } else {
+                    self.executionExpectation = nil
+                }
+                if let expectation2 = expectation2 {
+                    self.executionExpectation2 = DecodableExpectation(expectation: expectation2)
+                } else {
+                    self.executionExpectation2 = nil
+                }
+            }
+        }
+
         static let type = "@test/action"
 
         let executionExpectation: XCTestExpectation?
         let delay: TimeInterval?
         let removeSubsequent: Bool
 
-        required init?(config: DecodingExperienceConfig) {
-            let decodableExecutionExpectation: DecodableExpectation? = config["executionExpectation"]
-            executionExpectation = decodableExecutionExpectation?.expectation
-            delay = config["delay"]
-            removeSubsequent = config["removeSubsequent"] ?? false
+        required init?(configuration: ExperiencePluginConfiguration) {
+            let config = configuration.decode(Config.self)
+            executionExpectation = config?.executionExpectation?.expectation
+            delay = config?.delay
+            removeSubsequent = config?.removeSubsequent ?? false
         }
 
         func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
@@ -211,14 +233,20 @@ private extension ActionRegistryTests {
 
         var executionExpectation2: XCTestExpectation?
 
-        required init?(config: DecodingExperienceConfig) {
-            let decodableExecutionExpectation2: DecodableExpectation? = config["executionExpectation2"]
-            executionExpectation2 = decodableExecutionExpectation2?.expectation
+        required init?(configuration: ExperiencePluginConfiguration) {
+            let config = configuration.decode(TestAction.Config.self)
+            executionExpectation2 = config?.executionExpectation2?.expectation
         }
 
         func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
             executionExpectation2?.fulfill()
             completion()
         }
+    }
+}
+
+extension Experience.Action {
+    init(trigger: String, type: String, config: Decodable?) {
+        self.init(trigger: trigger, type: type, configDecoder: FakePluginDecoder(config))
     }
 }

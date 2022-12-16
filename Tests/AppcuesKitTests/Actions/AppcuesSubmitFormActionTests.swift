@@ -20,7 +20,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesSubmitFormAction(config: DecodingExperienceConfig(nil))
+        let action = AppcuesSubmitFormAction()
 
         // Assert
         XCTAssertEqual(AppcuesSubmitFormAction.type, "@appcues/submit-form")
@@ -58,7 +58,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             updates.append(trackingUpdate)
         }
 
-        let action = AppcuesSubmitFormAction(config: DecodingExperienceConfig(nil))
+        let action = AppcuesSubmitFormAction()
 
         // Act
         action?.execute(inContext: appcues, completion: { completionCount += 1 })
@@ -100,10 +100,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             .initial
         }
 
-        let action0 = try XCTUnwrap(AppcuesTrackAction(config: DecodingExperienceConfig(["eventName": "My Custom Event"])))
-        let action = try XCTUnwrap(AppcuesSubmitFormAction(config: DecodingExperienceConfig(nil)))
-        let action1 = try XCTUnwrap(AppcuesTrackAction(config: DecodingExperienceConfig(["eventName": "My Custom Event"])))
-        let action2 = try XCTUnwrap(AppcuesTrackAction(config: DecodingExperienceConfig(["eventName": "My Custom Event"])))
+        let action0 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
+        let action = try XCTUnwrap(AppcuesSubmitFormAction())
+        let action1 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
+        let action2 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
         let initialQueue: [ExperienceAction] = [action0, action, action1, action2]
 
         // Act
@@ -123,10 +123,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             .initial
         }
 
-        let action0 = try XCTUnwrap(AppcuesTrackAction(config: DecodingExperienceConfig(["eventName": "My Custom Event"])))
-        let action = try XCTUnwrap(AppcuesSubmitFormAction(config: DecodingExperienceConfig(["skipValidation": true])))
-        let action1 = try XCTUnwrap(AppcuesTrackAction(config: DecodingExperienceConfig(["eventName": "My Custom Event"])))
-        let action2 = try XCTUnwrap(AppcuesTrackAction(config: DecodingExperienceConfig(["eventName": "My Custom Event"])))
+        let action0 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
+        let action = try XCTUnwrap(AppcuesSubmitFormAction(skipValidation: true))
+        let action1 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
+        let action2 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
         let initialQueue: [ExperienceAction] = [action0, action, action1, action2]
 
         // Act
@@ -154,7 +154,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             updates.append(trackingUpdate)
         }
 
-        let action = AppcuesSubmitFormAction(config: DecodingExperienceConfig(nil))
+        let action = AppcuesSubmitFormAction()
 
         // Act
         action?.execute(inContext: appcues, completion: { })
@@ -164,5 +164,14 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             "_appcuesForm_form-label": "default value",
             "myAttribute": "default value"
         ].verifyPropertiesMatch(updates[0].properties)
+    }
+}
+
+extension AppcuesSubmitFormAction {
+    convenience init?() {
+        self.init(configuration: ExperiencePluginConfiguration(nil))
+    }
+    convenience init?(skipValidation: Bool) {
+        self.init(configuration: ExperiencePluginConfiguration(AppcuesSubmitFormAction.Config(skipValidation: skipValidation)))
     }
 }
