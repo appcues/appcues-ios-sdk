@@ -14,8 +14,8 @@ internal class AppcuesStepTransitionAnimationTrait: ContainerDecoratingTrait {
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    let duration: TimeInterval
-    let easing: Easing
+    private let duration: TimeInterval
+    private let easing: Easing
 
     required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
         self.duration = config["duration"] ?? 0.3
