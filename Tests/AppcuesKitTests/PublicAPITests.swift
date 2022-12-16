@@ -130,11 +130,15 @@ class SampleNavigationDelegate: AppcuesNavigationDelegate {
 
 class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait, ContainerDecoratingTrait, BackdropDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
 
+    struct Config: Decodable {
+        let key: String?
+    }
+
     static var type: String = "@sample/trait"
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    required init?(config: DecodingExperienceConfig, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
         // Do not add `@unknown default` here, since we want to know about new cases
         switch level {
         case .experience:
@@ -145,7 +149,8 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
             break
         }
 
-        let _: String? = config["key"]
+        let config = configuration.decode(Config.self)
+        _ = config?.key
     }
 
     // MARK: StepDecoratingTrait
@@ -247,7 +252,7 @@ class SampleExperienceContainerViewController: ExperienceContainerViewController
 class SampleAction: ExperienceAction {
     static var type: String = "@sample/action"
 
-    required init?(config: DecodingExperienceConfig) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         // no-op
     }
 
