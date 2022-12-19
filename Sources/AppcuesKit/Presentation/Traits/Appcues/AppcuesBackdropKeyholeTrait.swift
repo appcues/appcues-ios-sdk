@@ -15,6 +15,7 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
         let cornerRadius: Double?
         let spreadRadius: Double?
     }
+
     static let type: String = "@appcues/backdrop-keyhole"
 
     weak var metadataDelegate: TraitMetadataDelegate?
