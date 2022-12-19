@@ -17,6 +17,7 @@ internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
         let width: Double
         let height: Double
     }
+
     static let type: String = "@appcues/target-rectangle"
 
     weak var metadataDelegate: TraitMetadataDelegate?
