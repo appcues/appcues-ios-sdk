@@ -39,7 +39,8 @@ struct DecodableExpectation: Decodable {
     let expectation: XCTestExpectation
     private let expectationID: UUID
 
-    init(expectation: XCTestExpectation) {
+    init?(expectation: XCTestExpectation?) {
+        guard let expectation = expectation else { return nil }
         self.expectation = expectation
         self.expectationID = UUID()
         Self.expectationStore[expectationID] = expectation

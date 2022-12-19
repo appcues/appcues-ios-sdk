@@ -15,9 +15,9 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
         let style: ExperienceComponent.Style?
     }
 
-    weak var metadataDelegate: TraitMetadataDelegate?
-
     static let type = "@appcues/modal"
+
+    weak var metadataDelegate: TraitMetadataDelegate?
 
     private let presentationStyle: PresentationStyle
     private let modalStyle: ExperienceComponent.Style?
