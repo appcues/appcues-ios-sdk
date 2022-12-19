@@ -20,7 +20,7 @@ class AppcuesCloseActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesCloseAction()
+        let action = AppcuesCloseAction(configuration: ExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesCloseAction.type, "@appcues/close")
