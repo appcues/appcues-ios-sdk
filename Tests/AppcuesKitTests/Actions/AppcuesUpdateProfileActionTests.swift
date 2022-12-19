@@ -21,7 +21,7 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
     func testInit() throws {
         // Act
         let action = AppcuesUpdateProfileAction(properties: ["profile_attribute": "value"])
-        let failedAction = AppcuesUpdateProfileAction()
+        let failedAction = AppcuesUpdateProfileAction(configuration: ExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesUpdateProfileAction.type, "@appcues/update-profile")

@@ -20,7 +20,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesSubmitFormAction()
+        let action = AppcuesSubmitFormAction(configuration: ExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesSubmitFormAction.type, "@appcues/submit-form")
