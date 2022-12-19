@@ -473,31 +473,11 @@ extension TraitComposerTests {
                  wrapperCreatingExpectation: XCTestExpectation? = nil,
                  backdropDecoratingExpectation: XCTestExpectation?) {
                 self.groupID = groupID
-                if let stepDecoratingExpectation = stepDecoratingExpectation {
-                    self.stepDecoratingExpectation = DecodableExpectation(expectation: stepDecoratingExpectation)
-                } else {
-                    self.stepDecoratingExpectation = nil
-                }
-                if let containerCreatingExpectation = containerCreatingExpectation {
-                    self.containerCreatingExpectation = DecodableExpectation(expectation: containerCreatingExpectation)
-                } else {
-                    self.containerCreatingExpectation = nil
-                }
-                if let containerDecoratingExpectation = containerDecoratingExpectation {
-                    self.containerDecoratingExpectation = DecodableExpectation(expectation: containerDecoratingExpectation)
-                } else {
-                    self.containerDecoratingExpectation = nil
-                }
-                if let wrapperCreatingExpectation = wrapperCreatingExpectation {
-                    self.wrapperCreatingExpectation = DecodableExpectation(expectation: wrapperCreatingExpectation)
-                } else {
-                    self.wrapperCreatingExpectation = nil
-                }
-                if let backdropDecoratingExpectation = backdropDecoratingExpectation {
-                    self.backdropDecoratingExpectation = DecodableExpectation(expectation: backdropDecoratingExpectation)
-                } else {
-                    self.backdropDecoratingExpectation = nil
-                }
+                self.stepDecoratingExpectation = DecodableExpectation(expectation: stepDecoratingExpectation)
+                self.containerCreatingExpectation = DecodableExpectation(expectation: containerCreatingExpectation)
+                self.containerDecoratingExpectation = DecodableExpectation(expectation: containerDecoratingExpectation)
+                self.wrapperCreatingExpectation = DecodableExpectation(expectation: wrapperCreatingExpectation)
+                self.backdropDecoratingExpectation = DecodableExpectation(expectation: backdropDecoratingExpectation)
             }
         }
         class var type: String { "@test/trait" }
@@ -580,16 +560,8 @@ extension TraitComposerTests {
 
             init(groupID: String? = nil, presentExpectation: XCTestExpectation? = nil, removeExpectation: XCTestExpectation? = nil) {
                 self.groupID = groupID
-                if let presentExpectation = presentExpectation {
-                    self.presentExpectation = DecodableExpectation(expectation: presentExpectation)
-                } else {
-                    self.presentExpectation = nil
-                }
-                if let removeExpectation = removeExpectation {
-                    self.removeExpectation = DecodableExpectation(expectation: removeExpectation)
-                } else {
-                    self.removeExpectation = nil
-                }
+                self.presentExpectation = DecodableExpectation(expectation: presentExpectation)
+                self.removeExpectation = DecodableExpectation(expectation: removeExpectation)
             }
         }
         static let type = "@test/presenting"

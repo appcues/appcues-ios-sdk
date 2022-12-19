@@ -21,7 +21,7 @@ class AppcuesLinkActionTests: XCTestCase {
 
     func testInit() throws {
         // Act)
-        let action = AppcuesLinkAction(path: "https://appcues.com")
+        let action = AppcuesLinkAction(configuration: ExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: "https://appcues.com")!, openExternally: nil)))
         let failedAction = AppcuesLinkAction()
 
         // Assert
