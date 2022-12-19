@@ -184,16 +184,8 @@ private extension ActionRegistryTests {
                  removeSubsequent: Bool? = nil) {
                 self.delay = delay
                 self.removeSubsequent = removeSubsequent
-                if let expectation = expectation {
-                    self.executionExpectation = DecodableExpectation(expectation: expectation)
-                } else {
-                    self.executionExpectation = nil
-                }
-                if let expectation2 = expectation2 {
-                    self.executionExpectation2 = DecodableExpectation(expectation: expectation2)
-                } else {
-                    self.executionExpectation2 = nil
-                }
+                self.executionExpectation = DecodableExpectation(expectation: expectation)
+                self.executionExpectation2 = DecodableExpectation(expectation: expectation2)
             }
         }
 

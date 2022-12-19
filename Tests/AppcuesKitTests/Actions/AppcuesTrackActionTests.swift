@@ -21,7 +21,7 @@ class AppcuesTrackActionTests: XCTestCase {
     func testInit() throws {
         // Act
         let action = AppcuesTrackAction(eventName: "My Custom Event")
-        let failedAction = AppcuesTrackAction()
+        let failedAction = AppcuesTrackAction(configuration: ExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesTrackAction.type, "@appcues/track")
