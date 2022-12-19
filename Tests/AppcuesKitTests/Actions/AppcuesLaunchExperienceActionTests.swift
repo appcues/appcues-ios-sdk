@@ -21,7 +21,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesLaunchExperienceAction(experienceID: "123")
+        let action = AppcuesLaunchExperienceAction(configuration: ExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: "123")))
         let failedAction = AppcuesLaunchExperienceAction()
 
         // Assert

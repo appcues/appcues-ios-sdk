@@ -20,11 +20,14 @@ class AppcuesContinueActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let indexAction = AppcuesContinueAction(index: 1)
-        let offsetAction = AppcuesContinueAction(offset: -1)
-        let stepIDAction = AppcuesContinueAction(stepID: "8ebcb374-0eff-45a5-9d62-ffee52d8a57b")
-        let defaultAction = AppcuesContinueAction()
-
+        let indexAction = AppcuesContinueAction(
+            configuration: ExperiencePluginConfiguration(AppcuesContinueAction.Config(index: 1, offset: nil, stepID: nil)))
+        let offsetAction = AppcuesContinueAction(
+            configuration: ExperiencePluginConfiguration(AppcuesContinueAction.Config(index: nil, offset: -1, stepID: nil)))
+        let stepIDAction = AppcuesContinueAction(
+            configuration: ExperiencePluginConfiguration(AppcuesContinueAction.Config(index: nil, offset: nil, stepID: UUID(uuidString: "8ebcb374-0eff-45a5-9d62-ffee52d8a57b"))))
+        let defaultAction = AppcuesContinueAction(
+            configuration: ExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesContinueAction.type, "@appcues/continue")
