@@ -39,8 +39,10 @@ internal struct AppcuesImage: View {
 
             // clip before adding shadows
             .clipped()
-            .applyBackgroundStyle(style)
             .applyBorderStyle(style)
+            .applyBackgroundStyle(style)
+            .applyCornerRadius(style)
+            .applyShadow(style)
             .applyExternalLayout(style)
     }
 

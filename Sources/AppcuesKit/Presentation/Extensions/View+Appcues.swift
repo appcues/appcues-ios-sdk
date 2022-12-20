@@ -107,10 +107,17 @@ extension View {
                             .padding(width / 2)
                 )
             }
-            // cornerRadius and shadow are always applied after any border, on the final outer edge of the view
+    }
+
+    func applyCornerRadius(_ style: AppcuesStyle) -> some View {
+        self
             .ifLet(style.cornerRadius) { view, val in
                 view.cornerRadius(val)
             }
+    }
+
+    func applyShadow(_ style: AppcuesStyle) -> some View {
+        self
             .ifLet(style.shadow) { view, val in
                 view.shadow(
                     color: Color(dynamicColor: val.color) ?? Color(.sRGBLinear, white: 0, opacity: 0.33),
@@ -131,8 +138,10 @@ extension View {
             self
                 .applyForegroundStyle(style)
                 .applyInternalLayout(style)
-                .applyBackgroundStyle(style)
                 .applyBorderStyle(style)
+                .applyBackgroundStyle(style)
+                .applyCornerRadius(style) // needs to be after border and background
+                .applyShadow(style)
                 .applyExternalLayout(style)
         )
     }

@@ -38,8 +38,10 @@ internal struct AppcuesButton: View {
                 .applyInternalLayout(style)
         }
         .applyForegroundStyle(style)
-        .applyBackgroundStyle(style)
         .applyBorderStyle(style)
+        .applyBackgroundStyle(style)
+        .applyCornerRadius(style)
+        .applyShadow(style)
         .applyExternalLayout(style)
         .setupActions(on: viewModel, for: model)
     }
