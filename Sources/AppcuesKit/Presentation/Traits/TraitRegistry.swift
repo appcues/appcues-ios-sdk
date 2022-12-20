@@ -16,6 +16,7 @@ internal class TraitRegistry {
         // Register default traits
         register(trait: AppcuesStepTransitionAnimationTrait.self)
         register(trait: AppcuesModalTrait.self)
+        register(trait: AppcuesTooltipTrait.self)
         register(trait: AppcuesCarouselTrait.self)
         register(trait: AppcuesSkippableTrait.self)
         register(trait: AppcuesBackdropTrait.self)
