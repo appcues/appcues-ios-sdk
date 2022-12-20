@@ -42,7 +42,7 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
         containerController.modalPresentationStyle = presentationStyle.modalPresentationStyle
 
         if presentationStyle == .dialog {
-            return DialogContainerViewController(wrapping: containerController).configureStyle(modalStyle)
+            return ExperienceWrapperViewController(wrapping: containerController).configureStyle(modalStyle)
         }
 
         if let backgroundColor = UIColor(dynamicColor: modalStyle?.backgroundColor) {
@@ -61,7 +61,7 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
     }
 
     func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
-        if let dialogController = wrapperController as? DialogContainerViewController {
+        if let dialogController = wrapperController as? ExperienceWrapperViewController {
             dialogController.view.insertSubview(backdropView, at: 0)
             backdropView.pin(to: dialogController.view)
         }
