@@ -3,11 +3,16 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		111D1F044CE5C429A13E377B /* Mulish-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D140F36AD3D06536C395A074 /* Mulish-VariableFont_wght.ttf */; };
+		1A3CA4F72954108100A6DA85 /* MLKitNaturalLanguage.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A3CA4F22953C03800A6DA85 /* MLKitNaturalLanguage.xcframework */; };
+		1A3CA4F82954108100A6DA85 /* MLKitTranslate.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A3CA4F12953C03800A6DA85 /* MLKitTranslate.xcframework */; };
+		1A3CA4FA2954120A00A6DA85 /* MLKitTranslate_resource.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 1A3CA4F92954120A00A6DA85 /* MLKitTranslate_resource.bundle */; };
+		1A3CA4FC2954132E00A6DA85 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A3CA4FB2954132E00A6DA85 /* libc++.tbd */; };
+		1A3CA51829542F5E00A6DA85 /* MLKitCommon.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A3CA51729542F5E00A6DA85 /* MLKitCommon.xcframework */; };
 		62B165983718917D2D41BA5C /* Mulish-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 17D5A01020B551B33B447DC1 /* Mulish-Italic-VariableFont_wght.ttf */; };
 		64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7C790690C785694C7F24F8 /* EventsViewController.swift */; };
 		7013CDD44A5E7E6056595498 /* Lato-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */; };
@@ -28,10 +33,16 @@
 /* Begin PBXFileReference section */
 		05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Black.ttf"; sourceTree = "<group>"; };
 		17D5A01020B551B33B447DC1 /* Mulish-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
+		1A3CA4F12953C03800A6DA85 /* MLKitTranslate.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MLKitTranslate.xcframework; path = ../../MLKitTranslate.xcframework; sourceTree = "<group>"; };
+		1A3CA4F22953C03800A6DA85 /* MLKitNaturalLanguage.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MLKitNaturalLanguage.xcframework; path = ../../MLKitNaturalLanguage.xcframework; sourceTree = "<group>"; };
+		1A3CA4F52953C07600A6DA85 /* GoogleToolboxForMac.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleToolboxForMac.xcframework; path = ../../GoogleToolboxForMac.xcframework; sourceTree = "<group>"; };
+		1A3CA4F92954120A00A6DA85 /* MLKitTranslate_resource.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = MLKitTranslate_resource.bundle; sourceTree = "<group>"; };
+		1A3CA4FB2954132E00A6DA85 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		1A3CA51729542F5E00A6DA85 /* MLKitCommon.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = MLKitCommon.xcframework; path = ../../MLKitCommon.xcframework; sourceTree = "<group>"; };
 		288554133C93206378D963AB /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		476767533B954304A7121A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6901798B6E99F34ACF2F707B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		6FF4A6230C0803185A864738 /* AppcuesSPMExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AppcuesSPMExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6FF4A6230C0803185A864738 /* AppcuesSPMExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppcuesSPMExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7203E757C2C6EA5D37C5E443 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		723869D8744D77D8EC9B55F1 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		7A2AD399FBBF5EB8AEBE70BF /* Lato-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Bold.ttf"; sourceTree = "<group>"; };
@@ -51,6 +62,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A3CA51829542F5E00A6DA85 /* MLKitCommon.xcframework in Frameworks */,
+				1A3CA4FC2954132E00A6DA85 /* libc++.tbd in Frameworks */,
+				1A3CA4F72954108100A6DA85 /* MLKitNaturalLanguage.xcframework in Frameworks */,
+				1A3CA4F82954108100A6DA85 /* MLKitTranslate.xcframework in Frameworks */,
 				AB4DA4AF52B5BC21308C439B /* AppcuesKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -64,7 +79,20 @@
 				922A3D67E71A9D19D60FED01 /* Packages */,
 				9AE84678383C3F4AB5EF9718 /* SPMExample */,
 				6283B2366C6B51F12F0C24D5 /* Products */,
+				1A3CA4EC2953BA0400A6DA85 /* Frameworks */,
 			);
+			sourceTree = "<group>";
+		};
+		1A3CA4EC2953BA0400A6DA85 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1A3CA51729542F5E00A6DA85 /* MLKitCommon.xcframework */,
+				1A3CA4FB2954132E00A6DA85 /* libc++.tbd */,
+				1A3CA4F52953C07600A6DA85 /* GoogleToolboxForMac.xcframework */,
+				1A3CA4F22953C03800A6DA85 /* MLKitNaturalLanguage.xcframework */,
+				1A3CA4F12953C03800A6DA85 /* MLKitTranslate.xcframework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		6283B2366C6B51F12F0C24D5 /* Products */ = {
@@ -98,6 +126,7 @@
 		9AE84678383C3F4AB5EF9718 /* SPMExample */ = {
 			isa = PBXGroup;
 			children = (
+				1A3CA4F92954120A00A6DA85 /* MLKitTranslate_resource.bundle */,
 				8C2264C89F22EF422DA5A775 /* Fonts */,
 				7A540BC606C8E2160FB2B489 /* AppDelegate.swift */,
 				7203E757C2C6EA5D37C5E443 /* Assets.xcassets */,
@@ -145,8 +174,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1200;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 3307568C9084A060E694F2E4 /* Build configuration list for PBXProject "AppcuesSPMExample" */;
 			compatibilityVersion = "Xcode 11.0";
@@ -170,6 +197,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A3CA4FA2954120A00A6DA85 /* MLKitTranslate_resource.bundle in Resources */,
 				A0C767D67BF836D241C38AB0 /* Assets.xcassets in Resources */,
 				7013CDD44A5E7E6056595498 /* Lato-Black.ttf in Resources */,
 				7A219B6092786F843A1A004A /* Lato-Bold.ttf in Resources */,
@@ -311,10 +339,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AppcuesSPMExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = KHSQ25769M;
 				INFOPLIST_FILE = SPMExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.appcues.sdk-example-spm";
 				SDKROOT = iphoneos;
@@ -329,10 +362,15 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = AppcuesSPMExample.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = KHSQ25769M;
 				INFOPLIST_FILE = SPMExample/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-all_load",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.appcues.sdk-example-spm";
 				SDKROOT = iphoneos;

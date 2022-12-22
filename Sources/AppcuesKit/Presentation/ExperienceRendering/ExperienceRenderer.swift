@@ -27,12 +27,14 @@ internal class ExperienceRenderer: ExperienceRendering {
 
     private let stateMachine: ExperienceStateMachine
     private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
+    private let traitRegistry: TraitRegistry
     private weak var appcues: Appcues?
     private let config: Appcues.Config
 
     init(container: DIContainer) {
         self.appcues = container.owner
         self.config = container.resolve(Appcues.Config.self)
+        self.traitRegistry = container.resolve(TraitRegistry.self)
 
         // two items below are not registered/resolved directly from container as they
         // are considered private implementation details of the ExperienceRenderer - helpers.
@@ -69,27 +71,29 @@ internal class ExperienceRenderer: ExperienceRendering {
             return
         }
 
-        // if we get here, either we did not have an experiment, or it is active and did not exit early (not control group).
-        // if an active experiment does exist, it should now track the experiment_entered analytic
-        track(experiment: experience.experiment)
+        translateIfNeeded(experience: experience) { experience in
+            // if we get here, either we did not have an experiment, or it is active and did not exit early (not control group).
+            // if an active experiment does exist, it should now track the experiment_entered analytic
+            self.track(experiment: experience.experiment)
 
-        // only track analytics on published experiences (not previews)
-        // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
-        if experience.published && stateMachine.state == .idling {
-            self.stateMachine.addObserver(analyticsObserver)
-        }
-        stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
-        stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
-            switch result {
-            case .success(.renderingStep):
-                DispatchQueue.main.async { completion?(.success(())) }
-                return true
-            case let .failure(error):
-                DispatchQueue.main.async { completion?(.failure(error)) }
-                return true
-            default:
-                // Keep observing until we get to the target state
-                return false
+            // only track analytics on published experiences (not previews)
+            // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
+            if experience.published && self.stateMachine.state == .idling {
+                self.stateMachine.addObserver(self.analyticsObserver)
+            }
+            self.stateMachine.clientAppcuesDelegate = self.appcues?.experienceDelegate
+            self.stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
+                switch result {
+                case .success(.renderingStep):
+                    DispatchQueue.main.async { completion?(.success(())) }
+                    return true
+                case let .failure(error):
+                    DispatchQueue.main.async { completion?(.failure(error)) }
+                    return true
+                default:
+                    // Keep observing until we get to the target state
+                    return false
+                }
             }
         }
     }
@@ -215,5 +219,33 @@ internal class ExperienceRenderer: ExperienceRendering {
                 "experimentGoalId": experiment.goalID
             ],
             isInternal: true))
+    }
+
+    // not doing error handling yet here, just returning the original if something cant be translated
+    private func translateIfNeeded(experience: ExperienceData, completion: @escaping (ExperienceData) -> Void) {
+        // handle language translation
+        let experienceTraits = traitRegistry.instances(for: experience.traits, level: .experience)
+        if let localization = experienceTraits.compactMapFirst({ $0 as? AppcuesLocalizationTrait }), localization.translate {
+            let translator = LanguageTranslator()
+            translator.initialize(sourceLanguageCode: localization.source, targetLanguageCode: localization.target) { result in
+                switch result {
+                case .success:
+                    // start translating
+                    translator.translate(experience.model) { translated in
+                        completion(ExperienceData(translated,
+                                                  trigger: experience.trigger,
+                                                  priority: experience.priority,
+                                                  published: experience.published,
+                                                  experiment: experience.experiment,
+                                                  requestID: experience.requestID,
+                                                  error: experience.error))
+                    }
+                case .failure:
+                    completion(experience)
+                }
+            }
+        } else {
+            completion(experience)
+        }
     }
 }

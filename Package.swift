@@ -14,18 +14,34 @@ let package = Package(
             name: "AppcuesKit",
             targets: ["AppcuesKit"]),
     ],
-    dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
-    ],
+    dependencies: [ ],
     targets: [
-        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages this package depends on.
+        .binaryTarget(name: "GoogleDataTransport", path: "GoogleDataTransport.xcframework"),
+        .binaryTarget(name: "GoogleToolboxForMac", path: "GoogleToolboxForMac.xcframework"),
+        .binaryTarget(name: "GoogleUtilities", path: "GoogleUtilities.xcframework"),
+        .binaryTarget(name: "GoogleUtilitiesComponents", path: "GoogleUtilitiesComponents.xcframework"),
+        .binaryTarget(name: "GTMSessionFetcher", path: "GTMSessionFetcher.xcframework"),
+        .binaryTarget(name: "FBLPromises", path: "FBLPromises.xcframework"),
+        .binaryTarget(name: "nanopb", path: "nanopb.xcframework"),
+        .binaryTarget(name: "Protobuf", path: "Protobuf.xcframework"),
+        .binaryTarget(name: "SSZipArchive", path: "SSZipArchive.xcframework"),
         .target(
             name: "AppcuesKit",
-            dependencies: []),
+            dependencies: [
+                "GoogleDataTransport",
+                "GoogleToolboxForMac",
+                "GoogleUtilities",
+                "GoogleUtilitiesComponents",
+                "GTMSessionFetcher",
+                "FBLPromises",
+                "nanopb",
+                "Protobuf",
+                "SSZipArchive",
+            ]
+        ),
         .testTarget(
             name: "AppcuesKitTests",
-            dependencies: ["AppcuesKit"]),
+            dependencies: ["AppcuesKit"]
+        ),
     ]
 )
