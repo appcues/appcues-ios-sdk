@@ -22,4 +22,7 @@ A Swift library for sending user properties and events to the Appcues API and re
   s.resource_bundles = {
       'Appcues' => ['Sources/AppcuesKit/**/*.xcassets']
   }
+
+  s.static_framework = true
+  s.dependency 'GoogleMLKit/Translate', '3.2.0'
 end

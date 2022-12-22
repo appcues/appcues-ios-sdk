@@ -25,6 +25,8 @@ internal class TraitRegistry {
         register(trait: AppcuesBackgroundContentTrait.self)
         register(trait: AppcuesTargetRectangleTrait.self)
         register(trait: AppcuesBackdropKeyholeTrait.self)
+        register(trait: AppcuesLocalizationTrait.self)
+
     }
 
     func register(trait: ExperienceTrait.Type) {
