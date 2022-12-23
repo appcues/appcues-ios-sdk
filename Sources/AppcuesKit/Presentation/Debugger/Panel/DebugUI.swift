@@ -28,9 +28,14 @@ internal enum DebugUI {
                         }
                     }
 
-                    Section(header: Text("Info")) {
+                    Section(header: Text("Styling")) {
                         NavigationLink(destination: DebugFontUI.FontListView(), isActive: $viewModel.navigationDestinationIsFonts) {
                             Text("Available Fonts")
+                        }
+                        if #available(iOS 16.0, *) {
+                            NavigationLink(destination: DebugTemplateUI.TemplateCaptureView(viewModel: viewModel)) {
+                                Text("Template Capture")
+                            }
                         }
                     }
 

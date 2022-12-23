@@ -246,7 +246,7 @@ extension ExperienceComponent {
         var textDescription: String? { nil }
     }
 
-    struct Style: Decodable {
+    struct Style: Codable {
         let verticalAlignment: String?
         let horizontalAlignment: String?
         let paddingTop: Double?
@@ -261,22 +261,77 @@ extension ExperienceComponent {
         // A value of `-1` signifies "fill width".
         let width: Double?
 
-        let fontName: String?
-        let fontSize: Double?
+        var fontName: String?
+        var fontSize: Double?
         let letterSpacing: Double?
         let lineHeight: Double?
         let textAlignment: String?
-        let foregroundColor: DynamicColor?
-        let backgroundColor: DynamicColor?
+        var foregroundColor: DynamicColor?
+        var backgroundColor: DynamicColor?
         let backgroundGradient: RawGradient?
         let backgroundImage: BackgroundImage?
         let shadow: RawShadow?
-        let cornerRadius: Double?
-        let borderColor: DynamicColor?
-        let borderWidth: Double?
+        var cornerRadius: Double?
+        var borderColor: DynamicColor?
+        var borderWidth: Double?
+
+        internal init(
+            verticalAlignment: String? = nil,
+            horizontalAlignment: String? = nil,
+            paddingTop: Double? = nil,
+            paddingLeading: Double? = nil,
+            paddingBottom: Double? = nil,
+            paddingTrailing: Double? = nil,
+            marginTop: Double? = nil,
+            marginLeading: Double? = nil,
+            marginBottom: Double? = nil,
+            marginTrailing: Double? = nil,
+            height: Double? = nil,
+            width: Double? = nil,
+            fontName: String? = nil,
+            fontSize: Double? = nil,
+            letterSpacing: Double? = nil,
+            lineHeight: Double? = nil,
+            textAlignment: String? = nil,
+            foregroundColor: ExperienceComponent.Style.DynamicColor? = nil,
+            backgroundColor: ExperienceComponent.Style.DynamicColor? = nil,
+            backgroundGradient: ExperienceComponent.Style.RawGradient? = nil,
+            backgroundImage: ExperienceComponent.Style.BackgroundImage? = nil,
+            shadow: ExperienceComponent.Style.RawShadow? = nil,
+            cornerRadius: Double? = nil,
+            borderColor: ExperienceComponent.Style.DynamicColor? = nil,
+            borderWidth: Double? = nil
+        ) {
+            self.verticalAlignment = verticalAlignment
+            self.horizontalAlignment = horizontalAlignment
+            self.paddingTop = paddingTop
+            self.paddingLeading = paddingLeading
+            self.paddingBottom = paddingBottom
+            self.paddingTrailing = paddingTrailing
+            self.marginTop = marginTop
+            self.marginLeading = marginLeading
+            self.marginBottom = marginBottom
+            self.marginTrailing = marginTrailing
+            self.height = height
+            self.width = width
+            self.fontName = fontName
+            self.fontSize = fontSize
+            self.letterSpacing = letterSpacing
+            self.lineHeight = lineHeight
+            self.textAlignment = textAlignment
+            self.foregroundColor = foregroundColor
+            self.backgroundColor = backgroundColor
+            self.backgroundGradient = backgroundGradient
+            self.backgroundImage = backgroundImage
+            self.shadow = shadow
+            self.cornerRadius = cornerRadius
+            self.borderColor = borderColor
+            self.borderWidth = borderWidth
+        }
+
     }
 
-    struct IntrinsicSize: Decodable {
+    struct IntrinsicSize: Codable {
         let width: Double
         let height: Double
     }
@@ -284,18 +339,23 @@ extension ExperienceComponent {
 
 extension ExperienceComponent.Style {
 
-    struct DynamicColor: Decodable {
+    struct DynamicColor: Codable {
         let light: String
         let dark: String?
+
+        internal init(light: String, dark: String? = nil) {
+            self.light = light
+            self.dark = dark
+        }
     }
 
-    struct RawGradient: Decodable {
+    struct RawGradient: Codable {
         let colors: [DynamicColor]
         let startPoint: String
         let endPoint: String
     }
 
-    struct RawShadow: Decodable {
+    struct RawShadow: Codable {
         let color: DynamicColor
         let radius: Double
         // swiftlint:disable:next identifier_name
@@ -304,7 +364,7 @@ extension ExperienceComponent.Style {
         let y: Double
     }
 
-    struct BackgroundImage: Decodable {
+    struct BackgroundImage: Codable {
         let imageUrl: URL
         let blurHash: String?
         let contentMode: String?

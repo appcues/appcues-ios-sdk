@@ -25,6 +25,7 @@ class SignInViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
+        Appcues.shared.debug()
         Appcues.shared.screen(title: "Sign In")
     }
 

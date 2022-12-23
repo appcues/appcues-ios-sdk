@@ -10,6 +10,10 @@ import UIKit
 
 extension Notification.Name {
     internal static let appcuesTrackedScreen = Notification.Name("appcuesTrackedScreen")
+    internal static let appcuesTemplateCapture = Notification.Name("appcuesTemplateCapture")
+    internal static let appcuesTemplatePreview = Notification.Name("appcuesTemplatePreview")
+    internal static let appcuesTemplateClone = Notification.Name("appcuesTemplateClone")
+    internal static let appcuesInteractionEvent = Notification.Name("appcuesInteractionEvent")
 }
 
 extension Notification {
