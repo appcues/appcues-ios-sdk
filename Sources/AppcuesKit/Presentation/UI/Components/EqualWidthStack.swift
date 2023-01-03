@@ -33,7 +33,7 @@ internal struct EqualWidthStack<Content: View>: View {
                 content
             }
             // maxWidth instead of width to allow the width to shrink after a resize or rotation.
-            .frame(maxWidth: stackWidth / CGFloat(itemCount))
+            .frame(maxWidth: stackWidth / CGFloat(max(1, itemCount)))
             // Ensure the context never escapes the designated frame.
             .clipped()
         }
