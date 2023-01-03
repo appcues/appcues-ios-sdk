@@ -27,7 +27,16 @@ internal struct AppcuesTextInput: View {
         let errorTintColor = stepState.shouldShowError(for: model.id) ? Color(dynamicColor: model.errorLabel?.style?.foregroundColor) : nil
 
         VStack(alignment: style.horizontalAlignment, spacing: 0) {
-            TintedTextView(model: model.label, tintColor: errorTintColor)
+            HStack {
+                // nil-coalesce to .leading so a non-specified value defaults to leading-aligned
+                if HorizontalAlignment(string: model.label.style?.horizontalAlignment) ?? .leading != .leading {
+                    Spacer()
+                }
+                TintedTextView(model: model.label, tintColor: errorTintColor)
+                if HorizontalAlignment(string: model.label.style?.horizontalAlignment) != .trailing {
+                    Spacer()
+                }
+            }
 
             let binding = stepState.formBinding(for: model.id)
 
@@ -38,7 +47,15 @@ internal struct AppcuesTextInput: View {
                 .overlay(errorBorder(errorTintColor, textFieldStyle))
 
             if stepState.shouldShowError(for: model.id), let errorLabel = model.errorLabel {
-                AppcuesText(model: errorLabel)
+                HStack {
+                    if HorizontalAlignment(string: errorLabel.style?.horizontalAlignment) ?? .leading != .leading {
+                        Spacer()
+                    }
+                    AppcuesText(model: errorLabel)
+                    if HorizontalAlignment(string: errorLabel.style?.horizontalAlignment) != .trailing {
+                        Spacer()
+                    }
+                }
             }
         }
         .setupActions(on: viewModel, for: model)
