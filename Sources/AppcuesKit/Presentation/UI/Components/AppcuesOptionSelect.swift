@@ -23,11 +23,11 @@ internal struct AppcuesOptionSelect: View {
             HStack {
                 // nil-coalesce to .leading so a non-specified value defaults to leading-aligned
                 if HorizontalAlignment(string: model.label.style?.horizontalAlignment) ?? .leading != .leading {
-                    Spacer()
+                    Spacer(minLength: 0)
                 }
                 TintedTextView(model: model.label, tintColor: errorTintColor)
                 if HorizontalAlignment(string: model.label.style?.horizontalAlignment) != .trailing {
-                    Spacer()
+                    Spacer(minLength: 0)
                 }
             }
 
@@ -56,11 +56,11 @@ internal struct AppcuesOptionSelect: View {
             if stepState.shouldShowError(for: model.id), let errorLabel = model.errorLabel {
                 HStack {
                     if HorizontalAlignment(string: errorLabel.style?.horizontalAlignment) ?? .leading != .leading {
-                        Spacer()
+                        Spacer(minLength: 0)
                     }
                     AppcuesText(model: errorLabel)
                     if HorizontalAlignment(string: errorLabel.style?.horizontalAlignment) != .trailing {
-                        Spacer()
+                        Spacer(minLength: 0)
                     }
                 }
             }
