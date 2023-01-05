@@ -126,6 +126,8 @@ extension ExperienceComponent {
         let id: UUID
         let text: String
 
+        let spans: [TextSpan]?
+
         let style: Style?
 
         var textDescription: String? { text }
@@ -284,6 +286,13 @@ extension ExperienceComponent {
     struct IntrinsicSize: Decodable {
         let width: Double
         let height: Double
+    }
+
+    struct TextSpan: Decodable {
+        let text: String
+
+        /// Note: not all style properties can be applied to a `TextSpan`.
+        let style: Style
     }
 }
 
