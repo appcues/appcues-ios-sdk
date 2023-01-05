@@ -110,7 +110,7 @@ extension NetworkClient {
 
     static var encoder: JSONEncoder {
         let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .custom { (date, encoder) throws in
+        encoder.dateEncodingStrategy = .custom { date, encoder throws in
             var container = encoder.singleValueContainer()
             try container.encode(date.millisecondsSince1970)
         }

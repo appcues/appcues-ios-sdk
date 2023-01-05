@@ -33,7 +33,6 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
     mutating func encodeSkippingInvalid(_ dict: [String: Any]?) throws {
         var encodingErrorKeys: [String] = []
 
-        // swiftlint:disable:next closure_body_length
         try dict?.forEach { key, value in
             let codingKey = DynamicCodingKeys(key: key)
 
