@@ -141,7 +141,7 @@ internal enum DebugUI {
              }
              .ifLet(item.detailText) { view, detail in
                  view.contextMenu {
-                     Button() {
+                     Button {
                          UIPasteboard.general.string = detail
                      } label: {
                          HStack {

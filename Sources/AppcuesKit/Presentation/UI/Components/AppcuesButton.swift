@@ -17,7 +17,7 @@ internal struct AppcuesButton: View {
     var body: some View {
         let style = AppcuesStyle(from: model.style)
 
-        Button() {
+        Button {
             // handle tap in `.setupActions`
         } label: {
             model.content.view

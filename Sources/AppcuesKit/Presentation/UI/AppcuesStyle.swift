@@ -76,7 +76,6 @@ internal struct AppcuesStyle {
         self.borderColor = Color(dynamicColor: model?.borderColor)
         self.borderWidth = CGFloat(model?.borderWidth)
 
-
         // Border insets should only be applied on fixed size views - so for those with a
         // fixed height, for instance, apply a top and bottom inset. For those with a
         // fixed width, apply leading and trailing inset (or sometimes both).
