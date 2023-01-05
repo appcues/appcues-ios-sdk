@@ -54,7 +54,7 @@ targets:
       script: xcrun --sdk macosx mint run swiftgen config run
     postbuildScripts:
     - name: SwiftLint
-      script: 'xcrun --sdk macosx mint run swiftlint --path ./Sources'
+      script: 'xcrun --sdk macosx mint run swiftlint ./Sources'
   AppcuesKitTests:
     dependencies:
     - target: AppcuesKit
