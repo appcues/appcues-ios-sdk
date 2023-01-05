@@ -4,7 +4,6 @@ disabled_rules:
   -  no_fallthrough_only
 
 opt_in_rules:
-  - anyobject_protocol
   # - array_init #(the array_init swiftlint rule doesn't play well with some libs)
   - attributes
   - closure_body_length
@@ -94,11 +93,13 @@ opt_in_rules:
   - unneeded_parentheses_in_closure_argument
   - unowned_variable_capture
   - untyped_error_in_catch
-  - unused_import
-  - unused_declaration
   - vertical_parameter_alignment_on_call
   - xct_specific_matcher
   - yoda_condition
+
+analyzer_rules:
+  - unused_declaration
+  - unused_import
 
 excluded:
   - Pods

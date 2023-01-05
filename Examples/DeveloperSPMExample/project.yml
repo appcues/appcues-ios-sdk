@@ -20,7 +20,7 @@ targets:
     - name: SwiftLint
       script: 'if which mint >/dev/null; then
 
-            xcrun --sdk macosx mint run swiftlint@0.44.0
+            xcrun --sdk macosx mint run swiftlint@0.50.3
 
         else
 
