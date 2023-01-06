@@ -33,10 +33,10 @@ class MockAppcues: Appcues {
             container.register(DeepLinkHandling.self, value: deepLinkHandler)
             container.register(UIDebugging.self, value: debugger)
             container.register(ExperienceLoading.self, value: experienceLoader)
-            container.register(ExperienceRendering.self, value: experienceRenderer)
+            container.register(ExperienceRendering.self, value: MockExperienceRenderer())
             container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
             container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
-            container.register(TraitComposing.self, value: traitComposer)
+            container.register(TraitComposing.self, value: MockTraitComposer())
         }
 
         // dependencies that are not mocked
@@ -55,15 +55,27 @@ class MockAppcues: Appcues {
     var analyticsPublisher = MockAnalyticsPublisher()
     var storage = MockStorage()
     var experienceLoader = MockExperienceLoader()
-    var experienceRenderer = MockExperienceRenderer()
     var sessionMonitor = MockSessionMonitor()
     var activityProcessor = MockActivityProcessor()
     var debugger = MockDebugger()
     var deepLinkHandler = MockDeepLinkHandler()
-    var traitComposer = MockTraitComposer()
     var activityStorage = MockActivityStorage()
     var networking = MockNetworking()
     var analyticsTracker = MockAnalyticsTracker()
+
+    // must wrap in @available since MockExperienceRenderer has a stored property with
+    // type ExperienceData in it, which is 13+
+    @available(iOS 13.0, *)
+    var experienceRenderer: MockExperienceRenderer {
+        return container.resolve(ExperienceRendering.self) as! MockExperienceRenderer
+    }
+
+    // must wrap in @available since MockTraitComposer has a stored property with
+    // type ExperienceData in it, which is 13+
+    @available(iOS 13.0, *)
+    var traitComposer: MockTraitComposer {
+        return container.resolve(TraitComposing.self) as! MockTraitComposer
+    }
 }
 
 class MockAnalyticsPublisher: AnalyticsPublishing {
@@ -110,6 +122,7 @@ class MockExperienceLoader: ExperienceLoading {
     }
 }
 
+@available(iOS 13.0, *) // due to reference to ExperienceData
 class MockExperienceRenderer: ExperienceRendering {
 
     var onShowExperience: ((ExperienceData, ((Result<Void, Error>) -> Void)?) -> Void)?
@@ -186,6 +199,7 @@ class MockDeepLinkHandler: DeepLinkHandling {
     }
 }
 
+@available(iOS 13.0, *) // due to reference to ExperienceData
 class MockTraitComposer: TraitComposing {
 
     var onPackage: ((ExperienceData, Experience.StepIndex) throws -> ExperiencePackage)?

@@ -98,19 +98,36 @@ extension Dictionary where Key == String, Value == Any {
         }
         XCTAssertEqual(Set(self.keys), Set(other.keys), file: file, line: line)
         self.keys.forEach { key in
-            switch(self[key], other[key]) {
-            case let (val1 as String, val2 as String):
-                XCTAssertEqual(val1, val2, file: file, line: line)
-            case let (val1 as NSNumber, val2 as NSNumber):
-                XCTAssertEqual(val1, val2, file: file, line: line)
-            case let (val1 as [Any], val2 as [Any]):
-                val1.verifyPropertiesMatch(val2, file: file, line: line)
-            case let (val1 as [String: Any], val2 as [String: Any]):
-                val1.verifyPropertiesMatch(val2, file: file, line: line)
-            case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
-                XCTAssertEqual(val1, val2, file: file, line: line)
-            default:
-                XCTFail("\(self[key] ?? "nil") does not match \(other[key] ?? "nil").", file: file, line: line)
+            if #available(iOS 13.0, *) {
+                // can reference ExperienceData.StepState on 13+
+                switch(self[key], other[key]) {
+                case let (val1 as String, val2 as String):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                case let (val1 as NSNumber, val2 as NSNumber):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                case let (val1 as [Any], val2 as [Any]):
+                    val1.verifyPropertiesMatch(val2, file: file, line: line)
+                case let (val1 as [String: Any], val2 as [String: Any]):
+                    val1.verifyPropertiesMatch(val2, file: file, line: line)
+                case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                default:
+                    XCTFail("\(self[key] ?? "nil") does not match \(other[key] ?? "nil").", file: file, line: line)
+                }
+            } else {
+                // cannot reference ExperienceData.StepState
+                switch(self[key], other[key]) {
+                case let (val1 as String, val2 as String):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                case let (val1 as NSNumber, val2 as NSNumber):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                case let (val1 as [Any], val2 as [Any]):
+                    val1.verifyPropertiesMatch(val2, file: file, line: line)
+                case let (val1 as [String: Any], val2 as [String: Any]):
+                    val1.verifyPropertiesMatch(val2, file: file, line: line)
+                default:
+                    XCTFail("\(self[key] ?? "nil") does not match \(other[key] ?? "nil").", file: file, line: line)
+                }
             }
         }
     }
@@ -126,19 +143,36 @@ extension Array where Element == Any {
         XCTAssertEqual(self.count, other.count, file: file, line: line)
 
         zip(self, other).forEach { (selfVal, otherVal) in
-            switch(selfVal, otherVal) {
-            case let (val1 as String, val2 as String):
-                XCTAssertEqual(val1, val2, file: file, line: line)
-            case let (val1 as NSNumber, val2 as NSNumber):
-                XCTAssertEqual(val1, val2, file: file, line: line)
-            case let (val1 as [Any], val2 as [Any]):
-                val1.verifyPropertiesMatch(val2, file: file, line: line)
-            case let (val1 as [String: Any], val2 as [String: Any]):
-                val1.verifyPropertiesMatch(val2, file: file, line: line)
-            case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
-                XCTAssertEqual(val1, val2, file: file, line: line)
-            default:
-                XCTFail("\(selfVal) does not match \(otherVal).", file: file, line: line)
+            if #available(iOS 13.0, *) {
+                // can reference ExperienceData.StepState on 13+
+                switch(selfVal, otherVal) {
+                case let (val1 as String, val2 as String):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                case let (val1 as NSNumber, val2 as NSNumber):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                case let (val1 as [Any], val2 as [Any]):
+                    val1.verifyPropertiesMatch(val2, file: file, line: line)
+                case let (val1 as [String: Any], val2 as [String: Any]):
+                    val1.verifyPropertiesMatch(val2, file: file, line: line)
+                case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                default:
+                    XCTFail("\(selfVal) does not match \(otherVal).", file: file, line: line)
+                }
+            } else {
+                // cannot reference ExperienceData.StepState
+                switch(selfVal, otherVal) {
+                case let (val1 as String, val2 as String):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                case let (val1 as NSNumber, val2 as NSNumber):
+                    XCTAssertEqual(val1, val2, file: file, line: line)
+                case let (val1 as [Any], val2 as [Any]):
+                    val1.verifyPropertiesMatch(val2, file: file, line: line)
+                case let (val1 as [String: Any], val2 as [String: Any]):
+                    val1.verifyPropertiesMatch(val2, file: file, line: line)
+                default:
+                    XCTFail("\(selfVal) does not match \(otherVal).", file: file, line: line)
+                }
             }
         }
     }

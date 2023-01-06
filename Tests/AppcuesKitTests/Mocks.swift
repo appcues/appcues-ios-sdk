@@ -186,6 +186,7 @@ extension Experience.Step.Child {
 
 }
 
+@available(iOS 13.0, *)
 extension ExperienceData {
     static var mock: ExperienceData { ExperienceData(.mock, trigger: .showCall) }
     static var singleStepMock: ExperienceData { ExperienceData(.singleStepMock, trigger: .showCall) }
@@ -196,12 +197,10 @@ extension ExperienceData {
         ExperienceData(.mockWithStepActions(actions: actions), trigger: trigger)
     }
 
-    @available(iOS 13.0, *)
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
         package(onPresent: { presentExpectation?.fulfill() }, onDismiss: { dismissExpectation?.fulfill()} )
     }
 
-    @available(iOS 13.0, *)
     func package(onPresent: @escaping (() -> Void), onDismiss: @escaping (() -> Void)) -> ExperiencePackage {
         let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()])
         return ExperiencePackage(
