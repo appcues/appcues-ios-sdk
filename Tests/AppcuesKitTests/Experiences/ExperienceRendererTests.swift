@@ -417,6 +417,7 @@ class ExperienceRendererTests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 private extension ExperienceData {
     @available(iOS 13.0, *)
     func packageWithDelay(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
