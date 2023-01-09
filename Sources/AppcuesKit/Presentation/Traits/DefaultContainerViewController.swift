@@ -88,6 +88,7 @@ internal class DefaultContainerViewController: ExperienceContainerViewController
         embedChildViewController(stepControllers[pageIndex], inSuperview: stepContainerView)
 
         preferredHeightConstraint.constant = stepControllers[pageIndex].preferredContentSize.height
+        preferredContentSize = stepControllers[pageIndex].preferredContentSize
         pageMonitor.set(currentPage: pageIndex)
     }
 }
