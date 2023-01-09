@@ -54,19 +54,19 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
     @discardableResult
     func configureStyle(_ style: ExperienceComponent.Style?) -> Self {
         bodyView.contentWrapperView.backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
-        bodyView.contentWrapperView.layer.cornerRadius = style?.cornerRadius ?? 0
 
-        bodyView.contentWrapperView.layer.borderColor = UIColor(dynamicColor: style?.borderColor)?.cgColor
-        if let borderWidth = CGFloat(style?.borderWidth) {
-            bodyView.contentWrapperView.layer.borderWidth = borderWidth
-            bodyView.contentWrapperView.layoutMargins = UIEdgeInsets(
-                top: borderWidth,
-                left: borderWidth,
-                bottom: borderWidth,
-                right: borderWidth)
+        bodyView.applyCornerRadius(CGFloat(style?.cornerRadius))
+        bodyView.applyBorder(color: UIColor(dynamicColor: style?.borderColor), width: CGFloat(style?.borderWidth))
+
+        if let shadowModel = style?.shadow {
+            bodyView.shadowWrappingView.layer.shadowColor = UIColor(dynamicColor: shadowModel.color)?.cgColor
+            bodyView.shadowWrappingView.layer.shadowOpacity = 1
+            bodyView.shadowWrappingView.layer.shadowRadius = shadowModel.radius
+            bodyView.shadowWrappingView.layer.shadowOffset = CGSize(width: shadowModel.x, height: shadowModel.y)
+            bodyView.shadowWrappingView.layer.cornerRadius = style?.cornerRadius ?? 0
         }
 
-        bodyView.shadowLayer = CAShapeLayer(shadowModel: style?.shadow)
+        bodyView.setNeedsLayout()
 
         switch style?.verticalAlignment {
         case "top":
@@ -80,6 +80,19 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
         }
 
         return self
+    }
+
+    override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
+        super.preferredContentSizeDidChange(forChildContentContainer: container)
+
+        // if this container has opted out of updating size, for example background content containers, do not update
+        // this view controller's preferredContentSize or height constraint
+        if let dynamicSizing = container as? DynamicContentSizing, !dynamicSizing.updatesPreferredContentSize {
+            return
+        }
+
+        // If the current child controller changes it's preferred size, propagate that for use in the bodyVie
+        bodyView.preferredContentSize = container.preferredContentSize
     }
 
     @objc
