@@ -11,40 +11,25 @@ import UIKit
 @available(iOS 13.0, *)
 internal class ExperienceWrapperView: UIView {
 
+    var preferredContentSize: CGSize?
+
     let contentWrapperView: UIView = {
         let view = UIView(frame: .zero)
-        view.translatesAutoresizingMaskIntoConstraints = false
         view.clipsToBounds = true
         view.layoutMargins = .zero
         return view
     }()
 
-    var shadowLayer: CAShapeLayer? {
-        willSet {
-            // remove existing
-            shadowLayer?.removeFromSuperlayer()
-        }
-        didSet {
-            if let shadowLayer = shadowLayer {
-                layer.insertSublayer(shadowLayer, at: 0)
-            }
-        }
-    }
+    let shadowWrappingView = UIView()
 
     required init() {
         super.init(frame: .zero)
 
         backgroundColor = .clear
 
-        addSubview(contentWrapperView)
-        positionContentWrapperView()
-
-        NSLayoutConstraint.activate([
-            // this is required so the dialogView has an initial non-zero height, after which it can start sizing to the content.
-            contentWrapperView.layoutMarginsGuide.bottomAnchor.constraint(
-                greaterThanOrEqualTo: contentWrapperView.layoutMarginsGuide.topAnchor,
-                constant: 1)
-        ])
+        addSubview(shadowWrappingView)
+        shadowWrappingView.addSubview(contentWrapperView)
+        positionContentView()
     }
 
     @available(*, unavailable)
@@ -52,20 +37,17 @@ internal class ExperienceWrapperView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    func positionContentView() {
+        shadowWrappingView.translatesAutoresizingMaskIntoConstraints = false
 
-        if let shadowLayer = shadowLayer {
-            shadowLayer.path = UIBezierPath(
-                roundedRect: contentWrapperView.frame,
-                cornerRadius: contentWrapperView.layer.cornerRadius
-            ).cgPath
-            shadowLayer.shadowPath = shadowLayer.path
-        }
-    }
+        contentWrapperView.pin(to: shadowWrappingView)
 
-    func positionContentWrapperView() {
         NSLayoutConstraint.activate([
+            // this is required so the dialogView has an initial non-zero height, after which it can start sizing to the content.
+            contentWrapperView.layoutMarginsGuide.bottomAnchor.constraint(
+                greaterThanOrEqualTo: contentWrapperView.layoutMarginsGuide.topAnchor,
+                constant: 1),
+
             contentWrapperView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor),
             contentWrapperView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor),
 
@@ -73,5 +55,17 @@ internal class ExperienceWrapperView: UIView {
             contentWrapperView.topAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.topAnchor),
             contentWrapperView.bottomAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.bottomAnchor),
         ])
+    }
+
+    func applyCornerRadius(_ cornerRadius: CGFloat?) {
+        contentWrapperView.layer.cornerRadius = cornerRadius ?? 0
+    }
+
+    func applyBorder(color: UIColor?, width: CGFloat?) {
+        guard let color = color, let width = width else { return }
+
+        contentWrapperView.layer.borderColor = color.cgColor
+        contentWrapperView.layer.borderWidth = width
+        contentWrapperView.layoutMargins = UIEdgeInsets(top: width, left: width, bottom: width, right: width)
     }
 }
