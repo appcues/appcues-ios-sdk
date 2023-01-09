@@ -138,6 +138,7 @@ extension AppcuesCarouselTrait {
                 let transitionPercentage = transitionPercentage(itemWidth: width, xOffset: point.x)
                 // Set the preferred container height to transition smoothly between the difference in heights.
                 carouselView.preferredHeightConstraint.constant = heights[0] + heightDiff * transitionPercentage
+                preferredContentSize.height = carouselView.preferredHeightConstraint.constant
             } else {
                 if let singleHeight = heights.last {
                     carouselView.preferredHeightConstraint.constant = singleHeight
@@ -199,6 +200,10 @@ extension AppcuesCarouselTrait {
             let controller = stepControllers[indexPath.row]
             controller.willMove(toParent: nil)
             controller.removeFromParent()
+
+            if children.count == 1, let onlyChild = children.first {
+                preferredContentSize = onlyChild.preferredContentSize
+            }
         }
     }
 
