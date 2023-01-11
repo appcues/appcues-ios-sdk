@@ -13,7 +13,7 @@ import Combine
 @available(iOS 13.0, *)
 internal protocol UIDebugging: AnyObject {
     func verifyInstall(token: String)
-    func show(destination: DebugDestination?)
+    func show(mode: DebugMode)
 }
 
 /// Navigation destinations within the debugger
@@ -27,6 +27,12 @@ internal enum DebugDestination {
         default: return nil
         }
     }
+}
+
+// controls different flavors of the debugger that can be launched
+internal enum DebugMode {
+    case debugger(DebugDestination?)      // diagnostics and analytics tools
+    case screenCapture                    // capture screen image and layout for element targeting
 }
 
 @available(iOS 13.0, *)
@@ -61,23 +67,33 @@ internal class UIDebugger: UIDebugging {
         viewModel.receivedVerification(token: token)
     }
 
-    func show(destination: DebugDestination?) {
+    func show(mode: DebugMode) {
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
-                self.show(destination: destination)
+                self.show(mode: mode)
             }
             return
         }
 
         defer {
-            viewModel.navigationDestination = destination
-            if destination != nil {
-                (debugWindow?.rootViewController as? DebugViewController)?.open(animated: true)
+            if case let .debugger(destination) = mode {
+                viewModel.navigationDestination = destination
+                if destination != nil {
+                    (debugWindow?.rootViewController as? DebugViewController)?.open(animated: true)
+                }
             }
         }
 
-        // Debugger already open
-        guard debugWindow == nil else { return }
+        if let previousMode = (debugWindow?.rootViewController as? DebugViewController)?.mode {
+            switch (previousMode, mode) {
+            case (.debugger, .screenCapture), (.screenCapture, .debugger):
+                // Debugger already open but in different mode, dimiss it
+                hide()
+            default:
+                // Debugger already open in desired mode
+                return
+            }
+        }
 
         guard let windowScene = UIApplication.shared.activeWindowScenes.first else {
             config.logger.error("Could not open debugger")
@@ -85,12 +101,11 @@ internal class UIDebugger: UIDebugging {
         }
 
         analyticsPublisher.register(subscriber: self)
-        let panelViewController = UIHostingController(rootView: DebugUI.MainPanelView(viewModel: viewModel))
-        let rootViewController = DebugViewController(wrapping: panelViewController)
+        let rootViewController = DebugViewController(viewModel: viewModel, mode: mode)
         rootViewController.delegate = self
 
         cancellable = viewModel.$latestEvent.sink {
-            guard let loggedEvent = $0 else { return }
+            guard case .debugger = mode, let loggedEvent = $0 else { return }
             rootViewController.logFleeting(message: loggedEvent.name, symbolName: loggedEvent.type.symbolName)
         }
 
@@ -123,6 +138,11 @@ extension UIDebugger: DebugViewDelegate {
             break
         }
     }
+
+    func screenCaptured() {
+        // any post processing and network activity for a captured screen will go here
+    }
+
 }
 
 @available(iOS 13.0, *)

@@ -21,6 +21,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
         case show(experienceID: String)    // published content
         case debugger(destination: DebugDestination?)
         case verifyInstall(id: String)
+        case captureScreen
 
         init?(url: URL, isSessionActive: Bool, applicationID: String) {
             let isValidScheme = url.scheme == "appcues-\(applicationID)" || url.scheme == "appcues-democues"
@@ -32,6 +33,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
             // appcues-{app_id}://sdk/debugger
             // appcues-{app_id}://sdk/debugger/fonts
             // appcues-{app_id}://sdk/verify/{token}
+            // appcues-{app_id}://sdk/capture_screen
 
             let pathTokens = url.path.split(separator: "/").map { String($0) }
 
@@ -44,6 +46,8 @@ internal class DeepLinkHandler: DeepLinkHandling {
                 self = .debugger(destination: DebugDestination(pathToken: pathTokens[safe: 1]))
             } else if pathTokens.count == 2, pathTokens[0] == "verify" {
                 self = .verifyInstall(id: pathTokens[1])
+            } else if pathTokens.count == 1, pathTokens[0] == "capture_screen" {
+                self = .captureScreen
             } else {
                 return nil
             }
@@ -110,9 +114,11 @@ internal class DeepLinkHandler: DeepLinkHandling {
                                                             trigger: .deepLink,
                                                             completion: nil)
         case .debugger(let destination):
-            container?.resolve(UIDebugging.self).show(destination: destination)
+            container?.resolve(UIDebugging.self).show(mode: .debugger(destination))
         case .verifyInstall(let token):
             container?.resolve(UIDebugging.self).verifyInstall(token: token)
+        case .captureScreen:
+            container?.resolve(UIDebugging.self).show(mode: .screenCapture)
         }
     }
 
