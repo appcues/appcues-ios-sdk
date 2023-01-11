@@ -90,7 +90,8 @@ class DeepLinkHandlerTests: XCTestCase {
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/debugger"))
 
         var debuggerShown = false
-        appcues.debugger.onShow = { destination in
+        appcues.debugger.onShow = { mode in
+            guard case let .debugger(destination) = mode else { return XCTFail() }
             XCTAssertNil(destination)
             debuggerShown = true
         }
@@ -109,7 +110,8 @@ class DeepLinkHandlerTests: XCTestCase {
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/debugger/fonts"))
 
         var debuggerShown = false
-        appcues.debugger.onShow = { destination in
+        appcues.debugger.onShow = { mode in
+            guard case let .debugger(destination) = mode else { return XCTFail() }
             XCTAssertEqual(destination, DebugDestination.fonts)
             debuggerShown = true
         }

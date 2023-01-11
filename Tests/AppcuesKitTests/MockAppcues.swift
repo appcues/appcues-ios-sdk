@@ -172,9 +172,9 @@ class MockDebugger: UIDebugging {
         onVerify?(token)
     }
 
-    var onShow: ((DebugDestination?) -> Void)?
-    func show(destination: DebugDestination?) {
-        onShow?(destination)
+    var onShow: ((DebugMode) -> Void)?
+    func show(mode: DebugMode) {
+        onShow?(mode)
     }
 }
 
