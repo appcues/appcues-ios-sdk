@@ -235,7 +235,7 @@ public class Appcues: NSObject {
             return
         }
 
-        uiDebugger.show(destination: nil)
+        uiDebugger.show(mode: .debugger(nil))
     }
 
     /// Enables automatic screen tracking.

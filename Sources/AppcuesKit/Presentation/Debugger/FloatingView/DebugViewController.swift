@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 @available(iOS 13.0, *)
 internal class DebugViewController: UIViewController {
@@ -16,12 +17,14 @@ internal class DebugViewController: UIViewController {
         set { debugView.delegate = newValue }
     }
 
-    private var debugView = DebugView()
+    private lazy var debugView = DebugView(mode: mode)
 
-    private let panelViewController: UIViewController
+    let mode: DebugMode
+    private let viewModel: DebugViewModel
 
-    init(wrapping panelViewController: UIViewController) {
-        self.panelViewController = panelViewController
+    init(viewModel: DebugViewModel, mode: DebugMode) {
+        self.viewModel = viewModel
+        self.mode = mode
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -37,11 +40,14 @@ internal class DebugViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        addChild(panelViewController)
-        debugView.panelWrapperView.addSubview(panelViewController.view)
-        panelViewController.didMove(toParent: self)
+        if case .debugger = mode {
+            let panelViewController = UIHostingController(rootView: DebugUI.MainPanelView(viewModel: viewModel))
+            addChild(panelViewController)
+            debugView.panelWrapperView.addSubview(panelViewController.view)
+            panelViewController.didMove(toParent: self)
+            panelViewController.view.pin(to: debugView.panelWrapperView)
+        }
 
-        panelViewController.view.pin(to: debugView.panelWrapperView)
     }
 
     func show(animated: Bool) {
