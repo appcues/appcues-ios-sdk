@@ -12,30 +12,72 @@ internal protocol FloatingViewDelegate: AnyObject {
     func floatingViewActivated()
 }
 
+// a helper to return a view with a blurple haze gradient background and
+// a given image, tinted white and centered with a given size over the gradient
 @available(iOS 13.0, *)
-internal class FloatingView: UIView {
+private class FloatingImageView: UIView {
 
-    private let tapRecognizer = UITapGestureRecognizer()
+    private let image: UIImage?
 
-    weak var delegate: FloatingViewDelegate?
-
-    lazy var imageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(asset: Asset.Image.debugIcon))
+    private lazy var imageView: UIImageView = {
+        let imageView = UIImageView(image: image)
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.backgroundColor = .secondarySystemBackground
         imageView.clipsToBounds = true
+        imageView.tintColor = .white
         return imageView
     }()
 
-    override init(frame: CGRect) {
+    private lazy var gradient = CAGradientLayer.blurpleHazeHorizontal
+
+    init(image: UIImage?, size: CGSize) {
+        self.image = image
+        super.init(frame: .zero)
+        layer.addSublayer(gradient)
+        addSubview(imageView)
+        NSLayoutConstraint.activate([
+            imageView.centerXAnchor.constraint(equalTo: self.centerXAnchor),
+            imageView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            imageView.widthAnchor.constraint(equalToConstant: size.width),
+            imageView.heightAnchor.constraint(equalToConstant: size.height)
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        gradient.frame = self.bounds
+    }
+}
+
+@available(iOS 13.0, *)
+internal class FloatingView: UIView {
+
+    weak var delegate: FloatingViewDelegate?
+
+    private let tapRecognizer = UITapGestureRecognizer()
+    private let mode: DebugMode
+
+    private lazy var modeIconView: UIView = {
+        let view = mode.imageView
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.clipsToBounds = true
+        return view
+    }()
+
+    init(frame: CGRect, mode: DebugMode) {
+        self.mode = mode
         super.init(frame: frame)
 
         isAccessibilityElement = true
         accessibilityTraits = .button
-        accessibilityLabel = "Appcues Debug Panel"
+        accessibilityLabel = mode.accessibilityLabel
 
-        addSubview(imageView)
-        imageView.pin(to: self)
+        addSubview(modeIconView)
+        modeIconView.pin(to: self)
 
         addGestureRecognizer(tapRecognizer)
         tapRecognizer.addTarget(self, action: #selector(viewTapped))
@@ -59,8 +101,8 @@ internal class FloatingView: UIView {
         // Round the self corners for a nice automatic accessibility path,
         // but don't clip since that would obscure the unread indicator.
         layer.cornerRadius = frame.width / 2
-        // Clipping the imageView is ok though.
-        imageView.layer.cornerRadius = frame.width / 2
+        // Clipping the modeIconView is ok though.
+        modeIconView.layer.cornerRadius = frame.width / 2
     }
 
     @objc
@@ -167,5 +209,41 @@ internal class FloatingView: UIView {
     override func accessibilityActivate() -> Bool {
         delegate?.floatingViewActivated()
         return delegate != nil
+    }
+}
+
+@available(iOS 13.0, *)
+private extension DebugMode {
+    var accessibilityLabel: String {
+        switch self {
+        case .debugger:
+            return "Appcues Debug Panel"
+        case .screenCapture:
+            return "Appcues Screen Capture"
+        }
+    }
+
+    var imageView: UIView {
+        switch self {
+        case .debugger:
+            let imageView = UIImageView(image: UIImage(asset: Asset.Image.debugIcon))
+            imageView.backgroundColor = .secondarySystemBackground
+            return imageView
+        case.screenCapture:
+            return FloatingImageView(image: UIImage(asset: Asset.Image.captureScreen), size: CGSize(width: 24.0, height: 24.0))
+        }
+    }
+}
+
+@available(iOS 13.0, *)
+extension CAGradientLayer {
+    static var blurpleHazeHorizontal: CAGradientLayer {
+        let gradient = CAGradientLayer()
+        let startColor = CGColor(red: 92.0 / 255.0, green: 92.0 / 255.0, blue: 1.0, alpha: 1.0)
+        let endColor = CGColor(red: 137.0 / 255.0, green: 96.0 / 255.0, blue: 1.0, alpha: 1.0)
+        gradient.colors = [startColor, endColor]
+        gradient.startPoint = CGPoint(x: 0.0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1.0, y: 0.5)
+        return gradient
     }
 }
