@@ -11,6 +11,7 @@ import UIKit
 @available(iOS 13.0, *)
 internal protocol DebugViewDelegate: AnyObject {
     func debugView(did event: DebugView.Event)
+    func screenCaptured()
 }
 
 @available(iOS 13.0, *)
@@ -19,6 +20,8 @@ internal class DebugView: UIView, FloatingViewDelegate {
     private let gestureCalculator = GestureCalculator()
 
     weak var delegate: DebugViewDelegate?
+
+    private let mode: DebugMode
 
     private let floatingViewPanRecognizer = UIPanGestureRecognizer()
     private let backgroundTapRecognizer = UITapGestureRecognizer()
@@ -44,7 +47,7 @@ internal class DebugView: UIView, FloatingViewDelegate {
         trailing: fleetingLogView.trailingAnchor.constraint(equalTo: floatingView.trailingAnchor)
     )
 
-    var floatingView = FloatingView(frame: CGRect(origin: .zero, size: CGSize(width: 64, height: 64)))
+    private lazy var floatingView = FloatingView(frame: CGRect(origin: .zero, size: CGSize(width: 64, height: 64)), mode: mode)
 
     private var dismissView: DismissDropZoneView = {
         let view = DismissDropZoneView()
@@ -124,8 +127,9 @@ internal class DebugView: UIView, FloatingViewDelegate {
 
     // MARK: Overrides
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(mode: DebugMode) {
+        self.mode = mode
+        super.init(frame: .zero)
 
         addSubview(backgroundView)
         addSubview(panelWrapperView)
@@ -240,10 +244,15 @@ internal class DebugView: UIView, FloatingViewDelegate {
     // MARK: FloatingViewDelegate
 
     func floatingViewActivated() {
-        let isCurrentlyOpen = floatingView.center == floatingViewOpenCenter
-        setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
-
-        fleetingLogView.clear()
+        switch mode {
+        case .debugger:
+            let isCurrentlyOpen = floatingView.center == floatingViewOpenCenter
+            setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
+            fleetingLogView.clear()
+        case .screenCapture:
+            // this is where we'll initiate the screen capture and pass back to the DebugViewDelegate
+            delegate?.screenCaptured()
+        }
     }
 
     @objc
