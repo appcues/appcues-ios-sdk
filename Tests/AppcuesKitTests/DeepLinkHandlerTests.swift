@@ -124,6 +124,25 @@ class DeepLinkHandlerTests: XCTestCase {
         XCTAssertTrue(debuggerShown)
     }
 
+    func testHandleScreenCapture() throws {
+        // Arrange
+        deepLinkHandler.topControllerGetting = MockTopControllerGetting()
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/capture_screen"))
+
+        var debuggerShown = false
+        appcues.debugger.onShow = { mode in
+            guard case .screenCapture = mode else { return XCTFail() }
+            debuggerShown = true
+        }
+
+        // Act
+        let handled = deepLinkHandler.didHandleURL(url)
+
+        // Assert
+        XCTAssertTrue(handled)
+        XCTAssertTrue(debuggerShown)
+    }
+
     func testHandleDebugDeepLinkVerification() throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
