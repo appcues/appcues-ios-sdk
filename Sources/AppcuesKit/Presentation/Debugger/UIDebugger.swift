@@ -134,15 +134,10 @@ extension UIDebugger: DebugViewDelegate {
             hide()
         case .open:
             viewModel.ping()
-        case .show, .close, .reposition:
+        case .show, .close, .reposition, .screenCapture:
             break
         }
     }
-
-    func screenCaptured() {
-        // any post processing and network activity for a captured screen will go here
-    }
-
 }
 
 @available(iOS 13.0, *)
