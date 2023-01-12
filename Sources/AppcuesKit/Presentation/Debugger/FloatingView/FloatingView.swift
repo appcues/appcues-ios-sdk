@@ -15,29 +15,26 @@ internal protocol FloatingViewDelegate: AnyObject {
 @available(iOS 13.0, *)
 internal class FloatingView: UIView {
 
+    private let tapRecognizer = UITapGestureRecognizer()
+
     weak var delegate: FloatingViewDelegate?
 
-    private let tapRecognizer = UITapGestureRecognizer()
-    private let mode: DebugMode
-
-    private lazy var modeIconView: UIView = {
-        let imageView = UIImageView(image: UIImage(asset: mode.imageAsset))
-        imageView.backgroundColor = .secondarySystemBackground
+    lazy var imageView: UIImageView = {
+        let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.backgroundColor = .secondarySystemBackground
         imageView.clipsToBounds = true
         return imageView
     }()
 
-    init(frame: CGRect, mode: DebugMode) {
-        self.mode = mode
+    override init(frame: CGRect) {
         super.init(frame: frame)
 
         isAccessibilityElement = true
         accessibilityTraits = .button
-        accessibilityLabel = mode.accessibilityLabel
 
-        addSubview(modeIconView)
-        modeIconView.pin(to: self)
+        addSubview(imageView)
+        imageView.pin(to: self)
 
         addGestureRecognizer(tapRecognizer)
         tapRecognizer.addTarget(self, action: #selector(viewTapped))
@@ -61,8 +58,8 @@ internal class FloatingView: UIView {
         // Round the self corners for a nice automatic accessibility path,
         // but don't clip since that would obscure the unread indicator.
         layer.cornerRadius = frame.width / 2
-        // Clipping the modeIconView is ok though.
-        modeIconView.layer.cornerRadius = frame.width / 2
+        // Clipping the imageView is ok though.
+        imageView.layer.cornerRadius = frame.width / 2
     }
 
     @objc
@@ -169,26 +166,5 @@ internal class FloatingView: UIView {
     override func accessibilityActivate() -> Bool {
         delegate?.floatingViewActivated()
         return delegate != nil
-    }
-}
-
-@available(iOS 13.0, *)
-private extension DebugMode {
-    var accessibilityLabel: String {
-        switch self {
-        case .debugger:
-            return "Appcues Debug Panel"
-        case .screenCapture:
-            return "Appcues Screen Capture"
-        }
-    }
-
-    var imageAsset: ImageAsset {
-        switch self {
-        case .debugger:
-            return Asset.Image.debugIcon
-        case.screenCapture:
-            return Asset.Image.captureScreen
-        }
     }
 }
