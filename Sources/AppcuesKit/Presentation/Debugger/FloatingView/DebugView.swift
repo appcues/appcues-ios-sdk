@@ -14,13 +14,11 @@ internal protocol DebugViewDelegate: AnyObject {
 }
 
 @available(iOS 13.0, *)
-internal class DebugView: UIView, FloatingViewDelegate {
+internal class DebugView: UIView {
 
     private let gestureCalculator = GestureCalculator()
 
     weak var delegate: DebugViewDelegate?
-
-    private let mode: DebugMode
 
     private let floatingViewPanRecognizer = UIPanGestureRecognizer()
     private let backgroundTapRecognizer = UITapGestureRecognizer()
@@ -46,7 +44,7 @@ internal class DebugView: UIView, FloatingViewDelegate {
         trailing: fleetingLogView.trailingAnchor.constraint(equalTo: floatingView.trailingAnchor)
     )
 
-    private lazy var floatingView = FloatingView(frame: CGRect(origin: .zero, size: CGSize(width: 64, height: 64)), mode: mode)
+    var floatingView = FloatingView(frame: CGRect(origin: .zero, size: CGSize(width: 64, height: 64)))
 
     private var dismissView: DismissDropZoneView = {
         let view = DismissDropZoneView()
@@ -126,9 +124,8 @@ internal class DebugView: UIView, FloatingViewDelegate {
 
     // MARK: Overrides
 
-    init(mode: DebugMode) {
-        self.mode = mode
-        super.init(frame: .zero)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
 
         addSubview(backgroundView)
         addSubview(panelWrapperView)
@@ -146,8 +143,6 @@ internal class DebugView: UIView, FloatingViewDelegate {
             dismissView.trailingAnchor.constraint(equalTo: trailingAnchor),
             dismissView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
-
-        floatingView.delegate = self
 
         floatingViewPanRecognizer.addTarget(self, action: #selector(floatingViewPanned))
         floatingView.addGestureRecognizer(floatingViewPanRecognizer)
@@ -237,20 +232,6 @@ internal class DebugView: UIView, FloatingViewDelegate {
             panEnded(recognizer, shouldDock: shouldDock)
         default:
             break
-        }
-    }
-
-    // MARK: FloatingViewDelegate
-
-    func floatingViewActivated() {
-        switch mode {
-        case .debugger:
-            let isCurrentlyOpen = floatingView.center == floatingViewOpenCenter
-            setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
-            fleetingLogView.clear()
-        case .screenCapture:
-            // this is where we'll initiate the screen capture and pass back to the DebugViewDelegate
-            delegate?.debugView(did: .screenCapture)
         }
     }
 
