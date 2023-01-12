@@ -11,7 +11,6 @@ import UIKit
 @available(iOS 13.0, *)
 internal protocol DebugViewDelegate: AnyObject {
     func debugView(did event: DebugView.Event)
-    func screenCaptured()
 }
 
 @available(iOS 13.0, *)
@@ -251,7 +250,7 @@ internal class DebugView: UIView, FloatingViewDelegate {
             fleetingLogView.clear()
         case .screenCapture:
             // this is where we'll initiate the screen capture and pass back to the DebugViewDelegate
-            delegate?.screenCaptured()
+            delegate?.debugView(did: .screenCapture)
         }
     }
 
@@ -471,5 +470,6 @@ extension DebugView {
         case open
         case close
         case reposition
+        case screenCapture
     }
 }
