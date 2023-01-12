@@ -17,7 +17,7 @@ internal class DebugViewController: UIViewController {
         set { debugView.delegate = newValue }
     }
 
-    private lazy var debugView = DebugView(mode: mode)
+    private var debugView = DebugView()
 
     let mode: DebugMode
     private let viewModel: DebugViewModel
@@ -34,6 +34,9 @@ internal class DebugViewController: UIViewController {
     }
 
     override func loadView() {
+        debugView.floatingView.accessibilityLabel = mode.accessibilityLabel
+        debugView.floatingView.imageView.image = UIImage(asset: mode.imageAsset)
+        debugView.floatingView.delegate = self
         view = debugView
     }
 
@@ -68,5 +71,41 @@ internal class DebugViewController: UIViewController {
 
     func logFleeting(message: String, symbolName: String?) {
         debugView.fleetingLogView.addMessage(message, symbolName: symbolName)
+    }
+}
+
+@available(iOS 13.0, *)
+extension DebugViewController: FloatingViewDelegate {
+    func floatingViewActivated() {
+        switch mode {
+        case .debugger:
+            let isCurrentlyOpen = debugView.floatingView.center == debugView.floatingViewOpenCenter
+            debugView.setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
+            debugView.fleetingLogView.clear()
+        case .screenCapture:
+            // this is where we'll initiate the screen capture and pass back to the DebugViewDelegate
+            delegate?.debugView(did: .screenCapture)
+        }
+    }
+}
+
+@available(iOS 13.0, *)
+private extension DebugMode {
+    var accessibilityLabel: String {
+        switch self {
+        case .debugger:
+            return "Appcues Debug Panel"
+        case .screenCapture:
+            return "Appcues Screen Capture"
+        }
+    }
+
+    var imageAsset: ImageAsset {
+        switch self {
+        case .debugger:
+            return Asset.Image.debugIcon
+        case.screenCapture:
+            return Asset.Image.captureScreen
+        }
     }
 }
