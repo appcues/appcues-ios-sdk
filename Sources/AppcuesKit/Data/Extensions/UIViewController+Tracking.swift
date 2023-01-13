@@ -29,6 +29,14 @@ extension Notification {
 
 extension UIViewController {
 
+    internal var displayName: String {
+        var name = String(describing: self.classForCoder)
+        if name != "ViewController" {
+            name = name.replacingOccurrences(of: "ViewController", with: "")
+        }
+        return name
+    }
+
     internal func captureScreen() {
         guard let top = UIApplication.shared.topViewController() else { return }
 
@@ -36,15 +44,10 @@ extension UIViewController {
         let untracked = objc_getAssociatedObject(self, &UIKitScreenTracker.untrackedScreenKey) as? Bool ?? false
         guard !untracked else { return }
 
-        var name = String(describing: top.self.classForCoder)
-        if name != "ViewController" {
-            name = name.replacingOccurrences(of: "ViewController", with: "")
-        }
-
         // communicate the tracked screen back to AnalyticsTracker
         NotificationCenter.appcues.post(name: .appcuesTrackedScreen,
                                         object: self,
-                                        userInfo: Notification.toInfo(name))
+                                        userInfo: Notification.toInfo(top.displayName))
     }
 
     @objc
