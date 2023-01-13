@@ -126,7 +126,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     }
 }
 
-private extension UIUserInterfaceIdiom {
+extension UIUserInterfaceIdiom {
     var analyticsName: String {
         if self == .pad {
             return "tablet"

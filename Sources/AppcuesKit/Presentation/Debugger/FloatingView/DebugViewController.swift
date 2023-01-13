@@ -83,7 +83,6 @@ extension DebugViewController: FloatingViewDelegate {
             debugView.setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
             debugView.fleetingLogView.clear()
         case .screenCapture:
-            // this is where we'll initiate the screen capture and pass back to the DebugViewDelegate
             delegate?.debugView(did: .screenCapture)
         }
     }
