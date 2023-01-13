@@ -134,8 +134,28 @@ extension UIDebugger: DebugViewDelegate {
             hide()
         case .open:
             viewModel.ping()
-        case .show, .close, .reposition, .screenCapture:
+        case .screenCapture:
+            captureScreen()
+        case .show, .close, .reposition:
             break
+        }
+    }
+
+    private func captureScreen() {
+        if let window = UIApplication.shared.windows.first(where: { !($0 is DebugUIWindow) }),
+           let screenshot = window.screenshot(),
+           let layout = window.captureLayout() {
+            let capture = Capture(
+                applicationId: config.applicationID,
+                displayName: window.screenCaptureDisplayName,
+                screenShotImageUrl: URL(string: "http://www.appcues.com/screenshot/\(UUID())"),
+                layout: layout,
+                screenshot: screenshot)
+
+            // next steps are to upload image, get image URL, and then upload screen capture to API for real
+
+            // test output for now
+            capture.prettyPrint()
         }
     }
 }
