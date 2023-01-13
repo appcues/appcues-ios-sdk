@@ -11,7 +11,7 @@ import UIKit
 internal struct Capture: Identifiable {
 
     struct View: Encodable {
-        let id = UUID()
+        let id = UUID().appcuesFormatted
         // swiftlint:disable:next identifier_name
         let x: CGFloat
         // swiftlint:disable:next identifier_name
@@ -23,22 +23,23 @@ internal struct Capture: Identifiable {
         let children: [View]?
     }
 
-    let id = UUID()
-    let applicationId: String
+    let id = UUID().appcuesFormatted
+    let timestamp: Date
     let displayName: String
-    let applicationVersion = Bundle.main.version
-    let screenShotImageUrl: URL?
+    let screenshotImageUrl: URL?
+    let appId: String
+    let appName = Bundle.main.displayName
+    let appBuild = Bundle.main.build
+    let appVersion = Bundle.main.version
     let deviceModel = UIDevice.current.modelName
     let deviceWidth = UIScreen.main.bounds.size.width
     let deviceHeight = UIScreen.main.bounds.size.height
     let deviceOrientation = UIDevice.current.orientation.isLandscape ? "landscape" : "portrait"
     let deviceType = UIDevice.current.userInterfaceIdiom.analyticsName
     let bundlePackageId = Bundle.main.identifier
-    let operatingSystem = "ios"
-    let applicationName = Bundle.main.displayName
-    let applicationBuild = Bundle.main.build
     let sdkVersion = __appcues_version
     let sdkName = "appcues-ios"
+    let osName = "ios"
     let osVersion = UIDevice.current.systemVersion
     let layout: View
 
@@ -52,22 +53,23 @@ extension Capture: Encodable {
     // to exclude screenshot from encoding
     private enum CodingKeys: String, CodingKey {
         case id
-        case applicationId
+        case timestamp
+        case appId
+        case appVersion
+        case appName
+        case appBuild
         case displayName
-        case applicationVersion
-        case screenShotImageUrl
+        case screenshotImageUrl
         case deviceModel
         case deviceWidth
         case deviceHeight
         case deviceOrientation
         case deviceType
         case bundlePackageId
-        case operatingSystem
-        case applicationName
-        case applicationBuild
+        case osName
+        case osVersion
         case sdkVersion
         case sdkName
-        case osVersion
         case layout
     }
 }
@@ -76,7 +78,7 @@ extension Capture {
     // TODO: just for testing prior to API readiness!
     func prettyPrint() {
         guard
-            let data = try? JSONEncoder().encode(self),
+            let data = try? NetworkClient.encoder.encode(self),
             let object = try? JSONSerialization.jsonObject(with: data, options: []),
             let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
             let prettyPrintedString = String(data: data, encoding: .utf8) else { return }
