@@ -145,10 +145,12 @@ extension UIDebugger: DebugViewDelegate {
         if let window = UIApplication.shared.windows.first(where: { !($0 is DebugUIWindow) }),
            let screenshot = window.screenshot(),
            let layout = window.captureLayout() {
+            let timestamp = Date()
             let capture = Capture(
-                applicationId: config.applicationID,
-                displayName: window.screenCaptureDisplayName,
-                screenShotImageUrl: URL(string: "http://www.appcues.com/screenshot/\(UUID())"),
+                timestamp: timestamp,
+                displayName: window.screenCaptureDisplayName(at: timestamp),
+                screenshotImageUrl: URL(string: "http://www.appcues.com/screenshot/\(UUID())"),
+                appId: config.applicationID,
                 layout: layout,
                 screenshot: screenshot)
 
