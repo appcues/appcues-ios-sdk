@@ -41,7 +41,7 @@ extension UIView {
             id: nil)
     }
 
-    var screenCaptureDisplayName: String {
+    func screenCaptureDisplayName(at timestamp: Date) -> String {
         var name = ""
         if let window = self as? UIWindow,
            let root = window.rootViewController {
@@ -50,7 +50,7 @@ extension UIView {
             name = String(describing: self.classForCoder)
         }
 
-        name += " (\(screenNameDateFormatter.string(from: Date())))"
+        name += " (\(screenNameDateFormatter.string(from: timestamp)))"
         return name
     }
 
