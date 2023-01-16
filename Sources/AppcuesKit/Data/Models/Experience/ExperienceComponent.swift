@@ -292,7 +292,7 @@ extension ExperienceComponent {
         let text: String
 
         /// Note: not all style properties can be applied to a `TextSpan`.
-        let style: Style
+        let style: Style?
     }
 }
 

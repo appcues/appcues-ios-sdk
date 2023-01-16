@@ -34,18 +34,17 @@ extension Text {
             // Note: a ViewBuilder approach here doesn't work because the requirement that we operate strictly on `Text`
             // and not `some View` for concatenation to work. Therefore we work with the struct directly.
             spans.forEach { span in
-                let style = AppcuesStyle(from: span.style)
                 var text = Text(span.text)
 
-                if let font = style.font {
+                if let font = Font(name: span.style?.fontName, size: span.style?.fontSize ?? UIFont.labelFontSize) {
                     text = text.font(font)
                 }
 
-                if let foregroundColor = style.foregroundColor {
+                if let foregroundColor = Color(dynamicColor: span.style?.foregroundColor) {
                     text = text.foregroundColor(foregroundColor)
                 }
 
-                if let kerning = style.letterSpacing {
+                if let kerning = span.style?.letterSpacing {
                     text = text.kerning(kerning)
                 }
 
