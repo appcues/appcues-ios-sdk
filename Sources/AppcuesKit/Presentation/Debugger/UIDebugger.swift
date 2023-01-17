@@ -47,6 +47,10 @@ internal class UIDebugger: UIDebugging {
     private let notificationCenter: NotificationCenter
     private let analyticsPublisher: AnalyticsPublishing
 
+    private var debugViewController: DebugViewController? {
+        return debugWindow?.rootViewController as? DebugViewController
+    }
+
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
         self.storage = container.resolve(DataStoring.self)
@@ -79,12 +83,12 @@ internal class UIDebugger: UIDebugging {
             if case let .debugger(destination) = mode {
                 viewModel.navigationDestination = destination
                 if destination != nil {
-                    (debugWindow?.rootViewController as? DebugViewController)?.open(animated: true)
+                    debugViewController?.open(animated: true)
                 }
             }
         }
 
-        if let previousMode = (debugWindow?.rootViewController as? DebugViewController)?.mode {
+        if let previousMode = debugViewController?.mode {
             switch (previousMode, mode) {
             case (.debugger, .screenCapture), (.screenCapture, .debugger):
                 // Debugger already open but in different mode, dimiss it
@@ -142,22 +146,42 @@ extension UIDebugger: DebugViewDelegate {
     }
 
     private func captureScreen() {
-        if let window = UIApplication.shared.windows.first(where: { !($0 is DebugUIWindow) }),
-           let screenshot = window.screenshot(),
-           let layout = window.captureLayout() {
-            let timestamp = Date()
-            let capture = Capture(
-                timestamp: timestamp,
-                displayName: window.screenCaptureDisplayName(at: timestamp),
-                screenshotImageUrl: URL(string: "http://www.appcues.com/screenshot/\(UUID())"),
-                appId: config.applicationID,
-                layout: layout,
-                screenshot: screenshot)
+        guard let debugViewController = debugViewController,
+              let window = UIApplication.shared.windows.first(where: { !($0 is DebugUIWindow) }),
+              let screenshot = window.screenshot(),
+              let layout = window.captureLayout() else {
 
-            // next steps are to upload image, get image URL, and then upload screen capture to API for real
+            // show error?
 
-            // test output for now
-            capture.prettyPrint()
+            return
+        }
+
+        let timestamp = Date()
+        var capture = Capture(
+            timestamp: timestamp,
+            displayName: window.screenCaptureDisplayName(at: timestamp),
+            screenshotImageUrl: URL(string: "http://www.appcues.com/screenshot/\(UUID())"),
+            appId: config.applicationID,
+            layout: layout,
+            screenshot: screenshot)
+
+        // show confirmation dialog
+        debugViewController.confirmCapture(screen: capture) { result in
+            // if they canceled out of confirmation, we don't need to show any error,
+            // however, later when we have the network calls for uploading image and screen, we'll
+            // need error handling inside here
+            if case let .success(name) = result {
+                // get updated name
+                capture.displayName = name
+
+                // next steps are to upload image, get image URL, and then upload screen capture to API for real
+
+                // test output for now
+                capture.prettyPrint()
+
+                // show toast
+                debugViewController.showCaptureSuccess(screen: capture)
+            }
         }
     }
 }
