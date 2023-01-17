@@ -76,16 +76,16 @@ public class TraitMetadata: NSObject {
         }
     }
 
-    func basicAnimation(keyPath: String?) -> CABasicAnimation? {
+    func animationGroup() -> CAAnimationGroup? {
         guard let duration = newData["animationDuration"] as? TimeInterval,
               let easing = newData["animationEasing"] as? AppcuesStepTransitionAnimationTrait.Easing else {
             return nil
         }
 
-        let animation = CABasicAnimation(keyPath: keyPath)
-        animation.duration = duration
-        animation.timingFunction = CAMediaTimingFunction(name: easing.timingFunction)
-        return animation
+        let animationGroup = CAAnimationGroup()
+        animationGroup.duration = duration
+        animationGroup.timingFunction = CAMediaTimingFunction(name: easing.timingFunction)
+        return animationGroup
     }
 
     public subscript<T>(_ key: String) -> T? {

@@ -13,6 +13,7 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
     struct Config: Decodable {
         let shape: String
         let cornerRadius: Double?
+        let blurRadius: Double?
         let spreadRadius: Double?
     }
 
@@ -25,7 +26,7 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
 
     required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
         guard let config = configuration.decode(Config.self),
-              let keyholeShape = KeyholeShape(config.shape, cornerRadius: config.cornerRadius) else {
+              let keyholeShape = KeyholeShape(config.shape, cornerRadius: config.cornerRadius, blurRadius: config.blurRadius) else {
             return nil
         }
 
@@ -66,7 +67,7 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
 
     private func handle(backdropView: UIView, metadata: TraitMetadata) {
         let newMaskPath = UIBezierPath(rect: backdropView.bounds)
-        let newShape: KeyholeShape = metadata["keyholeShape"] ?? metadata[previous: "keyholeShape"] ?? .circle
+        let newShape: KeyholeShape = metadata["keyholeShape"] ?? metadata[previous: "keyholeShape"] ?? .circle(blurRadius: 0)
         let targetRectangle: CGRect = {
             if let newTarget: CGRect = metadata["targetRectangle"] {
                 return newTarget.spread(by: metadata["keyholeSpread"])
@@ -82,7 +83,7 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
         newMaskPath.append(newKeyholeBezierPath)
 
         let oldMaskPath = UIBezierPath(rect: backdropView.bounds)
-        let oldShape: KeyholeShape = metadata[previous: "keyholeShape"] ?? metadata["keyholeShape"] ?? .circle
+        let oldShape: KeyholeShape = metadata[previous: "keyholeShape"] ?? metadata["keyholeShape"] ?? .circle(blurRadius: 0)
         let oldTargetRectangle: CGRect = {
             if let oldTarget: CGRect = metadata[previous: "targetRectangle"] {
                 return oldTarget.spread(by: metadata[previous: "keyholeSpread"])
@@ -97,15 +98,96 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
         let oldKeyholeBezierPath = oldShape.path(for: oldTargetRectangle)
         oldMaskPath.append(oldKeyholeBezierPath)
 
-        let maskLayer = CAShapeLayer()
-        maskLayer.fillRule = .evenOdd
-        maskLayer.path = newMaskPath.cgPath
+        let maskLayer: CALayer
 
-        if let anim = metadata.basicAnimation(keyPath: "path") {
-            anim.fromValue = oldMaskPath.cgPath
-            anim.toValue = newMaskPath.cgPath
+        if case let .circle(blurRadius: newBlurRadius) = newShape {
+            let newStartPoint = CGPoint(
+                x: newKeyholeBezierPath.bounds.midX,
+                y: newKeyholeBezierPath.bounds.midY)
+            let newEndPoint = CGPoint(
+                x: newKeyholeBezierPath.bounds.maxX + newBlurRadius,
+                y: newKeyholeBezierPath.bounds.maxY + newBlurRadius)
 
-            maskLayer.add(anim, forKey: nil)
+            // Start the gradient at the edge of the keyhole path.
+            // Doesn't matter whether we use x or y since it's a circle.
+            let newStartLocation: Double
+            // Avoid a potential division by zero. If the start and end are the same, the gradient is irrelevant anyways.
+            if newEndPoint.x != newStartPoint.x {
+                // Cap at 0.995 so we don't collide with the end location.
+                newStartLocation = min(
+                    0.995,
+                    (newEndPoint.x - newBlurRadius - newStartPoint.x) / (newEndPoint.x - newStartPoint.x)
+                )
+            } else {
+                newStartLocation = 0
+            }
+
+            let gradientMaskLayer = CAGradientLayer()
+            gradientMaskLayer.frame = backdropView.bounds
+            gradientMaskLayer.type = .radial
+            gradientMaskLayer.colors = [UIColor.clear.cgColor, UIColor.white.cgColor]
+            // swiftlint:disable:next legacy_objc_type
+            gradientMaskLayer.locations = [NSNumber(value: newStartLocation), 1.0]
+            gradientMaskLayer.startPoint = newStartPoint.relative(in: backdropView.bounds.size)
+            gradientMaskLayer.endPoint = newEndPoint.relative(in: backdropView.bounds.size)
+
+            if let animationGroup = metadata.animationGroup() {
+                let oldBlurRadius: CGFloat = {
+                    if case let .circle(blurRadius: blurRadius) = oldShape {
+                        return blurRadius
+                    } else {
+                        return 0
+                    }
+                }()
+                let oldStartPoint = CGPoint(
+                    x: oldKeyholeBezierPath.bounds.midX,
+                    y: oldKeyholeBezierPath.bounds.midY)
+                let oldEndPoint = CGPoint(
+                    x: oldKeyholeBezierPath.bounds.maxX + oldBlurRadius,
+                    y: oldKeyholeBezierPath.bounds.maxY + oldBlurRadius)
+                let oldStartLocation: Double
+                if newEndPoint.x != newStartPoint.x {
+                    oldStartLocation = min(
+                        0.995,
+                        (oldEndPoint.x - oldBlurRadius - oldStartPoint.x) / (oldEndPoint.x - oldStartPoint.x)
+                    )
+                } else {
+                    oldStartLocation = 0
+                }
+
+                let locationsAnimation = CABasicAnimation(keyPath: "locations")
+                // swiftlint:disable:next legacy_objc_type
+                locationsAnimation.fromValue = [NSNumber(value: oldStartLocation), 1.0]
+                locationsAnimation.toValue = gradientMaskLayer.locations
+
+                let startPointAnimation = CABasicAnimation(keyPath: "startPoint")
+                startPointAnimation.fromValue = oldStartPoint.relative(in: backdropView.bounds.size)
+                startPointAnimation.toValue = gradientMaskLayer.startPoint
+
+                let endPointAnimation = CABasicAnimation(keyPath: "endPoint")
+                endPointAnimation.fromValue = oldEndPoint.relative(in: backdropView.bounds.size)
+                endPointAnimation.toValue = gradientMaskLayer.endPoint
+
+                animationGroup.animations = [locationsAnimation, startPointAnimation, endPointAnimation]
+                gradientMaskLayer.add(animationGroup, forKey: nil)
+            }
+
+            maskLayer = gradientMaskLayer
+        } else {
+            let shapeMaskLayer = CAShapeLayer()
+            shapeMaskLayer.fillRule = .evenOdd
+            shapeMaskLayer.path = newMaskPath.cgPath
+
+            if let animationGroup = metadata.animationGroup() {
+                let pathAnimation = CABasicAnimation(keyPath: "path")
+                pathAnimation.fromValue = oldMaskPath.cgPath
+                pathAnimation.toValue = newMaskPath.cgPath
+
+                animationGroup.animations = [pathAnimation]
+                shapeMaskLayer.add(animationGroup, forKey: nil)
+            }
+
+            maskLayer = shapeMaskLayer
         }
 
         // https://stackoverflow.com/a/36461202
@@ -121,15 +203,15 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
 extension AppcuesBackdropKeyholeTrait {
     enum KeyholeShape {
         case rectangle(cornerRadius: CGFloat)
-        case circle
+        case circle(blurRadius: CGFloat)
 
-        init?(_ shape: String?, cornerRadius: Double? = nil) {
+        init?(_ shape: String?, cornerRadius: Double? = nil, blurRadius: Double? = nil) {
             switch shape {
             case "rectangle":
                 // fallback to a tiny value instead of 0 so the path can animate nicely to other values
                 self = .rectangle(cornerRadius: cornerRadius ?? .leastNonzeroMagnitude)
             case "circle":
-                self = .circle
+                self = .circle(blurRadius: blurRadius ?? 0)
             default:
                 return nil
             }
@@ -162,5 +244,11 @@ private extension CGRect {
     func spread(by spreadRadius: CGFloat?) -> CGRect {
         guard let radius = spreadRadius else { return self }
         return self.insetBy(dx: -radius, dy: -radius)
+    }
+}
+
+private extension CGPoint {
+    func relative(in size: CGSize) -> CGPoint {
+        CGPoint(x: self.x / size.width, y: self.y / size.height)
     }
 }
