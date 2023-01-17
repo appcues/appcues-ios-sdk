@@ -25,7 +25,7 @@ internal struct Capture: Identifiable {
 
     let id = UUID().appcuesFormatted
     let timestamp: Date
-    let displayName: String
+    var displayName: String
     let screenshotImageUrl: URL?
     let appId: String
     let appName = Bundle.main.displayName
