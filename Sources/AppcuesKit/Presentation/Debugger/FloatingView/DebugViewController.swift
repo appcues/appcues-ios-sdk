@@ -57,8 +57,8 @@ internal class DebugViewController: UIViewController {
         debugView.setFloatingView(visible: true, animated: animated, programmatically: true)
     }
 
-    func hide(animated: Bool) {
-        debugView.setFloatingView(visible: false, animated: animated, programmatically: true)
+    func hide(animated: Bool, notify: Bool = false) {
+        debugView.setFloatingView(visible: false, animated: animated, programmatically: true, notify: notify)
     }
 
     func open(animated: Bool) {
@@ -71,6 +71,51 @@ internal class DebugViewController: UIViewController {
 
     func logFleeting(message: String, symbolName: String?) {
         debugView.fleetingLogView.addMessage(message, symbolName: symbolName)
+    }
+
+    func confirmCapture(screen: Capture, completion: @escaping (Result<String, Error>) -> Void) {
+        // hide the FAB but do not notify delegate, since it should not be considered a dismiss of debugger
+        hide(animated: true, notify: false)
+
+        let confirmationView = SendCaptureUI.ConfirmationDialogView(
+            capture: screen,
+            completion: { [weak self] result in
+                // dimiss the presented modal
+                self?.dismiss(animated: true)
+                // show the FAB
+                self?.show(animated: true)
+                // pass along the result
+                completion(result)
+            },
+            screenName: screen.displayName)
+
+        let confirmationViewController = UIHostingController(rootView: confirmationView)
+        confirmationViewController.view.backgroundColor = .clear
+        confirmationViewController.modalTransitionStyle = .crossDissolve
+        confirmationViewController.modalPresentationStyle = .overFullScreen
+        present(confirmationViewController, animated: true)
+    }
+
+    func showCaptureSuccess(screen: Capture) {
+        let toastView = SendCaptureUI.CaptureSuccessToastView(screenName: screen.displayName)
+        let toastController = UIHostingController(rootView: toastView)
+        toastController.view.backgroundColor = .clear
+
+        // Insert the toast view into the toastWrapperView, which is a container view anchored
+        // to the bottom of our view.
+        embedChildViewController(toastController, inSuperview: debugView.toastWrapperView)
+
+        // Show the toast view and auto-dismiss after 3 seconds, and unembed the child VC.
+        //
+        // If the user taps on anything, it will hide sooner, but we can still clean
+        // up the child VC after 3 seconds here.
+        debugView.setToastView(visible: true, animated: true) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+                self?.debugView.setToastView(visible: false, animated: true) { [weak self] in
+                    self?.unembedChildViewController(toastController)
+                }
+            }
+        }
     }
 }
 
