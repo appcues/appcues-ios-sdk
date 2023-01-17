@@ -73,6 +73,14 @@ internal class DebugView: UIView {
         return view
     }()
 
+    var toastWrapperView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.alpha = 0
+
+        return view
+    }()
+
     // MARK: Layout Calculators
 
     var baseFrame: CGRect = .zero
@@ -131,6 +139,7 @@ internal class DebugView: UIView {
         addSubview(panelWrapperView)
         addSubview(dismissView)
         addSubview(floatingView)
+        addSubview(toastWrapperView)
 
         backgroundView.pin(to: self)
         NSLayoutConstraint.activate([
@@ -141,7 +150,12 @@ internal class DebugView: UIView {
 
             dismissView.leadingAnchor.constraint(equalTo: leadingAnchor),
             dismissView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            dismissView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            dismissView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            toastWrapperView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            toastWrapperView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            toastWrapperView.bottomAnchor.constraint(equalTo: bottomAnchor)
+
         ])
 
         floatingViewPanRecognizer.addTarget(self, action: #selector(floatingViewPanned))
@@ -179,6 +193,12 @@ internal class DebugView: UIView {
     }
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+
+        // any interaction while toast is showing will initiate dismiss
+        if toastWrapperView.alpha > 0 {
+            animateToast(visible: false, animated: true, completion: nil)
+        }
+
         for view in subviews.reversed() {
             // Convert to the subview's local coordinate system
             let convertedPoint = convert(point, to: view)
@@ -198,9 +218,11 @@ internal class DebugView: UIView {
 
     // MARK: API
 
-    func setFloatingView(visible isVisible: Bool, animated: Bool, programmatically: Bool) {
+    func setFloatingView(visible isVisible: Bool, animated: Bool, programmatically: Bool, notify: Bool = true) {
         floatingView.animateVisibility(visible: isVisible, animated: animated, haptics: !programmatically) {
-            self.delegate?.debugView(did: isVisible ? .show : .hide)
+            if notify {
+                self.delegate?.debugView(did: isVisible ? .show : .hide)
+            }
         }
     }
 
@@ -211,6 +233,10 @@ internal class DebugView: UIView {
         delegate?.debugView(did: isOpen ? .open : .close)
 
         fleetingLogView.isLocked = isOpen
+    }
+
+    func setToastView(visible isVisible: Bool, animated: Bool, completion: (() -> Void)?) {
+        animateToast(visible: isVisible, animated: animated, completion: completion)
     }
 
     // MARK: Gesture Recognizers
@@ -441,6 +467,23 @@ internal class DebugView: UIView {
             completion(true)
         }
     }
+
+    private func animateToast(visible isVisible: Bool, animated: Bool, completion: (() -> Void)?) {
+
+        let animations: () -> Void = {
+            self.toastWrapperView.alpha = isVisible ? 1 : 0
+        }
+
+        if animated {
+            UIView.animate(
+                withDuration: 0.6,
+                animations: animations) { _ in completion?() }
+        } else {
+            animations()
+            completion?()
+        }
+    }
+
 }
 
 @available(iOS 13.0, *)
