@@ -80,23 +80,16 @@ internal class TraitComposer: TraitComposing {
         let backdropView = UIView()
         decomposedTraits.wrapperCreating?.addBackdrop(backdropView: backdropView, to: wrappedContainerViewController)
 
-        // Apply initial decorators for the target step
-        try stepModelsWithTraits[targetPageIndex].decomposedTraits.containerDecorating.forEach {
-            try $0.decorate(containerController: containerController)
-        }
-        try stepModelsWithTraits[targetPageIndex].decomposedTraits.backdropDecorating.forEach {
-            try $0.decorate(backdropView: backdropView)
-        }
-        metadataDelegate.publish()
-
-        let stepDecoratingTraitUpdater: (Int, Int) throws -> Void = { newIndex, previousIndex in
+        let stepDecoratingTraitUpdater: (Int, Int?) throws -> Void = { newIndex, previousIndex in
             // Remove old decorations
-            try stepModelsWithTraits[previousIndex].decomposedTraits.containerDecorating.forEach {
-                try $0.undecorate(containerController: containerController)
-            }
+            if let previousIndex = previousIndex {
+                try stepModelsWithTraits[previousIndex].decomposedTraits.containerDecorating.forEach {
+                    try $0.undecorate(containerController: containerController)
+                }
 
-            try stepModelsWithTraits[previousIndex].decomposedTraits.backdropDecorating.forEach {
-                try $0.undecorate(backdropView: backdropView)
+                try stepModelsWithTraits[previousIndex].decomposedTraits.backdropDecorating.forEach {
+                    try $0.undecorate(backdropView: backdropView)
+                }
             }
 
             // Add new decorations
