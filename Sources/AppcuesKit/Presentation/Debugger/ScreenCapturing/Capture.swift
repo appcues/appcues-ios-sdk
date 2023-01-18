@@ -46,7 +46,7 @@ internal struct Capture: Identifiable {
     // the plan is for this to be sent to a separate endpoint to upload the image, then
     // get back a URL to that image to use for `screenshotImageUrl` in the capture model
     // sent to Appcues
-    let screenshot: Data
+    let screenshot: UIImage
 }
 
 extension Capture: Encodable {
