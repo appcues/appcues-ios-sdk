@@ -89,17 +89,17 @@ private extension UIView {
         }
 
         // try to use single match on accessibilityIdentifier
-        if let match = views.findSingleMatch(criteria: target.accessibilityIdentifier, accessor: { $0.accessibilityIdentifier }) {
+        if let match = views.findSingleMatch(for: target, on: \.accessibilityIdentifier) {
             return match
         }
 
         // try to use single match on tag
-        if let match = views.findSingleMatch(criteria: target.tag, accessor: { $0.tag }) {
+        if let match = views.findSingleMatch(for: target, on: \.tag) {
             return match
         }
 
         // try to use single match on description
-        if let match = views.findSingleMatch(criteria: target.description, accessor: { $0.description }) {
+        if let match = views.findSingleMatch(for: target, on: \.description) {
             return match
         }
 
@@ -128,11 +128,10 @@ private extension UIView {
 private extension Array where Element == UIView {
     // find a single item that matches the criteria, based on the accessor
     // i.e. a single item that matches the accessibilityIdentifier
-    func findSingleMatch(criteria: String?, accessor: (ElementSelector) -> String?) -> UIView? {
-        guard let criteria = criteria else { return nil }
+    func findSingleMatch(for targetSelector: ElementSelector, on keyPath: KeyPath<ElementSelector, String?>) -> UIView? {
         let matches = self.filter {
             guard let selector = $0.appcuesSelector else { return false }
-            return accessor(selector) == criteria
+            return selector[keyPath: keyPath] == targetSelector[keyPath: keyPath]
         }
         if matches.count == 1 {
             return matches[0]
