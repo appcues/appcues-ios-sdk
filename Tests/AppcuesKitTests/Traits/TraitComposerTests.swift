@@ -56,9 +56,12 @@ class TraitComposerTests: XCTestCase {
             ],
             redirectURL: nil,
             nextContentID: nil)
+        let stepIndex = Experience.StepIndex(group: 0, item: 0)
+        let package = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: stepIndex)
 
         // Act
-        _ = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: Experience.StepIndex(group: 0, item: 0))
+        // simulate the presentation, this updater called from ExperienceStateMachine.SideEffect.executePresentContainer
+        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -84,8 +87,12 @@ class TraitComposerTests: XCTestCase {
             wrapperCreatingExpectation: wrapperCreatingExpectation,
             backdropDecoratingExpectation: backdropDecoratingExpectation)
 
+        let stepIndex = Experience.StepIndex(group: 0, item: 0)
+        let package = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: stepIndex)
+
         // Act
-        _ = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: Experience.StepIndex(group: 0, item: 0))
+        // simulate the presentation, this updater called from ExperienceStateMachine.SideEffect.executePresentContainer
+        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -106,8 +113,12 @@ class TraitComposerTests: XCTestCase {
             wrapperCreatingExpectation: expectation(description: "Create wrapper called"),
             backdropDecoratingExpectation: expectation(description: "Backdrop decorate called"))
 
+        let stepIndex = Experience.StepIndex(group: 1, item: 0)
+        let package = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: stepIndex)
+
         // Act
-        _ = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: Experience.StepIndex(group: 1, item: 0))
+        // simulate the presentation, this updater called from ExperienceStateMachine.SideEffect.executePresentContainer
+        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -204,8 +215,13 @@ class TraitComposerTests: XCTestCase {
             redirectURL: nil,
             nextContentID: nil)
 
+        let stepIndex = Experience.StepIndex(group: 0, item: 0)
+        let package = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: stepIndex)
+
         // Act
-        _ = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: Experience.StepIndex(group: 0, item: 0))
+        // simulate the presentation, this updater called from ExperienceStateMachine.SideEffect.executePresentContainer
+        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
+
 
         // Assert
         waitForExpectations(timeout: 1)
