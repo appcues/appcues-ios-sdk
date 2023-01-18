@@ -274,13 +274,20 @@ extension ExperienceStateMachine {
             // This flag tells automatic screen tracking to ignore screens that the SDK is presenting
             objc_setAssociatedObject(package.wrapperController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
 
-            do {
-                SdkMetrics.renderStart(experience.requestID)
-                try package.presenter {
-                    try? machine.transition(.renderStep)
+            // The dispatcher call here with asyncAfter is to attempt to let any pending layout operations complete
+            // before running this new container presentation. The package.stepDecoratingTraitUpdater in particular may
+            // be looking for target elements on the view that need to be fully loaded first, and this container
+            // may be presenting after a pre-step navigation action that is finalizing the loading of the new view.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) {
+                do {
+                    try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
+                    SdkMetrics.renderStart(experience.requestID)
+                    try package.presenter {
+                        try? machine.transition(.renderStep)
+                    }
+                } catch {
+                    try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)"), fatal: true))
                 }
-            } catch {
-                try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)"), fatal: true))
             }
         }
     }
