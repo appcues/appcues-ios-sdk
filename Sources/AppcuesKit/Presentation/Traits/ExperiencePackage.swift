@@ -11,7 +11,7 @@ import UIKit
 internal class ExperiencePackage {
     // References to the trait instances are held here to ensure they persist the lifetime of the experience being rendered.
     private let traitInstances: [ExperienceTrait]
-    let stepDecoratingTraitUpdater: (Int, Int) throws -> Void
+    let stepDecoratingTraitUpdater: (Int, Int?) throws -> Void
     let steps: [Experience.Step.Child]
     let containerController: ExperienceContainerViewController
     let wrapperController: UIViewController
@@ -21,7 +21,7 @@ internal class ExperiencePackage {
 
     internal init(
         traitInstances: [ExperienceTrait],
-        stepDecoratingTraitUpdater: @escaping (Int, Int) throws -> Void,
+        stepDecoratingTraitUpdater: @escaping (Int, Int?) throws -> Void,
         steps: [Experience.Step.Child],
         containerController: ExperienceContainerViewController,
         wrapperController: UIViewController,
