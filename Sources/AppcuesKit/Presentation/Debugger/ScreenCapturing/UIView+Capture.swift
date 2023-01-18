@@ -54,7 +54,7 @@ extension UIView {
         return name
     }
 
-    func screenshot() -> Data? {
+    func screenshot() -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(frame.size, false, 1)
         defer {
             UIGraphicsEndImageContext()
@@ -62,7 +62,7 @@ extension UIView {
 
         drawHierarchy(in: self.bounds, afterScreenUpdates: false)
 
-        return UIGraphicsGetImageFromCurrentImageContext()?.jpegData(compressionQuality: 0.5)
+        return UIGraphicsGetImageFromCurrentImageContext()
     }
 
     func captureLayout() -> Capture.View? {
@@ -72,9 +72,11 @@ extension UIView {
     private func asCaptureView(in bounds: CGRect) -> Capture.View? {
         let absolutePosition = self.convert(self.bounds, to: nil)
 
+        // discard views that are not visible in the screenshot image
         guard absolutePosition.intersects(bounds) else { return nil }
 
         let children: [Capture.View] = self.subviews.compactMap {
+            // discard hidden views and subviews within
             guard !$0.isHidden else { return nil }
             return $0.asCaptureView(in: bounds)
         }
