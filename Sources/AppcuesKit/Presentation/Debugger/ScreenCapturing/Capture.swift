@@ -21,25 +21,29 @@ internal struct Capture: Identifiable {
         let children: [View]?
     }
 
+    struct Metadata: Encodable {
+        let appName = Bundle.main.displayName
+        let appBuild = Bundle.main.build
+        let appVersion = Bundle.main.version
+        let deviceModel = UIDevice.current.modelName
+        let deviceWidth = UIScreen.main.bounds.size.width
+        let deviceHeight = UIScreen.main.bounds.size.height
+        let deviceOrientation = UIDevice.current.orientation.isLandscape ? "landscape" : "portrait"
+        let deviceType = UIDevice.current.userInterfaceIdiom.analyticsName
+        let bundlePackageId = Bundle.main.identifier
+        let sdkVersion = __appcues_version
+        let sdkName = "appcues-ios"
+        let osName = "ios"
+        let osVersion = UIDevice.current.systemVersion
+    }
+
     let id = UUID().appcuesFormatted
-    let timestamp: Date
+    let appId: String
     var displayName: String
     let screenshotImageUrl: URL?
-    let appId: String
-    let appName = Bundle.main.displayName
-    let appBuild = Bundle.main.build
-    let appVersion = Bundle.main.version
-    let deviceModel = UIDevice.current.modelName
-    let deviceWidth = UIScreen.main.bounds.size.width
-    let deviceHeight = UIScreen.main.bounds.size.height
-    let deviceOrientation = UIDevice.current.orientation.isLandscape ? "landscape" : "portrait"
-    let deviceType = UIDevice.current.userInterfaceIdiom.analyticsName
-    let bundlePackageId = Bundle.main.identifier
-    let sdkVersion = __appcues_version
-    let sdkName = "appcues-ios"
-    let osName = "ios"
-    let osVersion = UIDevice.current.systemVersion
     let layout: View
+    let metadata = Metadata()
+    let timestamp: Date
 
     // the plan is for this to be sent to a separate endpoint to upload the image, then
     // get back a URL to that image to use for `screenshotImageUrl` in the capture model
@@ -51,24 +55,12 @@ extension Capture: Encodable {
     // to exclude screenshot from encoding
     private enum CodingKeys: String, CodingKey {
         case id
-        case timestamp
         case appId
-        case appVersion
-        case appName
-        case appBuild
         case displayName
         case screenshotImageUrl
-        case deviceModel
-        case deviceWidth
-        case deviceHeight
-        case deviceOrientation
-        case deviceType
-        case bundlePackageId
-        case osName
-        case osVersion
-        case sdkVersion
-        case sdkName
         case layout
+        case metadata
+        case timestamp
     }
 }
 
