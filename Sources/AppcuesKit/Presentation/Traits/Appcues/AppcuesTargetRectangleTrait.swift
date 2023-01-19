@@ -11,7 +11,6 @@ import UIKit
 @available(iOS 13.0, *)
 internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
     struct Config: Decodable {
-        // swiftlint:disable identifier_name
         let x: Double?
         let y: Double?
         let width: Double?

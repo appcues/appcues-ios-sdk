@@ -12,9 +12,7 @@ internal struct Capture: Identifiable {
 
     struct View: Encodable {
         let id = UUID().appcuesFormatted
-        // swiftlint:disable:next identifier_name
         let x: CGFloat
-        // swiftlint:disable:next identifier_name
         let y: CGFloat
         let width: CGFloat
         let height: CGFloat
