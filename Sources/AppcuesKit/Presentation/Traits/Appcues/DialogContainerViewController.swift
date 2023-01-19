@@ -49,6 +49,15 @@ internal class DialogContainerViewController: UIViewController {
 
         containerView.shadowLayer = CAShapeLayer(shadowModel: style?.shadow)
 
+        switch style?.verticalAlignment {
+        case "top":
+            containerView.dialogView.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor).isActive = true
+        case "bottom":
+            containerView.dialogView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        default:
+            containerView.dialogView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        }
+
         return self
     }
 }
