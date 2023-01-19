@@ -3,13 +3,14 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		0384A2A89074FC193A107EE5 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8663BEDD1883CC408AA4A302 /* SignInViewController.swift */; };
 		04F09F9C75FB66578541D199 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2E1BE92E4A34AD818AD21FDC /* Assets.xcassets */; };
 		160BF92965F22C6957DEB27C /* Mulish-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1330BC6CE40DF0AEA0B5D802 /* Mulish-Italic-VariableFont_wght.ttf */; };
+		1A3AD9592979EA050058533F /* HomeTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AD9582979EA050058533F /* HomeTabBarController.swift */; };
 		3EADA9762D050C3E2ED69514 /* Lato-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D3C0F23F9CDE7740C2E2DBF7 /* Lato-Regular.ttf */; };
 		40A181AE1ED5DE1982FA05CC /* Mulish-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CF3444B81C1A2ED10CA985F2 /* Mulish-VariableFont_wght.ttf */; };
 		64C809F864D3002CD52993CD /* GroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CB61619365785F4544ED13D /* GroupViewController.swift */; };
@@ -28,6 +29,7 @@
 /* Begin PBXFileReference section */
 		10C713E67205D9507CE2DC80 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1330BC6CE40DF0AEA0B5D802 /* Mulish-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
+		1A3AD9582979EA050058533F /* HomeTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTabBarController.swift; sourceTree = "<group>"; };
 		25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		2E1A69E4D4B48E802A9AFB6B /* Pods-AppcuesCocoapodsExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppcuesCocoapodsExample.release.xcconfig"; path = "Target Support Files/Pods-AppcuesCocoapodsExample/Pods-AppcuesCocoapodsExample.release.xcconfig"; sourceTree = "<group>"; };
 		2E1BE92E4A34AD818AD21FDC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -95,6 +97,7 @@
 				384497BA35A275E793B475C1 /* ProfileViewController.swift */,
 				25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */,
 				8663BEDD1883CC408AA4A302 /* SignInViewController.swift */,
+				1A3AD9582979EA050058533F /* HomeTabBarController.swift */,
 			);
 			path = CocoapodsExample;
 			sourceTree = "<group>";
@@ -105,7 +108,6 @@
 				BF4337FB1DE156596E9104A6 /* Pods-AppcuesCocoapodsExample.debug.xcconfig */,
 				2E1A69E4D4B48E802A9AFB6B /* Pods-AppcuesCocoapodsExample.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -157,8 +159,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1200;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 95033167E7E129F199208F61 /* Build configuration list for PBXProject "AppcuesCocoapodsExample" */;
 			compatibilityVersion = "Xcode 11.0";
@@ -267,6 +267,7 @@
 				64C809F864D3002CD52993CD /* GroupViewController.swift in Sources */,
 				CCD458B6662FC0AC5C80CAFF /* ProfileViewController.swift in Sources */,
 				A5CE7AE8513C052690838416 /* SceneDelegate.swift in Sources */,
+				1A3AD9592979EA050058533F /* HomeTabBarController.swift in Sources */,
 				0384A2A89074FC193A107EE5 /* SignInViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
