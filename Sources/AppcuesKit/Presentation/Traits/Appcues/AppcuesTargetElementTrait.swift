@@ -107,21 +107,36 @@ private extension UIView {
             return views[0]
         }
 
-        // try to use single match on accessibilityIdentifier
-        if let match = views.findSingleMatch(for: target, on: \.accessibilityIdentifier) {
-            return match
+        // weight the selector property matches by how distinct they are considered
+        let weightedMatches = views.map { view -> (UIView, Int) in
+            var weight = 0
+
+            if view.isMatch(for: target, on: \.accessibilityIdentifier) {
+                weight += 10_000
+            }
+
+            if view.isMatch(for: target, on: \.tag) {
+                weight += 1_000
+            }
+
+            if view.isMatch(for: target, on: \.description) {
+                weight += 100
+            }
+
+            return (view, weight)
         }
 
-        // try to use single match on tag
-        if let match = views.findSingleMatch(for: target, on: \.tag) {
-            return match
+        // find the maximum weight value from all matches
+        if let maxWeight = weightedMatches.max(by: { $0.1 > $1.1 })?.1 {
+            // find the items with this weight
+            let maxItems = weightedMatches.filter { $0.1 == maxWeight }
+            // if this has produced a single most distinct result, use it
+            if maxItems.count == 1 {
+                return maxItems[0].0
+            }
         }
 
-        // try to use single match on description
-        if let match = views.findSingleMatch(for: target, on: \.description) {
-            return match
-        }
-
+        // otherwise, this selector was not able to find a distinct match in this view
         throw TraitError(description: "multiple non-distinct views (\(views.count)) matched selector \(target)")
     }
 
@@ -142,19 +157,12 @@ private extension UIView {
 
         return views
     }
-}
 
-private extension Array where Element == UIView {
-    // find a single item that matches the criteria, based on the accessor
-    // i.e. a single item that matches the accessibilityIdentifier
-    func findSingleMatch(for targetSelector: ElementSelector, on keyPath: KeyPath<ElementSelector, String?>) -> UIView? {
-        let matches = self.filter {
-            guard let selector = $0.appcuesSelector else { return false }
-            return selector[keyPath: keyPath] == targetSelector[keyPath: keyPath]
+    func isMatch(for targetSelector: ElementSelector, on keyPath: KeyPath<ElementSelector, String?>) -> Bool {
+        guard let targetValue = targetSelector[keyPath: keyPath],
+              let selector = self.appcuesSelector else {
+            return false
         }
-        if matches.count == 1 {
-            return matches[0]
-        }
-        return nil
+        return selector[keyPath: keyPath] == targetValue
     }
 }
