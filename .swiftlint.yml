@@ -143,6 +143,8 @@ identifier_name:
     - url
     - up
     - ad
+    - x
+    - y
 
 vertical_whitespace:
   max_empty_lines: 1

@@ -298,9 +298,7 @@ extension ExperienceComponent.Style {
     struct RawShadow: Decodable {
         let color: DynamicColor
         let radius: Double
-        // swiftlint:disable:next identifier_name
         let x: Double
-        // swiftlint:disable:next identifier_name
         let y: Double
     }
 
