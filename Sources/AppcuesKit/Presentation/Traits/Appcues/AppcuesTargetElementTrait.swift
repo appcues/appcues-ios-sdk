@@ -16,12 +16,12 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
 
     private class FrameObserverView: UIView {
         private var oldBounds: CGRect = .zero
-        var onChange: ((_ bounds: CGRect) -> Void)?
+        var onChange: (() -> Void)?
 
         override func layoutSubviews() {
             super.layoutSubviews()
             if oldBounds != bounds {
-                onChange?(bounds)
+                onChange?()
             }
             oldBounds = bounds
         }
@@ -42,7 +42,7 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
 
     func decorate(backdropView: UIView) throws {
         // Determine if the selector can be resolved to a view, failing the step if not.
-        let targetRect = try calculateRect(bounds: backdropView.bounds)
+        let targetRect = try calculateRect()
         // The first decorate call on the first step in a group will have a nil window because the views aren't added yet,
         // so skip setting a targetRectangle until we have proper bounds. The change handler below will take care of that.
         if backdropView.window != nil {
@@ -55,9 +55,9 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
         // Ensure the view bounds are updated *before* we add the frame observer block.
         frameObserverView.layoutIfNeeded()
 
-        frameObserverView.onChange = { [weak self] bounds in
+        frameObserverView.onChange = { [weak self] in
             // this observer will ignore selector errors and use last known position on failure
-            if let targetRectangle = try? self?.calculateRect(bounds: bounds) {
+            if let targetRectangle = try? self?.calculateRect() {
                 self?.metadataDelegate?.set([ "targetRectangle": targetRectangle ])
                 // Force an update so that traits depending on this value will update.
                 self?.metadataDelegate?.publish()
@@ -72,7 +72,7 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
         frameObserverView.onChange = nil
     }
 
-    private func calculateRect(bounds: CGRect) throws -> CGRect {
+    private func calculateRect() throws -> CGRect {
         guard let window = UIApplication.shared.windows.first(where: { !($0 is DebugUIWindow) }) else {
             throw TraitError(description: "No active window found")
         }
