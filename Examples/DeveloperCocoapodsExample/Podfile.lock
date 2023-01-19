@@ -1,5 +1,5 @@
 PODS:
-  - Appcues (1.1.1)
+  - Appcues (1.1.2)
 
 DEPENDENCIES:
   - Appcues (from `../../Appcues.podspec`)
@@ -9,8 +9,8 @@ EXTERNAL SOURCES:
     :path: "../../Appcues.podspec"
 
 SPEC CHECKSUMS:
-  Appcues: 758c5d86c18e49d09f501e771ca0cfd67651a5ce
+  Appcues: 6a4a6f7b5ebc2d0920b1a42421b732a185fc696b
 
 PODFILE CHECKSUM: 7a3abcd818687cb341a5696d302103f523e3edc0
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.11.2

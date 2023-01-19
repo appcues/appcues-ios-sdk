@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="dsu-JA-RYQ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="dsu-JA-RYQ">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="20020"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -15,7 +15,7 @@
             <objects>
                 <navigationController id="dsu-JA-RYQ" sceneMemberID="viewController">
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="rKI-dv-nfO">
-                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <rect key="frame" x="0.0" y="48" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -35,35 +35,38 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="DFP-td-vP8">
-                                <rect key="frame" x="40" y="128" width="334" height="172"/>
+                                <rect key="frame" x="40" y="132" width="334" height="172"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Given Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PT3-vN-rTD">
-                                        <rect key="frame" x="0.0" y="0.0" width="334" height="20.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="334" height="17"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textField opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="751" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Given Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="8Tl-gR-eNQ">
-                                        <rect key="frame" x="0.0" y="28.5" width="334" height="34"/>
+                                    <textField opaque="NO" tag="2001" contentMode="scaleToFill" verticalCompressionResistancePriority="751" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Given Name" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="8Tl-gR-eNQ">
+                                        <rect key="frame" x="0.0" y="25" width="334" height="34"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="txtGivenName" label="Given Name"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Family Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="yCh-uM-tj0">
-                                        <rect key="frame" x="0.0" y="70.5" width="334" height="20.5"/>
+                                        <rect key="frame" x="0.0" y="67" width="334" height="20.5"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textField opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="751" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Family Name" textAlignment="natural" minimumFontSize="17" id="FMi-kV-XtR">
-                                        <rect key="frame" x="0.0" y="99" width="334" height="34"/>
+                                    <textField opaque="NO" tag="2002" contentMode="scaleToFill" verticalCompressionResistancePriority="751" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Family Name" textAlignment="natural" minimumFontSize="17" id="FMi-kV-XtR">
+                                        <rect key="frame" x="0.0" y="95.5" width="334" height="34"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="txtFamilyName" label="Family Name"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="FzB-Lh-Eb0">
-                                        <rect key="frame" x="0.0" y="141" width="334" height="31"/>
+                                    <button opaque="NO" tag="2003" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="FzB-Lh-Eb0">
+                                        <rect key="frame" x="0.0" y="137.5" width="334" height="34.5"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="btnSaveProfile" label="Save"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Save"/>
                                         <connections>
@@ -98,10 +101,10 @@
             </objects>
             <point key="canvasLocation" x="-314" y="1732"/>
         </scene>
-        <!--Tab Bar Controller-->
+        <!--Home Tab Bar Controller-->
         <scene sceneID="Fpf-vg-lJV">
             <objects>
-                <tabBarController id="EKa-1M-EaW" sceneMemberID="viewController">
+                <tabBarController id="EKa-1M-EaW" customClass="HomeTabBarController" customModule="AppcuesCocoapodsExample" customModuleProvider="target" sceneMemberID="viewController">
                     <navigationItem key="navigationItem" id="zkk-uv-H8D"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="o0Q-du-T0J">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="49"/>
@@ -127,21 +130,21 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="mjX-Zi-osT">
-                                <rect key="frame" x="40" y="128" width="334" height="100"/>
+                                <rect key="frame" x="40" y="132" width="334" height="100"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="User ID" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eOt-Jw-1zd">
-                                        <rect key="frame" x="0.0" y="0.0" width="334" height="19"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="334" height="15.5"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <textField opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="751" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="User ID" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="MFN-Xh-XUq">
-                                        <rect key="frame" x="0.0" y="27" width="334" height="34"/>
+                                        <rect key="frame" x="0.0" y="23.5" width="334" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="xwL-xQ-fl6">
-                                        <rect key="frame" x="0.0" y="69" width="334" height="31"/>
+                                        <rect key="frame" x="0.0" y="65.5" width="334" height="34.5"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Sign In"/>
@@ -153,7 +156,7 @@
                                 </subviews>
                             </stackView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gL3-Si-fOx">
-                                <rect key="frame" x="140" y="831" width="134.5" height="31"/>
+                                <rect key="frame" x="130" y="827.5" width="154.5" height="34.5"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Anonymous User"/>
                                 <connections>
@@ -191,9 +194,13 @@
         <scene sceneID="dOd-X2-cY1">
             <objects>
                 <navigationController id="FK3-TP-f03" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Profile" image="person" catalog="system" id="6xZ-kX-GMW"/>
+                    <tabBarItem key="tabBarItem" title="Profile" image="person" catalog="system" id="6xZ-kX-GMW">
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="tabProfile"/>
+                        </userDefinedRuntimeAttributes>
+                    </tabBarItem>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="8c2-j3-qZL">
-                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <rect key="frame" x="0.0" y="48" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -208,10 +215,14 @@
         <scene sceneID="asy-jO-YXo">
             <objects>
                 <navigationController id="XJ3-u7-yjq" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Group" image="person.3" catalog="system" id="sLb-d9-Lvb"/>
+                    <tabBarItem key="tabBarItem" title="Group" image="person.3" catalog="system" id="sLb-d9-Lvb">
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="tabGroup"/>
+                        </userDefinedRuntimeAttributes>
+                    </tabBarItem>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="4iI-BG-Ndh">
-                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <rect key="frame" x="0.0" y="48" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -231,7 +242,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="js5-7t-elQ">
-                                <rect key="frame" x="40" y="128" width="334" height="101.5"/>
+                                <rect key="frame" x="40" y="132" width="334" height="105"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Group" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aYF-oG-O6J">
                                         <rect key="frame" x="0.0" y="0.0" width="334" height="20.5"/>
@@ -239,13 +250,15 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="uPt-1p-rg9">
+                                    <textField opaque="NO" tag="3001" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="uPt-1p-rg9">
                                         <rect key="frame" x="0.0" y="28.5" width="334" height="34"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="txtGroup" label="Group"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <textInputTraits key="textInputTraits"/>
                                     </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UsU-Rf-qFv">
-                                        <rect key="frame" x="0.0" y="70.5" width="334" height="31"/>
+                                    <button opaque="NO" tag="3002" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UsU-Rf-qFv">
+                                        <rect key="frame" x="0.0" y="70.5" width="334" height="34.5"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="btnSaveGroup" label="Save"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Save"/>
                                         <connections>
@@ -281,18 +294,20 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ftz-h7-czn">
-                                <rect key="frame" x="20" y="128" width="374" height="70"/>
+                                <rect key="frame" x="20" y="132" width="374" height="77"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xsR-1u-kQl">
-                                        <rect key="frame" x="0.0" y="0.0" width="374" height="31"/>
+                                    <button opaque="NO" tag="1002" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xsR-1u-kQl">
+                                        <rect key="frame" x="0.0" y="0.0" width="374" height="34.5"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="btnEvent1" label="Event 1"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="tinted" title="Trigger Event 1"/>
                                         <connections>
                                             <action selector="buttonOneTapped:" destination="IV4-7k-Qev" eventType="touchUpInside" id="oko-8F-6E8"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JIX-16-Osw">
-                                        <rect key="frame" x="0.0" y="39" width="374" height="31"/>
+                                    <button opaque="NO" tag="1003" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JIX-16-Osw">
+                                        <rect key="frame" x="0.0" y="42.5" width="374" height="34.5"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="btnEvent2" label="Event 2"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="tinted" title="Trigger Event 2"/>
                                         <connections>
@@ -311,7 +326,7 @@
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Trigger Events" id="1Wg-Nt-6AG">
-                        <barButtonItem key="rightBarButtonItem" title="Debug" id="2EG-CO-a7g">
+                        <barButtonItem key="rightBarButtonItem" tag="1001" title="Debug" id="2EG-CO-a7g">
                             <connections>
                                 <action selector="debugTapped:" destination="IV4-7k-Qev" id="dwJ-yS-z6H"/>
                             </connections>
@@ -326,9 +341,13 @@
         <scene sceneID="wzk-0K-XBg">
             <objects>
                 <navigationController id="5i6-8x-7nf" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Events" image="recordingtape" catalog="system" id="uki-uJ-rK0"/>
+                    <tabBarItem key="tabBarItem" title="Events" image="recordingtape" catalog="system" id="uki-uJ-rK0">
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="tabEvents"/>
+                        </userDefinedRuntimeAttributes>
+                    </tabBarItem>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="SEe-Vi-Of1">
-                        <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                        <rect key="frame" x="0.0" y="48" width="414" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <connections>
@@ -344,9 +363,9 @@
         <segue reference="qoH-MI-PZN"/>
     </inferredMetricsTieBreakers>
     <resources>
-        <image name="person" catalog="system" width="128" height="117"/>
+        <image name="person" catalog="system" width="128" height="121"/>
         <image name="person.3" catalog="system" width="128" height="62"/>
-        <image name="recordingtape" catalog="system" width="128" height="59"/>
+        <image name="recordingtape" catalog="system" width="128" height="60"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
