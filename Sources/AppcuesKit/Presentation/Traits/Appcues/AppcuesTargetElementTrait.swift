@@ -41,11 +41,19 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
     }
 
     func decorate(backdropView: UIView) throws {
-        metadataDelegate?.set([ "targetRectangle": try calculateRect(bounds: backdropView.bounds) ])
+        // Determine if the selector can be resolved to a view, failing the step if not.
+        let targetRect = try calculateRect(bounds: backdropView.bounds)
+        // The first decorate call on the first step in a group will have a nil window because the views aren't added yet,
+        // so skip setting a targetRectangle until we have proper bounds. The change handler below will take care of that.
+        if backdropView.window != nil {
+            metadataDelegate?.set([ "targetRectangle": targetRect ])
+        }
 
         // Monitor the backdrop bounds to recalculate target-element position on changes.
         backdropView.insertSubview(frameObserverView, at: 0)
         frameObserverView.pin(to: backdropView)
+        // Ensure the view bounds are updated *before* we add the frame observer block.
+        frameObserverView.layoutIfNeeded()
 
         frameObserverView.onChange = { [weak self] bounds in
             // this observer will ignore selector errors and use last known position on failure
