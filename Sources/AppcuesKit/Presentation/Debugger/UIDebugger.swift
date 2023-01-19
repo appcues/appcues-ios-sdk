@@ -158,11 +158,11 @@ extension UIDebugger: DebugViewDelegate {
 
         let timestamp = Date()
         var capture = Capture(
-            timestamp: timestamp,
+            appId: config.applicationID,
             displayName: window.screenCaptureDisplayName(at: timestamp),
             screenshotImageUrl: URL(string: "http://www.appcues.com/screenshot/\(UUID())"),
-            appId: config.applicationID,
             layout: layout,
+            timestamp: timestamp,
             screenshot: screenshot)
 
         // show confirmation dialog
