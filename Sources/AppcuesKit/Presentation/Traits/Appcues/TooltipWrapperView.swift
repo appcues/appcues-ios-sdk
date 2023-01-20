@@ -12,9 +12,9 @@ import UIKit
 internal class TooltipWrapperView: ExperienceWrapperView {
 
     var preferredWidth: CGFloat?
-    var preferredPosition: AppcuesTooltipTrait.TooltipPosition?
+    var preferredPosition: ContentPosition?
     var pointerSize: CGSize?
-    var distanceFromTarget: CGFloat?
+    var distanceFromTarget: CGFloat = 0
 
     var targetRectangle: CGRect? {
         didSet { positionContentView() }
@@ -27,7 +27,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
     }
     var pointerInsetHandler: ((UIEdgeInsets) -> Void)?
 
-    private var actualPosition: AppcuesTooltipTrait.TooltipPosition?
+    private var actualPosition: ContentPosition?
     private var offsetFromCenter: CGFloat = 0
 
     private var maxCornerRadius: CGFloat = 0
@@ -111,7 +111,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
     }
 
     func verticalPosition(for targetRectangle: CGRect) -> CGRect {
-        let distance = distanceFromTarget ?? 0
+        let distance = distanceFromTarget
 
         let safeBounds = bounds.inset(by: safeAreaInsets)
 
@@ -186,7 +186,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
     }
 
     func horizontalPosition(for targetRectangle: CGRect) -> CGRect {
-        let distance = distanceFromTarget ?? 0
+        let distance = distanceFromTarget
 
         let safeBounds = bounds.inset(by: safeAreaInsets)
 
@@ -260,7 +260,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         return targetFrame
     }
 
-    func setPointerInset(position: AppcuesTooltipTrait.TooltipPosition?) {
+    func setPointerInset(position: ContentPosition?) {
         switch position {
         case .none:
             pointerInset = .zero
@@ -375,6 +375,13 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         return tooltipPath.cgPath
     }
 
+}
+
+enum ContentPosition: String, Decodable {
+    case top
+    case bottom
+    case leading
+    case trailing
 }
 
 extension Comparable {
