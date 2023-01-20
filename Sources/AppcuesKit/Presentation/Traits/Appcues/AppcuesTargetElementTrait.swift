@@ -11,6 +11,9 @@ import UIKit
 @available(iOS 13.0, *)
 internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
     struct Config: Decodable {
+        let contentPreferredPosition: ContentPosition?
+        let contentDistanceFromTarget: Double?
+
         let selector: ElementSelector
     }
 
@@ -46,7 +49,11 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
         // The first decorate call on the first step in a group will have a nil window because the views aren't added yet,
         // so skip setting a targetRectangle until we have proper bounds. The change handler below will take care of that.
         if backdropView.window != nil {
-            metadataDelegate?.set([ "targetRectangle": targetRect ])
+            metadataDelegate?.set([
+                "contentPreferredPosition": config.contentPreferredPosition,
+                "contentDistanceFromTarget": CGFloat(config.contentDistanceFromTarget ?? 0),
+                "targetRectangle": targetRect
+            ])
         }
 
         // Monitor the backdrop bounds to recalculate target-element position on changes.
@@ -58,7 +65,11 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
         frameObserverView.onChange = { [weak self] in
             // this observer will ignore selector errors and use last known position on failure
             if let targetRectangle = try? self?.calculateRect() {
-                self?.metadataDelegate?.set([ "targetRectangle": targetRectangle ])
+                self?.metadataDelegate?.set([
+                    "contentPreferredPosition": self?.config.contentPreferredPosition,
+                    "contentDistanceFromTarget": CGFloat(self?.config.contentDistanceFromTarget ?? 0),
+                    "targetRectangle": targetRectangle
+                ])
                 // Force an update so that traits depending on this value will update.
                 self?.metadataDelegate?.publish()
             }
@@ -66,7 +77,7 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
     }
 
     func undecorate(backdropView: UIView) throws {
-        metadataDelegate?.unset(keys: [ "targetRectangle" ])
+        metadataDelegate?.unset(keys: [ "contentPreferredPosition", "contentDistanceFromTarget", "targetRectangle" ])
 
         frameObserverView.removeFromSuperview()
         frameObserverView.onChange = nil
