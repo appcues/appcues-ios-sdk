@@ -11,6 +11,9 @@ import UIKit
 @available(iOS 13.0, *)
 internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
     struct Config: Decodable {
+        let contentPreferredPosition: ContentPosition?
+        let contentDistanceFromTarget: Double?
+
         let x: Double?
         let y: Double?
         let width: Double?
@@ -39,7 +42,11 @@ internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
         // The first decorate call on the first step in a group will have a nil window because the views aren't added yet,
         // so skip setting a targetRectangle until we have proper bounds. The change handler below will take care of that.
         if backdropView.window != nil {
-            metadataDelegate?.set([ "targetRectangle": calculateRect(bounds: backdropView.bounds) ])
+            metadataDelegate?.set([
+                "contentPreferredPosition": config.contentPreferredPosition,
+                "contentDistanceFromTarget": CGFloat(config.contentDistanceFromTarget ?? 0),
+                "targetRectangle": calculateRect(bounds: backdropView.bounds)
+            ])
         }
 
         // Monitor the backdrop bounds to recalculate relative positioning on changes.
@@ -49,14 +56,18 @@ internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
         frameObserverView.layoutIfNeeded()
 
         frameObserverView.onChange = { [weak self] bounds in
-            self?.metadataDelegate?.set([ "targetRectangle": self?.calculateRect(bounds: bounds) ])
+            self?.metadataDelegate?.set([
+                "contentPreferredPosition": self?.config.contentPreferredPosition,
+                "contentDistanceFromTarget": CGFloat(self?.config.contentDistanceFromTarget ?? 0),
+                "targetRectangle": self?.calculateRect(bounds: bounds)
+            ])
             // Force an update so that traits depending on this value will update.
             self?.metadataDelegate?.publish()
         }
     }
 
     func undecorate(backdropView: UIView) throws {
-        metadataDelegate?.unset(keys: [ "targetRectangle" ])
+        metadataDelegate?.unset(keys: [ "contentPreferredPosition", "contentDistanceFromTarget", "targetRectangle" ])
 
         frameObserverView.removeFromSuperview()
         frameObserverView.onChange = nil
