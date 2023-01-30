@@ -71,10 +71,13 @@ internal enum SendCaptureUI {
                 Text("Name")
                     .font(.system(size: 12))
                     .foregroundColor(.appcuesBlurple)
-                TextField("Name", text: $screenName)
-                    .font(.system(size: 16))
-                    .textFieldStyle(.roundedBorder)
+                MultilineTextView(text: $screenName,
+                                  model: TextInputStyle(numberOfLines: 1, font: UIFont.systemFont(ofSize: 16)))
                     .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color.appcuesTextInputBorder, lineWidth: 1))
             }
         }
 
