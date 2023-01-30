@@ -89,10 +89,7 @@ internal class DebugViewController: UIViewController {
             },
             screenName: screen.displayName)
 
-        let confirmationViewController = UIHostingController(rootView: confirmationView)
-        confirmationViewController.view.backgroundColor = .clear
-        confirmationViewController.modalTransitionStyle = .crossDissolve
-        confirmationViewController.modalPresentationStyle = .overFullScreen
+        let confirmationViewController = DebugModalViewController(rootView: confirmationView)
         present(confirmationViewController, animated: true)
     }
 
