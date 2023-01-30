@@ -11,13 +11,18 @@ import UIKit
 @available(iOS 13.0, *)
 internal class TooltipWrapperView: ExperienceWrapperView {
 
+    private static let defaultMaxWidth: CGFloat = 400
+
     var preferredWidth: CGFloat?
     var preferredPosition: ContentPosition?
+    /// A nil pointerSize means no pointer
     var pointerSize: CGSize?
     var distanceFromTarget: CGFloat = 0
 
     var targetRectangle: CGRect? {
-        didSet { positionContentView() }
+        didSet {
+            positionContentView()
+        }
     }
 
     private var pointerInset: UIEdgeInsets = .zero {
@@ -29,7 +34,6 @@ internal class TooltipWrapperView: ExperienceWrapperView {
 
     private var actualPosition: ContentPosition?
     private var offsetFromCenter: CGFloat = 0
-
     private var maxCornerRadius: CGFloat = 0
 
     private let maskLayer = CAShapeLayer()
@@ -39,7 +43,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
     required init() {
         super.init()
 
-        // don't clip corners since they're applied by the mask
+        // Don't clip corners since they're applied by the mask
         contentWrapperView.clipsToBounds = false
         contentWrapperView.layer.mask = maskLayer
         contentWrapperView.layer.addSublayer(borderLayer)
@@ -48,20 +52,23 @@ internal class TooltipWrapperView: ExperienceWrapperView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+
         positionContentView()
 
+        // Ensure corner radius doesn't exceed 50% of either of the size dimensions
         let cornerRadius = min(
             maxCornerRadius,
             (contentWrapperView.bounds.height - pointerInset.top - pointerInset.bottom) / 2,
             (contentWrapperView.bounds.width - pointerInset.left - pointerInset.right) / 2
         )
 
-        // set tooltip shape
+        // Set tooltip shape for container, border, and shadow
         let outerTooltipPath = tooltipPath(in: contentWrapperView.bounds, cornerRadius: cornerRadius)
         maskLayer.path = outerTooltipPath
         borderLayer.path = outerTooltipPath
         shadowWrappingView.layer.shadowPath = outerTooltipPath
 
+        // Set tooltip shape for content inside the border
         if let innerView = contentWrapperView.subviews.first {
             innerMaskLayer.path = tooltipPath(
                 in: innerView.bounds,
@@ -71,29 +78,34 @@ internal class TooltipWrapperView: ExperienceWrapperView {
     }
 
     override func positionContentView() {
+        defer {
+            contentWrapperView.frame = shadowWrappingView.bounds
+            setPointerInset(position: actualPosition)
+        }
+
         guard let targetRectangle = targetRectangle else {
-            let defaultHeight: CGFloat = 300
             // Default to a bottom anchored sheet
-            contentWrapperView.frame = CGRect(
-                x: 0,
-                y: bounds.height - safeAreaInsets.bottom - (preferredContentSize?.height ?? defaultHeight),
-                width: bounds.width,
-                height: (preferredContentSize?.height ?? defaultHeight) + safeAreaInsets.bottom)
+            let defaultHeight: CGFloat = 300
+            let contentWidth = bounds.width - layoutMargins.left - layoutMargins.right
+            var contentHeight = max((preferredContentSize?.height ?? defaultHeight), 1)
+            // Account for border size
+            contentHeight += contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
+            shadowWrappingView.frame = CGRect(
+                x: (bounds.width - contentWidth) / 2,
+                y: bounds.height - contentHeight - safeAreaInsets.bottom,
+                width: contentWidth,
+                height: contentHeight)
+            actualPosition = nil
+
             return
         }
 
         switch preferredPosition {
-        case .none:
-            // TODO: determine whether vertical or horizontal is preferable
-            shadowWrappingView.frame = verticalPosition(for: targetRectangle)
-        case .top, .bottom:
+        case .none, .top, .bottom:
             shadowWrappingView.frame = verticalPosition(for: targetRectangle)
         case .leading, .trailing:
             shadowWrappingView.frame = horizontalPosition(for: targetRectangle)
         }
-
-        contentWrapperView.frame = shadowWrappingView.bounds
-        setPointerInset(position: actualPosition)
     }
 
     override func applyCornerRadius(_ cornerRadius: CGFloat?) {
@@ -110,7 +122,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         contentWrapperView.layoutMargins = UIEdgeInsets(top: width, left: width, bottom: width, right: width)
     }
 
-    func verticalPosition(for targetRectangle: CGRect) -> CGRect {
+    private func verticalPosition(for targetRectangle: CGRect) -> CGRect {
         let distance = distanceFromTarget
 
         let safeBounds = bounds.inset(by: safeAreaInsets)
@@ -118,8 +130,8 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         var targetFrame = CGRect(
             x: 0,
             y: 0,
-            width: preferredWidth ?? preferredContentSize?.width ?? 400,
-            height: preferredContentSize?.height ?? 1)
+            width: ceil(preferredWidth ?? preferredContentSize?.width ?? Self.defaultMaxWidth),
+            height: ceil(preferredContentSize?.height ?? 1))
 
         // Account for border size
         targetFrame.size.height += contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
@@ -129,7 +141,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         // Cap width to not exceed screen width
         targetFrame.size.width = min(targetFrame.size.width, safeBounds.width - layoutMargins.left - layoutMargins.right)
 
-        // Determine vertical positioning
+        // Determine vertical positioning for targetFrame
         let spaceAbove = targetRectangle.minY - safeBounds.minY - distance
         let spaceBelow = safeBounds.maxY - targetRectangle.maxY - distance
         let excessSpaceAbove = spaceAbove - targetFrame.height
@@ -144,7 +156,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             targetFrame.origin.y = targetRectangle.maxY + distance
             actualPosition = .bottom
         } else {
-            // TODO: switch to horizontal if there's not enough vertical space on either side?
+            // TODO: Should this consider a switch to horizontal if there's not enough vertical space on either side?
             if excessSpaceAbove > excessSpaceBelow {
                 // Position tooltip above the target rectangle
                 if targetFrame.height <= spaceAbove {
@@ -167,25 +179,25 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             }
         }
 
-        // Determine horizontal positioning
-        let centeredXOrigin = targetRectangle.midX - targetFrame.width / 2
-        if centeredXOrigin < layoutMargins.left {
+        // Determine horizontal positioning for targetFrame
+        let preferredOriginX = targetRectangle.midX - targetFrame.width / 2
+        if preferredOriginX < layoutMargins.left {
             // Must be within the left edge of the screen
             targetFrame.origin.x = layoutMargins.left
-        } else if centeredXOrigin + targetFrame.width > safeBounds.width - layoutMargins.right {
+        } else if preferredOriginX + targetFrame.width > safeBounds.width - layoutMargins.right {
             // Must be within the right edge of the screen
             targetFrame.origin.x = safeBounds.width - targetFrame.width - layoutMargins.right
         } else {
             // Ideally be centered on the target rectangle
-            targetFrame.origin.x = centeredXOrigin
+            targetFrame.origin.x = preferredOriginX
         }
 
-        offsetFromCenter = centeredXOrigin - targetFrame.origin.x
+        offsetFromCenter = preferredOriginX - targetFrame.origin.x
 
         return targetFrame
     }
 
-    func horizontalPosition(for targetRectangle: CGRect) -> CGRect {
+    private func horizontalPosition(for targetRectangle: CGRect) -> CGRect {
         let distance = distanceFromTarget
 
         let safeBounds = bounds.inset(by: safeAreaInsets)
@@ -193,18 +205,18 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         var targetFrame = CGRect(
             x: 0,
             y: 0,
-            width: preferredWidth ?? preferredContentSize?.width ?? 400,
-            height: preferredContentSize?.height ?? 1)
+            width: ceil(preferredWidth ?? preferredContentSize?.width ?? Self.defaultMaxWidth),
+            height: ceil(preferredContentSize?.height ?? 1))
 
         // Account for border size
         targetFrame.size.height += contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
         // Account for safe area space allocated to the pointer
         targetFrame.size.width += pointerSize?.height ?? 0
 
-        // Cap width to not exceed screen height
+        // Cap height to not exceed screen height
         targetFrame.size.height = min(targetFrame.size.height, safeBounds.height - layoutMargins.top - layoutMargins.bottom)
 
-        // Determine horizontal positioning
+        // Determine horizontal positioning for targetFrame
         let spaceBefore = targetRectangle.minX - safeBounds.minX - distance
         let spaceAfter = safeBounds.maxX - targetRectangle.maxX - distance
         let excessSpaceBefore = spaceBefore - targetFrame.width
@@ -219,13 +231,13 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             targetFrame.origin.x = targetRectangle.maxX + distance
             actualPosition = .trailing
         } else {
-            // TODO: switch to vertical if there's not enough vertical space on either side?
+            // TODO: Should this consider a switch to vertical if there's not enough vertical space on either side?
             if excessSpaceBefore > excessSpaceAfter {
                 // Position tooltip before the target rectangle
                 if targetFrame.width <= spaceBefore {
                     targetFrame.origin.x = targetRectangle.minX - targetFrame.width - distance
                 } else {
-                    // Shrink width if too tall to fit
+                    // Shrink width if too wide to fit
                     targetFrame.size.width = spaceBefore
                     targetFrame.origin.x = safeBounds.minX
                 }
@@ -242,25 +254,25 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             }
         }
 
-        // Determine vertical positioning
-        let centeredYOrigin = targetRectangle.midY - targetFrame.height / 2
-        if centeredYOrigin < layoutMargins.top {
+        // Determine vertical positioning for targetFrame
+        let preferredOriginY = targetRectangle.midY - targetFrame.height / 2
+        if preferredOriginY < layoutMargins.top {
             // Must be within the top edge of the screen
             targetFrame.origin.y = layoutMargins.top
-        } else if centeredYOrigin + targetFrame.height > safeBounds.height - layoutMargins.bottom {
+        } else if preferredOriginY + targetFrame.height > safeBounds.height - layoutMargins.bottom {
             // Must be within the bottom edge of the screen
             targetFrame.origin.y = safeBounds.height - targetFrame.height - layoutMargins.bottom
         } else {
             // Ideally be centered on the target rectangle
-            targetFrame.origin.y = centeredYOrigin
+            targetFrame.origin.y = preferredOriginY
         }
 
-        offsetFromCenter = centeredYOrigin - targetFrame.origin.y
+        offsetFromCenter = preferredOriginY - targetFrame.origin.y
 
         return targetFrame
     }
 
-    func setPointerInset(position: ContentPosition?) {
+    private func setPointerInset(position: ContentPosition?) {
         switch position {
         case .none:
             pointerInset = .zero
@@ -275,7 +287,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         }
     }
 
-    func tooltipPath(in bounds: CGRect, cornerRadius: CGFloat) -> CGPath {
+    private func tooltipPath(in bounds: CGRect, cornerRadius: CGFloat) -> CGPath {
         guard let pointerSize = pointerSize, let tooltipPosition = actualPosition else {
             // no pointer, so a simple roundedRect will do
             return UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath

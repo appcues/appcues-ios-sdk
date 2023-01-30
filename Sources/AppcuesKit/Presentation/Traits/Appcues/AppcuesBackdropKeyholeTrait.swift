@@ -66,6 +66,8 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
     }
 
     private func handle(backdropView: UIView, metadata: TraitMetadata) {
+        guard backdropView.bounds != .zero else { return }
+
         let newMaskPath = UIBezierPath(rect: backdropView.bounds)
         let newShape: KeyholeShape = metadata["keyholeShape"] ?? metadata[previous: "keyholeShape"] ?? .circle(blurRadius: 0)
         let targetRectangle: CGRect = {
