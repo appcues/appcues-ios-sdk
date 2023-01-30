@@ -8,10 +8,56 @@
 
 import SwiftUI
 
+// defines the model properties that must be provided to style text input
+// in the MultilineTextView implementation below
+internal protocol TextInputStyling {
+    var numberOfLines: Int? { get }
+    var maxLength: Int? { get }
+    var font: UIFont? { get }
+    var textColor: UIColor? { get }
+    var tintColor: UIColor? { get }
+    var keyboardType: UIKeyboardType? { get }
+    var textContentType: UITextContentType? { get }
+}
+
+// A base implementation of the TextInputStyling Protocol that can be used
+// for any consumers of the MultilineTextView other than the
+// ExperienceComponent.TextInputModel, which adheres to TextInputStyling directly
+// in an extension below.
+internal struct TextInputStyle: TextInputStyling {
+    let numberOfLines: Int?
+    let maxLength: Int?
+    let font: UIFont?
+    let textColor: UIColor?
+    let tintColor: UIColor?
+    let keyboardType: UIKeyboardType?
+    let textContentType: UITextContentType?
+
+    init(numberOfLines: Int? = nil,
+         maxLength: Int? = nil,
+         font: UIFont? = nil,
+         textColor: UIColor? = nil,
+         tintColor: UIColor? = nil,
+         keyboardType: UIKeyboardType? = nil,
+         textContentType: UITextContentType? = nil) {
+        self.numberOfLines = numberOfLines
+        self.maxLength = maxLength
+        self.font = font
+        self.textColor = textColor
+        self.tintColor = tintColor
+        self.keyboardType = keyboardType
+        self.textContentType = textContentType
+    }
+}
+
+// An implementation of text input for SwiftUI that provides full flexibily
+// from iOS 13 and up, since SwiftUI TextField has different feature support
+// on later iOS versions, and not all available in 13. This implementation
+// wraps UIKit UITextField for single line, and UIKit UITextView for multi-line.
 @available(iOS 13.0, *)
 internal struct MultilineTextView: UIViewRepresentable {
     @Binding var text: String
-    let model: ExperienceComponent.TextInputModel
+    let model: TextInputStyling
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -40,15 +86,14 @@ internal struct MultilineTextView: UIViewRepresentable {
         textView.textContainer.lineFragmentPadding = 0
         textView.textContainerInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
 
-        let fontSize = model.textFieldStyle?.fontSize ?? UIFont.labelFontSize
-        textView.font = UIFont.matching(name: model.textFieldStyle?.fontName, size: fontSize)
-        textView.textColor = UIColor(dynamicColor: model.textFieldStyle?.foregroundColor)
+        textView.font = model.font
+        textView.textColor = model.textColor
 
-        textView.tintColor = UIColor(dynamicColor: model.cursorColor)
-        if let keyboardType = model.dataType?.keyboardType {
+        textView.tintColor = model.tintColor
+        if let keyboardType = model.keyboardType {
             textView.keyboardType = keyboardType
         }
-        textView.textContentType = model.dataType?.textContentType
+        textView.textContentType = model.textContentType
 
         textView.inputAccessoryView = DismissToolbar(textView: textView)
 
@@ -61,15 +106,14 @@ internal struct MultilineTextView: UIViewRepresentable {
         textField.addTarget(context.coordinator, action: #selector(Coordinator.textFieldDidChange(_:)), for: .editingChanged)
         textField.backgroundColor = .clear
 
-        let fontSize = model.textFieldStyle?.fontSize ?? UIFont.labelFontSize
-        textField.font = UIFont.matching(name: model.textFieldStyle?.fontName, size: fontSize)
-        textField.textColor = UIColor(dynamicColor: model.textFieldStyle?.foregroundColor)
+        textField.font = model.font
+        textField.textColor = model.textColor
 
-        textField.tintColor = UIColor(dynamicColor: model.cursorColor)
-        if let keyboardType = model.dataType?.keyboardType {
+        textField.tintColor = model.tintColor
+        if let keyboardType = model.keyboardType {
             textField.keyboardType = keyboardType
         }
-        textField.textContentType = model.dataType?.textContentType
+        textField.textContentType = model.textContentType
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         textField.inputAccessoryView = DismissToolbar(textField: textField)
@@ -177,6 +221,30 @@ extension MultilineTextView {
         private func dismissKeyboard() {
             view?.endEditing(true)
         }
+    }
+}
+
+@available(iOS 13.0, *)
+extension ExperienceComponent.TextInputModel: TextInputStyling {
+    var font: UIFont? {
+        let fontSize = textFieldStyle?.fontSize ?? UIFont.labelFontSize
+        return UIFont.matching(name: textFieldStyle?.fontName, size: fontSize)
+    }
+
+    var textColor: UIColor? {
+        return UIColor(dynamicColor: textFieldStyle?.foregroundColor)
+    }
+
+    var tintColor: UIColor? {
+        return UIColor(dynamicColor: cursorColor)
+    }
+
+    var keyboardType: UIKeyboardType? {
+        return dataType?.keyboardType
+    }
+
+    var textContentType: UITextContentType? {
+        return dataType?.textContentType
     }
 }
 
