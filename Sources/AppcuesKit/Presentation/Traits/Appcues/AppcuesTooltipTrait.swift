@@ -43,24 +43,24 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
     }
 
     func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {
-        let dialogWrapperViewController = ExperienceWrapperViewController<TooltipWrapperView>(wrapping: containerController)
-        dialogWrapperViewController.configureStyle(tooltipStyle)
-        dialogWrapperViewController.bodyView.pointerSize = hidePointer ? nil : pointerSize
+        let experienceWrapperViewController = ExperienceWrapperViewController<TooltipWrapperView>(wrapping: containerController)
+        experienceWrapperViewController.configureStyle(tooltipStyle)
+        experienceWrapperViewController.bodyView.pointerSize = hidePointer ? nil : pointerSize
         if let preferredWidth = tooltipStyle?.width {
-            dialogWrapperViewController.bodyView.preferredWidth = preferredWidth
+            experienceWrapperViewController.bodyView.preferredWidth = preferredWidth
         }
         // Ensure content isnt hidden by the tooltip pointer
-        dialogWrapperViewController.bodyView.pointerInsetHandler = { insets in
+        experienceWrapperViewController.bodyView.pointerInsetHandler = { insets in
             containerController.additionalSafeAreaInsets = insets
         }
 
         metadataDelegate?.registerHandler(for: Self.type, animating: true) { metadata in
-            dialogWrapperViewController.bodyView.preferredPosition = metadata["contentPreferredPosition"]
-            dialogWrapperViewController.bodyView.distanceFromTarget = metadata["contentDistanceFromTarget"] ?? 0
-            dialogWrapperViewController.bodyView.targetRectangle = metadata["targetRectangle"]
+            experienceWrapperViewController.bodyView.preferredPosition = metadata["contentPreferredPosition"]
+            experienceWrapperViewController.bodyView.distanceFromTarget = metadata["contentDistanceFromTarget"] ?? 0
+            experienceWrapperViewController.bodyView.targetRectangle = metadata["targetRectangle"]
         }
 
-        return dialogWrapperViewController
+        return experienceWrapperViewController
     }
 
     func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
