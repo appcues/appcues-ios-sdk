@@ -24,25 +24,16 @@ internal enum SendCaptureUI {
         @State var screenName = ""
 
         var body: some View {
-            VStack {
-                Spacer()
-
-                VStack(spacing: 16) {
-                    header
-                    screenshotImage
-                    nameInput
-                    bottomButtons
-                }
-                .padding(25)
-                .frame(maxWidth: .infinity)
-                .background(Color.white)
-                .cornerRadius(6.0)
-
-                Spacer()
+            VStack(spacing: 16) {
+                header
+                screenshotImage
+                nameInput
+                bottomButtons
             }
             .padding(25)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black.opacity(0.33).edgesIgnoringSafeArea(.all))
+            .frame(maxWidth: .infinity)
+            .background(Color.white)
+            .cornerRadius(6.0)
         }
 
         @ViewBuilder var header: some View {
