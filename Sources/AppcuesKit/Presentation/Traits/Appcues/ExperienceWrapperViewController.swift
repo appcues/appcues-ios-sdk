@@ -62,7 +62,7 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
             return
         }
 
-        // If the current child controller changes it's preferred size, propagate that for use in the bodyVie
+        // If the current child controller changes it's preferred size, propagate that for use in the bodyView
         bodyView.preferredContentSize = container.preferredContentSize
     }
 
