@@ -8,6 +8,13 @@
 
 import UIKit
 
+internal enum ContentPosition: String, Decodable {
+    case top
+    case bottom
+    case leading
+    case trailing
+}
+
 @available(iOS 13.0, *)
 internal class TooltipWrapperView: ExperienceWrapperView {
 
@@ -137,7 +144,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         targetFrame.size.height += contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
         // Account for safe area space allocated to the pointer
         targetFrame.size.height += pointerSize?.height ?? 0
- 
+
         // Cap width to not exceed screen width
         targetFrame.size.width = min(targetFrame.size.width, safeBounds.width - layoutMargins.left - layoutMargins.right)
 
@@ -300,105 +307,22 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             right: tooltipPosition == .leading ? pointerSize.height : 0)
         )
 
-        let triangleRect: CGRect
-
-        // Clamp to ensure the triangle doesnt intersect with the corner radius
+        let pointerEdge: Pointer.Edge
         switch tooltipPosition {
         case .top:
-            // Bottom triangle
-            triangleRect = CGRect(
-                x: (mainRect.midX - pointerSize.width / 2 + offsetFromCenter)
-                    .clamped(min: cornerRadius, max: mainRect.maxX - pointerSize.width - cornerRadius),
-                y: mainRect.maxY,
-                width: pointerSize.width,
-                height: pointerSize.height)
+            pointerEdge = .bottom
         case .bottom:
-            // Top triangle
-            triangleRect = CGRect(
-                x: (mainRect.midX - pointerSize.width / 2 + offsetFromCenter)
-                    .clamped(min: cornerRadius, max: mainRect.maxX - pointerSize.width - cornerRadius),
-                y: mainRect.minY - pointerSize.height,
-                width: pointerSize.width,
-                height: pointerSize.height)
+            pointerEdge = .top
         case .leading:
-            // Trailing triangle
-            triangleRect = CGRect(
-                x: mainRect.maxX,
-                y: (mainRect.midY - pointerSize.width / 2 + offsetFromCenter)
-                    .clamped(min: cornerRadius, max: mainRect.maxY - pointerSize.width - cornerRadius),
-                width: pointerSize.height,
-                height: pointerSize.width)
+            pointerEdge = .trailing
         case .trailing:
-            // Leading triangle
-            triangleRect = CGRect(
-                x: mainRect.minX - pointerSize.height,
-                y: (mainRect.midY - pointerSize.width / 2 + offsetFromCenter)
-                    .clamped(min: cornerRadius, max: mainRect.maxY - pointerSize.width - cornerRadius),
-                width: pointerSize.height,
-                height: pointerSize.width)
+            pointerEdge = .leading
         }
 
-        let topLeft = CGPoint(x: mainRect.minX + cornerRadius, y: mainRect.minY + cornerRadius)
-        let topRight = CGPoint(x: mainRect.maxX - cornerRadius, y: mainRect.minY + cornerRadius)
-        let bottomLeft = CGPoint(x: mainRect.minX + cornerRadius, y: mainRect.maxY - cornerRadius)
-        let bottomRight = CGPoint(x: mainRect.maxX - cornerRadius, y: mainRect.maxY - cornerRadius)
-
-        // Draw the path clockwise from top left
-        let tooltipPath = UIBezierPath()
-
-        tooltipPath.addArc(withCenter: topLeft, radius: cornerRadius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: true)
-
-        // Top triangle
-        if case .bottom = tooltipPosition {
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.minX, y: triangleRect.maxY))
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.midX, y: triangleRect.minY))
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.maxX, y: triangleRect.maxY))
-        }
-
-        tooltipPath.addArc(withCenter: topRight, radius: cornerRadius, startAngle: -.pi / 2, endAngle: 0, clockwise: true)
-
-        // Trailing triangle
-        if case .leading = tooltipPosition {
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.minX, y: triangleRect.minY))
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.maxX, y: triangleRect.midY))
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.minX, y: triangleRect.maxY))
-        }
-
-        tooltipPath.addArc(withCenter: bottomRight, radius: cornerRadius, startAngle: 0, endAngle: .pi / 2, clockwise: true)
-
-        // Bottom triangle
-        if case .top = tooltipPosition {
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.maxX, y: triangleRect.minY))
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.midX, y: triangleRect.maxY))
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.minX, y: triangleRect.minY))
-        }
-
-        tooltipPath.addArc(withCenter: bottomLeft, radius: cornerRadius, startAngle: .pi / 2, endAngle: .pi, clockwise: true)
-
-        // Leading triangle
-        if case .trailing = tooltipPosition {
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.maxX, y: triangleRect.maxY))
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.minX, y: triangleRect.midY))
-            tooltipPath.addLine(to: CGPoint(x: triangleRect.maxX, y: triangleRect.minY))
-        }
-
-        tooltipPath.close()
+        let pointer = Pointer(edge: pointerEdge, size: pointerSize, offset: offsetFromCenter)
+        let tooltipPath = UIBezierPath(tooltipAround: mainRect, cornerRadius: cornerRadius, pointer: pointer)
 
         return tooltipPath.cgPath
     }
 
-}
-
-enum ContentPosition: String, Decodable {
-    case top
-    case bottom
-    case leading
-    case trailing
-}
-
-extension Comparable {
-    // Not using a ClosedRange<Self> because of the risk of a crash, "Range requires lowerBound <= upperBound"
-    func clamped(min lowerBound: Self, max upperBound: Self) -> Self {
-        return min(max(self, lowerBound), upperBound)
-    }
 }
