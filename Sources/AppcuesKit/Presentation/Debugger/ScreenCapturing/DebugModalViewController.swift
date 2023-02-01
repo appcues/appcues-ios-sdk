@@ -105,7 +105,7 @@ extension DebugModalViewController {
         let backdropView: UIView = {
             let view = UIView(frame: .zero)
             view.translatesAutoresizingMaskIntoConstraints = false
-            view.backgroundColor = UIColor(white: 0.0, alpha: 0.33)
+            view.backgroundColor = UIColor.label.withAlphaComponent(0.33)
             return view
         }()
 
@@ -116,6 +116,8 @@ extension DebugModalViewController {
             view.contentInsetAdjustmentBehavior = .always
             // For text input blocks, we want scrolling the modal content to be able to dismiss the keyboard.
             view.keyboardDismissMode = .interactive
+            view.layer.cornerRadius = 6.0
+            view.backgroundColor = UIColor.systemBackground
             return view
         }()
 
