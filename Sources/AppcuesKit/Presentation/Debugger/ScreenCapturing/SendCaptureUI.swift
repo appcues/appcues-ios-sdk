@@ -32,8 +32,6 @@ internal enum SendCaptureUI {
             }
             .padding(25)
             .frame(maxWidth: .infinity)
-            .background(Color.white)
-            .cornerRadius(6.0)
         }
 
         @ViewBuilder var header: some View {
