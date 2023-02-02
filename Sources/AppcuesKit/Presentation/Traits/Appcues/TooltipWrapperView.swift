@@ -132,7 +132,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
     private func verticalPosition(for targetRectangle: CGRect) -> CGRect {
         let distance = distanceFromTarget
 
-        let safeBounds = bounds.inset(by: safeAreaInsets)
+        let safeBounds = bounds.inset(by: layoutMargins)
 
         var targetFrame = CGRect(
             x: 0,
@@ -146,41 +146,41 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         targetFrame.size.height += pointerSize?.height ?? 0
 
         // Cap width to not exceed screen width
-        targetFrame.size.width = min(targetFrame.size.width, safeBounds.width - layoutMargins.left - layoutMargins.right)
+        targetFrame.size.width = min(targetFrame.size.width, safeBounds.width)
 
         // Determine vertical positioning for targetFrame
-        let spaceAbove = targetRectangle.minY - safeBounds.minY - distance
-        let spaceBelow = safeBounds.maxY - targetRectangle.maxY - distance
-        let excessSpaceAbove = spaceAbove - targetFrame.height
-        let excessSpaceBelow = spaceBelow - targetFrame.height
+        let safeSpaceAbove = (targetRectangle.minY - distance).clamped(to: safeBounds.minY...safeBounds.maxY) - safeBounds.minY
+        let safeSpaceBelow = safeBounds.maxY - (targetRectangle.maxY + distance).clamped(to: safeBounds.minY...safeBounds.maxY)
+        let excessSpaceAbove = safeSpaceAbove - targetFrame.height
+        let excessSpaceBelow = safeSpaceBelow - targetFrame.height
 
         if preferredPosition == .top && excessSpaceAbove > 0 {
-            // Position tooltip above the target rectangle
-            targetFrame.origin.y = targetRectangle.minY - targetFrame.height - distance
+            // Position tooltip above the target rectangle and within the safe area
+            targetFrame.origin.y = min(targetRectangle.minY - distance, safeBounds.maxY) - targetFrame.height
             actualPosition = .top
         } else if preferredPosition == .bottom && excessSpaceBelow > 0 {
-            // Position tooltip below the target rectangle
-            targetFrame.origin.y = targetRectangle.maxY + distance
+            // Position tooltip below the target rectangle and within the safe area
+            targetFrame.origin.y = max(targetRectangle.maxY + distance, safeBounds.minY)
             actualPosition = .bottom
         } else {
             // TODO: Should this consider a switch to horizontal if there's not enough vertical space on either side?
             if excessSpaceAbove > excessSpaceBelow {
                 // Position tooltip above the target rectangle
-                if targetFrame.height <= spaceAbove {
-                    targetFrame.origin.y = targetRectangle.minY - targetFrame.height - distance
+                if targetFrame.height <= safeSpaceAbove {
+                    targetFrame.origin.y = targetRectangle.minY - distance - targetFrame.height
                 } else {
                     // Shrink height if too tall to fit
-                    targetFrame.size.height = spaceAbove
+                    targetFrame.size.height = safeSpaceAbove
                     targetFrame.origin.y = safeBounds.minY
                 }
                 actualPosition = .top
             } else {
-                // Position tooltip below the target rectangle
-                targetFrame.origin.y = targetRectangle.maxY + distance
+                // Position tooltip below the target rectangle and within the safe area
+                targetFrame.origin.y = max(targetRectangle.maxY + distance, safeBounds.minY)
 
                 // Shrink height if too tall to fit
-                if targetFrame.height > spaceBelow {
-                    targetFrame.size.height = spaceBelow
+                if targetFrame.height > safeSpaceBelow {
+                    targetFrame.size.height = safeSpaceBelow
                 }
                 actualPosition = .bottom
             }
@@ -188,15 +188,16 @@ internal class TooltipWrapperView: ExperienceWrapperView {
 
         // Determine horizontal positioning for targetFrame
         let preferredOriginX = targetRectangle.midX - targetFrame.width / 2
-        if preferredOriginX < layoutMargins.left {
+
+        // Ideally be centered on the target rectangle
+        targetFrame.origin.x = preferredOriginX
+
+        if targetFrame.minX < safeBounds.minX {
             // Must be within the left edge of the screen
-            targetFrame.origin.x = layoutMargins.left
-        } else if preferredOriginX + targetFrame.width > safeBounds.width - layoutMargins.right {
+            targetFrame.origin.x = safeBounds.minX
+        } else if targetFrame.maxX > safeBounds.maxX {
             // Must be within the right edge of the screen
-            targetFrame.origin.x = safeBounds.width - targetFrame.width - layoutMargins.right
-        } else {
-            // Ideally be centered on the target rectangle
-            targetFrame.origin.x = preferredOriginX
+            targetFrame.origin.x = safeBounds.maxX - targetFrame.width
         }
 
         offsetFromCenter = preferredOriginX - targetFrame.origin.x
@@ -207,7 +208,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
     private func horizontalPosition(for targetRectangle: CGRect) -> CGRect {
         let distance = distanceFromTarget
 
-        let safeBounds = bounds.inset(by: safeAreaInsets)
+        let safeBounds = bounds.inset(by: layoutMargins)
 
         var targetFrame = CGRect(
             x: 0,
@@ -221,41 +222,41 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         targetFrame.size.width += pointerSize?.height ?? 0
 
         // Cap height to not exceed screen height
-        targetFrame.size.height = min(targetFrame.size.height, safeBounds.height - layoutMargins.top - layoutMargins.bottom)
+        targetFrame.size.height = min(targetFrame.size.height, safeBounds.height)
 
         // Determine horizontal positioning for targetFrame
-        let spaceBefore = targetRectangle.minX - safeBounds.minX - distance
-        let spaceAfter = safeBounds.maxX - targetRectangle.maxX - distance
-        let excessSpaceBefore = spaceBefore - targetFrame.width
-        let excessSpaceAfter = spaceAfter - targetFrame.width
+        let safeSpaceBefore = (targetRectangle.minX - distance).clamped(to: safeBounds.minX...safeBounds.maxX) - safeBounds.minX
+        let safeSpaceAfter = safeBounds.maxX - (targetRectangle.maxX + distance).clamped(to: safeBounds.minX...safeBounds.maxX)
+        let excessSpaceBefore = safeSpaceBefore - targetFrame.width
+        let excessSpaceAfter = safeSpaceAfter - targetFrame.width
 
         if preferredPosition == .leading && excessSpaceBefore > 0 {
-            // Position tooltip before the target rectangle
-            targetFrame.origin.x = targetRectangle.minX - targetFrame.width - distance
+            // Position tooltip before the target rectangle and within the safe area
+            targetFrame.origin.x = min(targetRectangle.minX - distance, safeBounds.maxX) - targetFrame.width
             actualPosition = .leading
         } else if preferredPosition == .trailing && excessSpaceAfter > 0 {
-            // Position tooltip after the target rectangle
-            targetFrame.origin.x = targetRectangle.maxX + distance
+            // Position tooltip after the target rectangle and within the safe area
+            targetFrame.origin.x = max(targetRectangle.maxX + distance, safeBounds.minX)
             actualPosition = .trailing
         } else {
             // TODO: Should this consider a switch to vertical if there's not enough vertical space on either side?
             if excessSpaceBefore > excessSpaceAfter {
                 // Position tooltip before the target rectangle
-                if targetFrame.width <= spaceBefore {
-                    targetFrame.origin.x = targetRectangle.minX - targetFrame.width - distance
+                if targetFrame.width <= safeSpaceBefore {
+                    targetFrame.origin.x = targetRectangle.minX - distance - targetFrame.width
                 } else {
                     // Shrink width if too wide to fit
-                    targetFrame.size.width = spaceBefore
+                    targetFrame.size.width = safeSpaceBefore
                     targetFrame.origin.x = safeBounds.minX
                 }
                 actualPosition = .leading
             } else {
-                // Position tooltip after the target rectangle
-                targetFrame.origin.x = targetRectangle.maxX + distance
+                // Position tooltip after the target rectangle and within the safe area
+                targetFrame.origin.x = max(targetRectangle.maxX + distance, safeBounds.minX)
 
                 // Shrink width if too tall to fit
-                if targetFrame.width > spaceAfter {
-                    targetFrame.size.width = spaceAfter
+                if targetFrame.width > safeSpaceAfter {
+                    targetFrame.size.width = safeSpaceAfter
                 }
                 actualPosition = .trailing
             }
@@ -263,15 +264,16 @@ internal class TooltipWrapperView: ExperienceWrapperView {
 
         // Determine vertical positioning for targetFrame
         let preferredOriginY = targetRectangle.midY - targetFrame.height / 2
-        if preferredOriginY < layoutMargins.top {
+
+        // Ideally be centered on the target rectangle
+        targetFrame.origin.y = preferredOriginY
+
+        if targetFrame.minY < safeBounds.minY {
             // Must be within the top edge of the screen
-            targetFrame.origin.y = layoutMargins.top
-        } else if preferredOriginY + targetFrame.height > safeBounds.height - layoutMargins.bottom {
+            targetFrame.origin.y = safeBounds.minY
+        } else if targetFrame.maxY > safeBounds.maxY {
             // Must be within the bottom edge of the screen
-            targetFrame.origin.y = safeBounds.height - targetFrame.height - layoutMargins.bottom
-        } else {
-            // Ideally be centered on the target rectangle
-            targetFrame.origin.y = preferredOriginY
+            targetFrame.origin.y = safeBounds.maxY - targetFrame.height
         }
 
         offsetFromCenter = preferredOriginY - targetFrame.origin.y
@@ -325,4 +327,10 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         return tooltipPath.cgPath
     }
 
+}
+
+extension Comparable {
+    func clamped(to limits: ClosedRange<Self>) -> Self {
+        return min(max(self, limits.lowerBound), limits.upperBound)
+    }
 }
