@@ -37,7 +37,11 @@ class EventsViewController: UIViewController {
     }
 
     @IBAction private func buttonTwoTapped(_ sender: UIButton) {
-        Appcues.shared.track(name: "event2")
+        if #available(iOS 14.0, *) {
+            show(TooltipPlaygroundVC(instance: Appcues.shared), sender: self)
+        } else {
+            Appcues.shared.track(name: "event2")
+        }
     }
 
     @IBAction private func buttonThreeTapped(_ sender: UIButton) {
