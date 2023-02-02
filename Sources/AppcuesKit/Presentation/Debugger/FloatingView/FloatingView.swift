@@ -55,11 +55,16 @@ internal class FloatingView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        // Round the self corners for a nice automatic accessibility path,
-        // but don't clip since that would obscure the unread indicator.
-        layer.cornerRadius = frame.width / 2
-        // Clipping the imageView is ok though.
-        imageView.layer.cornerRadius = frame.width / 2
+        // only apply rounding when visible, as size is transformed in
+        // animateVisibility which can lead to incorrect cornerRadius calculation
+        // here
+        if self.alpha == 1 {
+            // Round the self corners for a nice automatic accessibility path,
+            // but don't clip since that would obscure the unread indicator.
+            layer.cornerRadius = frame.width / 2
+            // Clipping the imageView is ok though.
+            imageView.layer.cornerRadius = frame.width / 2
+        }
     }
 
     @objc
