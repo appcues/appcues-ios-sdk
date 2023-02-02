@@ -17,7 +17,7 @@ import SwiftUI
 // container where the hosted SwiftUI content resides. However, this is a more specific and
 // reduced implementation that is decoupled from Experience step content and data.
 @available(iOS 13.0, *)
-internal class DebugModalViewController<Content>: UIViewController where Content: View {
+internal class DebugModalViewController<Content: View>: UIViewController {
 
     lazy var containerView = DebugModalWrapperView()
 
