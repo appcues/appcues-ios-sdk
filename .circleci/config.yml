@@ -64,6 +64,8 @@ commands:
       - run:
           name: Install swift build packages
           command: mint bootstrap
+          # can be slow building swiftlint
+          no_output_timeout: 30m
       - save_cache:
           name: Save swift build package cache
           key: 5-mint-{{ checksum "Mintfile" }}
