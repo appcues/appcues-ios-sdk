@@ -65,6 +65,7 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
         metadataDelegate.unset(keys: [ "keyholeShape", "keyholeSpread" ])
     }
 
+    // swiftlint:disable:next function_body_length
     private func handle(backdropView: UIView, metadata: TraitMetadata) {
         guard backdropView.bounds != .zero else { return }
 
