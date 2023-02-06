@@ -53,7 +53,7 @@ internal class ExperienceWrapperView: UIView {
 
             // ensure the dialog can't exceed the container height (it should scroll instead).
             contentWrapperView.topAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.topAnchor),
-            contentWrapperView.bottomAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.bottomAnchor),
+            contentWrapperView.bottomAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.bottomAnchor)
         ])
     }
 
