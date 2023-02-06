@@ -30,6 +30,7 @@ public protocol ExperienceTrait {
     /// Must be unique and should be formatted `@org/name` (e.g. `@appcues/modal`).
     static var type: String { get }
 
+    /// The object that provides access to data shared across trait instances.
     weak var metadataDelegate: TraitMetadataDelegate? { get set }
 
     /// Initializer from an `Experience.Trait` data model.
