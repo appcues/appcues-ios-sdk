@@ -11,6 +11,7 @@ import UIKit
 @available(iOS 13.0, *)
 internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
     struct Config: Decodable {
+        // swiftlint:disable:next discouraged_optional_boolean
         let hidePointer: Bool?
         let pointerBase: Double?
         let pointerLength: Double?
