@@ -8,6 +8,16 @@
 
 import UIKit
 
+internal struct Pointer {
+    enum Edge {
+        case top, bottom, leading, trailing
+    }
+
+    let edge: Edge
+    let size: CGSize
+    let offset: CGFloat
+}
+
 extension UIBezierPath {
     convenience init(tooltipAround mainRect: CGRect, cornerRadius: CGFloat, pointer: Pointer) {
         self.init()
@@ -64,158 +74,150 @@ extension UIBezierPath {
     }
 }
 
-internal struct Pointer {
-    enum Edge {
-        case top, bottom, leading, trailing
-    }
+private extension UIBezierPath {
+    struct Triangle {
+        // Points are ordered for a tooltip drawn clockwise
+        let point1: CGPoint
+        let point2: CGPoint
+        let point3: CGPoint
 
-    let edge: Edge
-    let size: CGSize
-    let offset: CGFloat
-}
+        private(set) var overridesTopLeftCorner: Bool
+        private(set) var overridesTopRightCorner: Bool
+        private(set) var overridesBottomRightCorner: Bool
+        private(set) var overridesBottomLeftCorner: Bool
 
-private struct Triangle {
-    // Points are ordered for a tooltip drawn clockwise
-    let point1: CGPoint
-    let point2: CGPoint
-    let point3: CGPoint
+        // swiftlint:disable:next cyclomatic_complexity function_body_length
+        init(pointer: Pointer, mainRect: CGRect, cornerRadius: CGFloat) {
+            overridesTopLeftCorner = false
+            overridesTopRightCorner = false
+            overridesBottomRightCorner = false
+            overridesBottomLeftCorner = false
 
-    private(set) var overridesTopLeftCorner: Bool
-    private(set) var overridesTopRightCorner: Bool
-    private(set) var overridesBottomRightCorner: Bool
-    private(set) var overridesBottomLeftCorner: Bool
+            switch pointer.edge {
+            case .top:
+                var triangleBounds = CGRect(
+                    x: mainRect.midX - pointer.size.width / 2 + pointer.offset,
+                    y: mainRect.minY - pointer.size.height,
+                    width: pointer.size.width,
+                    height: pointer.size.height)
 
-    // swiftlint:disable:next cyclomatic_complexity function_body_length
-    init(pointer: Pointer, mainRect: CGRect, cornerRadius: CGFloat) {
-        overridesTopLeftCorner = false
-        overridesTopRightCorner = false
-        overridesBottomRightCorner = false
-        overridesBottomLeftCorner = false
-
-        switch pointer.edge {
-        case .top:
-            var triangleBounds = CGRect(
-                x: mainRect.midX - pointer.size.width / 2 + pointer.offset,
-                y: mainRect.minY - pointer.size.height,
-                width: pointer.size.width,
-                height: pointer.size.height)
-
-            let point2X: CGFloat
-            if triangleBounds.origin.x < cornerRadius {
-                // Check for collisions with leading corner
-                if triangleBounds.origin.x < 0 {
-                    overridesTopLeftCorner = true
-                    triangleBounds.origin.x = 0
+                let point2X: CGFloat
+                if triangleBounds.origin.x < cornerRadius {
+                    // Check for collisions with leading corner
+                    if triangleBounds.origin.x < 0 {
+                        overridesTopLeftCorner = true
+                        triangleBounds.origin.x = 0
+                    } else {
+                        triangleBounds.origin.x = cornerRadius
+                    }
+                    point2X = triangleBounds.minX
+                } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - cornerRadius {
+                    // Check for collisions with trailing corner
+                    if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
+                        overridesTopRightCorner = true
+                        triangleBounds.origin.x = mainRect.maxX - pointer.size.width
+                    } else {
+                        triangleBounds.origin.x = mainRect.maxX - pointer.size.width - cornerRadius
+                    }
+                    point2X = triangleBounds.maxX
                 } else {
-                    triangleBounds.origin.x = cornerRadius
+                    // Centered pointer
+                    point2X = triangleBounds.midX
                 }
-                point2X = triangleBounds.minX
-            } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - cornerRadius {
-                // Check for collisions with trailing corner
-                if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
-                    overridesTopRightCorner = true
-                    triangleBounds.origin.x = mainRect.maxX - pointer.size.width
+                point1 = CGPoint(x: triangleBounds.minX, y: triangleBounds.maxY)
+                point2 = CGPoint(x: point2X, y: triangleBounds.minY)
+                point3 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.maxY)
+            case .bottom:
+                var triangleBounds = CGRect(
+                    x: mainRect.midX - pointer.size.width / 2 + pointer.offset,
+                    y: mainRect.maxY,
+                    width: pointer.size.width,
+                    height: pointer.size.height)
+
+                let point2X: CGFloat
+                if triangleBounds.origin.x < cornerRadius {
+                    if triangleBounds.origin.x < 0 {
+                        overridesBottomLeftCorner = true
+                        triangleBounds.origin.x = 0
+                    } else {
+                        triangleBounds.origin.x = cornerRadius
+                    }
+                    point2X = triangleBounds.minX
+                } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - cornerRadius {
+                    if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
+                        overridesBottomRightCorner = true
+                        triangleBounds.origin.x = mainRect.maxX - pointer.size.width
+                    } else {
+                        triangleBounds.origin.x = mainRect.maxX - pointer.size.width - cornerRadius
+                    }
+                    point2X = triangleBounds.maxX
                 } else {
-                    triangleBounds.origin.x = mainRect.maxX - pointer.size.width - cornerRadius
+                    point2X = triangleBounds.midX
                 }
-                point2X = triangleBounds.maxX
-            } else {
-                // Centered pointer
-                point2X = triangleBounds.midX
+                point1 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.minY)
+                point2 = CGPoint(x: point2X, y: triangleBounds.maxY)
+                point3 = CGPoint(x: triangleBounds.minX, y: triangleBounds.minY)
+            case .leading:
+                var triangleBounds = CGRect(
+                    x: mainRect.minX - pointer.size.height,
+                    y: (mainRect.midY - pointer.size.width / 2 + pointer.offset),
+                    width: pointer.size.height,
+                    height: pointer.size.width)
+
+                let point2Y: CGFloat
+                if triangleBounds.origin.y < cornerRadius {
+                    if triangleBounds.origin.y < 0 {
+                        overridesTopLeftCorner = true
+                        triangleBounds.origin.y = 0
+                    } else {
+                        triangleBounds.origin.y = cornerRadius
+                    }
+                    point2Y = triangleBounds.minY
+                } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - cornerRadius {
+                    if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
+                        overridesBottomLeftCorner = true
+                        triangleBounds.origin.y = mainRect.maxY - pointer.size.width
+                    } else {
+                        triangleBounds.origin.y = mainRect.maxY - pointer.size.width - cornerRadius
+                    }
+                    point2Y = triangleBounds.maxY
+                } else {
+                    point2Y = triangleBounds.midY
+                }
+                point1 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.maxY)
+                point2 = CGPoint(x: triangleBounds.minX, y: point2Y)
+                point3 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.minY)
+            case .trailing:
+                var triangleBounds = CGRect(
+                    x: mainRect.maxX,
+                    y: (mainRect.midY - pointer.size.width / 2 + pointer.offset),
+                    width: pointer.size.height,
+                    height: pointer.size.width)
+
+                let point2Y: CGFloat
+                if triangleBounds.origin.y < cornerRadius {
+                    if triangleBounds.origin.y < 0 {
+                        overridesTopRightCorner = true
+                        triangleBounds.origin.y = 0
+                    } else {
+                        triangleBounds.origin.y = cornerRadius
+                    }
+                    point2Y = triangleBounds.minY
+                } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - cornerRadius {
+                    if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
+                        overridesBottomRightCorner = true
+                        triangleBounds.origin.y = mainRect.maxY - pointer.size.width
+                    } else {
+                        triangleBounds.origin.y = mainRect.maxY - pointer.size.width - cornerRadius
+                    }
+                    point2Y = triangleBounds.maxY
+                } else {
+                    point2Y = triangleBounds.midY
+                }
+                point1 = CGPoint(x: triangleBounds.minX, y: triangleBounds.minY)
+                point2 = CGPoint(x: triangleBounds.maxX, y: point2Y)
+                point3 = CGPoint(x: triangleBounds.minX, y: triangleBounds.maxY)
             }
-            point1 = CGPoint(x: triangleBounds.minX, y: triangleBounds.maxY)
-            point2 = CGPoint(x: point2X, y: triangleBounds.minY)
-            point3 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.maxY)
-        case .bottom:
-            var triangleBounds = CGRect(
-                x: mainRect.midX - pointer.size.width / 2 + pointer.offset,
-                y: mainRect.maxY,
-                width: pointer.size.width,
-                height: pointer.size.height)
-
-            let point2X: CGFloat
-            if triangleBounds.origin.x < cornerRadius {
-                if triangleBounds.origin.x < 0 {
-                    overridesBottomLeftCorner = true
-                    triangleBounds.origin.x = 0
-                } else {
-                    triangleBounds.origin.x = cornerRadius
-                }
-                point2X = triangleBounds.minX
-            } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - cornerRadius {
-                if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
-                    overridesBottomRightCorner = true
-                    triangleBounds.origin.x = mainRect.maxX - pointer.size.width
-                } else {
-                    triangleBounds.origin.x = mainRect.maxX - pointer.size.width - cornerRadius
-                }
-                point2X = triangleBounds.maxX
-            } else {
-                point2X = triangleBounds.midX
-            }
-            point1 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.minY)
-            point2 = CGPoint(x: point2X, y: triangleBounds.maxY)
-            point3 = CGPoint(x: triangleBounds.minX, y: triangleBounds.minY)
-        case .leading:
-            var triangleBounds = CGRect(
-                x: mainRect.minX - pointer.size.height,
-                y: (mainRect.midY - pointer.size.width / 2 + pointer.offset),
-                width: pointer.size.height,
-                height: pointer.size.width)
-
-            let point2Y: CGFloat
-            if triangleBounds.origin.y < cornerRadius {
-                if triangleBounds.origin.y < 0 {
-                    overridesTopLeftCorner = true
-                    triangleBounds.origin.y = 0
-                } else {
-                    triangleBounds.origin.y = cornerRadius
-                }
-                point2Y = triangleBounds.minY
-            } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - cornerRadius {
-                if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
-                    overridesBottomLeftCorner = true
-                    triangleBounds.origin.y = mainRect.maxY - pointer.size.width
-                } else {
-                    triangleBounds.origin.y = mainRect.maxY - pointer.size.width - cornerRadius
-                }
-                point2Y = triangleBounds.maxY
-            } else {
-                point2Y = triangleBounds.midY
-            }
-            point1 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.maxY)
-            point2 = CGPoint(x: triangleBounds.minX, y: point2Y)
-            point3 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.minY)
-        case .trailing:
-            var triangleBounds = CGRect(
-                x: mainRect.maxX,
-                y: (mainRect.midY - pointer.size.width / 2 + pointer.offset),
-                width: pointer.size.height,
-                height: pointer.size.width)
-
-            let point2Y: CGFloat
-            if triangleBounds.origin.y < cornerRadius {
-                if triangleBounds.origin.y < 0 {
-                    overridesTopRightCorner = true
-                    triangleBounds.origin.y = 0
-                } else {
-                    triangleBounds.origin.y = cornerRadius
-                }
-                point2Y = triangleBounds.minY
-            } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - cornerRadius {
-                if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
-                    overridesBottomRightCorner = true
-                    triangleBounds.origin.y = mainRect.maxY - pointer.size.width
-                } else {
-                    triangleBounds.origin.y = mainRect.maxY - pointer.size.width - cornerRadius
-                }
-                point2Y = triangleBounds.maxY
-            } else {
-                point2Y = triangleBounds.midY
-            }
-            point1 = CGPoint(x: triangleBounds.minX, y: triangleBounds.minY)
-            point2 = CGPoint(x: triangleBounds.maxX, y: point2Y)
-            point3 = CGPoint(x: triangleBounds.minX, y: triangleBounds.maxY)
         }
     }
 }
