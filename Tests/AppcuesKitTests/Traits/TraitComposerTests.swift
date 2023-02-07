@@ -278,9 +278,9 @@ private extension Experience.Step.Child {
         self.init(
             id: UUID(),
             type: "modal",
-            content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil)),
             traits: traits,
-            actions: [:]
+            actions: [:],
+            content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil))
         )
     }
 }

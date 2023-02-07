@@ -155,9 +155,9 @@ extension Experience.Step.Child {
         self.init(
             id: UUID(uuidString: fixedID) ?? UUID(),
             type: "modal",
-            content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil)),
             traits: [],
-            actions: [:]
+            actions: [:],
+            content: ExperienceComponent.spacer(ExperienceComponent.SpacerModel(id: UUID(), spacing: nil, style: nil))
         )
     }
 
@@ -165,6 +165,8 @@ extension Experience.Step.Child {
         self.init(
             id: UUID(uuidString: fixedID) ?? UUID(),
             type: "modal",
+            traits: [],
+            actions: [:],
             content: ExperienceComponent.textInput(ExperienceComponent.TextInputModel(
                 id: UUID(uuidString: "f002dc4f-c5fc-4439-8916-0047a5839741")!,
                 label: ExperienceComponent.TextModel(id: UUID(), text: "Form label", style: nil),
@@ -178,9 +180,7 @@ extension Experience.Step.Child {
                 textFieldStyle: nil,
                 cursorColor: nil,
                 attributeName: attributeName,
-                style: nil)),
-            traits: [],
-            actions: [:]
+                style: nil))
         )
     }
 
