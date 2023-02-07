@@ -96,12 +96,17 @@ extension ExperienceComponent {
             case center, equal
         }
 
+        enum StickyEdge: String, Decodable {
+            case top, bottom
+        }
+
         let id: UUID
         let orientation: Orientation
         // distribution is used by horizontal oriented stacks only
         let distribution: Distribution?
         let spacing: Double?
         let items: [ExperienceComponent]
+        let sticky: StickyEdge?
 
         let style: Style?
 

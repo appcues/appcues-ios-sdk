@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 @available(iOS 13.0, *)
 internal class ExperienceStepViewController: UIViewController {
@@ -49,6 +50,13 @@ internal class ExperienceStepViewController: UIViewController {
         stepView.contentView.addSubview(contentViewController.view)
         contentViewController.view.pin(to: stepView.contentView.layoutMarginsGuide)
         contentViewController.didMove(toParent: self)
+
+        if let stickyTopContent = viewModel.step.stickyTopContent {
+            decorateStickyContent(edge: .top, stickyTopContent)
+        }
+        if let stickyBottomContent = viewModel.step.stickyBottomContent {
+            decorateStickyContent(edge: .bottom, stickyBottomContent)
+        }
 
         NotificationCenter.default.addObserver(
             self,
@@ -102,6 +110,42 @@ internal class ExperienceStepViewController: UIViewController {
             stepView.scrollView.scrollRectToVisible(frameInScrollView, animated: false)
         }
     }
+
+    private func decorateStickyContent(edge: ExperienceComponent.StackModel.StickyEdge, _ component: ExperienceComponent) {
+        // Must have the environmentObject so any actions in the sticky content can be applied.
+        let stickyContentVC = StickyHostingController(rootView: component.view.environmentObject(viewModel))
+
+        // Add the stick content to the parent controller.
+        addChild(stickyContentVC)
+        view.addSubview(stickyContentVC.view)
+        stickyContentVC.view.translatesAutoresizingMaskIntoConstraints = false
+
+        var constraints: [NSLayoutConstraint] = [
+            stickyContentVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            stickyContentVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ]
+
+        switch edge {
+        case .top:
+            constraints.append(stickyContentVC.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor))
+        case .bottom:
+            constraints.append(stickyContentVC.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor))
+        }
+
+        NSLayoutConstraint.activate(constraints)
+
+        stickyContentVC.didMove(toParent: self)
+
+        // Pass sticky content size changes to the parent controller to update the insets.
+        stickyContentVC.onSizeChange = { [weak self] size, safeArea in
+            switch edge {
+            case .top:
+                self?.additionalSafeAreaInsets.top = size.height - safeArea.top
+            case .bottom:
+                self?.additionalSafeAreaInsets.bottom = size.height - safeArea.bottom
+            }
+        }
+    }
 }
 
 @available(iOS 13.0, *)
@@ -149,6 +193,28 @@ extension ExperienceStepViewController {
         @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
+        }
+    }
+
+    /// HostingController that reports `frame` size changes.
+    class StickyHostingController<Content: View>: AppcuesHostingController<Content> {
+
+        var onSizeChange: ((CGSize, UIEdgeInsets) -> Void)?
+
+        private var previousSize: CGSize = .zero
+
+        override func viewDidLoad() {
+            super.viewDidLoad()
+            view.backgroundColor = .clear
+        }
+
+        override func viewDidLayoutSubviews() {
+            super.viewDidLayoutSubviews()
+
+            if view.frame.size != previousSize {
+                onSizeChange?(view.frame.size, view.safeAreaInsets)
+                previousSize = view.frame.size
+            }
         }
     }
 }
