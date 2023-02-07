@@ -35,12 +35,12 @@ internal class ExperienceStepViewModel: ObservableObject {
         self.step = Experience.Step.Child(
             id: UUID(),
             type: "",
+            traits: [],
+            actions: [:],
             content: .spacer(ExperienceComponent.SpacerModel(
                 id: UUID(),
                 spacing: nil,
-                style: nil)),
-            traits: [],
-            actions: [:])
+                style: nil)))
         self.actions = [:]
         self.actionRegistry = nil
     }

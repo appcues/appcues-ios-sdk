@@ -147,9 +147,53 @@ extension Experience.Step: Decodable {
     struct Child: StepModel, Decodable {
         let id: UUID
         let type: String
-        let content: ExperienceComponent
         let traits: [Experience.Trait]
         let actions: [String: [Experience.Action]]
+        let content: ExperienceComponent
+        let stickyTopContent: ExperienceComponent?
+        let stickyBottomContent: ExperienceComponent?
+
+        private enum CodingKeys: CodingKey {
+            case id
+            case type
+            case traits
+            case actions
+            case content
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            self.id = try container.decode(UUID.self, forKey: .id)
+            self.type = try container.decode(String.self, forKey: .type)
+            self.traits = try container.decode([Experience.Trait].self, forKey: .traits)
+            self.actions = try container.decode([String: [Experience.Action]].self, forKey: .actions)
+
+            let content = try container.decode(ExperienceComponent.self, forKey: .content)
+            let (bodyComponent, stickyTopComponent, stickyBottomComponent) = content.divided()
+
+            self.content = bodyComponent
+            self.stickyTopContent = stickyTopComponent
+            self.stickyBottomContent = stickyBottomComponent
+        }
+
+        init(
+            id: UUID,
+            type: String,
+            traits: [Experience.Trait],
+            actions: [String: [Experience.Action]],
+            content: ExperienceComponent,
+            stickyTopContent: ExperienceComponent? = nil,
+            stickyBottomContent: ExperienceComponent? = nil
+        ) {
+            self.id = id
+            self.type = type
+            self.traits = traits
+            self.actions = actions
+            self.content = content
+            self.stickyTopContent = stickyTopContent
+            self.stickyBottomContent = stickyBottomContent
+        }
     }
 
     init(from decoder: Decoder) throws {

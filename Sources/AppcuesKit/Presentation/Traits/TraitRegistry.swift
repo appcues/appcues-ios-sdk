@@ -16,7 +16,6 @@ internal class TraitRegistry {
         // Register default traits
         register(trait: AppcuesModalTrait.self)
         register(trait: AppcuesCarouselTrait.self)
-        register(trait: AppcuesStickyContentTrait.self)
         register(trait: AppcuesSkippableTrait.self)
         register(trait: AppcuesBackdropTrait.self)
         register(trait: AppcuesPagingDotsTrait.self)
