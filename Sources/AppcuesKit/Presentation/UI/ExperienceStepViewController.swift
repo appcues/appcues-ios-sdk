@@ -13,6 +13,7 @@ import SwiftUI
 internal class ExperienceStepViewController: UIViewController {
 
     let viewModel: ExperienceStepViewModel
+    let stepState: ExperienceData.StepState
     let notificationCenter: NotificationCenter?
 
     lazy var stepView = ExperienceStepView()
@@ -25,6 +26,7 @@ internal class ExperienceStepViewController: UIViewController {
 
     init(viewModel: ExperienceStepViewModel, stepState: ExperienceData.StepState, notificationCenter: NotificationCenter? = nil) {
         self.viewModel = viewModel
+        self.stepState = stepState
         self.notificationCenter = notificationCenter
 
         let rootView = ExperienceStepRootView(rootView: viewModel.step.content.view, viewModel: viewModel, stepState: stepState)
@@ -113,7 +115,11 @@ internal class ExperienceStepViewController: UIViewController {
 
     private func decorateStickyContent(edge: ExperienceComponent.StackModel.StickyEdge, _ component: ExperienceComponent) {
         // Must have the environmentObject so any actions in the sticky content can be applied.
-        let stickyContentVC = StickyHostingController(rootView: component.view.environmentObject(viewModel))
+        let stickyContentVC = StickyHostingController(
+            rootView: component.view
+                .environmentObject(viewModel)
+                .environmentObject(stepState)
+        )
 
         // Add the stick content to the parent controller.
         addChild(stickyContentVC)
