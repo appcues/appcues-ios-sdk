@@ -91,7 +91,14 @@ extension ExperienceData {
         init(experience: Experience) {
             experience.steps.forEach { step in
                 step.items.forEach { item in
-                    steps[item.id] = StepState(formItems: item.content.formComponents)
+                    var formComponents = item.content.formComponents
+                    if let stickyTopComponents = item.stickyTopContent?.formComponents {
+                        formComponents = formComponents.merging(stickyTopComponents)
+                    }
+                    if let stickyBottomComponents = item.stickyBottomContent?.formComponents {
+                        formComponents = formComponents.merging(stickyBottomComponents)
+                    }
+                    steps[item.id] = StepState(formItems: formComponents)
                 }
             }
         }
