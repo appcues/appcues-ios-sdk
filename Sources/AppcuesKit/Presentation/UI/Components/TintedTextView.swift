@@ -18,7 +18,7 @@ internal struct TintedTextView: View {
     var body: some View {
         let style = AppcuesStyle(from: model.style)
 
-        Text(model.text)
+        Text(textModel: model)
             .applyTextStyle(style, model: model)
             .setupActions(on: viewModel, for: model)
             .ifLet(tintColor) { view, val in
