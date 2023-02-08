@@ -28,32 +28,30 @@ internal struct AppcuesText: View {
 @available(iOS 13.0, *)
 extension Text {
     init(textModel: ExperienceComponent.TextModel) {
-        if let spans = textModel.spans {
-            self.init("")
+        self.init("")
 
-            // Note: a ViewBuilder approach here doesn't work because the requirement that we operate strictly on `Text`
-            // and not `some View` for concatenation to work. Therefore we work with the struct directly.
-            spans.forEach { span in
-                var text = Text(span.text)
+        // Note: a ViewBuilder approach here doesn't work because the requirement that we operate strictly on `Text`
+        // and not `some View` for concatenation to work. Therefore we work with the struct directly.
+        textModel.spans.forEach { span in
+            var text = Text(span.text)
 
-                if let font = Font(name: span.style?.fontName, size: span.style?.fontSize ?? UIFont.labelFontSize) {
-                    text = text.font(font)
-                }
-
-                if let foregroundColor = Color(dynamicColor: span.style?.foregroundColor) {
-                    text = text.foregroundColor(foregroundColor)
-                }
-
-                if let kerning = span.style?.letterSpacing {
-                    text = text.kerning(kerning)
-                }
-
-                // A shorthand operator with `Text` doesn't compile
-                // swiftlint:disable:next shorthand_operator
-                self = self + text
+            if let font = Font(
+                name: span.style?.fontName ?? textModel.style?.fontName,
+                size: span.style?.fontSize ?? textModel.style?.fontSize ?? UIFont.labelFontSize) {
+                text = text.font(font)
             }
-        } else {
-            self.init(textModel.text)
+
+            if let foregroundColor = Color(dynamicColor: span.style?.foregroundColor) {
+                text = text.foregroundColor(foregroundColor)
+            }
+
+            if let kerning = span.style?.letterSpacing {
+                text = text.kerning(kerning)
+            }
+
+            // A shorthand operator with `Text` doesn't compile
+            // swiftlint:disable:next shorthand_operator
+            self = self + text
         }
     }
 }

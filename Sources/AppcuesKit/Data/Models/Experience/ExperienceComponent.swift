@@ -124,13 +124,47 @@ extension ExperienceComponent {
 
     struct TextModel: ComponentModel, Decodable {
         let id: UUID
-        let text: String
 
-        let spans: [TextSpan]?
+        let text: String
+        let spans: [TextSpan]
 
         let style: Style?
 
         var textDescription: String? { text }
+
+        enum CodingKeys: CodingKey {
+            case id
+            case text
+            case spans
+            case style
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+
+            self.id = try container.decode(UUID.self, forKey: .id)
+            self.style = try container.decodeIfPresent(ExperienceComponent.Style.self, forKey: .style)
+
+            // Require one of `spans` or `text`, preferring `spans`.
+            if let spans = try container.decodeIfPresent([ExperienceComponent.TextSpan].self, forKey: .spans) {
+                self.spans = spans
+                self.text = spans.reduce(into: "") { $0 += $1.text }
+            } else if let text = try container.decodeIfPresent(String.self, forKey: .text) {
+                self.spans = [TextSpan(text: text, style: nil)]
+                self.text = text
+            } else {
+                throw DecodingError.valueNotFound(
+                    String.self,
+                    .init(codingPath: container.codingPath + [CodingKeys.text], debugDescription: "no text or spans defined"))
+            }
+        }
+
+        init(id: UUID, text: String, style: ExperienceComponent.Style? = nil) {
+            self.id = id
+            self.text = text
+            self.spans = [TextSpan(text: text, style: nil)]
+            self.style = style
+        }
     }
 
     struct ButtonModel: ComponentModel, Decodable {
