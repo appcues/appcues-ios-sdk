@@ -255,15 +255,16 @@ internal class FLAnimatedImage: NSObject {
         if optimalFrameCacheSize == .noLimit {
             // Calculate the optimal frame cache size: try choosing a larger buffer window depending on the predicted image size.
             // It's only dependent on the image size & number of frames and never changes.
-            let animatedImageDataSize = CGFloat((self.posterImage.cgImage?.bytesPerRow ?? 0) * Int(self.size.height) * (self.frameCount - skippedFrameCount)) / MEGABYTE
+            let animatedFrameSize = CGFloat((self.posterImage.cgImage?.bytesPerRow ?? 0) * Int(self.size.height)) / MEGABYTE
+            let animatedImageDataSize = animatedFrameSize * CGFloat(self.frameCount - skippedFrameCount)
 
-            if animatedImageDataSize <= CGFloat(DataSizeCategory.all.rawValue) {
+            if animatedImageDataSize <= Self.maxCacheDataSize {
+                // If the total image size is small enough, keep all frames in memory.
                 maxOptimalSize = FrameCacheSize(integerLiteral: frameCount)
-            } else if animatedImageDataSize <= CGFloat(DataSizeCategory.default.rawValue) {
-                // This value doesn't depend on device memory much because if we're not keeping all frames in memory we will always
-                // be decoding 1 frame up ahead per 1 frame that gets played and at this point we might as well just keep a small
-                // buffer just large enough to keep from running out of frames.
-                maxOptimalSize = .default
+            } else if animatedFrameSize <= Self.maxCacheDataSize {
+                // If the total image data size is too large to store entirely, maintain a buffer of frames up to the max cache size size,
+                // capped at the default number of frames.
+                maxOptimalSize = min(.default, .custom(Int(round(Self.maxCacheDataSize / animatedFrameSize))))
             } else {
                 // The predicted size exceeds the limits to build up a cache and we go into low memory mode from the beginning.
                 maxOptimalSize = .lowMemory
@@ -614,14 +615,8 @@ extension FLAnimatedImage {
 
 extension FLAnimatedImage {
 
-    enum DataSizeCategory: Int {
-        /// All frames permanently in memory (be nice to the CPU)
-        case all = 10
-        /// A frame cache of default size in memory (usually real-time performance and keeping low memory profile)
-        case `default` = 75
-        /// Only keep one frame at the time in memory (easier on memory, slowest performance)
-        case onDemand = 250
-    }
+    /// Target size, in MB, of frames to cache.
+    static let maxCacheDataSize: CGFloat = 15
 
     enum FrameCacheSize: Comparable, ExpressibleByIntegerLiteral {
         /// 0 means no specific limit
