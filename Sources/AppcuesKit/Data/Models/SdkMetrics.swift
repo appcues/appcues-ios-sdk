@@ -10,6 +10,8 @@ import Foundation
 
 internal struct SdkMetrics {
 
+    private static let syncQueue = DispatchQueue(label: "appcues-sdk-metrics")
+
     private static var metrics: [UUID: SdkMetrics] = [:]
 
     // the time when the tracking was first captured by the SDK - the call to `track(event)` for instance
@@ -25,7 +27,9 @@ internal struct SdkMetrics {
     private var renderStartAt: Date?
 
     static func clear() {
-        metrics.removeAll()
+        syncQueue.async {
+            metrics.removeAll()
+        }
     }
 
     static func tracked(_ id: UUID, time: Date?) {
@@ -33,34 +37,44 @@ internal struct SdkMetrics {
         // other network calls not related to a captured tracking time, like batched background analytics
         // or requests to get an experience by ID, are not tracked
         guard let time = time else { return }
-        metrics[id, default: SdkMetrics()].trackedAt = time
+        syncQueue.async {
+            metrics[id, default: SdkMetrics()].trackedAt = time
+        }
     }
 
     static func requested(_ id: UUID?, time: Date = Date()) {
         guard let id = id else { return }
         // only capture if record is already created -- a known analytics tracking time
-        metrics[id]?.requestedAt = time
+        syncQueue.async {
+            metrics[id]?.requestedAt = time
+        }
     }
 
     static func responded(_ id: UUID?, time: Date = Date()) {
         guard let id = id else { return }
         // only capture if record is already created -- a known analytics tracking time
-        metrics[id]?.respondedAt = time
+        syncQueue.async {
+            metrics[id]?.respondedAt = time
+        }
     }
 
     static func renderStart(_ id: UUID?, time: Date = Date()) {
         guard let id = id else { return }
         // only capture if record is already created -- a known analytics tracking time
-        metrics[id]?.renderStartAt = time
+        syncQueue.async {
+            metrics[id]?.renderStartAt = time
+        }
     }
 
     static func remove(_ id: UUID) {
-        metrics.removeValue(forKey: id)
+        syncQueue.async {
+            _ = metrics.removeValue(forKey: id)
+        }
     }
 
     static func trackRender(_ id: UUID?) -> [String: Any] {
         guard let id = id,
-              let timings = metrics[id],
+              let timings: SdkMetrics = syncQueue.sync(execute: { metrics[id] }),
               let trackedAt = timings.trackedAt,
               let requestedAt = timings.requestedAt,
               let respondedAt = timings.respondedAt,
