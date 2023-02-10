@@ -24,6 +24,15 @@ internal class ExperienceStepViewController: UIViewController {
 
     private let contentViewController: UIViewController
 
+    var stickySpacing: UIEdgeInsets = .zero {
+        didSet {
+            stepView.scrollView.contentInset = stickySpacing
+            stepView.scrollView.scrollIndicatorInsets = stickySpacing
+            // Ensure the main content starts below the top sticky content
+            stepView.scrollView.contentOffset.y = -(stickySpacing.top + stepView.safeAreaInsets.top)
+        }
+    }
+
     init(viewModel: ExperienceStepViewModel, stepState: ExperienceData.StepState, notificationCenter: NotificationCenter? = nil) {
         self.viewModel = viewModel
         self.stepState = stepState
@@ -77,8 +86,8 @@ internal class ExperienceStepViewController: UIViewController {
 
         let contentSize = stepView.scrollView.contentSize
         preferredContentSize = CGSize(
-            width: contentSize.width + additionalSafeAreaInsets.left + additionalSafeAreaInsets.right,
-            height: contentSize.height + additionalSafeAreaInsets.top + additionalSafeAreaInsets.bottom
+            width: contentSize.width,
+            height: contentSize.height + stickySpacing.top + stickySpacing.bottom
         )
     }
 
@@ -133,9 +142,9 @@ internal class ExperienceStepViewController: UIViewController {
 
         switch edge {
         case .top:
-            constraints.append(stickyContentVC.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor))
+            constraints.append(stickyContentVC.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor))
         case .bottom:
-            constraints.append(stickyContentVC.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor))
+            constraints.append(stickyContentVC.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor))
         }
 
         NSLayoutConstraint.activate(constraints)
@@ -143,12 +152,12 @@ internal class ExperienceStepViewController: UIViewController {
         stickyContentVC.didMove(toParent: self)
 
         // Pass sticky content size changes to the parent controller to update the insets.
-        stickyContentVC.onSizeChange = { [weak self] size, safeArea in
+        stickyContentVC.onSizeChange = { [weak self] size, _ in
             switch edge {
             case .top:
-                self?.additionalSafeAreaInsets.top = size.height - safeArea.top
+                self?.stickySpacing.top = size.height
             case .bottom:
-                self?.additionalSafeAreaInsets.bottom = size.height - safeArea.bottom
+                self?.stickySpacing.bottom = size.height
             }
         }
     }
