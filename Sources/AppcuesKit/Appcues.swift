@@ -150,6 +150,7 @@ public class Appcues: NSObject {
         sessionMonitor.reset()
 
         storage.userID = ""
+        storage.userSignature = nil
         storage.isAnonymous = true
         storage.groupID = nil
         notificationCenter.post(name: .appcuesReset, object: self, userInfo: nil)
