@@ -104,6 +104,9 @@ public class Appcues: NSObject {
     /// - Parameters:
     ///   - userID: Unique value identifying the user.
     ///   - properties: Optional properties that provide additional context about the user.
+    ///
+    /// To authenticate requests for this user, provide the Base64 encoded signature
+    /// for this user as a `String` value for key "appcues:user_id_signature", in the `properties` provided.
     @objc
     public func identify(userID: String, properties: [String: Any]? = nil) {
         identify(isAnonymous: false, userID: userID, properties: properties)
