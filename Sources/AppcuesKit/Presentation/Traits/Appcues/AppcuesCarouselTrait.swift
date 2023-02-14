@@ -60,6 +60,8 @@ extension AppcuesCarouselTrait {
             carouselView.collectionView.register(StepPageCell.self, forCellWithReuseIdentifier: StepPageCell.reuseID)
             carouselView.collectionView.dataSource = self
             carouselView.collectionView.delegate = self
+
+            stepControllers.forEach { ($0 as? ExperienceStepViewController)?.stepView.resetHorizontalSafeAreas = true }
         }
 
         override func viewWillAppear(_ animated: Bool) {
