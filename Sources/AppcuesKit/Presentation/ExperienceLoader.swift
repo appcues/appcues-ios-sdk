@@ -17,6 +17,7 @@ internal protocol ExperienceLoading: AnyObject {
 internal class ExperienceLoader: ExperienceLoading {
 
     private let config: Appcues.Config
+    private let storage: DataStoring
     private let networking: Networking
     private let experienceRenderer: ExperienceRendering
     private let notificationCenter: NotificationCenter
@@ -26,6 +27,7 @@ internal class ExperienceLoader: ExperienceLoading {
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
+        self.storage = container.resolve(DataStoring.self)
         self.networking = container.resolve(Networking.self)
         self.experienceRenderer = container.resolve(ExperienceRendering.self)
         self.notificationCenter = container.resolve(NotificationCenter.self)
@@ -40,7 +42,8 @@ internal class ExperienceLoader: ExperienceLoading {
             APIEndpoint.preview(experienceID: experienceID)
 
         networking.get(
-            from: endpoint
+            from: endpoint,
+            authorization: Authorization(bearerToken: storage.userSignature)
         ) { [weak self] (result: Result<Experience, Error>) in
             switch result {
             case .success(let experience):

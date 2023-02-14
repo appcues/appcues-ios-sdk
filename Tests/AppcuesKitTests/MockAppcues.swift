@@ -112,6 +112,7 @@ class MockStorage: DataStoring {
     var groupID: String?
     var isAnonymous: Bool = false
     var lastContentShownAt: Date?
+    var userSignature: String?
 }
 
 class MockExperienceLoader: ExperienceLoading {
@@ -237,9 +238,11 @@ class MockNetworking: Networking {
         case invalidSuccessType
     }
 
-    var onGet: ((Endpoint) -> Result<Any, Error>)?
-    func get<T>(from endpoint: Endpoint, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
-        guard let result = onGet?(endpoint) else {
+    var onGet: ((Endpoint, Authorization?) -> Result<Any, Error>)?
+    func get<T>(from endpoint: Endpoint,
+                authorization: Authorization?,
+                completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
+        guard let result = onGet?(endpoint, authorization) else {
             completion(.failure(MockError.noMock))
             return
         }
@@ -256,13 +259,17 @@ class MockNetworking: Networking {
         }
     }
 
-    var onPost: ((Endpoint, Data, UUID?, ((Result<Any, Error>) -> Void)) -> Void)?
-    func post<T>(to endpoint: Endpoint, body: Data, requestId: UUID?, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
+    var onPost: ((Endpoint, Authorization?, Data, UUID?, ((Result<Any, Error>) -> Void)) -> Void)?
+    func post<T>(to endpoint: Endpoint,
+                 authorization: Authorization?,
+                 body: Data,
+                 requestId: UUID?,
+                 completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
         guard let onPost = onPost else {
             completion(.failure(MockError.noMock))
             return
         }
-        onPost(endpoint, body, requestId) { result in
+        onPost(endpoint, authorization, body, requestId) { result in
             switch result {
             case .success(let value):
                 if let converted = value as? T {

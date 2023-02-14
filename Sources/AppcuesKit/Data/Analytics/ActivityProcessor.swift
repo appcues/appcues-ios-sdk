@@ -136,6 +136,7 @@ internal class ActivityProcessor: ActivityProcessing {
 
     private func handleActivity(activity: ActivityStorage, completion: @escaping () -> Void) {
         networking.post(to: APIEndpoint.activity(userID: activity.userID),
+                        authorization: Authorization(bearerToken: activity.userSignature),
                         body: activity.data,
                         requestId: nil) { [weak self] (result: Result<ActivityResponse, Error>) in
             guard let self = self else { return }
@@ -148,6 +149,7 @@ internal class ActivityProcessor: ActivityProcessing {
 
     private func handleQualify(activity: ActivityStorage, completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
         networking.post(to: APIEndpoint.qualify(userID: activity.userID),
+                        authorization: Authorization(bearerToken: activity.userSignature),
                         body: activity.data,
                         requestId: activity.requestID) { [weak self] (result: Result<QualifyResponse, Error>) in
             guard let self = self else { return }

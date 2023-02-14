@@ -180,7 +180,7 @@ internal class DebugViewModel: ObservableObject {
         connectedStatus.subtitle = nil
         connectedStatus.detailText = nil
 
-        networking.get(from: APIEndpoint.health) { [weak self] (result: Result<ActivityResponse, Error>) in
+        networking.get(from: APIEndpoint.health, authorization: nil) { [weak self] (result: Result<ActivityResponse, Error>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success:

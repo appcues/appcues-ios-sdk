@@ -23,6 +23,9 @@ internal protocol DataStoring: AnyObject {
 
     /// The date of the last known time that an experience/flow was shown to the user in this application
     var lastContentShownAt: Date? { get set }
+
+    /// Optional, base 64 encoded signature to use as bearer token on API requests from the current user
+    var userSignature: String? { get set }
 }
 
 internal class Storage: DataStoring {
@@ -33,6 +36,7 @@ internal class Storage: DataStoring {
         case isAnonymous
         case lastContentShownAt
         case groupID
+        case userSignature
     }
 
     private let config: Appcues.Config
@@ -83,6 +87,15 @@ internal class Storage: DataStoring {
         }
         set {
             write(.lastContentShownAt, newValue: newValue)
+        }
+    }
+
+    internal var userSignature: String? {
+        get {
+            return read(.userSignature, defaultValue: nil)
+        }
+        set {
+            write(.userSignature, newValue: newValue)
         }
     }
 

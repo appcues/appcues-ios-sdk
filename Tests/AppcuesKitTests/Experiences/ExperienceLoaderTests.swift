@@ -22,7 +22,7 @@ class ExperienceLoaderTests: XCTestCase {
 
     func testLoadPublished() throws {
         // Arrange
-        appcues.networking.onGet = { endpoint in
+        appcues.networking.onGet = { endpoint, authorization in
             XCTAssertEqual(
                 endpoint.url(config: self.appcues.config, storage: self.appcues.storage),
                 APIEndpoint.content(experienceID: "123").url(config: self.appcues.config, storage: self.appcues.storage)
@@ -51,7 +51,7 @@ class ExperienceLoaderTests: XCTestCase {
 
     func testLoadUnpublished() throws {
         // Arrange
-        appcues.networking.onGet = { endpoint in
+        appcues.networking.onGet = { endpoint, authorization in
             XCTAssertEqual(
                 endpoint.url(config: self.appcues.config, storage: self.appcues.storage),
                 APIEndpoint.preview(experienceID: "123").url(config: self.appcues.config, storage: self.appcues.storage)
@@ -80,7 +80,7 @@ class ExperienceLoaderTests: XCTestCase {
 
     func testLoadFail() throws {
         // Arrange
-        appcues.networking.onGet = { endpoint in
+        appcues.networking.onGet = { endpoint, authorization in
             return .failure(URLError(.resourceUnavailable))
         }
 
@@ -104,7 +104,7 @@ class ExperienceLoaderTests: XCTestCase {
         // Load the initial preview
         experienceLoader.load(experienceID: "123", published: false, trigger: .preview, completion: nil)
 
-        appcues.networking.onGet = { endpoint in
+        appcues.networking.onGet = { endpoint, authorization in
             XCTAssertEqual(
                 endpoint.url(config: self.appcues.config, storage: self.appcues.storage),
                 APIEndpoint.preview(experienceID: "123").url(config: self.appcues.config, storage: self.appcues.storage)
@@ -131,7 +131,7 @@ class ExperienceLoaderTests: XCTestCase {
         // Load a published experience
         experienceLoader.load(experienceID: "abc", published: true, trigger: .preview, completion: nil)
 
-        appcues.networking.onGet = { endpoint in
+        appcues.networking.onGet = { endpoint, authorization in
             reloadExpectation.fulfill()
             XCTFail("Experience should not be loaded on notification")
             return .success(Experience.mock)

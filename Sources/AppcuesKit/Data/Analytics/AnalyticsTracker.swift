@@ -141,28 +141,32 @@ extension Activity {
                       userID: storage.userID,
                       events: [Event(name: name, attributes: update.properties, context: update.context)],
                       profileUpdate: update.eventAutoProperties,
-                      groupID: storage.groupID)
+                      groupID: storage.groupID,
+                      userSignature: storage.userSignature)
 
         case let .screen(title):
             self.init(accountID: config.accountID,
                       userID: storage.userID,
                       events: [Event(screen: title, attributes: update.properties, context: update.context)],
                       profileUpdate: update.eventAutoProperties,
-                      groupID: storage.groupID)
+                      groupID: storage.groupID,
+                      userSignature: storage.userSignature)
 
         case .profile:
             self.init(accountID: config.accountID,
                       userID: storage.userID,
                       events: nil,
                       profileUpdate: update.properties,
-                      groupID: storage.groupID)
+                      groupID: storage.groupID,
+                      userSignature: storage.userSignature)
 
         case .group:
             self.init(accountID: config.accountID,
                       userID: storage.userID,
                       events: nil,
                       groupID: storage.groupID,
-                      groupUpdate: update.properties)
+                      groupUpdate: update.properties,
+                      userSignature: storage.userSignature)
         }
     }
 
