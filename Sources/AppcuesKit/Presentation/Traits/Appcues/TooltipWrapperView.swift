@@ -310,18 +310,28 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         )
 
         let pointerEdge: Pointer.Edge
+        let pointerSideLength: CGFloat
         switch tooltipPosition {
         case .top:
             pointerEdge = .bottom
+            pointerSideLength = mainRect.width
         case .bottom:
             pointerEdge = .top
+            pointerSideLength = mainRect.width
         case .leading:
             pointerEdge = .trailing
+            pointerSideLength = mainRect.height
         case .trailing:
             pointerEdge = .leading
+            pointerSideLength = mainRect.height
         }
 
-        let pointer = Pointer(edge: pointerEdge, size: pointerSize, offset: offsetFromCenter)
+        let constrainedPointerSize = CGSize(
+            width: min(pointerSize.width, pointerSideLength - cornerRadius * 2),
+            height: pointerSize.height
+        )
+
+        let pointer = Pointer(edge: pointerEdge, size: constrainedPointerSize, offset: offsetFromCenter)
         let tooltipPath = UIBezierPath(tooltipAround: mainRect, cornerRadius: cornerRadius, pointer: pointer)
 
         return tooltipPath.cgPath
