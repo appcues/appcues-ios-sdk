@@ -310,9 +310,11 @@ public class Appcues: NSObject {
             return
         }
 
+        var properties = properties
         let userChanged = userID != storage.userID
         storage.userID = userID
         storage.isAnonymous = isAnonymous
+        storage.userSignature = properties?.removeValue(forKey: "appcues:user_id_signature") as? String
         if userChanged {
             // when the identified user changes from last known value, we must start a new session
             sessionMonitor.start()

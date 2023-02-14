@@ -16,6 +16,7 @@ internal struct ActivityStorage: Codable {
     let requestID: UUID
     let data: Data
     let created: Date
+    let userSignature: String?
 
     // could have a more advanced policy for things like only attempting after x seconds
     var lastAttempt: Date?
@@ -31,5 +32,6 @@ internal struct ActivityStorage: Codable {
         self.requestID = activity.requestID
         self.data = data
         self.created = Date()
+        self.userSignature = activity.userSignature
     }
 }

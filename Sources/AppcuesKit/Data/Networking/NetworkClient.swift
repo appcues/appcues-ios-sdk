@@ -9,8 +9,14 @@
 import Foundation
 
 internal protocol Networking: AnyObject {
-    func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void)
-    func post<T: Decodable>(to endpoint: Endpoint, body: Data, requestId: UUID?, completion: @escaping (_ result: Result<T, Error>) -> Void)
+    func get<T: Decodable>(from endpoint: Endpoint,
+                           authorization: Authorization?,
+                           completion: @escaping (_ result: Result<T, Error>) -> Void)
+    func post<T: Decodable>(to endpoint: Endpoint,
+                            authorization: Authorization?,
+                            body: Data,
+                            requestId: UUID?,
+                            completion: @escaping (_ result: Result<T, Error>) -> Void)
 }
 
 internal class NetworkClient: Networking {
@@ -22,7 +28,9 @@ internal class NetworkClient: Networking {
         self.storage = container.resolve(DataStoring.self)
     }
 
-    func get<T: Decodable>(from endpoint: Endpoint, completion: @escaping (_ result: Result<T, Error>) -> Void) {
+    func get<T: Decodable>(from endpoint: Endpoint,
+                           authorization: Authorization?,
+                           completion: @escaping (_ result: Result<T, Error>) -> Void) {
         guard let requestURL = endpoint.url(config: config, storage: storage) else {
             completion(.failure(NetworkingError.invalidURL))
             return
@@ -30,11 +38,13 @@ internal class NetworkClient: Networking {
 
         var request = URLRequest(url: requestURL)
         request.httpMethod = "GET"
+        request.authorize(authorization)
 
         handleRequest(request, requestId: nil, completion: completion)
     }
 
     func post<T: Decodable>(to endpoint: Endpoint,
+                            authorization: Authorization?,
                             body: Data,
                             requestId: UUID?,
                             completion: @escaping (_ result: Result<T, Error>) -> Void) {
@@ -46,6 +56,7 @@ internal class NetworkClient: Networking {
         var request = URLRequest(url: requestURL)
         request.httpMethod = "POST"
         request.httpBody = body
+        request.authorize(authorization)
 
         handleRequest(request, requestId: requestId, completion: completion)
     }
