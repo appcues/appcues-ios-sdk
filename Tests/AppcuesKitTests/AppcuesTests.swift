@@ -65,6 +65,34 @@ class AppcuesTests: XCTestCase {
         XCTAssertEqual(0, trackedUpdates)
     }
 
+    func testIdentifyWithUserSignature() throws {
+        // Act
+        appcues.identify(userID: "test-user", properties: ["appcues:user_id_signature": "user-signature"])
+
+        // Assert
+        XCTAssertEqual("user-signature", appcues.storage.userSignature)
+    }
+
+    func testIdentifyWithoutUserSignature() throws {
+        // Act
+        appcues.identify(userID: "test-user", properties: ["foo": 100])
+
+        // Assert
+        XCTAssertNil(appcues.storage.userSignature)
+    }
+
+    func testReset() throws {
+        // Act
+        appcues.identify(userID: "test-user", properties: ["foo": 100])
+        appcues.group(groupID: "test-group")
+        appcues.reset()
+
+        // Assert
+        XCTAssertEqual("", appcues.storage.userID)
+        XCTAssertNil(appcues.storage.groupID)
+        XCTAssertNil(appcues.storage.userSignature)
+    }
+
     func testSetGroup() throws {
         // Arrange
         var mostRecentUpdate: TrackingUpdate?
