@@ -15,15 +15,33 @@ extension DecodingError {
         case let DecodingError.dataCorrupted(context):
             message = "\(context)"
         case let DecodingError.keyNotFound(key, context):
-            message = "key '\(key)' not found: \(context.debugDescription) codingPath: \(context.codingPath)"
-        case let DecodingError.valueNotFound(value, context):
-            message = "value '\(value)' not found: \(context.debugDescription) codingPath: \(context.codingPath)"
-        case let DecodingError.typeMismatch(type, context):
-            message = "type '\(type)' mismatch: \(context.debugDescription) codingPath: \(context.codingPath)"
+            message = "Expected key '\(key.pretty)' not found at codingPath: \(context.codingPath.pretty)"
+        case let DecodingError.valueNotFound(_, context):
+            message = "\(context.debugDescription) codingPath: \(context.codingPath.pretty)"
+        case let DecodingError.typeMismatch(_, context):
+            message = "\(context.debugDescription) codingPath: \(context.codingPath.pretty)"
         @unknown default:
             message = "error: \(self)"
         }
 
         return "Error parsing Experience JSON data: \(message)"
+    }
+}
+
+extension CodingKey {
+    var pretty: String {
+        if let intValue = intValue {
+            return "\(intValue)"
+        }
+
+        return stringValue
+    }
+}
+
+extension Array where Element == CodingKey {
+    var pretty: String {
+        String(self
+            .map { $0.pretty }
+            .joined(separator: "."))
     }
 }
