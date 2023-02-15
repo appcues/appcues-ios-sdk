@@ -138,7 +138,9 @@ internal class DebugViewModel: ObservableObject {
             // Add a dismiss button to remove the row. Non-error rows are automatically removed when the experience completes.
             action = Action(symbolName: "xmark") { [weak self] in
                 guard let self = self else { return }
-                self.experienceStatuses = self.experienceStatuses.filter { $0.id != properties.experienceID }
+                DispatchQueue.main.async {
+                    self.experienceStatuses = self.experienceStatuses.filter { $0.id != properties.experienceID }
+                }
             }
         case .stepSeen:
             status = .verified
