@@ -66,6 +66,24 @@ class ActivityProcessorTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testActivitySignatureCaptured() throws {
+        // test that an Activity with a userSignature gets that signature properly sent to the network call
+
+        // Arrange
+        let onPostExpectation = expectation(description: "Activity request")
+        let activity = generateMockActivity(userID: "user1", event: Event(name: "eventName"), userSignature: "user-signature")
+        appcues.networking.onPost = { endpoint, authorization, body, requestId, completion in
+            guard case .bearer("user-signature") = authorization else { return XCTFail() }
+            onPostExpectation.fulfill()
+        }
+
+        // Act
+        processor.process(activity) { _ in }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
     func testFailedActivityRetryNextFlush() throws {
         // test for standard retry behavior - if an item fails to process, it is retried on the next
         // attempt to flush a new activity - the old item is retried first to maintain chronological order
@@ -344,8 +362,8 @@ class ActivityProcessorTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    private func generateMockActivity(userID: String, event: Event) -> Activity {
-        return Activity(accountID: "00000", userID: userID, events: [event], profileUpdate: nil, groupID: nil, groupUpdate: nil)
+    private func generateMockActivity(userID: String, event: Event, userSignature: String? = nil) -> Activity {
+        return Activity(accountID: "00000", userID: userID, events: [event], profileUpdate: nil, groupID: nil, groupUpdate: nil, userSignature: userSignature)
     }
 
     private let mockExperience = Experience(id: UUID(), name: "test_experience", type: "mobile", publishedAt: 1632142800000, traits: [], steps: [], redirectURL: nil, nextContentID: nil)

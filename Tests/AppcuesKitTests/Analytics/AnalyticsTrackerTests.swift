@@ -45,6 +45,69 @@ class AnalyticsTrackerTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testIdentifyWithSignature() throws {
+        // Arrange
+        let onRequestExpectation = expectation(description: "Valid request")
+
+        // In the case of a profile update, verify the update is sent to the activity processor as
+        // an Activity with the expected properties, synchronous (sync=true)
+        appcues.activityProcessor.onProcess = { activity, completion in
+            XCTAssertEqual("user-signature", activity.userSignature)
+            onRequestExpectation.fulfill()
+        }
+        appcues.storage.userSignature = "user-signature"
+        let update = TrackingUpdate(type: .profile(interactive: true), isInternal: false)
+
+        // Act
+        tracker.track(update: update)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testGroupTracking() throws {
+        // Arrange
+        let onRequestExpectation = expectation(description: "Valid request")
+
+        // In the case of a group update, verify the update is sent to the activity processor as
+        // an Activity with the expected properties, synchronous (sync=true)
+        appcues.activityProcessor.onProcess = { activity, completion in
+            ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(activity.groupUpdate)
+            XCTAssertEqual("test-group", activity.groupID)
+            onRequestExpectation.fulfill()
+        }
+
+        let update = TrackingUpdate(type: .group("test-group"), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
+
+        // Act
+        appcues.storage.groupID = "test-group" // mimick what is done in Appcues group() call
+        tracker.track(update: update)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testGroupWithSignature() throws {
+        // Arrange
+        let onRequestExpectation = expectation(description: "Valid request")
+
+        // In the case of a group update, verify the update is sent to the activity processor as
+        // an Activity with the expected properties, synchronous (sync=true)
+        appcues.activityProcessor.onProcess = { activity, completion in
+            XCTAssertEqual("user-signature", activity.userSignature)
+            onRequestExpectation.fulfill()
+        }
+
+        appcues.storage.userSignature = "user-signature"
+        let update = TrackingUpdate(type: .group("test-group"), isInternal: false)
+
+        // Act
+        tracker.track(update: update)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
     func testTrackEventRequestBody() throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
@@ -66,6 +129,27 @@ class AnalyticsTrackerTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testTrackEventWithSignature() throws {
+        // Arrange
+        let onRequestExpectation = expectation(description: "Valid request")
+
+        // In the case of a tracked event, verify the update is sent to the activity processor as
+        // an Activity with the expected event structure, synchronous (sync=true)
+        appcues.activityProcessor.onProcess = { activity, completion in
+            XCTAssertEqual("user-signature", activity.userSignature)
+            onRequestExpectation.fulfill()
+        }
+
+        appcues.storage.userSignature = "user-signature"
+        let update = TrackingUpdate(type: .event(name: "eventName", interactive: true), isInternal: false)
+
+        // Act
+        tracker.track(update: update)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
     func testTrackScreenRequestBody() throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
@@ -79,6 +163,27 @@ class AnalyticsTrackerTests: XCTestCase {
         }
 
         let update = TrackingUpdate(type: .screen("My test page"), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
+
+        // Act
+        tracker.track(update: update)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testTrackScreenWithSignature() throws {
+        // Arrange
+        let onRequestExpectation = expectation(description: "Valid request")
+
+        // In the case of a tracked screen, verify the update is sent to the activity processor as
+        // an Activity with the expected screen event structure, synchronous (sync=true)
+        appcues.activityProcessor.onProcess = { activity, completion in
+            XCTAssertEqual("user-signature", activity.userSignature)
+            onRequestExpectation.fulfill()
+        }
+
+        appcues.storage.userSignature = "user-signature"
+        let update = TrackingUpdate(type: .screen("My test page"), isInternal: false)
 
         // Act
         tracker.track(update: update)
