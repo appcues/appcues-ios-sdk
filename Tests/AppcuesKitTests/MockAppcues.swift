@@ -284,7 +284,34 @@ class MockNetworking: Networking {
         }
     }
 
+    var onPostEmptyResponse: ((Endpoint, Authorization?, Data?, ((Result<Void, Error>) -> Void)) -> Void)?
+    func post(to endpoint: Endpoint,
+              authorization: Authorization?,
+              body: Data?,
+              completion: @escaping (Result<Void, Error>) -> Void) {
 
+        guard let onPostEmptyResponse = onPostEmptyResponse else {
+            completion(.failure(MockError.noMock))
+            return
+        }
+
+        onPostEmptyResponse(endpoint, authorization, body, completion)
+    }
+
+    var onPutEmptyResponse: ((Endpoint, Authorization?, Data, String, ((Result<Void, Error>) -> Void)) -> Void)?
+    func put(to endpoint: Endpoint,
+             authorization: Authorization?,
+             body: Data,
+             contentType: String,
+             completion: @escaping (Result<Void, Error>) -> Void) {
+
+        guard let onPutEmptyResponse = onPutEmptyResponse else {
+            completion(.failure(MockError.noMock))
+            return
+        }
+
+        onPutEmptyResponse(endpoint, authorization, body, contentType, completion)
+    }
 }
 
 class MockAnalyticsTracker: AnalyticsTracking {
