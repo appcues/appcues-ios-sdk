@@ -11,7 +11,7 @@ import UIKit
 @available(iOS 13.0, *)
 internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
     struct Config: Decodable {
-        let shape: String
+        let shape: String?
         let cornerRadius: Double?
         let blurRadius: Double?
         let spreadRadius: Double?
@@ -25,14 +25,11 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
     private let spreadRadius: CGFloat?
 
     required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
-        guard let config = configuration.decode(Config.self),
-              let keyholeShape = KeyholeShape(config.shape, cornerRadius: config.cornerRadius, blurRadius: config.blurRadius) else {
-            return nil
-        }
+        let config = configuration.decode(Config.self)
 
-        self.shape = keyholeShape
+        self.shape = KeyholeShape(config?.shape, cornerRadius: config?.cornerRadius, blurRadius: config?.blurRadius)
 
-        if let spreadRadius = config.spreadRadius {
+        if let spreadRadius = config?.spreadRadius {
             self.spreadRadius = spreadRadius
         } else {
             self.spreadRadius = nil
@@ -208,15 +205,13 @@ extension AppcuesBackdropKeyholeTrait {
         case rectangle(cornerRadius: CGFloat)
         case circle(blurRadius: CGFloat)
 
-        init?(_ shape: String?, cornerRadius: Double? = nil, blurRadius: Double? = nil) {
+        init(_ shape: String?, cornerRadius: Double? = nil, blurRadius: Double? = nil) {
             switch shape {
-            case "rectangle":
-                // fallback to a tiny value instead of 0 so the path can animate nicely to other values
-                self = .rectangle(cornerRadius: cornerRadius ?? .leastNonzeroMagnitude)
             case "circle":
                 self = .circle(blurRadius: blurRadius ?? 0)
             default:
-                return nil
+                // fallback to a tiny value instead of 0 so the path can animate nicely to other values
+                self = .rectangle(cornerRadius: cornerRadius ?? .leastNonzeroMagnitude)
             }
         }
 
