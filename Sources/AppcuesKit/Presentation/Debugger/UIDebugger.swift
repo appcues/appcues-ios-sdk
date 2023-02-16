@@ -46,6 +46,7 @@ internal class UIDebugger: UIDebugging {
     private let storage: DataStoring
     private let notificationCenter: NotificationCenter
     private let analyticsPublisher: AnalyticsPublishing
+    private let networking: Networking
 
     private var debugViewController: DebugViewController? {
         return debugWindow?.rootViewController as? DebugViewController
@@ -56,6 +57,7 @@ internal class UIDebugger: UIDebugging {
         self.storage = container.resolve(DataStoring.self)
         self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
         self.notificationCenter = container.resolve(NotificationCenter.self)
+        self.networking = container.resolve(Networking.self)
 
         self.viewModel = DebugViewModel(
             networking: container.resolve(Networking.self),
@@ -166,21 +168,24 @@ extension UIDebugger: DebugViewDelegate {
             screenshot: screenshot)
 
         // show confirmation dialog
-        debugViewController.confirmCapture(screen: capture) { result in
-            // if they canceled out of confirmation, we don't need to show any error,
-            // however, later when we have the network calls for uploading image and screen, we'll
-            // need error handling inside here
+        debugViewController.confirmCapture(screen: capture) { [weak self] result in
+            guard let self else { return }
+
             if case let .success(name) = result {
                 // get updated name
                 capture.displayName = name
 
-                // next steps are to upload image, get image URL, and then upload screen capture to API for real
+                // save the screen into the account/app
+                self.saveScreenCapture(networking: self.networking, screen: capture, authorization: authorization) { result in
+                    if case .success = result {
+                        DispatchQueue.main.async {
+                            // show toast
+                            debugViewController.showCaptureSuccess(screen: capture)
+                        }
+                    }
 
-                // test output for now
-                capture.prettyPrint()
-
-                // show toast
-                debugViewController.showCaptureSuccess(screen: capture)
+                    // need error handling here on save failures
+                }
             }
         }
     }
