@@ -42,6 +42,59 @@ internal enum APIEndpoint: Endpoint {
     }
 }
 
+/// Mobile SDK configuration endpoints, providing links to other services.
+internal enum SettingsEndpoint: Endpoint {
+    case settings
+
+    func url(config: Appcues.Config, storage: DataStoring) -> URL? {
+        guard var components = URLComponents(url: NetworkClient.sdkSettingsHost, resolvingAgainstBaseURL: false) else { return nil }
+
+        switch self {
+        case .settings:
+            components.path = "/bundle/accounts/\(config.accountID)/mobile/settings"
+        }
+
+        return components.url
+    }
+}
+
+/// Appcues Customer API endpoints.
+internal enum CustomerAPIEndpoint: Endpoint {
+    case preSignedImageUpload(host: URL, filename: String)
+    case screenCapture(host: URL)
+
+    var host: URL {
+        switch self {
+        case let .preSignedImageUpload(host, _):
+            return host
+        case let .screenCapture(host):
+            return host
+        }
+    }
+
+    func url(config: Appcues.Config, storage: DataStoring) -> URL? {
+        guard var components = URLComponents(url: host, resolvingAgainstBaseURL: false) else { return nil }
+
+        switch self {
+        case let .preSignedImageUpload(_, filename):
+            components.path = "/v1/accounts/\(config.accountID)/mobile/\(config.applicationID)/pre-upload-screenshot"
+            components.query = "?name=\(filename)"
+        case .screenCapture:
+            components.path = "/v1/accounts/\(config.accountID)/mobile/\(config.applicationID)/screens"
+        }
+
+        return components.url
+    }
+}
+
+internal struct URLEndpoint: Endpoint {
+    let url: URL?
+
+    func url(config: Appcues.Config, storage: DataStoring) -> URL? {
+        return url
+    }
+}
+
 internal protocol Endpoint {
     func url(config: Appcues.Config, storage: DataStoring) -> URL?
 }
