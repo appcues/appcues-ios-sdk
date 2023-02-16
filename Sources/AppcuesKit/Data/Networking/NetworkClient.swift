@@ -15,7 +15,7 @@ internal protocol Networking: AnyObject {
 
     func post<T: Decodable>(to endpoint: Endpoint,
                             authorization: Authorization?,
-                            body: Data,
+                            body: Data?,
                             requestId: UUID?,
                             completion: @escaping (_ result: Result<T, Error>) -> Void)
 
@@ -59,7 +59,7 @@ internal class NetworkClient: Networking {
 
     func post<T: Decodable>(to endpoint: Endpoint,
                             authorization: Authorization?,
-                            body: Data,
+                            body: Data?,
                             requestId: UUID?,
                             completion: @escaping (_ result: Result<T, Error>) -> Void) {
         guard let requestURL = endpoint.url(config: config, storage: storage) else {
