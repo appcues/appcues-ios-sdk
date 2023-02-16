@@ -21,7 +21,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
         case show(experienceID: String)    // published content
         case debugger(destination: DebugDestination?)
         case verifyInstall(id: String)
-        case captureScreen
+        case captureScreen(token: String)
 
         init?(url: URL, isSessionActive: Bool, applicationID: String) {
             let isValidScheme = url.scheme == "appcues-\(applicationID)" || url.scheme == "appcues-democues"
@@ -46,8 +46,8 @@ internal class DeepLinkHandler: DeepLinkHandling {
                 self = .debugger(destination: DebugDestination(pathToken: pathTokens[safe: 1]))
             } else if pathTokens.count == 2, pathTokens[0] == "verify" {
                 self = .verifyInstall(id: pathTokens[1])
-            } else if pathTokens.count == 1, pathTokens[0] == "capture_screen" {
-                self = .captureScreen
+            } else if pathTokens.count == 1, pathTokens[0] == "capture_screen", let token = url.queryValue(for: "token") {
+                self = .captureScreen(token: token)
             } else {
                 return nil
             }
@@ -117,8 +117,8 @@ internal class DeepLinkHandler: DeepLinkHandling {
             container?.resolve(UIDebugging.self).show(mode: .debugger(destination))
         case .verifyInstall(let token):
             container?.resolve(UIDebugging.self).verifyInstall(token: token)
-        case .captureScreen:
-            container?.resolve(UIDebugging.self).show(mode: .screenCapture)
+        case .captureScreen(let token):
+            container?.resolve(UIDebugging.self).show(mode: .screenCapture(.bearer(token)))
         }
     }
 
@@ -151,5 +151,14 @@ public extension Appcues {
     @objc
     func filterAndHandle(_ URLContexts: Set<UIOpenURLContext>) -> Set<UIOpenURLContext> {
         URLContexts.filter { !didHandleURL($0.url) }
+    }
+}
+
+private extension URL {
+    func queryValue(for name: String) -> String? {
+        URLComponents(url: self, resolvingAgainstBaseURL: false)?
+            .queryItems?
+            .first { $0.name.lowercased() == name }?
+            .value
     }
 }
