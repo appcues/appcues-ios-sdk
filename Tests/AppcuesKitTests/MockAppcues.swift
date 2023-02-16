@@ -237,9 +237,11 @@ class MockNetworking: Networking {
         case invalidSuccessType
     }
 
-    var onGet: ((Endpoint) -> Result<Any, Error>)?
-    func get<T>(from endpoint: Endpoint, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
-        guard let result = onGet?(endpoint) else {
+    var onGet: ((Endpoint, Authorization?) -> Result<Any, Error>)?
+    func get<T>(from endpoint: Endpoint,
+                authorization: Authorization?,
+                completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
+        guard let result = onGet?(endpoint, authorization) else {
             completion(.failure(MockError.noMock))
             return
         }
@@ -256,13 +258,17 @@ class MockNetworking: Networking {
         }
     }
 
-    var onPost: ((Endpoint, Data, UUID?, ((Result<Any, Error>) -> Void)) -> Void)?
-    func post<T>(to endpoint: Endpoint, body: Data, requestId: UUID?, completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
+    var onPost: ((Endpoint, Authorization?, Data, UUID?, ((Result<Any, Error>) -> Void)) -> Void)?
+    func post<T>(to endpoint: Endpoint,
+                 authorization: Authorization?,
+                 body: Data,
+                 requestId: UUID?,
+                 completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
         guard let onPost = onPost else {
             completion(.failure(MockError.noMock))
             return
         }
-        onPost(endpoint, body, requestId) { result in
+        onPost(endpoint, authorization, body, requestId) { result in
             switch result {
             case .success(let value):
                 if let converted = value as? T {
@@ -277,7 +283,34 @@ class MockNetworking: Networking {
         }
     }
 
+    var onPostEmptyResponse: ((Endpoint, Authorization?, Data?, ((Result<Void, Error>) -> Void)) -> Void)?
+    func post(to endpoint: Endpoint,
+              authorization: Authorization?,
+              body: Data?,
+              completion: @escaping (Result<Void, Error>) -> Void) {
 
+        guard let onPostEmptyResponse = onPostEmptyResponse else {
+            completion(.failure(MockError.noMock))
+            return
+        }
+
+        onPostEmptyResponse(endpoint, authorization, body, completion)
+    }
+
+    var onPutEmptyResponse: ((Endpoint, Authorization?, Data, String, ((Result<Void, Error>) -> Void)) -> Void)?
+    func put(to endpoint: Endpoint,
+             authorization: Authorization?,
+             body: Data,
+             contentType: String,
+             completion: @escaping (Result<Void, Error>) -> Void) {
+
+        guard let onPutEmptyResponse = onPutEmptyResponse else {
+            completion(.failure(MockError.noMock))
+            return
+        }
+
+        onPutEmptyResponse(endpoint, authorization, body, contentType, completion)
+    }
 }
 
 class MockAnalyticsTracker: AnalyticsTracking {

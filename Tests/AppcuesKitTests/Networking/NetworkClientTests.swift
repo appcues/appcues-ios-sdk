@@ -54,7 +54,7 @@ class NetworkClientTests: XCTestCase {
         }
 
         // Act
-        networkClient.get(from: APIEndpoint.health) { (result: Result<Bool, Error>) in
+        networkClient.get(from: APIEndpoint.health, authorization: nil) { (result: Result<Bool, Error>) in
             if case .success = result {
                 expectation.fulfill()
             }
@@ -80,7 +80,7 @@ class NetworkClientTests: XCTestCase {
 
         // Act
         let data = try NetworkClient.encoder.encode(model)
-        networkClient.post(to: APIEndpoint.activity(userID: "test"), body: data, requestId: nil) { (result: Result<Bool, Error>) in
+        networkClient.post(to: APIEndpoint.activity(userID: "test"), authorization: nil, body: data, requestId: nil) { (result: Result<Bool, Error>) in
             if case .success = result {
                 expectation.fulfill()
             }
