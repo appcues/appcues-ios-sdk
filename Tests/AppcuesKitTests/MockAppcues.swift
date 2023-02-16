@@ -259,10 +259,10 @@ class MockNetworking: Networking {
         }
     }
 
-    var onPost: ((Endpoint, Authorization?, Data, UUID?, ((Result<Any, Error>) -> Void)) -> Void)?
+    var onPost: ((Endpoint, Authorization?, Data?, UUID?, ((Result<Any, Error>) -> Void)) -> Void)?
     func post<T>(to endpoint: Endpoint,
                  authorization: Authorization?,
-                 body: Data,
+                 body: Data?,
                  requestId: UUID?,
                  completion: @escaping (Result<T, Error>) -> Void) where T : Decodable {
         guard let onPost = onPost else {
