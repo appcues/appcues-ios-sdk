@@ -40,14 +40,13 @@ internal struct Capture: Identifiable {
     let id = UUID().appcuesFormatted
     let appId: String
     var displayName: String
-    let screenshotImageUrl: URL?
+    var screenshotImageUrl: URL?
     let layout: View
     let metadata = Metadata()
     let timestamp: Date
 
-    // the plan is for this to be sent to a separate endpoint to upload the image, then
-    // get back a URL to that image to use for `screenshotImageUrl` in the capture model
-    // sent to Appcues
+    // The image data here is sent to a separate endpoint to upload the image, then
+    // a URL to that image is returned to use for `screenshotImageUrl` in this capture model
     let screenshot: UIImage
 }
 
@@ -61,17 +60,5 @@ extension Capture: Encodable {
         case layout
         case metadata
         case timestamp
-    }
-}
-
-extension Capture {
-    // TODO: just for testing prior to API readiness!
-    func prettyPrint() {
-        guard
-            let data = try? NetworkClient.encoder.encode(self),
-            let object = try? JSONSerialization.jsonObject(with: data, options: []),
-            let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
-            let prettyPrintedString = String(data: data, encoding: .utf8) else { return }
-        print(prettyPrintedString)
     }
 }
