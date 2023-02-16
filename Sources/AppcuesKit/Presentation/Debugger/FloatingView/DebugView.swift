@@ -495,6 +495,6 @@ extension DebugView {
         case open
         case close
         case reposition
-        case screenCapture
+        case screenCapture(Authorization)
     }
 }
