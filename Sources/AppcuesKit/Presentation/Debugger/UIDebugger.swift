@@ -32,7 +32,7 @@ internal enum DebugDestination {
 // controls different flavors of the debugger that can be launched
 internal enum DebugMode {
     case debugger(DebugDestination?)      // diagnostics and analytics tools
-    case screenCapture                    // capture screen image and layout for element targeting
+    case screenCapture(Authorization)     // capture screen image and layout for element targeting
 }
 
 @available(iOS 13.0, *)
@@ -138,14 +138,14 @@ extension UIDebugger: DebugViewDelegate {
             hide()
         case .open:
             viewModel.ping()
-        case .screenCapture:
-            captureScreen()
+        case let .screenCapture(authorization):
+            captureScreen(authorization: authorization)
         case .show, .close, .reposition:
             break
         }
     }
 
-    private func captureScreen() {
+    private func captureScreen(authorization: Authorization) {
         guard let debugViewController = debugViewController,
               let window = UIApplication.shared.windows.first(where: { !($0 is DebugUIWindow) }),
               let screenshot = window.screenshot(),

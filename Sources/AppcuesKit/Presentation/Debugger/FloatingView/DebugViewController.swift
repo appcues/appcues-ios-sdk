@@ -124,8 +124,8 @@ extension DebugViewController: FloatingViewDelegate {
             let isCurrentlyOpen = debugView.floatingView.center == debugView.floatingViewOpenCenter
             debugView.setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
             debugView.fleetingLogView.clear()
-        case .screenCapture:
-            delegate?.debugView(did: .screenCapture)
+        case .screenCapture(let authorization):
+            delegate?.debugView(did: .screenCapture(authorization))
         }
     }
 }
