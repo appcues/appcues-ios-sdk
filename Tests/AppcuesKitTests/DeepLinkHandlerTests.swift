@@ -127,7 +127,7 @@ class DeepLinkHandlerTests: XCTestCase {
     func testHandleScreenCapture() throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
-        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/capture_screen"))
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/capture_screen?token=123"))
 
         var debuggerShown = false
         appcues.debugger.onShow = { mode in
