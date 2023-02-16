@@ -11,7 +11,7 @@ import UIKit
 @available(iOS 13.0, *)
 internal class AppcuesBackdropTrait: BackdropDecoratingTrait {
     struct Config: Decodable {
-        let backgroundColor: ExperienceComponent.Style.DynamicColor?
+        let backgroundColor: ExperienceComponent.Style.DynamicColor
     }
 
     static var type: String = "@appcues/backdrop"
