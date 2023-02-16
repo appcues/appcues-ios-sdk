@@ -40,7 +40,8 @@ internal class ExperienceLoader: ExperienceLoading {
             APIEndpoint.preview(experienceID: experienceID)
 
         networking.get(
-            from: endpoint
+            from: endpoint,
+            authorization: nil
         ) { [weak self] (result: Result<Experience, Error>) in
             switch result {
             case .success(let experience):
