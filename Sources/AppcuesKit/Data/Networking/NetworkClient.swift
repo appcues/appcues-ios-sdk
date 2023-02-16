@@ -17,6 +17,15 @@ internal protocol Networking: AnyObject {
                             body: Data,
                             requestId: UUID?,
                             completion: @escaping (_ result: Result<T, Error>) -> Void)
+    func post(to endpoint: Endpoint,
+              authorization: Authorization?,
+              body: Data?,
+              completion: @escaping (_ result: Result<Void, Error>) -> Void)
+    func put(to endpoint: Endpoint,
+             authorization: Authorization?,
+             body: Data,
+             contentType: String,
+             completion: @escaping (_ result: Result<Void, Error>) -> Void)
 }
 
 internal class NetworkClient: Networking {
@@ -61,6 +70,44 @@ internal class NetworkClient: Networking {
         handleRequest(request, requestId: requestId, completion: completion)
     }
 
+    func post(to endpoint: Endpoint,
+              authorization: Authorization?,
+              body: Data?,
+              completion: @escaping (_ result: Result<Void, Error>) -> Void) {
+        guard let requestURL = endpoint.url(config: config, storage: storage) else {
+            completion(.failure(NetworkingError.invalidURL))
+            return
+        }
+
+        var request = URLRequest(url: requestURL)
+        request.httpMethod = "POST"
+        request.httpBody = body
+        request.authorize(authorization)
+
+        handleRequest(request, completion: completion)
+    }
+
+    func put(to endpoint: Endpoint,
+             authorization: Authorization?,
+             body: Data,
+             contentType: String,
+             completion: @escaping (Result<Void, Error>) -> Void) {
+
+        guard let requestURL = endpoint.url(config: config, storage: storage) else {
+            completion(.failure(NetworkingError.invalidURL))
+            return
+        }
+
+        var request = URLRequest(url: requestURL)
+        request.httpMethod = "PUT"
+        request.httpBody = body
+        request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+        request.authorize(authorization)
+
+        handleRequest(request, completion: completion)
+    }
+
+    // version that decodes the response into the given type T
     private func handleRequest<T: Decodable>(_ urlRequest: URLRequest,
                                              requestId: UUID?,
                                              completion: @escaping (_ result: Result<T, Error>) -> Void) {
@@ -102,6 +149,36 @@ internal class NetworkClient: Networking {
 
         dataTask.resume()
     }
+
+    // version that does not decode any response object, assumes empty or discards
+    private func handleRequest(_ urlRequest: URLRequest,
+                               completion: @escaping (_ result: Result<Void, Error>) -> Void) {
+        let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] _, response, error in
+            if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
+                self?.config.logger.debug("RESPONSE: %{public}d %{public}s", statusCode, url)
+            }
+
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+
+            if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
+                completion(.failure(NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode)))
+                return
+            }
+
+            completion(.success(()))
+        }
+
+        if let method = urlRequest.httpMethod, let url = urlRequest.url?.absoluteString {
+            let data = String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? ""
+            config.logger.debug("REQUEST: %{public}s %{public}s\n%{private}s", method, url, data)
+        }
+
+        dataTask.resume()
+    }
+
 }
 
 extension NetworkClient {
