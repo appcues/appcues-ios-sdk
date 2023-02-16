@@ -27,10 +27,10 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
     let pointerSize: CGSize
 
     required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
-        guard let config = configuration.decode(Config.self) else { return nil }
-        self.hidePointer = config.hidePointer ?? false
-        self.pointerSize = CGSize(width: config.pointerBase ?? 16, height: config.pointerLength ?? 8)
-        self.tooltipStyle = config.style
+        let config = configuration.decode(Config.self)
+        self.hidePointer = config?.hidePointer ?? false
+        self.pointerSize = CGSize(width: config?.pointerBase ?? 16, height: config?.pointerLength ?? 8)
+        self.tooltipStyle = config?.style
     }
 
     func decorate(stepController: UIViewController) throws {
