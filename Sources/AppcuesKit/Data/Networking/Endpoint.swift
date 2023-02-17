@@ -87,6 +87,7 @@ internal enum CustomerAPIEndpoint: Endpoint {
     }
 }
 
+/// Endpoint where the full URL is provided, such as the pre-signed image upload endpoint
 internal struct URLEndpoint: Endpoint {
     let url: URL?
 
