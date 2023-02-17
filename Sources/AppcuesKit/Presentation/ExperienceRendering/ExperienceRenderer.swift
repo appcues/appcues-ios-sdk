@@ -150,11 +150,6 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-        // Force `markComplete` to be true if dismissing from the last step in the experience.
-        let currentStepIndex = getCurrentStepIndex()
-        let forceMarkComplete = currentStepIndex != nil && currentStepIndex == getCurrentExperienceData()?.stepIndices.last
-        let markComplete = markComplete || forceMarkComplete
-
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
                 self.dismissCurrentExperience(markComplete: markComplete, completion: completion)
