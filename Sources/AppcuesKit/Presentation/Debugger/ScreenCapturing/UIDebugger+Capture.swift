@@ -11,7 +11,6 @@ import Foundation
 internal enum ScreenCaptureError: Error {
     case customerAPINotFound
     case noImageData
-    case noSelf
     case noImageURL
     case failedCaptureEncoding
 }
@@ -25,134 +24,104 @@ extension UIDebugger {
                            completion: @escaping (Result<Void, Error>) -> Void) {
 
         // this is a 4-step chain of nested async completion blocks
-        // each step will execute and call on to the next, if successful, or bubble up error if not
 
-        // start the chain by looking up the customer API path
-        getCustomerAPIHost(networking: networking, screen: screen, authorization: authorization, completion: completion)
-    }
-
-    // 1. service discovery -> customer API
-    private func getCustomerAPIHost(networking: Networking,
-                                    screen: Capture,
-                                    authorization: Authorization,
-                                    completion: @escaping (Result<Void, Error>) -> Void) {
-        networking.get(from: SettingsEndpoint.settings,
-                       authorization: nil) { [weak self] (result: Result<SdkSettings, Error>) -> Void in
+        // Step 1 - lookup customer API endpoint in from settings endpoint
+        networking.get(from: SettingsEndpoint.settings, authorization: nil) { (result: Result<SdkSettings, Error>) -> Void in
 
             switch result {
-            case let .success(response):
-                guard let self else {
-                    completion(.failure(ScreenCaptureError.noSelf))
-                    return
-                }
 
+            // step 1 failure - bubble up error
+            case let .failure(error): completion(.failure(error))
+
+            // step 1 success
+            case let .success(response):
                 guard let customerAPIHost = URL(string: response.services.customerApi) else {
                     completion(.failure(ScreenCaptureError.customerAPINotFound))
                     return
                 }
 
-                // then call step 2
-                self.getImageUploadURL(networking: networking,
-                                       customerAPIHost: customerAPIHost,
-                                       screen: screen,
-                                       authorization: authorization,
-                                       completion: completion)
+                // Step 2 - call pre-upload endpoint and get pre-signed image upload URL
+                networking.post(to: CustomerAPIEndpoint.preSignedImageUpload(host: customerAPIHost, filename: "\(screen.id).png"),
+                                authorization: authorization,
+                                body: nil,
+                                requestId: nil) { (result: Result<ScreenshotUpload, Error>) -> Void in
 
-            case let .failure(error):
-                // bubble up error
-                completion(.failure(error))
+                    switch result {
+
+                    // step 2 failure - bubble up error
+                    case let .failure(error): completion(.failure(error))
+
+                    // step 2 success
+                    case let .success(response):
+
+                        // Step 3 - upload the image using the pre-signed image upload URL
+                        self.uploadImage(networking: networking, screen: screen, upload: response) { result in
+                            switch result {
+
+                            // step 3 failure - bubble up error
+                            case let .failure(error): completion(.failure(error))
+
+                            // step 3 success
+                            case let .success(screen): // screen value here is now updated with screenshotImageUrl
+
+                                // Step 4 - save the screen into the customer Appcues account
+                                self.saveScreen(networking: networking,
+                                                customerAPIHost: customerAPIHost,
+                                                screen: screen,
+                                                authorization: authorization,
+                                                completion: completion) // final completion here will go back to caller of saveScreenCapture
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 
-    // 2. pre-upload -> presignedUrl
-    private func getImageUploadURL(networking: Networking,
-                                   customerAPIHost: URL,
-                                   screen: Capture,
-                                   authorization: Authorization,
-                                   completion: @escaping (Result<Void, Error>) -> Void) {
-        networking.post(to: CustomerAPIEndpoint.preSignedImageUpload(host: customerAPIHost, filename: "\(screen.id).png"),
-                        authorization: authorization,
-                        body: nil,
-                        requestId: nil) { [weak self] (result: Result<ScreenshotUpload, Error>) -> Void in
-
-            guard let self else {
-                completion(.failure(ScreenCaptureError.noSelf))
-                return
-            }
-
-            switch result {
-            case let .success(response):
-                // then call step 3
-                self.uploadImage(networking: networking,
-                                 customerAPIHost: customerAPIHost,
-                                 screen: screen,
-                                 authorization: authorization,
-                                 upload: response,
-                                 completion: completion)
-
-            case let .failure(error):
-                // bubble up error
-                completion(.failure(error))
-            }
-
-        }
-    }
-
-    // 3. upload image
     private func uploadImage(networking: Networking,
-                             customerAPIHost: URL,
                              screen: Capture,
-                             authorization: Authorization,
                              upload: ScreenshotUpload,
-                             completion: @escaping (Result<Void, Error>) -> Void) {
-
+                             completion: @escaping (Result<Capture, Error>) -> Void) {
         guard let imageData = screen.screenshot.pngData() else {
             completion(.failure(ScreenCaptureError.noImageData))
             return
         }
 
-        networking.put(to: URLEndpoint(url: URL(string: upload.upload.presignedUrl)),
-                       authorization: nil, // pre-signed url, no auth needed on upload
-                       body: imageData,
-                       contentType: "image/png") { [weak self] result in
-
-            guard let self else {
-                completion(.failure(ScreenCaptureError.noSelf))
-                return
-            }
-
-            switch result {
-            case .success:
-                // then call step 4
-                self.saveScreen(networking: networking,
-                                customerAPIHost: customerAPIHost,
-                                screen: screen,
-                                authorization: authorization,
-                                upload: upload,
-                                completion: completion)
-
-            case let .failure(error):
-                // bubble up error
-                completion(.failure(error))
-            }
-        }
-    }
-
-    // 4. save screen - final step
-    private func saveScreen(networking: Networking,
-                            customerAPIHost: URL,
-                            screen: Capture,
-                            authorization: Authorization,
-                            upload: ScreenshotUpload,
-                            completion: @escaping (Result<Void, Error>) -> Void) {
+        // make sure we have a valid URL to reference this screen
+        // otherwise dont bother with upload
         guard let screenshotImageUrl = URL(string: upload.url) else {
             completion(.failure(ScreenCaptureError.noImageURL))
             return
         }
 
+        // update the screenshotImageUrl on the screen we are capturing
+        // this will be returned in completion handler if the upload succeeds
         var screen = screen
         screen.screenshotImageUrl = screenshotImageUrl
+
+        networking.put(to: URLEndpoint(url: URL(string: upload.upload.presignedUrl)),
+                       authorization: nil, // pre-signed url, no auth needed on upload
+                       body: imageData,
+                       contentType: "image/png") { result in
+
+            switch result {
+            case .success:
+                // return the transformed screen - with new screenshotImageUrl
+                completion(.success(screen))
+
+            case let .failure(error):
+                // bubble up error
+                completion(.failure(error))
+            }
+
+        }
+    }
+
+    private func saveScreen(networking: Networking,
+                            customerAPIHost: URL,
+                            screen: Capture,
+                            authorization: Authorization,
+                            completion: @escaping (Result<Void, Error>) -> Void) {
 
         guard let data = try? NetworkClient.encoder.encode(screen) else {
             completion(.failure(ScreenCaptureError.failedCaptureEncoding))
