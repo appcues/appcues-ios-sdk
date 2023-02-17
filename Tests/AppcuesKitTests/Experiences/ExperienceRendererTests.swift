@@ -14,10 +14,15 @@ class ExperienceRendererTests: XCTestCase {
 
     var appcues: MockAppcues!
     var experienceRenderer: ExperienceRenderer!
+    private var updates: [TrackingUpdate] = []
 
     override func setUpWithError() throws {
         appcues = MockAppcues()
         experienceRenderer = ExperienceRenderer(container: appcues.container)
+    }
+
+    override func tearDownWithError() throws {
+        updates = []
     }
 
     func testShowPublished() throws {
@@ -249,6 +254,31 @@ class ExperienceRendererTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
+    }
+
+    func testDismissExperienceLastStep() throws {
+        // Arrange
+        let completionExpectation = expectation(description: "Completion called")
+
+        let preconditionPresentExpectation = expectation(description: "Experience presented")
+        let dismissExpectation = expectation(description: "Experience dismissed")
+        let experience = ExperienceData.singleStepMock
+        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation, dismissExpectation: dismissExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+        experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true), completion: nil)
+        appcues.analyticsPublisher.onPublish = { update in self.updates.append(update) }
+        wait(for: [preconditionPresentExpectation], timeout: 1)
+
+        // Act
+        experienceRenderer.dismissCurrentExperience(markComplete: false) { _ in
+            completionExpectation.fulfill()
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        let lastUpdate = try XCTUnwrap(updates.last)
+        // confirm that dismiss on last step triggers experience_dismissed analytics, not experience_completed
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_dismissed", interactive: false))
     }
 
     func testShowSameExperienceFromTwoSources() throws {

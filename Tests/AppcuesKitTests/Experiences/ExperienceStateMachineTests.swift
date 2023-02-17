@@ -16,9 +16,14 @@ class ExperienceStateMachineTests: XCTestCase {
     typealias Action = ExperienceStateMachine.Action
 
     var appcues: MockAppcues!
+    private var updates: [TrackingUpdate] = []
 
     override func setUpWithError() throws {
         appcues = MockAppcues()
+    }
+
+    override func tearDownWithError() throws {
+        updates = []
     }
 
     func testInitialState() throws {
@@ -174,6 +179,34 @@ class ExperienceStateMachineTests: XCTestCase {
         // Assert
         waitForExpectations(timeout: 1)
         XCTAssertEqual(stateMachine.state, .idling)
+    }
+
+    func test_stateIsRenderingStep_onViewControllerDismissed_doesNotMarkComplete() throws {
+        // the @appcues/skippable trait would do this
+
+        // Arrange
+        let dismissExpectation = expectation(description: "Experience dismissed")
+        let experience = ExperienceData.singleStepMock
+        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
+        let stateMachine = givenState(is: initialState)
+        package.containerController.lifecycleHandler = stateMachine
+        appcues.analyticsPublisher.onPublish = { update in self.updates.append(update) }
+
+        let observer = ExperienceStateMachine.AnalyticsObserver(container: appcues.container)
+        stateMachine.addObserver(observer)
+
+        // Act
+        (package.containerController as! Mocks.ContainerViewController).mockIsBeingDismissed = true
+        package.containerController.viewWillDisappear(false)
+        package.containerController.viewDidDisappear(false)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        let lastUpdate = try XCTUnwrap(updates.last)
+        // confirm that dismiss on last step triggers experience_dismissed analytics, not experience_completed
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_dismissed", interactive: false))
     }
 
     func test_whenEndExperience_andMarkComplete_executesActions() throws {
