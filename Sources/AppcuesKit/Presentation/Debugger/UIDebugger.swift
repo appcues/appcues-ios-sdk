@@ -169,7 +169,7 @@ extension UIDebugger: DebugViewDelegate {
 
         // show confirmation dialog
         debugViewController.confirmCapture(screen: capture) { [weak self] result in
-            guard let self else { return }
+            guard let self = self else { return }
 
             if case let .success(name) = result {
                 // get updated name
