@@ -10,20 +10,34 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecoratingTrait {
+    struct Config: Decodable {
+        let buttonAppearance: ButtonAppearance?
+        let ignoreBackdropTap: Bool?
+    }
+
     static var type: String = "@appcues/skippable"
 
     weak var metadataDelegate: TraitMetadataDelegate?
+
+    private let buttonAppearance: ButtonAppearance
+    private let ignoreBackdropTap: Bool
 
     private weak var containerController: UIViewController?
     private weak var view: UIViewController.CloseButton?
     private var gestureRecognizer: UITapGestureRecognizer?
 
     required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        let config = configuration.decode(Config.self)
+        self.buttonAppearance = config?.buttonAppearance ?? .default
+        self.ignoreBackdropTap = config?.ignoreBackdropTap ?? false
     }
 
     func decorate(containerController: ExperienceContainerViewController) throws {
         self.containerController = containerController
-        self.view = containerController.addDismissButton()
+
+        if buttonAppearance != .hidden {
+            self.view = containerController.addDismissButton(appearance: buttonAppearance)
+        }
 
         // Allow interactive dismissal
         containerController.isModalInPresentation = false
@@ -35,10 +49,12 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
     }
 
     func decorate(backdropView: UIView) throws {
-        let recognizer = gestureRecognizer ?? UITapGestureRecognizer(target: self, action: #selector(didTapBackground))
+        if !ignoreBackdropTap {
+            let recognizer = gestureRecognizer ?? UITapGestureRecognizer(target: self, action: #selector(didTapBackground))
 
-        backdropView.addGestureRecognizer(recognizer)
-        gestureRecognizer = recognizer
+            backdropView.addGestureRecognizer(recognizer)
+            gestureRecognizer = recognizer
+        }
     }
 
     func undecorate(backdropView: UIView) throws {
@@ -54,10 +70,19 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
 }
 
 @available(iOS 13.0, *)
+extension AppcuesSkippableTrait {
+    enum ButtonAppearance: String, Decodable {
+        case hidden
+        case minimal
+        case `default`
+    }
+}
+
+@available(iOS 13.0, *)
 private extension UIViewController {
     @discardableResult
-    func addDismissButton() -> CloseButton {
-        let dismissButton = CloseButton()
+    func addDismissButton(appearance: AppcuesSkippableTrait.ButtonAppearance) -> CloseButton {
+        let dismissButton = CloseButton(minimal: appearance == .minimal)
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
         dismissButton.addTarget(self, action: #selector(dismissButtonTapped), for: .touchUpInside)
 
@@ -84,29 +109,37 @@ private extension UIViewController {
     class CloseButton: UIButton {
         private static let size: CGFloat = 30
 
-        init() {
+        init(minimal: Bool = false) {
             super.init(frame: .zero)
 
             layer.cornerRadius = CloseButton.size / 2
             layer.masksToBounds = true
 
-            let symbolConfiguration = UIImage.SymbolConfiguration(font: .systemFont(ofSize: CloseButton.size / 2, weight: .bold))
-            let xmark = UIImage(systemName: "xmark", withConfiguration: symbolConfiguration)
-            let blurEffect = UIBlurEffect(style: .systemThinMaterial)
-            let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect)
-
-            let blurredEffectView = UIVisualEffectView(effect: blurEffect)
-            blurredEffectView.isUserInteractionEnabled = false
-            let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
+            let symbolFont = UIFont.systemFont(ofSize: CloseButton.size / 2, weight: minimal ? .regular : .bold)
+            let xmark = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(font: symbolFont))
             let imageView = UIImageView(image: xmark)
 
-            vibrancyEffectView.contentView.addSubview(imageView)
-            blurredEffectView.contentView.addSubview(vibrancyEffectView)
-            addSubview(blurredEffectView)
+            if minimal {
+                imageView.tintColor = UIColor(white: 0.7, alpha: 1)
+                layer.compositingFilter = "differenceBlendMode"
+                addSubview(imageView)
+                imageView.center(in: self)
+            } else {
+                let blurEffect = UIBlurEffect(style: .systemThinMaterial)
+                let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect, style: .label)
 
-            imageView.center(in: vibrancyEffectView.contentView)
-            vibrancyEffectView.pin(to: blurredEffectView.contentView)
-            blurredEffectView.pin(to: self)
+                let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
+                vibrancyEffectView.contentView.addSubview(imageView)
+                imageView.center(in: vibrancyEffectView.contentView)
+
+                let blurredEffectView = UIVisualEffectView(effect: blurEffect)
+                blurredEffectView.isUserInteractionEnabled = false
+                blurredEffectView.contentView.addSubview(vibrancyEffectView)
+                vibrancyEffectView.pin(to: blurredEffectView.contentView)
+
+                addSubview(blurredEffectView)
+                blurredEffectView.pin(to: self)
+            }
 
             NSLayoutConstraint.activate([
                 widthAnchor.constraint(equalToConstant: CloseButton.size),
