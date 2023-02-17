@@ -16,14 +16,9 @@ class ExperienceStateMachineTests: XCTestCase {
     typealias Action = ExperienceStateMachine.Action
 
     var appcues: MockAppcues!
-    private var updates: [TrackingUpdate] = []
 
     override func setUpWithError() throws {
         appcues = MockAppcues()
-    }
-
-    override func tearDownWithError() throws {
-        updates = []
     }
 
     func testInitialState() throws {
@@ -185,14 +180,15 @@ class ExperienceStateMachineTests: XCTestCase {
         // the @appcues/skippable trait would do this
 
         // Arrange
+        var updates: [TrackingUpdate] = []
         let dismissExpectation = expectation(description: "Experience dismissed")
-        let experience = ExperienceData.singleStepMock
+        let experience = ExperienceData.mock
         let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
 
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: true)
         let stateMachine = givenState(is: initialState)
         package.containerController.lifecycleHandler = stateMachine
-        appcues.analyticsPublisher.onPublish = { update in self.updates.append(update) }
+        appcues.analyticsPublisher.onPublish = { update in updates.append(update) }
 
         let observer = ExperienceStateMachine.AnalyticsObserver(container: appcues.container)
         stateMachine.addObserver(observer)

@@ -14,15 +14,10 @@ class ExperienceRendererTests: XCTestCase {
 
     var appcues: MockAppcues!
     var experienceRenderer: ExperienceRenderer!
-    private var updates: [TrackingUpdate] = []
 
     override func setUpWithError() throws {
         appcues = MockAppcues()
         experienceRenderer = ExperienceRenderer(container: appcues.container)
-    }
-
-    override func tearDownWithError() throws {
-        updates = []
     }
 
     func testShowPublished() throws {
@@ -260,13 +255,14 @@ class ExperienceRendererTests: XCTestCase {
         // Arrange
         let completionExpectation = expectation(description: "Completion called")
 
+        var updates: [TrackingUpdate] = []
         let preconditionPresentExpectation = expectation(description: "Experience presented")
         let dismissExpectation = expectation(description: "Experience dismissed")
         let experience = ExperienceData.singleStepMock
         let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation, dismissExpectation: dismissExpectation)
         appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
         experienceRenderer.show(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true), completion: nil)
-        appcues.analyticsPublisher.onPublish = { update in self.updates.append(update) }
+        appcues.analyticsPublisher.onPublish = { update in updates.append(update) }
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
