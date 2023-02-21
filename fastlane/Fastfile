@@ -63,6 +63,29 @@ platform :ios do
       verbose: true)
   end
 
+  desc "Nuke code signing"
+  lane :nuke_match do
+    app_store_connect_api_key
+
+    match_nuke(
+      storage_mode: "s3",
+      s3_region: ENV["AWS_REGION"],
+      s3_bucket: ENV["AWS_S3_BUCKET"],
+      s3_access_key: ENV["AWS_ACCESS_KEY_ID"],
+      s3_secret_access_key: ENV["AWS_SECRET_ACCESS_KEY"],
+      type: "appstore",
+      app_identifier: "com.appcues.sdk-example-cocoapods",
+      team_id: "KHSQ25769M",
+      verbose: true)
+  end
+
+  desc "Reset/renew code signing"
+  lane :reset_match do
+    app_store_connect_api_key
+    nuke_match
+    prep_match
+  end
+
   desc "Push example app to Testflight beta"
   lane :beta_example do | options |
     Dir.chdir("../Examples/DeveloperCocoapodsExample") do

@@ -55,6 +55,22 @@ Sanity check to make sure the spm example app compiles
 
 Setup code signing
 
+### ios nuke_match
+
+```sh
+[bundle exec] fastlane ios nuke_match
+```
+
+Nuke code signing
+
+### ios reset_match
+
+```sh
+[bundle exec] fastlane ios reset_match
+```
+
+Reset/renew code signing
+
 ### ios beta_example
 
 ```sh
