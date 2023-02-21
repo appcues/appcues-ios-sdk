@@ -53,6 +53,14 @@ class AppcuesTests: XCTestCase {
         XCTAssertEqual(4, subscriber.trackedUpdates)
     }
 
+    func testAnonymousUserIdPrefix() throws {
+        // Act
+        appcues.anonymous()
+
+        // Assert
+        XCTAssertEqual("anon:", appcues.storage.userID.prefix(5))
+    }
+
     func testIdentifyWithEmptyUserIsNotTracked() throws {
         // Arrange
         var trackedUpdates = 0

@@ -53,7 +53,7 @@ extension Activity: Encodable {
         try container.encode(accountID, forKey: .accountID)
         try container.encode(userID, forKey: .userID)
         try container.encode(groupID, forKey: .groupID)
-        try container.encode(requestID, forKey: .requestID)
+        try container.encode(requestID.appcuesFormatted, forKey: .requestID)
         if let events = events {
             try container.encode(events, forKey: .events)
         }

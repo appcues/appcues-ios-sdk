@@ -140,7 +140,7 @@ public class Appcues: NSObject {
     /// qualified content.
     @objc
     public func anonymous(properties: [String: Any]? = nil) {
-        identify(isAnonymous: true, userID: config.anonymousIDFactory(), properties: properties)
+        identify(isAnonymous: true, userID: "anon:\(config.anonymousIDFactory())", properties: properties)
     }
 
     /// Clears out the current user in this session.  Can be used when the user logs out of your application.
