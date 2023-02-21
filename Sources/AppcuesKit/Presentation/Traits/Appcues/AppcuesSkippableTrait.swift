@@ -126,7 +126,7 @@ private extension UIViewController {
                 imageView.center(in: self)
             } else {
                 let blurEffect = UIBlurEffect(style: .systemThinMaterial)
-                let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect, style: .label)
+                let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect)
 
                 let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
                 vibrancyEffectView.contentView.addSubview(imageView)
