@@ -11,7 +11,7 @@
 
 - <doc:Identifying>
 - ``Appcues/identify(userID:properties:)``
-- ``Appcues/anonymous(properties:)``
+- ``Appcues/anonymous()``
 - ``Appcues/group(groupID:properties:)``
 - ``Appcues/reset()``
 
