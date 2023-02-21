@@ -21,6 +21,6 @@ This signature will be used in an Authorization header on network requests from 
 
 ## Identifying Anonymous Users
 
-``Appcues/anonymous(properties:)``
+``Appcues/anonymous()``
 
 The format of anonymous IDs can customized with ``Appcues/Config/anonymousIDFactory(_:)``. Anonymous IDs will always be prefixed with `anon:` by the SDK.
