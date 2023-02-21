@@ -11,6 +11,6 @@ import UIKit
 
 extension UIDevice {
     static var identifier: String {
-        (current.identifierForVendor ?? UUID()).uuidString
+        (current.identifierForVendor ?? UUID()).appcuesFormatted
     }
 }

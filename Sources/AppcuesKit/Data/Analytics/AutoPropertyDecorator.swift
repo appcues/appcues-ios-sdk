@@ -71,7 +71,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_lastScreenTitle": previousScreen,
             "_updatedAt": Date(),
             "_lastContentShownAt": storage.lastContentShownAt,
-            "_sessionId": appcues?.sessionID?.uuidString
+            "_sessionId": appcues?.sessionID?.appcuesFormatted
         ]
 
         if !Locale.preferredLanguages.isEmpty {
