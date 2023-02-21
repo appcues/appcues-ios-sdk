@@ -139,8 +139,15 @@ public class Appcues: NSObject {
     /// the `identify` call.  This will cause the SDK to begin tracking activity and checking for
     /// qualified content.
     @objc
-    public func anonymous(properties: [String: Any]? = nil) {
-        identify(isAnonymous: true, userID: config.anonymousIDFactory(), properties: properties)
+    public func anonymous() {
+        identify(isAnonymous: true, userID: config.anonymousIDFactory(), properties: nil)
+    }
+
+    /// This function has been removed. Calling the anonymous function with a properties parameter
+    /// is no longer supported. A call to `anonymous()` with no parameters should be used instead.
+    @available(*, unavailable, message: "properties are no longer supported for anonymous users.")
+    public func anonymous(properties: [String: Any]?) {
+        // removed
     }
 
     /// Clears out the current user in this session.  Can be used when the user logs out of your application.

@@ -10,8 +10,8 @@ In order to target content to the right users at the right time, you need to ide
 
 The inverse of identifying is resetting. For example, if a user logs out of your app. Calling ``Appcues/reset()`` will disable tracking of screens and events until a user is identified again.
 
-## Indentifying Anonymous Users
+## Identifying Anonymous Users
 
-``Appcues/anonymous(properties:)``
+``Appcues/anonymous()``
 
 The format of anonymous ID's can customized with ``Appcues/Config/anonymousIDFactory(_:)``.
