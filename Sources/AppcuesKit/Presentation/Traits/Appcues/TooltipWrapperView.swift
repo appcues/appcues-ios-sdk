@@ -167,7 +167,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             if excessSpaceAbove > excessSpaceBelow {
                 // Position tooltip above the target rectangle
                 if targetFrame.height <= safeSpaceAbove {
-                    targetFrame.origin.y = targetRectangle.minY - distance - targetFrame.height
+                    targetFrame.origin.y = min(targetRectangle.minY, safeBounds.maxY) - distance - targetFrame.height
                 } else {
                     // Shrink height if too tall to fit
                     targetFrame.size.height = safeSpaceAbove
