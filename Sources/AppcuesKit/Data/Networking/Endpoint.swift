@@ -78,7 +78,7 @@ internal enum CustomerAPIEndpoint: Endpoint {
         switch self {
         case let .preSignedImageUpload(_, filename):
             components.path = "/v1/accounts/\(config.accountID)/mobile/\(config.applicationID)/pre-upload-screenshot"
-            components.query = "?name=\(filename)"
+            components.query = "name=\(filename)"
         case .screenCapture:
             components.path = "/v1/accounts/\(config.accountID)/mobile/\(config.applicationID)/screens"
         }
