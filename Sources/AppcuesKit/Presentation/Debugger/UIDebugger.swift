@@ -164,6 +164,7 @@ extension UIDebugger: DebugViewDelegate {
             displayName: window.screenCaptureDisplayName(at: timestamp),
             screenshotImageUrl: URL(string: "http://www.appcues.com/screenshot/\(UUID())"),
             layout: layout,
+            metadata: Capture.Metadata(insets: Capture.Insets(window.safeAreaInsets)),
             timestamp: timestamp,
             screenshot: screenshot)
 
