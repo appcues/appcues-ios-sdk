@@ -35,6 +35,21 @@ internal struct Capture: Identifiable {
         let sdkName = "appcues-ios"
         let osName = "ios"
         let osVersion = UIDevice.current.systemVersion
+        let insets: Insets
+    }
+
+    struct Insets: Encodable {
+        let left: CGFloat
+        let right: CGFloat
+        let top: CGFloat
+        let bottom: CGFloat
+
+        init(_ insets: UIEdgeInsets) {
+            self.left = insets.left
+            self.right = insets.right
+            self.top = insets.top
+            self.bottom = insets.bottom
+        }
     }
 
     let id = UUID().appcuesFormatted
@@ -42,7 +57,7 @@ internal struct Capture: Identifiable {
     var displayName: String
     var screenshotImageUrl: URL?
     let layout: View
-    let metadata = Metadata()
+    let metadata: Metadata
     let timestamp: Date
 
     // The image data here is sent to a separate endpoint to upload the image, then
