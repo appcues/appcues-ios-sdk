@@ -195,12 +195,11 @@ internal class DebugView: UIView {
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
 
-        // any interaction while toast is showing will initiate dismiss
-        if toastWrapperView.alpha > 0 {
-            animateToast(visible: false, animated: true, completion: nil)
-        }
+        var hitView: UIView?
+        var didTapToast = false
 
         for view in subviews.reversed() {
+
             // Convert to the subview's local coordinate system
             let convertedPoint = convert(point, to: view)
             if !view.point(inside: convertedPoint, with: event) {
@@ -210,11 +209,19 @@ internal class DebugView: UIView {
 
             // If the subview can find a hit target, return that
             if let target = view.hitTest(convertedPoint, with: event) {
-                return target
+                hitView = target
+                didTapToast = view == toastWrapperView
+                break
             }
         }
 
-        return nil
+        // any tap outside the toast when it is visible should hide toast
+        // taps inside the toast are handled within the toast
+        if toastWrapperView.alpha > 0 && !didTapToast {
+            animateToast(visible: false, animated: true, completion: nil)
+        }
+
+        return hitView
     }
 
     // MARK: API

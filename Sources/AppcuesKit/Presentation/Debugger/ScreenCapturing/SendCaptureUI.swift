@@ -100,6 +100,7 @@ internal enum SendCaptureUI {
     }
 
     struct CaptureSuccessToastView: View {
+        @EnvironmentObject var toastHost: ToastHostProvider
 
         let screenName: String
 
@@ -111,17 +112,58 @@ internal enum SendCaptureUI {
                     .foregroundColor(.white)
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.blue)
+                    .background(Color.appcuesToastSuccess)
                     .cornerRadius(6)
             }
             .padding(25)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onTapGesture {
+                toastHost.dismissToast(animated: true)
+            }
         }
 
         @ViewBuilder var toastMessage: Text {
             Text("\"\(screenName)\"").font(.system(size: 14, weight: .bold ))
             +
             Text(" is now available for preview and targeting.").font(.system(size: 14))
+        }
+    }
+
+    struct CaptureFailureToastView: View {
+        @EnvironmentObject var toastHost: ToastHostProvider
+
+        let onRetry: (() -> Void)
+
+        var body: some View {
+            ZStack {
+                HStack {
+                    Text("Upload failed").font(.system(size: 14, weight: .bold )).foregroundColor(.white)
+                    Spacer()
+                    Button {
+                        toastHost.dismissToast(animated: false)
+                        onRetry()
+                    } label: {
+                        Text("Try again")
+                            .font(.system(size: 14))
+                            .foregroundColor(.white)
+                            .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                    }
+                    .frame(height: 40)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(Color.white, lineWidth: 1))
+
+                }
+                .frame(maxWidth: .infinity)
+                .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 16))
+                .background(Color.appcuesToastFailure)
+                .cornerRadius(6)
+            }
+            .padding(25)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .onTapGesture {
+                toastHost.dismissToast(animated: true)
+            }
         }
     }
 }
@@ -135,4 +177,6 @@ extension Color {
     static let appcuesBlurple = Color(red: 92 / 255, green: 92 / 255, blue: 255 / 255)
     static let appcuesBlurpleGradientEnd = Color(red: 125 / 255, green: 82 / 255, blue: 255 / 255)
     static let appcuesTextInputBorder = Color(red: 121 / 255, green: 116 / 255, blue: 126 / 255)
+    static let appcuesToastSuccess = Color(red: 0 / 255, green: 114 / 255, blue: 214 / 255)
+    static let appcuesToastFailure = Color(red: 221 / 255, green: 34 / 255, blue: 112 / 255)
 }

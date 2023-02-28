@@ -94,9 +94,23 @@ internal class DebugViewController: UIViewController {
     }
 
     func showCaptureSuccess(screen: Capture) {
-        let toastView = SendCaptureUI.CaptureSuccessToastView(screenName: screen.displayName)
-        let toastController = UIHostingController(rootView: toastView)
-        toastController.view.backgroundColor = .clear
+        let toastController = SendCaptureUI.CaptureSuccessToastView(screenName: screen.displayName).embeddedInToastHostingController()
+        showToast(toastController)
+    }
+
+    func showCaptureFailure(onRetry: @escaping () -> Void) {
+        let toastController = SendCaptureUI.CaptureFailureToastView(onRetry: onRetry).embeddedInToastHostingController()
+        showToast(toastController)
+    }
+
+    private func showToast<Content: View>(_ toastController: ToastHostingController<Content>) {
+        // this is the callback that is used when there is user interaction inside of the SwiftUI toast view, to dismiss
+        // or, after the auto-timeout configured below that calls dismissToast
+        toastController.onDismissToast = { [weak self] animated in
+            self?.debugView.setToastView(visible: false, animated: animated) { [weak self] in
+                self?.unembedChildViewController(toastController)
+            }
+        }
 
         // Insert the toast view into the toastWrapperView, which is a container view anchored
         // to the bottom of our view.
@@ -107,10 +121,8 @@ internal class DebugViewController: UIViewController {
         // If the user taps on anything, it will hide sooner, but we can still clean
         // up the child VC after 3 seconds here.
         debugView.setToastView(visible: true, animated: true) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-                self?.debugView.setToastView(visible: false, animated: true) { [weak self] in
-                    self?.unembedChildViewController(toastController)
-                }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                toastController.dismissToast(animated: true)
             }
         }
     }
