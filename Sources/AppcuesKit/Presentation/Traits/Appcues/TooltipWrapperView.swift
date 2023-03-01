@@ -108,12 +108,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             return
         }
 
-        switch preferredPosition {
-        case .none, .top, .bottom:
-            shadowWrappingView.frame = verticalPosition(for: targetRectangle)
-        case .leading, .trailing:
-            shadowWrappingView.frame = horizontalPosition(for: targetRectangle)
-        }
+        shadowWrappingView.frame = tooltipPosition(for: targetRectangle)
     }
 
     override func applyCornerRadius(_ cornerRadius: CGFloat?) {
@@ -130,7 +125,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         contentWrapperView.layoutMargins = UIEdgeInsets(top: width, left: width, bottom: width, right: width)
     }
 
-    private func verticalPosition(for targetRectangle: CGRect) -> CGRect {
+    private func tooltipPosition(for targetRectangle: CGRect) -> CGRect {
         let distance = distanceFromTarget
 
         let safeBounds = bounds.inset(by: layoutMargins)
@@ -141,144 +136,117 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             width: ceil(preferredWidth ?? preferredContentSize?.width ?? Self.defaultMaxWidth),
             height: ceil(preferredContentSize?.height ?? 1))
 
-        // Account for border size and safe area space allocated to the pointer
-        let nonContentHeight = contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom + (pointerSize?.height ?? 0)
-        targetFrame.size.height += nonContentHeight
+        // Account for border size and safe area space allocated to the pointer.
+        let additionalBorderHeight = contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
+        let additionalPointerHeight = pointerSize?.height ?? 0
 
-        // Cap width to not exceed screen width
+        // We only want to add additionalPointerHeight once we know the pointer is top/bottom.
+        targetFrame.size.height += additionalBorderHeight
+
+        // Cap size to not exceed safe screen size.
         targetFrame.size.width = min(targetFrame.size.width, safeBounds.width)
-
-        // Determine vertical positioning for targetFrame
-        let safeSpaceAbove = (targetRectangle.minY - distance).clamped(to: safeBounds.minY...safeBounds.maxY) - safeBounds.minY
-        let safeSpaceBelow = safeBounds.maxY - (targetRectangle.maxY + distance).clamped(to: safeBounds.minY...safeBounds.maxY)
-        let excessSpaceAbove = safeSpaceAbove - targetFrame.height
-        let excessSpaceBelow = safeSpaceBelow - targetFrame.height
-
-        if preferredPosition == .top && excessSpaceAbove > 0 {
-            // Position tooltip above the target rectangle and within the safe area
-            targetFrame.origin.y = min(targetRectangle.minY - distance, safeBounds.maxY) - targetFrame.height
-            actualPosition = .top
-        } else if preferredPosition == .bottom && excessSpaceBelow > 0 {
-            // Position tooltip below the target rectangle and within the safe area
-            targetFrame.origin.y = max(targetRectangle.maxY + distance, safeBounds.minY)
-            actualPosition = .bottom
-        } else {
-            // TODO: Should this consider a switch to horizontal if there's not enough vertical space on either side?
-            if excessSpaceAbove > excessSpaceBelow {
-                // Position tooltip above the target rectangle
-                if targetFrame.height <= safeSpaceAbove {
-                    targetFrame.origin.y = min(targetRectangle.minY, safeBounds.maxY) - distance - targetFrame.height
-                } else {
-                    // Shrink height if too tall to fit
-                    targetFrame.size.height = max(Self.minContentHeight + nonContentHeight, safeSpaceAbove)
-                    targetFrame.origin.y = safeBounds.minY
-                }
-                actualPosition = .top
-            } else {
-                // Position tooltip below the target rectangle and within the safe area
-                if targetFrame.height <= safeSpaceBelow {
-                    targetFrame.origin.y = max(targetRectangle.maxY + distance, safeBounds.minY)
-                } else {
-                    // Shrink height if too tall to fit
-                    targetFrame.size.height = max(Self.minContentHeight + nonContentHeight, safeSpaceBelow)
-                    targetFrame.origin.y = safeBounds.maxY - targetFrame.size.height
-                }
-                actualPosition = .bottom
-            }
-        }
-
-        // Determine horizontal positioning for targetFrame
-        let preferredOriginX = targetRectangle.midX - targetFrame.width / 2
-
-        // Ideally be centered on the target rectangle
-        targetFrame.origin.x = preferredOriginX
-
-        if targetFrame.minX < safeBounds.minX {
-            // Must be within the left edge of the screen
-            targetFrame.origin.x = safeBounds.minX
-        } else if targetFrame.maxX > safeBounds.maxX {
-            // Must be within the right edge of the screen
-            targetFrame.origin.x = safeBounds.maxX - targetFrame.width
-        }
-
-        offsetFromCenter = preferredOriginX - targetFrame.origin.x
-
-        return targetFrame
-    }
-
-    private func horizontalPosition(for targetRectangle: CGRect) -> CGRect {
-        let distance = distanceFromTarget
-
-        let safeBounds = bounds.inset(by: layoutMargins)
-
-        var targetFrame = CGRect(
-            x: 0,
-            y: 0,
-            width: ceil(preferredWidth ?? preferredContentSize?.width ?? Self.defaultMaxWidth),
-            height: ceil(preferredContentSize?.height ?? 1))
-
-        // Account for border size and safe area space allocated to the pointer
-        let nonContentHeight = contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom + (pointerSize?.height ?? 0)
-        targetFrame.size.height += nonContentHeight
-
-        // Cap height to not exceed screen height
         targetFrame.size.height = min(targetFrame.size.height, safeBounds.height)
 
-        // Determine horizontal positioning for targetFrame
+        // Determine available space for targetFrame.
+        let safeSpaceAbove = (targetRectangle.minY - distance).clamped(to: safeBounds.minY...safeBounds.maxY) - safeBounds.minY
+        let safeSpaceBelow = safeBounds.maxY - (targetRectangle.maxY + distance).clamped(to: safeBounds.minY...safeBounds.maxY)
         let safeSpaceBefore = (targetRectangle.minX - distance).clamped(to: safeBounds.minX...safeBounds.maxX) - safeBounds.minX
         let safeSpaceAfter = safeBounds.maxX - (targetRectangle.maxX + distance).clamped(to: safeBounds.minX...safeBounds.maxX)
+
+        let excessSpaceAbove = safeSpaceAbove - (targetFrame.height + additionalPointerHeight)
+        let excessSpaceBelow = safeSpaceBelow - (targetFrame.height + additionalPointerHeight)
         let excessSpaceBefore = safeSpaceBefore - targetFrame.width
         let excessSpaceAfter = safeSpaceAfter - targetFrame.width
 
-        if preferredPosition == .leading && excessSpaceBefore > 0 {
-            // Position tooltip before the target rectangle and within the safe area
-            targetFrame.origin.x = min(targetRectangle.minX - distance, safeBounds.maxX) - targetFrame.width
-            actualPosition = .leading
+        let verticalSpaceIsAvailable = excessSpaceAbove > 0 || excessSpaceBelow > 0
+        let horizontalSpaceIsAvailable = excessSpaceBefore > 0 || excessSpaceAfter > 0
+
+        if preferredPosition == .top && excessSpaceAbove > 0 {
+            return tooltipFrame(position: .top)
+        } else if preferredPosition == .bottom && excessSpaceBelow > 0 {
+            return tooltipFrame(position: .bottom)
+        } else if preferredPosition == .leading && excessSpaceBefore > 0 {
+            return tooltipFrame(position: .leading)
         } else if preferredPosition == .trailing && excessSpaceAfter > 0 {
-            // Position tooltip after the target rectangle and within the safe area
-            targetFrame.origin.x = max(targetRectangle.maxX + distance, safeBounds.minX)
-            actualPosition = .trailing
+            return tooltipFrame(position: .trailing)
+        } else if verticalSpaceIsAvailable {
+            return tooltipFrame(position: excessSpaceAbove > excessSpaceBelow ? .top : .bottom)
+        } else if horizontalSpaceIsAvailable {
+            return tooltipFrame(position: excessSpaceBefore > excessSpaceAfter ? .leading : .trailing)
         } else {
-            // TODO: Should this consider a switch to vertical if there's not enough vertical space on either side?
-            if excessSpaceBefore > excessSpaceAfter {
-                // Position tooltip before the target rectangle
-                if targetFrame.width <= safeSpaceBefore {
-                    targetFrame.origin.x = targetRectangle.minX - distance - targetFrame.width
+            // Doesn't fit anywhere so pick the top/bottom side that has the most space.
+            // Allowing leading/trailing here would mean the width gets compressed and that opens a can of worms.
+            return tooltipFrame(position: excessSpaceAbove > excessSpaceBelow ? .top : .bottom)
+        }
+
+        func tooltipFrame(position: ContentPosition) -> CGRect {
+            let minContentSize = Self.minContentHeight + additionalBorderHeight + additionalPointerHeight
+            switch position {
+            case .top:
+                targetFrame.size.height += additionalPointerHeight
+                // Position tooltip above the target rectangle and within the safe area.
+                if targetFrame.height <= safeSpaceAbove {
+                    // `min` in case `targetRectangle` is outside the bottom edge of the safe area.
+                    targetFrame.origin.y = min(targetRectangle.minY - distance, safeBounds.maxY) - targetFrame.height
                 } else {
-                    // Shrink width if too wide to fit
-                    targetFrame.size.width = safeSpaceBefore
+                    // Shrink height if too tall to fit.
+                    targetFrame.size.height = max(safeSpaceAbove, minContentSize)
+                    targetFrame.origin.y = safeBounds.minY
+                }
+            case .bottom:
+                targetFrame.size.height += additionalPointerHeight
+                // Position tooltip below the target rectangle and within the safe area.
+                if targetFrame.height <= safeSpaceBelow {
+                    // `max` in case `targetRectangle` is outside the top edge of the safe area.
+                    targetFrame.origin.y = max(targetRectangle.maxY + distance, safeBounds.minY)
+                } else {
+                    // Shrink height if too tall to fit
+                    targetFrame.size.height = max(safeSpaceBelow, minContentSize)
+                    targetFrame.origin.y = safeBounds.maxY - targetFrame.size.height
+                }
+            case .leading:
+                // Position tooltip before the target rectangle and within the safe area.
+                if targetFrame.width <= safeSpaceBefore {
+                    // `min` in case `targetRectangle` is outside the trailing edge of the safe area.
+                    targetFrame.origin.x = min(targetRectangle.minX - distance, safeBounds.maxX) - targetFrame.width
+                } else {
+                    // Shrink width if too wide to fit.
+                    targetFrame.size.width = max(safeSpaceBefore, minContentSize)
                     targetFrame.origin.x = safeBounds.minX
                 }
-                actualPosition = .leading
-            } else {
-                // Position tooltip after the target rectangle and within the safe area
-                targetFrame.origin.x = max(targetRectangle.maxX + distance, safeBounds.minX)
-
-                // Shrink width if too tall to fit
-                if targetFrame.width > safeSpaceAfter {
-                    targetFrame.size.width = safeSpaceAfter
+            case .trailing:
+                // Position tooltip after the target rectangle and within the safe area.
+                if targetFrame.width <= safeSpaceAfter {
+                    // `max` in case `targetRectangle` is outside the leading edge of the safe area.
+                    targetFrame.origin.x = max(targetRectangle.maxX + distance, safeBounds.minX)
+                } else {
+                    // Shrink width if too tall to fit.
+                    targetFrame.size.width = max(safeSpaceAfter, minContentSize)
+                    targetFrame.origin.x = safeBounds.maxX - targetFrame.size.width
                 }
-                actualPosition = .trailing
             }
+
+            // Determine positioning orthogonal to the preferred axis.
+            switch position {
+            case .top, .bottom:
+                let preferredOriginX = targetRectangle.midX - targetFrame.width / 2
+
+                // Ideally be centered on the target rectangle, but clamp to the safe edges.
+                targetFrame.origin.x = preferredOriginX.clamped(to: safeBounds.minX...safeBounds.maxX - targetFrame.width)
+
+                offsetFromCenter = preferredOriginX - targetFrame.origin.x
+            case .leading, .trailing:
+                let preferredOriginY = targetRectangle.midY - targetFrame.height / 2
+
+                // Ideally be centered on the target rectangle, but clamp to the safe edges.
+                targetFrame.origin.y = preferredOriginY.clamped(to: safeBounds.minY...safeBounds.maxY - targetFrame.height)
+
+                offsetFromCenter = preferredOriginY - targetFrame.origin.y
+            }
+
+            actualPosition = position
+            return targetFrame
         }
-
-        // Determine vertical positioning for targetFrame
-        let preferredOriginY = targetRectangle.midY - targetFrame.height / 2
-
-        // Ideally be centered on the target rectangle
-        targetFrame.origin.y = preferredOriginY
-
-        if targetFrame.minY < safeBounds.minY {
-            // Must be within the top edge of the screen
-            targetFrame.origin.y = safeBounds.minY
-        } else if targetFrame.maxY > safeBounds.maxY {
-            // Must be within the bottom edge of the screen
-            targetFrame.origin.y = safeBounds.maxY - targetFrame.height
-        }
-
-        offsetFromCenter = preferredOriginY - targetFrame.origin.y
-
-        return targetFrame
     }
 
     private func setPointerInset(position: ContentPosition?) {
