@@ -19,6 +19,7 @@ internal enum ContentPosition: String, Decodable {
 internal class TooltipWrapperView: ExperienceWrapperView {
 
     private static let defaultMaxWidth: CGFloat = 400
+    private static let minContentHeight: CGFloat = 46
 
     var preferredWidth: CGFloat?
     var preferredPosition: ContentPosition?
@@ -140,10 +141,9 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             width: ceil(preferredWidth ?? preferredContentSize?.width ?? Self.defaultMaxWidth),
             height: ceil(preferredContentSize?.height ?? 1))
 
-        // Account for border size
-        targetFrame.size.height += contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
-        // Account for safe area space allocated to the pointer
-        targetFrame.size.height += pointerSize?.height ?? 0
+        // Account for border size and safe area space allocated to the pointer
+        let nonContentHeight = contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom + (pointerSize?.height ?? 0)
+        targetFrame.size.height += nonContentHeight
 
         // Cap width to not exceed screen width
         targetFrame.size.width = min(targetFrame.size.width, safeBounds.width)
@@ -170,17 +170,18 @@ internal class TooltipWrapperView: ExperienceWrapperView {
                     targetFrame.origin.y = min(targetRectangle.minY, safeBounds.maxY) - distance - targetFrame.height
                 } else {
                     // Shrink height if too tall to fit
-                    targetFrame.size.height = safeSpaceAbove
+                    targetFrame.size.height = max(Self.minContentHeight + nonContentHeight, safeSpaceAbove)
                     targetFrame.origin.y = safeBounds.minY
                 }
                 actualPosition = .top
             } else {
                 // Position tooltip below the target rectangle and within the safe area
-                targetFrame.origin.y = max(targetRectangle.maxY + distance, safeBounds.minY)
-
-                // Shrink height if too tall to fit
-                if targetFrame.height > safeSpaceBelow {
-                    targetFrame.size.height = safeSpaceBelow
+                if targetFrame.height <= safeSpaceBelow {
+                    targetFrame.origin.y = max(targetRectangle.maxY + distance, safeBounds.minY)
+                } else {
+                    // Shrink height if too tall to fit
+                    targetFrame.size.height = max(Self.minContentHeight + nonContentHeight, safeSpaceBelow)
+                    targetFrame.origin.y = safeBounds.maxY - targetFrame.size.height
                 }
                 actualPosition = .bottom
             }
@@ -216,10 +217,9 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             width: ceil(preferredWidth ?? preferredContentSize?.width ?? Self.defaultMaxWidth),
             height: ceil(preferredContentSize?.height ?? 1))
 
-        // Account for border size
-        targetFrame.size.height += contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
-        // Account for safe area space allocated to the pointer
-        targetFrame.size.width += pointerSize?.height ?? 0
+        // Account for border size and safe area space allocated to the pointer
+        let nonContentHeight = contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom + (pointerSize?.height ?? 0)
+        targetFrame.size.height += nonContentHeight
 
         // Cap height to not exceed screen height
         targetFrame.size.height = min(targetFrame.size.height, safeBounds.height)
