@@ -19,15 +19,28 @@ internal class ExperienceStepViewController: UIViewController {
     lazy var stepView = ExperienceStepView()
     var padding: NSDirectionalEdgeInsets {
         get { stepView.contentView.directionalLayoutMargins }
-        set { stepView.contentView.directionalLayoutMargins = newValue }
+        set {
+            stepView.contentView.directionalLayoutMargins = newValue
+
+            NSLayoutConstraint.deactivate(paddingConstraints)
+            paddingConstraints = [
+                paddingLayoutGuide.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: newValue.top),
+                paddingLayoutGuide.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: newValue.leading),
+                paddingLayoutGuide.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -newValue.trailing),
+                paddingLayoutGuide.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -newValue.bottom)
+            ]
+            NSLayoutConstraint.activate(paddingConstraints)
+        }
     }
+
+    private var paddingConstraints: [NSLayoutConstraint] = []
+    let paddingLayoutGuide = UILayoutGuide()
 
     private let contentViewController: UIViewController
 
     var stickySpacing: UIEdgeInsets = .zero {
         didSet {
             stepView.scrollView.contentInset = stickySpacing
-            stepView.scrollView.scrollIndicatorInsets = stickySpacing
             // Ensure the main content starts below the top sticky content
             stepView.scrollView.contentOffset.y = -(stickySpacing.top + stepView.safeAreaInsets.top)
         }
@@ -52,6 +65,7 @@ internal class ExperienceStepViewController: UIViewController {
 
     override func loadView() {
         view = stepView
+        view.addLayoutGuide(paddingLayoutGuide)
     }
 
     override func viewDidLoad() {
@@ -136,15 +150,15 @@ internal class ExperienceStepViewController: UIViewController {
         stickyContentVC.view.translatesAutoresizingMaskIntoConstraints = false
 
         var constraints: [NSLayoutConstraint] = [
-            stickyContentVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            stickyContentVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+            stickyContentVC.view.leadingAnchor.constraint(equalTo: paddingLayoutGuide.leadingAnchor),
+            stickyContentVC.view.trailingAnchor.constraint(equalTo: paddingLayoutGuide.trailingAnchor)
         ]
 
         switch edge {
         case .top:
-            constraints.append(stickyContentVC.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor))
+            constraints.append(stickyContentVC.view.topAnchor.constraint(equalTo: paddingLayoutGuide.topAnchor))
         case .bottom:
-            constraints.append(stickyContentVC.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor))
+            constraints.append(stickyContentVC.view.bottomAnchor.constraint(equalTo: paddingLayoutGuide.bottomAnchor))
         }
 
         NSLayoutConstraint.activate(constraints)
@@ -156,8 +170,10 @@ internal class ExperienceStepViewController: UIViewController {
             switch edge {
             case .top:
                 self?.stickySpacing.top = size.height
+                self?.stepView.scrollView.scrollIndicatorInsets.top = size.height + (self?.padding.top ?? 0)
             case .bottom:
                 self?.stickySpacing.bottom = size.height
+                self?.stepView.scrollView.scrollIndicatorInsets.bottom = size.height + (self?.padding.bottom ?? 0)
             }
         }
     }
