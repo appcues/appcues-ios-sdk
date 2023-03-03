@@ -95,15 +95,15 @@ internal class DebugViewController: UIViewController {
 
     func showCaptureSuccess(screen: Capture) {
         let toastController = SendCaptureUI.CaptureSuccessToastView(screenName: screen.displayName).embeddedInToastHostingController()
-        showToast(toastController)
+        showToast(toastController, seconds: 3.0)
     }
 
     func showCaptureFailure(onRetry: @escaping () -> Void) {
         let toastController = SendCaptureUI.CaptureFailureToastView(onRetry: onRetry).embeddedInToastHostingController()
-        showToast(toastController)
+        showToast(toastController, seconds: 6.0)
     }
 
-    private func showToast<Content: View>(_ toastController: ToastHostingController<Content>) {
+    private func showToast<Content: View>(_ toastController: ToastHostingController<Content>, seconds: Double) {
         // this is the callback that is used when there is user interaction inside of the SwiftUI toast view, to dismiss
         // or, after the auto-timeout configured below that calls dismissToast
         toastController.onDismissToast = { [weak self] animated in
@@ -121,7 +121,7 @@ internal class DebugViewController: UIViewController {
         // If the user taps on anything, it will hide sooner, but we can still clean
         // up the child VC after 3 seconds here.
         debugView.setToastView(visible: true, animated: true) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + seconds) {
                 toastController.dismissToast(animated: true)
             }
         }
