@@ -134,12 +134,11 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             x: 0,
             y: 0,
             width: ceil(preferredWidth ?? preferredContentSize?.width ?? Self.defaultMaxWidth),
-            height: ceil(preferredContentSize?.height ?? 1))
+            height: ceil(max((preferredContentSize?.height ?? 0), Self.minContentHeight)))
 
         // Account for border size and safe area space allocated to the pointer.
         let additionalBorderHeight = contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
-        let additionalPointerHeight = pointerSize?.height ?? 0
-
+        let additionalPointerLength = pointerSize?.height ?? 0
         // We only want to add additionalPointerHeight once we know the pointer is top/bottom.
         targetFrame.size.height += additionalBorderHeight
 
@@ -153,10 +152,10 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         let safeSpaceBefore = (targetRectangle.minX - distance).clamped(to: safeBounds.minX...safeBounds.maxX) - safeBounds.minX
         let safeSpaceAfter = safeBounds.maxX - (targetRectangle.maxX + distance).clamped(to: safeBounds.minX...safeBounds.maxX)
 
-        let excessSpaceAbove = safeSpaceAbove - (targetFrame.height + additionalPointerHeight)
-        let excessSpaceBelow = safeSpaceBelow - (targetFrame.height + additionalPointerHeight)
-        let excessSpaceBefore = safeSpaceBefore - targetFrame.width
-        let excessSpaceAfter = safeSpaceAfter - targetFrame.width
+        let excessSpaceAbove = safeSpaceAbove - (targetFrame.height + additionalPointerLength)
+        let excessSpaceBelow = safeSpaceBelow - (targetFrame.height + additionalPointerLength)
+        let excessSpaceBefore = safeSpaceBefore - (targetFrame.width + additionalPointerLength)
+        let excessSpaceAfter = safeSpaceAfter - (targetFrame.width + additionalPointerLength)
 
         let verticalSpaceIsAvailable = excessSpaceAbove > 0 || excessSpaceBelow > 0
         let horizontalSpaceIsAvailable = excessSpaceBefore > 0 || excessSpaceAfter > 0
@@ -180,10 +179,10 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         }
 
         func tooltipFrame(position: ContentPosition) -> CGRect {
-            let minContentSize = Self.minContentHeight + additionalBorderHeight + additionalPointerHeight
+            let minContentSize = Self.minContentHeight + additionalBorderHeight + additionalPointerLength
             switch position {
             case .top:
-                targetFrame.size.height += additionalPointerHeight
+                targetFrame.size.height += additionalPointerLength
                 // Position tooltip above the target rectangle and within the safe area.
                 if targetFrame.height <= safeSpaceAbove {
                     // `min` in case `targetRectangle` is outside the bottom edge of the safe area.
@@ -194,7 +193,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
                     targetFrame.origin.y = safeBounds.minY
                 }
             case .bottom:
-                targetFrame.size.height += additionalPointerHeight
+                targetFrame.size.height += additionalPointerLength
                 // Position tooltip below the target rectangle and within the safe area.
                 if targetFrame.height <= safeSpaceBelow {
                     // `max` in case `targetRectangle` is outside the top edge of the safe area.
@@ -205,6 +204,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
                     targetFrame.origin.y = safeBounds.maxY - targetFrame.size.height
                 }
             case .leading:
+                targetFrame.size.width += additionalPointerLength
                 // Position tooltip before the target rectangle and within the safe area.
                 if targetFrame.width <= safeSpaceBefore {
                     // `min` in case `targetRectangle` is outside the trailing edge of the safe area.
@@ -215,6 +215,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
                     targetFrame.origin.x = safeBounds.minX
                 }
             case .trailing:
+                targetFrame.size.width += additionalPointerLength
                 // Position tooltip after the target rectangle and within the safe area.
                 if targetFrame.width <= safeSpaceAfter {
                     // `max` in case `targetRectangle` is outside the leading edge of the safe area.
