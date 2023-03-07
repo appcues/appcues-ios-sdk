@@ -94,13 +94,15 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         guard let targetRectangle = targetRectangle else {
             // Default to a bottom anchored sheet
             let defaultHeight: CGFloat = 300
+            let safeBounds = bounds.inset(by: safeAreaInsets)
             let contentWidth = bounds.width - layoutMargins.left - layoutMargins.right
             var contentHeight = max((preferredContentSize?.height ?? defaultHeight), 1)
             // Account for border size
             contentHeight += contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
+            contentHeight = min(contentHeight, safeBounds.height)
             shadowWrappingView.frame = CGRect(
                 x: (bounds.width - contentWidth) / 2,
-                y: bounds.height - contentHeight - safeAreaInsets.bottom,
+                y: safeBounds.maxY - contentHeight,
                 width: contentWidth,
                 height: contentHeight)
             actualPosition = nil
@@ -221,7 +223,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
                     // `max` in case `targetRectangle` is outside the leading edge of the safe area.
                     targetFrame.origin.x = max(targetRectangle.maxX + distance, safeBounds.minX)
                 } else {
-                    // Shrink width if too tall to fit.
+                    // Shrink width if too wide to fit.
                     targetFrame.size.width = max(safeSpaceAfter, minContentSize)
                     targetFrame.origin.x = safeBounds.maxX - targetFrame.size.width
                 }
