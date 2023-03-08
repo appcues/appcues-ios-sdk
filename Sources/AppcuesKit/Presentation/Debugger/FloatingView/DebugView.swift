@@ -23,6 +23,7 @@ internal class DebugView: UIView {
 
     private let floatingViewPanRecognizer = UIPanGestureRecognizer()
     private let backgroundTapRecognizer = UITapGestureRecognizer()
+    private let toastTapRecognizer = UITapGestureRecognizer()
 
     private var initialTouchOffsetFromCenter: CGPoint = .zero
 
@@ -74,8 +75,8 @@ internal class DebugView: UIView {
         return view
     }()
 
-    var toastWrapperView: UIView = {
-        let view = UIView()
+    var toastView: CaptureToastView = {
+        let view = CaptureToastView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.alpha = 0
 
@@ -140,7 +141,7 @@ internal class DebugView: UIView {
         addSubview(panelWrapperView)
         addSubview(dismissView)
         addSubview(floatingView)
-        addSubview(toastWrapperView)
+        addSubview(toastView)
 
         backgroundView.pin(to: self)
         NSLayoutConstraint.activate([
@@ -153,17 +154,21 @@ internal class DebugView: UIView {
             dismissView.trailingAnchor.constraint(equalTo: trailingAnchor),
             dismissView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            toastWrapperView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            toastWrapperView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            toastWrapperView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            toastView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 25),
+            toastView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25),
+            toastView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -25),
+            toastView.heightAnchor.constraint(equalToConstant: 64)
 
         ])
 
         floatingViewPanRecognizer.addTarget(self, action: #selector(floatingViewPanned))
         floatingView.addGestureRecognizer(floatingViewPanRecognizer)
 
-        backgroundView.addGestureRecognizer(backgroundTapRecognizer)
         backgroundTapRecognizer.addTarget(self, action: #selector(backgroundTapped))
+        backgroundView.addGestureRecognizer(backgroundTapRecognizer)
+
+        toastTapRecognizer.addTarget(self, action: #selector(toastTapped))
+        toastView.addGestureRecognizer(toastTapRecognizer)
 
         // Set initial position and then animate in
         setFloatingView(visible: false, animated: false, programmatically: true)
@@ -195,10 +200,8 @@ internal class DebugView: UIView {
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
 
-        // any interaction while toast is showing will initiate dismiss
-        if toastWrapperView.alpha > 0 {
-            animateToast(visible: false, animated: true, completion: nil)
-        }
+        var hitView: UIView?
+        var didTapToast = false
 
         for view in subviews.reversed() {
             // Convert to the subview's local coordinate system
@@ -210,11 +213,19 @@ internal class DebugView: UIView {
 
             // If the subview can find a hit target, return that
             if let target = view.hitTest(convertedPoint, with: event) {
-                return target
+                hitView = target
+                didTapToast = view == toastView
+                break
             }
         }
 
-        return nil
+        // any tap outside the toast when it is visible should hide toast
+        // taps inside the toast are handled within the toast
+        if toastView.alpha > 0 && !didTapToast {
+            animateToast(visible: false, animated: true, completion: nil)
+        }
+
+        return hitView
     }
 
     // MARK: API
@@ -265,6 +276,11 @@ internal class DebugView: UIView {
     @objc
     private func backgroundTapped(recognizer: UITapGestureRecognizer) {
         setPanelInterface(open: false, animated: true, programatically: true)
+    }
+
+    @objc
+    private func toastTapped(recognizer: UITapGestureRecognizer) {
+        setToastView(visible: false, animated: true, completion: nil)
     }
 
     // MARK: Pan Gesture
@@ -472,7 +488,7 @@ internal class DebugView: UIView {
     private func animateToast(visible isVisible: Bool, animated: Bool, completion: (() -> Void)?) {
 
         let animations: () -> Void = {
-            self.toastWrapperView.alpha = isVisible ? 1 : 0
+            self.toastView.alpha = isVisible ? 1 : 0
         }
 
         if animated {
