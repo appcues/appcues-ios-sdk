@@ -98,32 +98,6 @@ internal enum SendCaptureUI {
             }
         }
     }
-
-    struct CaptureSuccessToastView: View {
-
-        let screenName: String
-
-        var body: some View {
-            VStack {
-                toastMessage
-                    .lineSpacing(7)
-                    .multilineTextAlignment(.leading)
-                    .foregroundColor(.white)
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.blue)
-                    .cornerRadius(6)
-            }
-            .padding(25)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-
-        @ViewBuilder var toastMessage: Text {
-            Text("\"\(screenName)\"").font(.system(size: 14, weight: .bold ))
-            +
-            Text(" is now available for preview and targeting.").font(.system(size: 14))
-        }
-    }
 }
 
 @available(iOS 13.0, *)
