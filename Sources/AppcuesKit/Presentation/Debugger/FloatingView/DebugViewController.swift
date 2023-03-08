@@ -22,6 +22,10 @@ internal class DebugViewController: UIViewController {
     let mode: DebugMode
     private let viewModel: DebugViewModel
 
+    // used to schedule toast dismissal, and invalidate in cases where retry and new toast
+    // are necessary
+    private var toastDismissTimer: Timer?
+
     init(viewModel: DebugViewModel, mode: DebugMode) {
         self.viewModel = viewModel
         self.mode = mode
@@ -94,23 +98,31 @@ internal class DebugViewController: UIViewController {
     }
 
     func showCaptureSuccess(screen: Capture) {
-        let toastView = SendCaptureUI.CaptureSuccessToastView(screenName: screen.displayName)
-        let toastController = UIHostingController(rootView: toastView)
-        toastController.view.backgroundColor = .clear
+        debugView.toastView.configureSuccess(screen)
+        showToast(seconds: 3.0)
+    }
 
-        // Insert the toast view into the toastWrapperView, which is a container view anchored
-        // to the bottom of our view.
-        embedChildViewController(toastController, inSuperview: debugView.toastWrapperView)
+    func showCaptureFailure(onRetry: @escaping () -> Void) {
+        debugView.toastView.configureFailure { [weak self] in
+            // handling retry tap
+            // hide the toast, then execute the provided retry callback
+            self?.debugView.setToastView(visible: false, animated: false) {
+                onRetry()
+            }
+        }
+        showToast(seconds: 6.0)
+    }
 
-        // Show the toast view and auto-dismiss after 3 seconds, and unembed the child VC.
-        //
-        // If the user taps on anything, it will hide sooner, but we can still clean
-        // up the child VC after 3 seconds here.
+    private func showToast(seconds: Double) {
+        // stop any pending dismiss when we are starting a new toast presentation
+        // it will get reset to the desired timeout after the new toast is set visible
+        toastDismissTimer?.invalidate()
+
         debugView.setToastView(visible: true, animated: true) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
-                self?.debugView.setToastView(visible: false, animated: true) { [weak self] in
-                    self?.unembedChildViewController(toastController)
-                }
+            // using a timer here so we can cancel and extend the toast on each subsequent retry attempt
+            self.toastDismissTimer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: false) { [weak self] _ in
+                guard let self = self else { return }
+                self.debugView.setToastView(visible: false, animated: true, completion: nil)
             }
         }
     }

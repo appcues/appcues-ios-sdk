@@ -177,15 +177,24 @@ extension UIDebugger: DebugViewDelegate {
                 capture.displayName = name
 
                 // save the screen into the account/app
-                self.saveScreenCapture(networking: self.networking, screen: capture, authorization: authorization) { result in
-                    if case .success = result {
-                        DispatchQueue.main.async {
-                            // show toast
-                            debugViewController.showCaptureSuccess(screen: capture)
-                        }
-                    }
+                self.saveScreen(debugViewController: debugViewController, capture: capture, authorization: authorization)
+            }
+        }
+    }
 
-                    // need error handling here on save failures
+    private func saveScreen(debugViewController: DebugViewController, capture: Capture, authorization: Authorization) {
+        self.saveScreenCapture(networking: self.networking, screen: capture, authorization: authorization) { result in
+            switch result {
+            case .success:
+                DispatchQueue.main.async {
+                    debugViewController.showCaptureSuccess(screen: capture)
+                }
+            case .failure:
+                DispatchQueue.main.async {
+                    debugViewController.showCaptureFailure {
+                        // onRetry - recursively call save to try again
+                        self.saveScreen(debugViewController: debugViewController, capture: capture, authorization: authorization)
+                    }
                 }
             }
         }
