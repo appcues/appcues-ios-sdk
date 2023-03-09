@@ -17,6 +17,8 @@ internal class CaptureToastView: UIView {
         view.axis = .horizontal
         view.alignment = .center
         view.spacing = 8.0
+        view.layoutMargins = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16)
+        view.isLayoutMarginsRelativeArrangement = true
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -49,10 +51,10 @@ internal class CaptureToastView: UIView {
         addSubview(stackView)
 
         NSLayoutConstraint.activate([
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            stackView.topAnchor.constraint(equalTo: topAnchor, constant: 12),
-            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
             retryButton.heightAnchor.constraint(equalToConstant: 40),
             retryButton.widthAnchor.constraint(equalToConstant: 90)
@@ -69,7 +71,7 @@ internal class CaptureToastView: UIView {
     func configureSuccess(_ capture: Capture) {
         backgroundColor = .appcuesToastSuccess
         retryButton.isHidden = true
-        var message = NSMutableAttributedString(string: "\"\(capture.displayName)\"", attributes: [
+        let message = NSMutableAttributedString(string: "\"\(capture.displayName)\"", attributes: [
             .font: UIFont.systemFont(ofSize: 14, weight: .bold),
             .foregroundColor: UIColor.white
         ])
