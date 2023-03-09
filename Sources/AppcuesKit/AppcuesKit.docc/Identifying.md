@@ -10,8 +10,17 @@ In order to target content to the right users at the right time, you need to ide
 
 The inverse of identifying is resetting. For example, if a user logs out of your app. Calling ``Appcues/reset()`` will disable tracking of screens and events until a user is identified again.
 
-## Indentifying Anonymous Users
+### Sender Validation
+If your Appcues account is configured for sender validation, pass the user signature in the properties included on the ``Appcues/identify(userID:properties:)`` call. Use the key "appcues:user_id_signature" and the string value of the signature.
+
+```swift
+appcues.identify(userID: userID, properties: ["appcues:user_id_signature": signature])
+```
+
+This signature will be used in an Authorization header on network requests from the SDK. The Appcues API will use this signature to verify that the requests from the client are authorized using an SDK key configured in Appcues Studio.
+
+## Identifying Anonymous Users
 
 ``Appcues/anonymous(properties:)``
 
-The format of anonymous ID's can customized with ``Appcues/Config/anonymousIDFactory(_:)``.
+The format of anonymous IDs can customized with ``Appcues/Config/anonymousIDFactory(_:)``. Anonymous IDs will always be prefixed with `anon:` by the SDK.
