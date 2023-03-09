@@ -154,8 +154,8 @@ internal class DebugView: UIView {
             dismissView.trailingAnchor.constraint(equalTo: trailingAnchor),
             dismissView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            toastView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 25),
-            toastView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -25),
+            toastView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor, constant: 25),
+            toastView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor, constant: -25),
             toastView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -25),
             toastView.heightAnchor.constraint(equalToConstant: 64)
 
