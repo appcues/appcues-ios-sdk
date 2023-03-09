@@ -118,11 +118,14 @@ internal class ExperienceStepViewController: UIViewController {
         if notification.name == UIResponder.keyboardWillHideNotification {
             stepView.scrollView.contentInset.bottom = 0
         } else {
-            let keyboardFrameInScreen = keyboardValue.cgRectValue
-            let keyboardFrameInView = stepView.scrollView.convert(keyboardFrameInScreen, from: view.window)
-            let intersection = stepView.scrollView.bounds.intersection(keyboardFrameInView)
-
-            stepView.scrollView.contentInset.bottom = intersection.height - view.safeAreaInsets.bottom
+            switch stepView.scrollView.keyboardAvoidanceStrategy(keyboardFrameInScreen: keyboardValue.cgRectValue) {
+            case .scroll(let intersection):
+                stepView.scrollView.contentInset.bottom = intersection.height - view.safeAreaInsets.bottom
+            case .move:
+                // The entire scrollView is covered by the keyboard, so adjusting the scrolling would be ineffective.
+                // We rely on something else (likely the wrapper view) to adjust its positioning to ensure the keyboard is avoided properly.
+                break
+            }
         }
 
         stepView.scrollView.scrollIndicatorInsets = stepView.scrollView.contentInset
@@ -252,4 +255,25 @@ extension ExperienceStepViewController {
 
 extension Notification.Name {
     internal static let shakeToRefresh = Notification.Name("shakeToRefresh")
+}
+
+extension UIView {
+    enum KeyboardAvoidanceStrategy {
+        /// Scroll content in a scrollView to ensure visibility.
+        case scroll(intersection: CGRect)
+        /// Move the container to ensure visibity.
+        case move(keyboardFrame: CGRect)
+    }
+    // Shared logic to determine responsibility for keyboard avoidance.
+    func keyboardAvoidanceStrategy(keyboardFrameInScreen: CGRect) -> KeyboardAvoidanceStrategy {
+        let keyboardFrameInView = self.convert(keyboardFrameInScreen, from: self.window)
+        let intersection = self.bounds.intersection(keyboardFrameInView)
+
+        // Add 16px of padding so it's not too tight
+        if intersection.height + (self.firstResponder?.frame.size.height ?? 0) + 16 <= self.bounds.height {
+            return .scroll(intersection: intersection)
+        } else {
+            return .move(keyboardFrame: keyboardFrameInScreen)
+        }
+    }
 }

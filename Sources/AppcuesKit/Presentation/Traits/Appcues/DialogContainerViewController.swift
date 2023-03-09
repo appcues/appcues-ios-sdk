@@ -23,6 +23,9 @@ internal class DialogContainerViewController: UIViewController {
         modalPresentationStyle = .overFullScreen
     }
 
+    // Only set for bottom-aligned modals. Need access to the constant value for keyboard avoidance.
+    var bottomConstraint: NSLayoutConstraint?
+
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -31,6 +34,21 @@ internal class DialogContainerViewController: UIViewController {
     override func loadView() {
         view = containerView
         embedChildViewController(dialogViewController, inSuperview: containerView.dialogView, respectLayoutMargins: true)
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(adjustForKeyboard),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(adjustForKeyboard),
+            name: UIResponder.keyboardWillChangeFrameNotification,
+            object: nil)
     }
 
     func configureStyle(_ style: ExperienceComponent.Style?) -> Self {
@@ -53,11 +71,31 @@ internal class DialogContainerViewController: UIViewController {
         case "top":
             containerView.dialogView.topAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.topAnchor).isActive = true
         case "bottom":
-            containerView.dialogView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor).isActive = true
+            let constraint = containerView.dialogView.bottomAnchor.constraint(equalTo: containerView.safeAreaLayoutGuide.bottomAnchor)
+            constraint.isActive = true
+            bottomConstraint = constraint
         default:
             containerView.dialogView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
         }
 
         return self
+    }
+
+    @objc
+    private func adjustForKeyboard(notification: Notification) {
+        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+
+        if notification.name == UIResponder.keyboardWillHideNotification {
+            self.bottomConstraint?.constant = 0
+        } else {
+            switch containerView.dialogView.keyboardAvoidanceStrategy(keyboardFrameInScreen: keyboardValue.cgRectValue) {
+            case .scroll:
+                // The ExperienceStepViewController handles this case and scrolls the content to avoid the keyboard.
+                break
+            case .move(let keyboardFrame):
+                // Not enough room to scroll the firstResponder into view, so adjust the position of the dialogView.
+                self.bottomConstraint?.constant = -keyboardFrame.height
+            }
+        }
     }
 }
