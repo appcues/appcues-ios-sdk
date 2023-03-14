@@ -11,8 +11,8 @@ import UIKit
 internal enum ContentPosition: String, Decodable {
     case top
     case bottom
-    case leading
-    case trailing
+    case left
+    case right
 }
 
 @available(iOS 13.0, *)
@@ -166,17 +166,17 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             return tooltipFrame(position: .top)
         } else if preferredPosition == .bottom && excessSpaceBelow > 0 {
             return tooltipFrame(position: .bottom)
-        } else if preferredPosition == .leading && excessSpaceBefore > 0 {
-            return tooltipFrame(position: .leading)
-        } else if preferredPosition == .trailing && excessSpaceAfter > 0 {
-            return tooltipFrame(position: .trailing)
+        } else if preferredPosition == .left && excessSpaceBefore > 0 {
+            return tooltipFrame(position: .left)
+        } else if preferredPosition == .right && excessSpaceAfter > 0 {
+            return tooltipFrame(position: .right)
         } else if verticalSpaceIsAvailable {
             return tooltipFrame(position: excessSpaceAbove > excessSpaceBelow ? .top : .bottom)
         } else if horizontalSpaceIsAvailable {
-            return tooltipFrame(position: excessSpaceBefore > excessSpaceAfter ? .leading : .trailing)
+            return tooltipFrame(position: excessSpaceBefore > excessSpaceAfter ? .left : .right)
         } else {
             // Doesn't fit anywhere so pick the top/bottom side that has the most space.
-            // Allowing leading/trailing here would mean the width gets compressed and that opens a can of worms.
+            // Allowing left/right here would mean the width gets compressed and that opens a can of worms.
             return tooltipFrame(position: excessSpaceAbove > excessSpaceBelow ? .top : .bottom)
         }
 
@@ -205,7 +205,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
                     targetFrame.size.height = max(safeSpaceBelow, minContentSize)
                     targetFrame.origin.y = safeBounds.maxY - targetFrame.size.height
                 }
-            case .leading:
+            case .left:
                 targetFrame.size.width += additionalPointerLength
                 // Position tooltip before the target rectangle and within the safe area.
                 if targetFrame.width <= safeSpaceBefore {
@@ -216,7 +216,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
                     targetFrame.size.width = max(safeSpaceBefore, minContentSize)
                     targetFrame.origin.x = safeBounds.minX
                 }
-            case .trailing:
+            case .right:
                 targetFrame.size.width += additionalPointerLength
                 // Position tooltip after the target rectangle and within the safe area.
                 if targetFrame.width <= safeSpaceAfter {
@@ -238,7 +238,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
                 targetFrame.origin.x = preferredOriginX.clamped(to: safeBounds.minX...safeBounds.maxX - targetFrame.width)
 
                 offsetFromCenter = preferredOriginX - targetFrame.origin.x
-            case .leading, .trailing:
+            case .left, .right:
                 let preferredOriginY = targetRectangle.midY - targetFrame.height / 2
 
                 // Ideally be centered on the target rectangle, but clamp to the safe edges.
@@ -260,9 +260,9 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             pointerInset = UIEdgeInsets(top: 0, left: 0, bottom: pointerSize?.height ?? 0, right: 0)
         case .bottom:
             pointerInset = UIEdgeInsets(top: pointerSize?.height ?? 0, left: 0, bottom: 0, right: 0)
-        case .leading:
+        case .left:
             pointerInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: pointerSize?.height ?? 0)
-        case .trailing:
+        case .right:
             pointerInset = UIEdgeInsets(top: 0, left: pointerSize?.height ?? 0, bottom: 0, right: 0)
         }
     }
@@ -275,9 +275,9 @@ internal class TooltipWrapperView: ExperienceWrapperView {
 
         let mainRect = bounds.inset(by: UIEdgeInsets(
             top: tooltipPosition == .bottom ? pointerSize.height : 0,
-            left: tooltipPosition == .trailing ? pointerSize.height : 0,
+            left: tooltipPosition == .right ? pointerSize.height : 0,
             bottom: tooltipPosition == .top ? pointerSize.height : 0,
-            right: tooltipPosition == .leading ? pointerSize.height : 0)
+            right: tooltipPosition == .left ? pointerSize.height : 0)
         )
 
         let pointerEdge: Pointer.Edge
@@ -289,11 +289,11 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         case .bottom:
             pointerEdge = .top
             pointerSideLength = mainRect.width
-        case .leading:
-            pointerEdge = .trailing
+        case .left:
+            pointerEdge = .right
             pointerSideLength = mainRect.height
-        case .trailing:
-            pointerEdge = .leading
+        case .right:
+            pointerEdge = .left
             pointerSideLength = mainRect.height
         }
 
