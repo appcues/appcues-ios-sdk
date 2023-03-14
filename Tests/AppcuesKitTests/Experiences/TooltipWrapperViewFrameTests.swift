@@ -192,13 +192,13 @@ class TooltipWrapperViewFrameTests: XCTestCase {
         XCTAssertEqual(view.shadowWrappingView.frame.origin.y, 335, "Above the target with specified distance") // 600-(226+24)-15
     }
 
-    // MARK: Leading Position
-    func testPreferredLeadingDefaults() {
+    // MARK: Left Position
+    func testPreferredLeftDefaults() {
         // Arrange
         view.frame = Self.iPadPro12PortraitFrame
         view.targetRectangle = CGRect(x: 500, y: 600, width: 38, height: 42)
         view.preferredWidth = nil
-        view.preferredPosition = .leading
+        view.preferredPosition = .left
         view.pointerSize = nil
         view.distanceFromTarget = 0
         view.preferredContentSize = nil
@@ -213,12 +213,12 @@ class TooltipWrapperViewFrameTests: XCTestCase {
         XCTAssertEqual(view.shadowWrappingView.frame.origin.y, 598, "Centered vertically on the target") // 600+42/2-46/2
     }
 
-    func testPreferredLeadingStyled() {
+    func testPreferredLeftStyled() {
         // Arrange
         view.frame = Self.iPadPro12PortraitFrame
         view.targetRectangle = CGRect(x: 500, y: 600, width: 38, height: 42)
         view.preferredWidth = 220
-        view.preferredPosition = .leading
+        view.preferredPosition = .left
         view.pointerSize = CGSize(width: 12, height: 24)
         view.distanceFromTarget = 15
         view.preferredContentSize = CGSize(width: 220, height: 226)
@@ -233,13 +233,13 @@ class TooltipWrapperViewFrameTests: XCTestCase {
         XCTAssertEqual(view.shadowWrappingView.frame.origin.y, 508, "Centered vertically on the target") // 600+42/2-226/2
     }
 
-    // MARK: Trailing Position
-    func testPreferredTrailingDefaults() {
+    // MARK: Right Position
+    func testPreferredRightDefaults() {
         // Arrange
         view.frame = Self.iPadPro12PortraitFrame
         view.targetRectangle = CGRect(x: 500, y: 600, width: 38, height: 42)
         view.preferredWidth = nil
-        view.preferredPosition = .trailing
+        view.preferredPosition = .right
         view.pointerSize = nil
         view.distanceFromTarget = 0
         view.preferredContentSize = nil
@@ -254,12 +254,12 @@ class TooltipWrapperViewFrameTests: XCTestCase {
         XCTAssertEqual(view.shadowWrappingView.frame.origin.y, 598, "Centered vertically on the target") // 600+42/2-46/2
     }
 
-    func testPreferredTrailingStyled() {
+    func testPreferredRightStyled() {
         // Arrange
         view.frame = Self.iPadPro12PortraitFrame
         view.targetRectangle = CGRect(x: 500, y: 600, width: 38, height: 42)
         view.preferredWidth = 220
-        view.preferredPosition = .trailing
+        view.preferredPosition = .right
         view.pointerSize = CGSize(width: 12, height: 24)
         view.distanceFromTarget = 15
         view.preferredContentSize = CGSize(width: 220, height: 226)
@@ -316,7 +316,7 @@ class TooltipWrapperViewFrameTests: XCTestCase {
         XCTAssertEqual(view.shadowWrappingView.frame.origin.y, 264, "Below the target") // 200+64
     }
 
-    func testPositionAutomaticallySetToLeading() {
+    func testPositionAutomaticallySetToLeft() {
         // Arrange
         view.frame = Self.iPhone14ProLandscapeFrame
         view.targetRectangle = CGRect(x: 600, y: 24, width: 192, height: 344)
@@ -336,7 +336,7 @@ class TooltipWrapperViewFrameTests: XCTestCase {
         XCTAssertEqual(view.shadowWrappingView.frame.origin.y, 173, "Centered vertically on the target") // 24+344/2-46/2
     }
 
-    func testPositionAutomaticallySetToTrailing() {
+    func testPositionAutomaticallySetToRight() {
         // Arrange
         view.frame = Self.iPhone14ProLandscapeFrame
         view.targetRectangle = CGRect(x: 100, y: 24, width: 192, height: 344)
