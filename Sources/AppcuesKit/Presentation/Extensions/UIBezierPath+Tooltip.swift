@@ -10,7 +10,7 @@ import UIKit
 
 internal struct Pointer {
     enum Edge {
-        case top, bottom, leading, trailing
+        case top, bottom, left, right
     }
 
     let edge: Edge
@@ -42,7 +42,7 @@ extension UIBezierPath {
             addArc(withCenter: topRight, radius: cornerRadius, startAngle: -.pi / 2, endAngle: 0, clockwise: true)
         }
 
-        if case .trailing = pointer.edge {
+        if case .right = pointer.edge {
             addTriangle(triangle)
         }
 
@@ -60,7 +60,7 @@ extension UIBezierPath {
             addArc(withCenter: bottomLeft, radius: cornerRadius, startAngle: .pi / 2, endAngle: .pi, clockwise: true)
         }
 
-        if case .leading = pointer.edge {
+        if case .left = pointer.edge {
             addTriangle(triangle)
         }
 
@@ -103,7 +103,7 @@ private extension UIBezierPath {
 
                 let point2X: CGFloat
                 if triangleBounds.origin.x < cornerRadius {
-                    // Check for collisions with leading corner
+                    // Check for collisions with left corner
                     if triangleBounds.origin.x < 0 {
                         overridesTopLeftCorner = true
                         triangleBounds.origin.x = 0
@@ -112,7 +112,7 @@ private extension UIBezierPath {
                     }
                     point2X = triangleBounds.minX
                 } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - cornerRadius {
-                    // Check for collisions with trailing corner
+                    // Check for collisions with right corner
                     if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
                         overridesTopRightCorner = true
                         triangleBounds.origin.x = mainRect.maxX - pointer.size.width
@@ -157,7 +157,7 @@ private extension UIBezierPath {
                 point1 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.minY)
                 point2 = CGPoint(x: point2X, y: triangleBounds.maxY)
                 point3 = CGPoint(x: triangleBounds.minX, y: triangleBounds.minY)
-            case .leading:
+            case .left:
                 var triangleBounds = CGRect(
                     x: mainRect.minX - pointer.size.height,
                     y: (mainRect.midY - pointer.size.width / 2 + pointer.offset),
@@ -187,7 +187,7 @@ private extension UIBezierPath {
                 point1 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.maxY)
                 point2 = CGPoint(x: triangleBounds.minX, y: point2Y)
                 point3 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.minY)
-            case .trailing:
+            case .right:
                 var triangleBounds = CGRect(
                     x: mainRect.maxX,
                     y: (mainRect.midY - pointer.size.width / 2 + pointer.offset),
