@@ -22,6 +22,14 @@ internal class TooltipWrapperView: ExperienceWrapperView {
     private static let minContentHeight: CGFloat = 46
 
     var preferredWidth: CGFloat?
+
+    /// If we're using the preferredContentSize, we need to add the border width that's set in the layoutMargins to avoid sizing
+    /// targetFrame.width to just *less* than the preferred width and creating a loop that eventually sizes the frame width to 0.
+    private var preferredContentWidth: CGFloat? {
+        guard let width = preferredContentSize?.width else { return nil }
+        return width + contentWrapperView.layoutMargins.left + contentWrapperView.layoutMargins.right
+    }
+
     var preferredPosition: ContentPosition?
     /// A nil pointerSize means no pointer
     var pointerSize: CGSize?
@@ -135,7 +143,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         var targetFrame = CGRect(
             x: 0,
             y: 0,
-            width: ceil(preferredWidth ?? preferredContentSize?.width ?? Self.defaultMaxWidth),
+            width: ceil(preferredWidth ?? preferredContentWidth ?? Self.defaultMaxWidth),
             height: ceil(max((preferredContentSize?.height ?? 0), Self.minContentHeight)))
 
         // Account for border size and safe area space allocated to the pointer.
