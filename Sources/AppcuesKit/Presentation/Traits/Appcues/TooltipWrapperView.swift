@@ -87,7 +87,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         // Set tooltip shape for content inside the border
         if let innerView = contentWrapperView.subviews.first {
             innerMaskLayer.path = tooltipPath(
-                in: innerView.bounds,
+                in: contentWrapperView.bounds,
                 cornerRadius: cornerRadius - borderLayer.lineWidth / 2)
             innerView.layer.mask = innerMaskLayer
         }
