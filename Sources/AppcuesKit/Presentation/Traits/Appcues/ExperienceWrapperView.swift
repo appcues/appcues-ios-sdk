@@ -14,13 +14,15 @@ internal class ExperienceWrapperView: UIView {
     var preferredContentSize: CGSize?
 
     let contentWrapperView: UIView = {
-        let view = UIView(frame: .zero)
+        // contentWrapperView can take a tooltip shape mask, so ignore hits outside that shape when it's set.
+        let view = HitTestingOverrideUIView(overrideApproach: .applyMask)
         view.clipsToBounds = true
         view.layoutMargins = .zero
         return view
     }()
 
-    let shadowWrappingView = UIView()
+    // shadowWrappingView wraps contentWrapperView, so ignore hits that aren't specifically on contentWrapperView.
+    let shadowWrappingView: UIView = HitTestingOverrideUIView(overrideApproach: .ignoreSelf)
 
     required init() {
         super.init(frame: .zero)
