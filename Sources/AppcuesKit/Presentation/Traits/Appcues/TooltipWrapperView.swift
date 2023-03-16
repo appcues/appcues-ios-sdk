@@ -73,14 +73,14 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         positionContentView()
 
         // Ensure corner radius doesn't exceed 50% of either of the size dimensions
-        let cornerRadius = min(
+        let boxCornerRadius = min(
             maxCornerRadius,
             (contentWrapperView.bounds.height - pointerInset.top - pointerInset.bottom) / 2,
             (contentWrapperView.bounds.width - pointerInset.left - pointerInset.right) / 2
         )
 
         // Set tooltip shape for container, border, and shadow
-        let outerTooltipPath = tooltipPath(in: contentWrapperView.bounds, cornerRadius: cornerRadius)
+        let outerTooltipPath = tooltipPath(in: contentWrapperView.bounds, boxCornerRadius: boxCornerRadius)
         maskLayer.path = outerTooltipPath
         borderLayer.path = outerTooltipPath
         shadowWrappingView.layer.shadowPath = outerTooltipPath
@@ -89,7 +89,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         if let innerView = contentWrapperView.subviews.first {
             innerMaskLayer.path = tooltipPath(
                 in: contentWrapperView.bounds,
-                cornerRadius: cornerRadius - borderLayer.lineWidth / 2)
+                boxCornerRadius: boxCornerRadius - borderLayer.lineWidth / 2)
             innerView.layer.mask = innerMaskLayer
         }
     }
@@ -276,10 +276,10 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         }
     }
 
-    private func tooltipPath(in bounds: CGRect, cornerRadius: CGFloat) -> CGPath {
+    private func tooltipPath(in bounds: CGRect, boxCornerRadius: CGFloat) -> CGPath {
         guard let pointerSize = pointerSize, let tooltipPosition = actualPosition else {
             // no pointer, so a simple roundedRect will do
-            return UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius).cgPath
+            return UIBezierPath(roundedRect: bounds, cornerRadius: boxCornerRadius).cgPath
         }
 
         let mainRect = bounds.inset(by: UIEdgeInsets(
@@ -307,7 +307,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         }
 
         let constrainedPointerSize = CGSize(
-            width: min(pointerSize.width, pointerSideLength - cornerRadius * 2),
+            width: min(pointerSize.width, pointerSideLength - boxCornerRadius * 2),
             height: pointerSize.height
         )
 
@@ -318,7 +318,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             size: constrainedPointerSize,
             cornerRadius: constrainedPointerCornerRadius,
             offset: offsetFromCenter)
-        return CGPath.tooltip(around: mainRect, cornerRadius: cornerRadius, pointer: pointer)
+        return CGPath.tooltip(around: mainRect, boxCornerRadius: boxCornerRadius, pointer: pointer)
     }
 
 }
