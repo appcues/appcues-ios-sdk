@@ -15,83 +15,117 @@ internal struct Pointer {
 
     let edge: Edge
     let size: CGSize
+    let cornerRadius: CGFloat
     let offset: CGFloat
 }
 
-extension UIBezierPath {
-    convenience init(tooltipAround mainRect: CGRect, cornerRadius: CGFloat, pointer: Pointer) {
-        self.init()
+extension CGPath {
+    static func tooltip(around mainRect: CGRect, cornerRadius: CGFloat, pointer: Pointer) -> CGPath {
+        let path = CGMutablePath()
 
-        let triangle = Triangle(pointer: pointer, mainRect: mainRect, cornerRadius: cornerRadius)
+        let triangle = CGMutablePath.Triangle(pointer: pointer, mainRect: mainRect, cornerRadius: cornerRadius)
 
         // Draw the path clockwise from top left
 
         if !triangle.overridesTopLeftCorner {
             let topLeft = CGPoint(x: mainRect.minX + cornerRadius, y: mainRect.minY + cornerRadius)
-            addArc(withCenter: topLeft, radius: cornerRadius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: true)
+            path.addArc(center: topLeft, radius: cornerRadius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: false)
         } else {
-            move(to: mainRect.origin)
+            path.move(to: mainRect.origin)
         }
 
         if case .top = pointer.edge {
-            addTriangle(triangle)
+            path.addTriangle(triangle)
         }
 
         if !triangle.overridesTopRightCorner {
             let topRight = CGPoint(x: mainRect.maxX - cornerRadius, y: mainRect.minY + cornerRadius)
-            addArc(withCenter: topRight, radius: cornerRadius, startAngle: -.pi / 2, endAngle: 0, clockwise: true)
+            path.addArc(center: topRight, radius: cornerRadius, startAngle: -.pi / 2, endAngle: 0, clockwise: false)
         }
 
         if case .right = pointer.edge {
-            addTriangle(triangle)
+            path.addTriangle(triangle)
         }
 
         if !triangle.overridesBottomRightCorner {
             let bottomRight = CGPoint(x: mainRect.maxX - cornerRadius, y: mainRect.maxY - cornerRadius)
-            addArc(withCenter: bottomRight, radius: cornerRadius, startAngle: 0, endAngle: .pi / 2, clockwise: true)
+            path.addArc(center: bottomRight, radius: cornerRadius, startAngle: 0, endAngle: .pi / 2, clockwise: false)
         }
 
         if case .bottom = pointer.edge {
-            addTriangle(triangle)
+            path.addTriangle(triangle)
         }
 
         if !triangle.overridesBottomLeftCorner {
             let bottomLeft = CGPoint(x: mainRect.minX + cornerRadius, y: mainRect.maxY - cornerRadius)
-            addArc(withCenter: bottomLeft, radius: cornerRadius, startAngle: .pi / 2, endAngle: .pi, clockwise: true)
+            path.addArc(center: bottomLeft, radius: cornerRadius, startAngle: .pi / 2, endAngle: .pi, clockwise: false)
         }
 
         if case .left = pointer.edge {
-            addTriangle(triangle)
+            path.addTriangle(triangle)
         }
 
-        close()
-    }
-
-    private func addTriangle(_ triangle: Triangle) {
-        addLine(to: triangle.point1)
-        addLine(to: triangle.point2)
-        addLine(to: triangle.point3)
+        path.closeSubpath()
+        return path
     }
 }
 
-private extension UIBezierPath {
+private extension CGMutablePath {
+    func addTriangle(_ triangle: Triangle) {
+        if triangle.cornerRadius == 0 {
+            addLine(to: triangle.point1)
+            addLine(to: triangle.point2)
+            addLine(to: triangle.point3)
+        } else {
+            if triangle.offCenterPointer1 {
+                // Can't round the straight edge
+                addLine(to: triangle.point1)
+            } else {
+                addArc(tangent1End: triangle.point1, tangent2End: triangle.point2, radius: triangle.cornerRadius)
+            }
+
+            addArc(tangent1End: triangle.point2, tangent2End: triangle.point3, radius: triangle.cornerRadius)
+
+            if triangle.offCenterPointer2 {
+                // Can't round the straight edge
+                addLine(to: triangle.point3)
+            } else {
+                addArc(tangent1End: triangle.point3, tangent2End: triangle.point4, radius: triangle.cornerRadius)
+            }
+        }
+    }
+
     struct Triangle {
         // Points are ordered for a tooltip drawn clockwise
         let point1: CGPoint
         let point2: CGPoint
         let point3: CGPoint
 
+        let cornerRadius: CGFloat
+
+        // Control points for rounded pointer arc calculations
+        let point0: CGPoint
+        let point4: CGPoint
+
         private(set) var overridesTopLeftCorner: Bool
         private(set) var overridesTopRightCorner: Bool
         private(set) var overridesBottomRightCorner: Bool
         private(set) var overridesBottomLeftCorner: Bool
 
+        private(set) var offCenterPointer1: Bool
+        private(set) var offCenterPointer2: Bool
+
         // swiftlint:disable:next cyclomatic_complexity function_body_length
         init(pointer: Pointer, mainRect: CGRect, cornerRadius: CGFloat) {
+            self.cornerRadius = pointer.cornerRadius
+
             overridesTopLeftCorner = false
             overridesTopRightCorner = false
             overridesBottomRightCorner = false
             overridesBottomLeftCorner = false
+
+            offCenterPointer1 = false
+            offCenterPointer2 = false
 
             switch pointer.edge {
             case .top:
@@ -111,6 +145,7 @@ private extension UIBezierPath {
                         triangleBounds.origin.x = cornerRadius
                     }
                     point2X = triangleBounds.minX
+                    offCenterPointer1 = true
                 } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - cornerRadius {
                     // Check for collisions with right corner
                     if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
@@ -120,6 +155,7 @@ private extension UIBezierPath {
                         triangleBounds.origin.x = mainRect.maxX - pointer.size.width - cornerRadius
                     }
                     point2X = triangleBounds.maxX
+                    offCenterPointer2 = true
                 } else {
                     // Centered pointer
                     point2X = triangleBounds.midX
@@ -127,6 +163,9 @@ private extension UIBezierPath {
                 point1 = CGPoint(x: triangleBounds.minX, y: triangleBounds.maxY)
                 point2 = CGPoint(x: point2X, y: triangleBounds.minY)
                 point3 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.maxY)
+
+                point0 = CGPoint(x: mainRect.minX + cornerRadius, y: point1.y)
+                point4 = CGPoint(x: mainRect.maxX - cornerRadius, y: point3.y)
             case .bottom:
                 var triangleBounds = CGRect(
                     x: mainRect.midX - pointer.size.width / 2 + pointer.offset,
@@ -143,6 +182,7 @@ private extension UIBezierPath {
                         triangleBounds.origin.x = cornerRadius
                     }
                     point2X = triangleBounds.minX
+                    offCenterPointer2 = true
                 } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - cornerRadius {
                     if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
                         overridesBottomRightCorner = true
@@ -151,12 +191,16 @@ private extension UIBezierPath {
                         triangleBounds.origin.x = mainRect.maxX - pointer.size.width - cornerRadius
                     }
                     point2X = triangleBounds.maxX
+                    offCenterPointer1 = true
                 } else {
                     point2X = triangleBounds.midX
                 }
                 point1 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.minY)
                 point2 = CGPoint(x: point2X, y: triangleBounds.maxY)
                 point3 = CGPoint(x: triangleBounds.minX, y: triangleBounds.minY)
+
+                point0 = CGPoint(x: mainRect.maxX - cornerRadius, y: point1.y)
+                point4 = CGPoint(x: mainRect.minX + cornerRadius, y: point3.y)
             case .left:
                 var triangleBounds = CGRect(
                     x: mainRect.minX - pointer.size.height,
@@ -173,6 +217,7 @@ private extension UIBezierPath {
                         triangleBounds.origin.y = cornerRadius
                     }
                     point2Y = triangleBounds.minY
+                    offCenterPointer2 = true
                 } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - cornerRadius {
                     if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
                         overridesBottomLeftCorner = true
@@ -181,12 +226,16 @@ private extension UIBezierPath {
                         triangleBounds.origin.y = mainRect.maxY - pointer.size.width - cornerRadius
                     }
                     point2Y = triangleBounds.maxY
+                    offCenterPointer1 = true
                 } else {
                     point2Y = triangleBounds.midY
                 }
                 point1 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.maxY)
                 point2 = CGPoint(x: triangleBounds.minX, y: point2Y)
                 point3 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.minY)
+
+                point0 = CGPoint(x: point1.x, y: mainRect.maxY - cornerRadius)
+                point4 = CGPoint(x: point3.x, y: mainRect.minY + cornerRadius)
             case .right:
                 var triangleBounds = CGRect(
                     x: mainRect.maxX,
@@ -203,6 +252,7 @@ private extension UIBezierPath {
                         triangleBounds.origin.y = cornerRadius
                     }
                     point2Y = triangleBounds.minY
+                    offCenterPointer1 = true
                 } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - cornerRadius {
                     if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
                         overridesBottomRightCorner = true
@@ -211,12 +261,16 @@ private extension UIBezierPath {
                         triangleBounds.origin.y = mainRect.maxY - pointer.size.width - cornerRadius
                     }
                     point2Y = triangleBounds.maxY
+                    offCenterPointer2 = true
                 } else {
                     point2Y = triangleBounds.midY
                 }
                 point1 = CGPoint(x: triangleBounds.minX, y: triangleBounds.minY)
                 point2 = CGPoint(x: triangleBounds.maxX, y: point2Y)
                 point3 = CGPoint(x: triangleBounds.minX, y: triangleBounds.maxY)
+
+                point0 = CGPoint(x: point1.x, y: mainRect.minY + cornerRadius)
+                point4 = CGPoint(x: point3.x, y: mainRect.maxY - cornerRadius)
             }
         }
     }
