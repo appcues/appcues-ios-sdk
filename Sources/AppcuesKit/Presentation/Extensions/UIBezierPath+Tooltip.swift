@@ -20,16 +20,16 @@ internal struct Pointer {
 }
 
 extension CGPath {
-    static func tooltip(around mainRect: CGRect, cornerRadius: CGFloat, pointer: Pointer) -> CGPath {
+    static func tooltip(around mainRect: CGRect, boxCornerRadius: CGFloat, pointer: Pointer) -> CGPath {
         let path = CGMutablePath()
 
-        let triangle = CGMutablePath.Triangle(pointer: pointer, mainRect: mainRect, cornerRadius: cornerRadius)
+        let triangle = CGMutablePath.Triangle(pointer: pointer, mainRect: mainRect, boxCornerRadius: boxCornerRadius)
 
         // Draw the path clockwise from top left
 
         if !triangle.overridesTopLeftCorner {
-            let topLeft = CGPoint(x: mainRect.minX + cornerRadius, y: mainRect.minY + cornerRadius)
-            path.addArc(center: topLeft, radius: cornerRadius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: false)
+            let topLeft = CGPoint(x: mainRect.minX + boxCornerRadius, y: mainRect.minY + boxCornerRadius)
+            path.addArc(center: topLeft, radius: boxCornerRadius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: false)
         } else {
             path.move(to: mainRect.origin)
         }
@@ -39,8 +39,8 @@ extension CGPath {
         }
 
         if !triangle.overridesTopRightCorner {
-            let topRight = CGPoint(x: mainRect.maxX - cornerRadius, y: mainRect.minY + cornerRadius)
-            path.addArc(center: topRight, radius: cornerRadius, startAngle: -.pi / 2, endAngle: 0, clockwise: false)
+            let topRight = CGPoint(x: mainRect.maxX - boxCornerRadius, y: mainRect.minY + boxCornerRadius)
+            path.addArc(center: topRight, radius: boxCornerRadius, startAngle: -.pi / 2, endAngle: 0, clockwise: false)
         }
 
         if case .right = pointer.edge {
@@ -48,8 +48,8 @@ extension CGPath {
         }
 
         if !triangle.overridesBottomRightCorner {
-            let bottomRight = CGPoint(x: mainRect.maxX - cornerRadius, y: mainRect.maxY - cornerRadius)
-            path.addArc(center: bottomRight, radius: cornerRadius, startAngle: 0, endAngle: .pi / 2, clockwise: false)
+            let bottomRight = CGPoint(x: mainRect.maxX - boxCornerRadius, y: mainRect.maxY - boxCornerRadius)
+            path.addArc(center: bottomRight, radius: boxCornerRadius, startAngle: 0, endAngle: .pi / 2, clockwise: false)
         }
 
         if case .bottom = pointer.edge {
@@ -57,8 +57,8 @@ extension CGPath {
         }
 
         if !triangle.overridesBottomLeftCorner {
-            let bottomLeft = CGPoint(x: mainRect.minX + cornerRadius, y: mainRect.maxY - cornerRadius)
-            path.addArc(center: bottomLeft, radius: cornerRadius, startAngle: .pi / 2, endAngle: .pi, clockwise: false)
+            let bottomLeft = CGPoint(x: mainRect.minX + boxCornerRadius, y: mainRect.maxY - boxCornerRadius)
+            path.addArc(center: bottomLeft, radius: boxCornerRadius, startAngle: .pi / 2, endAngle: .pi, clockwise: false)
         }
 
         if case .left = pointer.edge {
@@ -116,7 +116,7 @@ private extension CGMutablePath {
         private(set) var offCenterPointer2: Bool
 
         // swiftlint:disable:next cyclomatic_complexity function_body_length
-        init(pointer: Pointer, mainRect: CGRect, cornerRadius: CGFloat) {
+        init(pointer: Pointer, mainRect: CGRect, boxCornerRadius: CGFloat) {
             self.cornerRadius = pointer.cornerRadius
 
             overridesTopLeftCorner = false
@@ -136,23 +136,23 @@ private extension CGMutablePath {
                     height: pointer.size.height)
 
                 let point2X: CGFloat
-                if triangleBounds.origin.x < cornerRadius {
+                if triangleBounds.origin.x < boxCornerRadius {
                     // Check for collisions with left corner
                     if triangleBounds.origin.x < 0 {
                         overridesTopLeftCorner = true
                         triangleBounds.origin.x = 0
                     } else {
-                        triangleBounds.origin.x = cornerRadius
+                        triangleBounds.origin.x = boxCornerRadius
                     }
                     point2X = triangleBounds.minX
                     offCenterPointer1 = true
-                } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - cornerRadius {
+                } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - boxCornerRadius {
                     // Check for collisions with right corner
                     if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
                         overridesTopRightCorner = true
                         triangleBounds.origin.x = mainRect.maxX - pointer.size.width
                     } else {
-                        triangleBounds.origin.x = mainRect.maxX - pointer.size.width - cornerRadius
+                        triangleBounds.origin.x = mainRect.maxX - pointer.size.width - boxCornerRadius
                     }
                     point2X = triangleBounds.maxX
                     offCenterPointer2 = true
@@ -164,8 +164,8 @@ private extension CGMutablePath {
                 point2 = CGPoint(x: point2X, y: triangleBounds.minY)
                 point3 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.maxY)
 
-                point0 = CGPoint(x: mainRect.minX + cornerRadius, y: point1.y)
-                point4 = CGPoint(x: mainRect.maxX - cornerRadius, y: point3.y)
+                point0 = CGPoint(x: mainRect.minX + boxCornerRadius, y: point1.y)
+                point4 = CGPoint(x: mainRect.maxX - boxCornerRadius, y: point3.y)
             case .bottom:
                 var triangleBounds = CGRect(
                     x: mainRect.midX - pointer.size.width / 2 + pointer.offset,
@@ -174,21 +174,21 @@ private extension CGMutablePath {
                     height: pointer.size.height)
 
                 let point2X: CGFloat
-                if triangleBounds.origin.x < cornerRadius {
+                if triangleBounds.origin.x < boxCornerRadius {
                     if triangleBounds.origin.x < 0 {
                         overridesBottomLeftCorner = true
                         triangleBounds.origin.x = 0
                     } else {
-                        triangleBounds.origin.x = cornerRadius
+                        triangleBounds.origin.x = boxCornerRadius
                     }
                     point2X = triangleBounds.minX
                     offCenterPointer2 = true
-                } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - cornerRadius {
+                } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - boxCornerRadius {
                     if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
                         overridesBottomRightCorner = true
                         triangleBounds.origin.x = mainRect.maxX - pointer.size.width
                     } else {
-                        triangleBounds.origin.x = mainRect.maxX - pointer.size.width - cornerRadius
+                        triangleBounds.origin.x = mainRect.maxX - pointer.size.width - boxCornerRadius
                     }
                     point2X = triangleBounds.maxX
                     offCenterPointer1 = true
@@ -199,8 +199,8 @@ private extension CGMutablePath {
                 point2 = CGPoint(x: point2X, y: triangleBounds.maxY)
                 point3 = CGPoint(x: triangleBounds.minX, y: triangleBounds.minY)
 
-                point0 = CGPoint(x: mainRect.maxX - cornerRadius, y: point1.y)
-                point4 = CGPoint(x: mainRect.minX + cornerRadius, y: point3.y)
+                point0 = CGPoint(x: mainRect.maxX - boxCornerRadius, y: point1.y)
+                point4 = CGPoint(x: mainRect.minX + boxCornerRadius, y: point3.y)
             case .left:
                 var triangleBounds = CGRect(
                     x: mainRect.minX - pointer.size.height,
@@ -209,21 +209,21 @@ private extension CGMutablePath {
                     height: pointer.size.width)
 
                 let point2Y: CGFloat
-                if triangleBounds.origin.y < cornerRadius {
+                if triangleBounds.origin.y < boxCornerRadius {
                     if triangleBounds.origin.y < 0 {
                         overridesTopLeftCorner = true
                         triangleBounds.origin.y = 0
                     } else {
-                        triangleBounds.origin.y = cornerRadius
+                        triangleBounds.origin.y = boxCornerRadius
                     }
                     point2Y = triangleBounds.minY
                     offCenterPointer2 = true
-                } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - cornerRadius {
+                } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - boxCornerRadius {
                     if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
                         overridesBottomLeftCorner = true
                         triangleBounds.origin.y = mainRect.maxY - pointer.size.width
                     } else {
-                        triangleBounds.origin.y = mainRect.maxY - pointer.size.width - cornerRadius
+                        triangleBounds.origin.y = mainRect.maxY - pointer.size.width - boxCornerRadius
                     }
                     point2Y = triangleBounds.maxY
                     offCenterPointer1 = true
@@ -234,8 +234,8 @@ private extension CGMutablePath {
                 point2 = CGPoint(x: triangleBounds.minX, y: point2Y)
                 point3 = CGPoint(x: triangleBounds.maxX, y: triangleBounds.minY)
 
-                point0 = CGPoint(x: point1.x, y: mainRect.maxY - cornerRadius)
-                point4 = CGPoint(x: point3.x, y: mainRect.minY + cornerRadius)
+                point0 = CGPoint(x: point1.x, y: mainRect.maxY - boxCornerRadius)
+                point4 = CGPoint(x: point3.x, y: mainRect.minY + boxCornerRadius)
             case .right:
                 var triangleBounds = CGRect(
                     x: mainRect.maxX,
@@ -244,21 +244,21 @@ private extension CGMutablePath {
                     height: pointer.size.width)
 
                 let point2Y: CGFloat
-                if triangleBounds.origin.y < cornerRadius {
+                if triangleBounds.origin.y < boxCornerRadius {
                     if triangleBounds.origin.y < 0 {
                         overridesTopRightCorner = true
                         triangleBounds.origin.y = 0
                     } else {
-                        triangleBounds.origin.y = cornerRadius
+                        triangleBounds.origin.y = boxCornerRadius
                     }
                     point2Y = triangleBounds.minY
                     offCenterPointer1 = true
-                } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - cornerRadius {
+                } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - boxCornerRadius {
                     if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
                         overridesBottomRightCorner = true
                         triangleBounds.origin.y = mainRect.maxY - pointer.size.width
                     } else {
-                        triangleBounds.origin.y = mainRect.maxY - pointer.size.width - cornerRadius
+                        triangleBounds.origin.y = mainRect.maxY - pointer.size.width - boxCornerRadius
                     }
                     point2Y = triangleBounds.maxY
                     offCenterPointer2 = true
@@ -269,8 +269,8 @@ private extension CGMutablePath {
                 point2 = CGPoint(x: triangleBounds.maxX, y: point2Y)
                 point3 = CGPoint(x: triangleBounds.minX, y: triangleBounds.maxY)
 
-                point0 = CGPoint(x: point1.x, y: mainRect.minY + cornerRadius)
-                point4 = CGPoint(x: point3.x, y: mainRect.maxY - cornerRadius)
+                point0 = CGPoint(x: point1.x, y: mainRect.minY + boxCornerRadius)
+                point4 = CGPoint(x: point3.x, y: mainRect.maxY - boxCornerRadius)
             }
         }
     }
