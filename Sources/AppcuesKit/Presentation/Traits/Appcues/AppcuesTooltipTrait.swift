@@ -15,6 +15,7 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
         let hidePointer: Bool?
         let pointerBase: Double?
         let pointerLength: Double?
+        let pointerCornerRadius: Double?
         let style: ExperienceComponent.Style?
     }
 
@@ -25,11 +26,13 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
     let tooltipStyle: ExperienceComponent.Style?
     let hidePointer: Bool
     let pointerSize: CGSize
+    let pointerCornerRadius: CGFloat
 
     required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
         let config = configuration.decode(Config.self)
         self.hidePointer = config?.hidePointer ?? false
         self.pointerSize = CGSize(width: config?.pointerBase ?? 16, height: config?.pointerLength ?? 8)
+        self.pointerCornerRadius = config?.pointerCornerRadius ?? 0
         self.tooltipStyle = config?.style
     }
 
@@ -47,6 +50,8 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
         let experienceWrapperViewController = ExperienceWrapperViewController<TooltipWrapperView>(wrapping: containerController)
         experienceWrapperViewController.configureStyle(tooltipStyle)
         experienceWrapperViewController.bodyView.pointerSize = hidePointer ? nil : pointerSize
+        experienceWrapperViewController.bodyView.pointerCornerRadius =  pointerCornerRadius
+
         if let preferredWidth = tooltipStyle?.width {
             experienceWrapperViewController.bodyView.preferredWidth = preferredWidth
         }

@@ -33,6 +33,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
     var preferredPosition: ContentPosition?
     /// A nil pointerSize means no pointer
     var pointerSize: CGSize?
+    var pointerCornerRadius: CGFloat = 0
     var distanceFromTarget: CGFloat = 0
 
     var targetRectangle: CGRect? {
@@ -310,10 +311,14 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             height: pointerSize.height
         )
 
-        let pointer = Pointer(edge: pointerEdge, size: constrainedPointerSize, offset: offsetFromCenter)
-        let tooltipPath = UIBezierPath(tooltipAround: mainRect, cornerRadius: cornerRadius, pointer: pointer)
+        let constrainedPointerCornerRadius = min(pointerCornerRadius, constrainedPointerSize.maxPointerCornerRadius)
 
-        return tooltipPath.cgPath
+        let pointer = Pointer(
+            edge: pointerEdge,
+            size: constrainedPointerSize,
+            cornerRadius: constrainedPointerCornerRadius,
+            offset: offsetFromCenter)
+        return CGPath.tooltip(around: mainRect, cornerRadius: cornerRadius, pointer: pointer)
     }
 
 }
