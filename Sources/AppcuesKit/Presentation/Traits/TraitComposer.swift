@@ -26,6 +26,7 @@ internal class TraitComposer: TraitComposing {
         notificationCenter = container.resolve(NotificationCenter.self)
     }
 
+    // swiftlint:disable:next function_body_length
     func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
         let stepModels: [Experience.Step.Child] = experience.steps[stepIndex.group].items
         let targetPageIndex = stepIndex.item
@@ -48,7 +49,9 @@ internal class TraitComposer: TraitComposing {
             allTraitInstances.append(contentsOf: decomposedGroupTraits.allTraitInstances)
         case .child(let childStep):
             // Decorator traits and allTraitInstances for a single step are handled below with the stepModels.
-            decomposedTraits.append(contentsOf: DecomposedTraits(traits: traitRegistry.instances(for: childStep.traits, level: .step)), ignoringDecorators: true)
+            decomposedTraits.append(
+                contentsOf: DecomposedTraits(traits: traitRegistry.instances(for: childStep.traits, level: .step)),
+                ignoringDecorators: true)
         }
 
         let stepModelsWithTraits: [(step: Experience.Step.Child, decomposedTraits: DecomposedTraits)] = stepModels.map { stepModel in
@@ -75,10 +78,10 @@ internal class TraitComposer: TraitComposing {
         let pageMonitor = PageMonitor(numberOfPages: stepControllers.count, currentPage: targetPageIndex)
         let containerController = try (decomposedTraits.containerCreating ?? DefaultContainerCreatingTrait())
             .createContainer(for: stepControllers, with: pageMonitor)
-        let wrappedContainerViewController = try decomposedTraits.wrapperCreating?.createWrapper(around: containerController) ?? containerController
+        let wrapperController = try decomposedTraits.wrapperCreating?.createWrapper(around: containerController) ?? containerController
 
         let backdropView = UIView()
-        decomposedTraits.wrapperCreating?.addBackdrop(backdropView: backdropView, to: wrappedContainerViewController)
+        decomposedTraits.wrapperCreating?.addBackdrop(backdropView: backdropView, to: wrapperController)
 
         let stepDecoratingTraitUpdater: (Int, Int?) throws -> Void = { newIndex, previousIndex in
             // Remove old decorations
@@ -104,17 +107,17 @@ internal class TraitComposer: TraitComposing {
             metadataDelegate.publish()
         }
 
-        let unwrappedPresenting = try decomposedTraits.presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
+        let presentingTrait = try decomposedTraits.presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
 
         return ExperiencePackage(
             traitInstances: decomposedTraits.allTraitInstances,
             stepDecoratingTraitUpdater: stepDecoratingTraitUpdater,
             steps: stepModelsWithTraits.map { $0.0 },
             containerController: containerController,
-            wrapperController: wrappedContainerViewController,
+            wrapperController: wrapperController,
             pageMonitor: pageMonitor,
-            presenter: { try unwrappedPresenting.present(viewController: wrappedContainerViewController, completion: $0) },
-            dismisser: { unwrappedPresenting.remove(viewController: wrappedContainerViewController, completion: $0) }
+            presenter: { try presentingTrait.present(viewController: wrapperController, completion: $0) },
+            dismisser: { presentingTrait.remove(viewController: wrapperController, completion: $0) }
         )
     }
 }
@@ -192,7 +195,10 @@ extension TraitComposer {
         init() {}
         required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {}
 
-        func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
+        func createContainer(
+            for stepControllers: [UIViewController],
+            with pageMonitor: PageMonitor
+        ) throws -> ExperienceContainerViewController {
             DefaultContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
         }
     }

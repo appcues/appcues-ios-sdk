@@ -136,6 +136,7 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         contentWrapperView.layoutMargins = UIEdgeInsets(top: width, left: width, bottom: width, right: width)
     }
 
+    // swiftlint:disable:next function_body_length
     private func tooltipPosition(for targetRectangle: CGRect) -> CGRect {
         let distance = distanceFromTarget
 

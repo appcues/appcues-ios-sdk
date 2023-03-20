@@ -12,6 +12,7 @@ import UIKit
 internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecoratingTrait {
     struct Config: Decodable {
         let buttonAppearance: ButtonAppearance?
+        // swiftlint:disable:next discouraged_optional_boolean
         let ignoreBackdropTap: Bool?
     }
 

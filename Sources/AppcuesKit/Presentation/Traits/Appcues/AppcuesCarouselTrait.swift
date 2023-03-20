@@ -17,7 +17,10 @@ internal class AppcuesCarouselTrait: ContainerCreatingTrait {
     required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
     }
 
-    func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
+    func createContainer(
+        for stepControllers: [UIViewController],
+        with pageMonitor: PageMonitor
+    ) throws -> ExperienceContainerViewController {
         CarouselContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
     }
 }
