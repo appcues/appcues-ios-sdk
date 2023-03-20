@@ -154,7 +154,7 @@ vertical_whitespace:
 
 missing_docs:
   excludes_extensions: true
-  excludes_inherited_types: true
+  excludes_inherited_types: false
 
 custom_rules:
   deep_link_spelling:
