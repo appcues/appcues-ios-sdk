@@ -43,7 +43,8 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
             top: tooltipStyle?.paddingTop ?? 0,
             leading: tooltipStyle?.paddingLeading ?? 0,
             bottom: tooltipStyle?.paddingBottom ?? 0,
-            trailing: tooltipStyle?.paddingTrailing ?? 0)
+            trailing: tooltipStyle?.paddingTrailing ?? 0
+        )
     }
 
     func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {

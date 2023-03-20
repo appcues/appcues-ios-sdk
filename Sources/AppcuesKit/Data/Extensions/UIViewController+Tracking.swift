@@ -45,9 +45,11 @@ extension UIViewController {
         guard !untracked else { return }
 
         // communicate the tracked screen back to AnalyticsTracker
-        NotificationCenter.appcues.post(name: .appcuesTrackedScreen,
-                                        object: self,
-                                        userInfo: Notification.toInfo(top.displayName))
+        NotificationCenter.appcues.post(
+            name: .appcuesTrackedScreen,
+            object: self,
+            userInfo: Notification.toInfo(top.displayName)
+        )
     }
 
     @objc

@@ -33,13 +33,15 @@ internal struct TextInputStyle: TextInputStyling {
     let keyboardType: UIKeyboardType?
     let textContentType: UITextContentType?
 
-    init(numberOfLines: Int? = nil,
-         maxLength: Int? = nil,
-         font: UIFont? = nil,
-         textColor: UIColor? = nil,
-         tintColor: UIColor? = nil,
-         keyboardType: UIKeyboardType? = nil,
-         textContentType: UITextContentType? = nil) {
+    init(
+        numberOfLines: Int? = nil,
+        maxLength: Int? = nil,
+        font: UIFont? = nil,
+        textColor: UIColor? = nil,
+        tintColor: UIColor? = nil,
+        keyboardType: UIKeyboardType? = nil,
+        textContentType: UITextContentType? = nil
+    ) {
         self.numberOfLines = numberOfLines
         self.maxLength = maxLength
         self.font = font

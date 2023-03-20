@@ -23,9 +23,10 @@ internal struct EmbedWebView: UIViewRepresentable {
         // swiftlint:disable:next line_length
         let source = "var node = document.createElement(\"style\"); node.innerHTML = \"body { margin:0; }\";document.body.appendChild(node);"
         let script = WKUserScript(
-                    source: source,
-                    injectionTime: .atDocumentEnd,
-                    forMainFrameOnly: false)
+            source: source,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: false
+        )
 
         config.userContentController.addUserScript(script)
 

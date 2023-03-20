@@ -60,13 +60,16 @@ internal enum SendCaptureUI {
                 Text("Name")
                     .font(.system(size: 12))
                     .foregroundColor(.appcuesBlurple)
-                MultilineTextView(text: $screenName,
-                                  model: TextInputStyle(numberOfLines: 1, font: UIFont.systemFont(ofSize: 16)))
+                MultilineTextView(
+                    text: $screenName,
+                    model: TextInputStyle(numberOfLines: 1, font: UIFont.systemFont(ofSize: 16))
+                )
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
                     .overlay(
                         RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color.appcuesTextInputBorder, lineWidth: 1))
+                            .stroke(Color.appcuesTextInputBorder, lineWidth: 1)
+                    )
             }
         }
 
@@ -90,9 +93,14 @@ internal enum SendCaptureUI {
                 }
                 .frame(height: 40)
                 .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                .background(LinearGradient(gradient: Gradient(colors: [.appcuesBlurple, .appcuesBlurpleGradientEnd]),
-                                           startPoint: .leading,
-                                           endPoint: .trailing).opacity(screenName.isEmpty ? 0.5 : 1.0))
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(colors: [.appcuesBlurple, .appcuesBlurpleGradientEnd]),
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .opacity(screenName.isEmpty ? 0.5 : 1.0)
+                )
                 .cornerRadius(6.0)
                 .disabled(screenName.isEmpty)
             }

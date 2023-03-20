@@ -91,7 +91,8 @@ internal class ActionRegistry {
             interactionType: interactionType,
             viewDescription: viewDescription ?? "",
             category: primaryAction?.category ?? "",
-            destination: primaryAction?.destination ?? "")
+            destination: primaryAction?.destination ?? ""
+        )
 
         // Directly enqueue the interactionAction separately from the others so that it can't be modified by the queue transformation.
         actionQueue.append(interactionAction)

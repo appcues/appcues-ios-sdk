@@ -64,7 +64,8 @@ internal class UIDebugger: UIDebugging {
             accountID: config.accountID,
             applicationID: config.applicationID,
             currentUserID: storage.userID,
-            isAnonymous: storage.isAnonymous)
+            isAnonymous: storage.isAnonymous
+        )
 
         notificationCenter.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
     }
@@ -166,7 +167,8 @@ extension UIDebugger: DebugViewDelegate {
             layout: layout,
             metadata: Capture.Metadata(insets: Capture.Insets(window.safeAreaInsets)),
             timestamp: timestamp,
-            screenshot: screenshot)
+            screenshot: screenshot
+        )
 
         // show confirmation dialog
         debugViewController.confirmCapture(screen: capture) { [weak self] result in

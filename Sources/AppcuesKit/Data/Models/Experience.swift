@@ -40,14 +40,16 @@ internal struct FailedExperience: Decodable {
     // did not parse fully from JSON. It is only used for error reporting purposes, generating a flow issue
     // to help diagnose the parsing error.
     var skeletonExperience: Experience {
-        Experience(id: id,
-                   name: name ?? "",
-                   type: type ?? "",
-                   publishedAt: publishedAt,
-                   traits: [],
-                   steps: [],
-                   redirectURL: nil,
-                   nextContentID: nil)
+        Experience(
+            id: id,
+            name: name ?? "",
+            type: type ?? "",
+            publishedAt: publishedAt,
+            traits: [],
+            steps: [],
+            redirectURL: nil,
+            nextContentID: nil
+        )
     }
 }
 
@@ -81,8 +83,8 @@ internal struct TraitCollection: Decodable {
         if !duplicates.isEmpty {
             let message = "multiple traits of same type are not supported: \(duplicates.joined(separator: ","))"
             throw DecodingError.dataCorrupted(
-                DecodingError.Context(codingPath: decoder.codingPath,
-                                      debugDescription: message))
+                DecodingError.Context(codingPath: decoder.codingPath, debugDescription: message)
+            )
         }
 
         self.traits = traits
@@ -181,8 +183,10 @@ extension Experience {
         }
 
         if let nextContentID = nextContentID {
-            actions.append(AppcuesLaunchExperienceAction(experienceID: nextContentID,
-                                                         trigger: .experienceCompletionAction(fromExperienceID: self.id)))
+            actions.append(AppcuesLaunchExperienceAction(
+                experienceID: nextContentID,
+                trigger: .experienceCompletionAction(fromExperienceID: self.id)
+            ))
         }
 
         return actions
@@ -206,11 +210,13 @@ extension Experience.Step: Decodable {
         }
 
         // additional constructor used in tests
-        init(id: UUID,
-             type: String,
-             children: [Child],
-             traits: [Experience.Trait],
-             actions: [String: [Experience.Action]]) {
+        init(
+            id: UUID,
+            type: String,
+            children: [Child],
+            traits: [Experience.Trait],
+            actions: [String: [Experience.Action]]
+        ) {
             self.id = id
             self.type = type
             self.children = children

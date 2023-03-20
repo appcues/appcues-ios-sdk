@@ -38,7 +38,8 @@ extension UIView {
             accessibilityIdentifier: accessibilityIdentifier,
             description: accessibilityLabel,
             tag: tag != 0 ? "\(self.tag)" : nil,
-            id: nil)
+            id: nil
+        )
     }
 
     func screenCaptureDisplayName(at timestamp: Date) -> String {
@@ -88,6 +89,7 @@ extension UIView {
             height: absolutePosition.height,
             type: "\(type(of: self))",
             selector: appcuesSelector,
-            children: children.isEmpty ? nil : children)
+            children: children.isEmpty ? nil : children
+        )
     }
 }

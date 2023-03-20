@@ -209,6 +209,7 @@ internal class ExperienceRenderer: ExperienceRendering {
                 "experimentContentType": experiment.contentType,
                 "experimentGoalId": experiment.goalID
             ],
-            isInternal: true))
+            isInternal: true
+        ))
     }
 }

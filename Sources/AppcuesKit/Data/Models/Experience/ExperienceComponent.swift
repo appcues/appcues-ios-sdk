@@ -155,7 +155,8 @@ extension ExperienceComponent {
             } else {
                 throw DecodingError.valueNotFound(
                     String.self,
-                    .init(codingPath: container.codingPath + [CodingKeys.text], debugDescription: "no text or spans defined"))
+                    .init(codingPath: container.codingPath + [CodingKeys.text], debugDescription: "no text or spans defined")
+                )
             }
         }
 

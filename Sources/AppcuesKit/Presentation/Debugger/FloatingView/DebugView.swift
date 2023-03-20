@@ -98,13 +98,15 @@ internal class DebugView: UIView {
 
             return CGPoint(
                 x: relativeDockedPosition.x < 0.5 ? newBoundingRect.minX : newBoundingRect.maxX,
-                y: newBoundingRect.height * relativeDockedPosition.y)
+                y: newBoundingRect.height * relativeDockedPosition.y
+            )
         }
         set {
             let boundingRect = floatingViewBoundingRect
             relativeDockedPosition = CGPoint(
                 x: newValue.x / boundingRect.width,
-                y: newValue.y / boundingRect.height)
+                y: newValue.y / boundingRect.height
+            )
         }
     }
 
@@ -322,7 +324,8 @@ internal class DebugView: UIView {
             destinationPoint = gestureCalculator.restingPoint(
                 from: floatingView.center,
                 to: projectedPosition,
-                within: floatingViewBoundingRect)
+                within: floatingViewBoundingRect
+            )
             damping = gestureCalculator.dynamicDamping(magnitude: destinationPoint.distance(from: projectedPosition))
         } else {
             // Snap back to open state & position
@@ -494,7 +497,8 @@ internal class DebugView: UIView {
         if animated {
             UIView.animate(
                 withDuration: 0.6,
-                animations: animations) { _ in completion?() }
+                animations: animations
+            ) { _ in completion?() }
         } else {
             animations()
             completion?()
