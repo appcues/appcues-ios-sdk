@@ -17,19 +17,6 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
         let selector: ElementSelector
     }
 
-    private class FrameObserverView: UIView {
-        private var oldBounds: CGRect = .zero
-        var onChange: (() -> Void)?
-
-        override func layoutSubviews() {
-            super.layoutSubviews()
-            if oldBounds != bounds {
-                onChange?()
-            }
-            oldBounds = bounds
-        }
-    }
-
     static let type: String = "@appcues/target-element"
 
     weak var metadataDelegate: TraitMetadataDelegate?
@@ -62,7 +49,7 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
         // Ensure the view bounds are updated *before* we add the frame observer block.
         frameObserverView.layoutIfNeeded()
 
-        frameObserverView.onChange = { [weak self] in
+        frameObserverView.onChange = { [weak self] _ in
             // this observer will ignore selector errors and use last known position on failure
             if let targetRectangle = try? self?.calculateRect() {
                 self?.metadataDelegate?.set([

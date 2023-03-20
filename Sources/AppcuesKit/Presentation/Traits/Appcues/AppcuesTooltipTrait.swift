@@ -50,7 +50,7 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
         let experienceWrapperViewController = ExperienceWrapperViewController<TooltipWrapperView>(wrapping: containerController)
         experienceWrapperViewController.configureStyle(tooltipStyle)
         experienceWrapperViewController.bodyView.pointerSize = hidePointer ? nil : pointerSize
-        experienceWrapperViewController.bodyView.pointerCornerRadius =  pointerCornerRadius
+        experienceWrapperViewController.bodyView.pointerCornerRadius = pointerCornerRadius
 
         if let preferredWidth = tooltipStyle?.width {
             experienceWrapperViewController.bodyView.preferredWidth = preferredWidth

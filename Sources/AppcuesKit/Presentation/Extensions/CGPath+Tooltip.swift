@@ -1,5 +1,5 @@
 //
-//  UIBezierPath+Tooltip.swift
+//  CGPath+Tooltip.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2023-01-31.

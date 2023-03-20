@@ -14,7 +14,7 @@ internal protocol DebugViewDelegate: AnyObject {
 }
 
 @available(iOS 13.0, *)
-// swiftlint:disable:next type_body_length
+// swiftlint:disable:next type_body_length attributes
 internal class DebugView: UIView {
 
     private let gestureCalculator = GestureCalculator()
