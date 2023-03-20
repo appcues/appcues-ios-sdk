@@ -52,7 +52,8 @@ internal class AppcuesStepInteractionAction: ExperienceAction {
         analyticsPublisher.publish(TrackingUpdate(
             type: .event(name: LifecycleEvent.stepInteraction.rawValue, interactive: false),
             properties: interactionProperties,
-            isInternal: true))
+            isInternal: true
+        ))
 
         completion()
     }

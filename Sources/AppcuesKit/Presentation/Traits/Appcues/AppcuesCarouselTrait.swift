@@ -119,7 +119,8 @@ extension AppcuesCarouselTrait {
             carouselView.collectionView.scrollToItem(
                 at: IndexPath(row: pageIndex, section: 0),
                 at: .centeredHorizontally,
-                animated: animated)
+                animated: animated
+            )
         }
 
         func scrollHandler(

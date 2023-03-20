@@ -117,7 +117,8 @@ internal class FleetingLogView: UIView {
                 view.isHidden = true
             }, completion: { _ in
                 view.removeFromSuperview()
-            })
+            }
+        )
     }
 
     func clear() {

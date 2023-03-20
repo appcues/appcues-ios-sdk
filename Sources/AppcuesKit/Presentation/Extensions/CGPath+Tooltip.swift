@@ -138,7 +138,8 @@ extension Pointer {
                     x: mainRect.midX - pointer.size.width / 2 + pointer.offset,
                     y: mainRect.minY - pointer.size.height,
                     width: pointer.size.width,
-                    height: pointer.size.height)
+                    height: pointer.size.height
+                )
 
                 let point2X: CGFloat
                 if triangleBounds.origin.x < boxCornerRadius {
@@ -176,7 +177,8 @@ extension Pointer {
                     x: mainRect.midX - pointer.size.width / 2 + pointer.offset,
                     y: mainRect.maxY,
                     width: pointer.size.width,
-                    height: pointer.size.height)
+                    height: pointer.size.height
+                )
 
                 let point2X: CGFloat
                 if triangleBounds.origin.x < boxCornerRadius {
@@ -211,7 +213,8 @@ extension Pointer {
                     x: mainRect.minX - pointer.size.height,
                     y: (mainRect.midY - pointer.size.width / 2 + pointer.offset),
                     width: pointer.size.height,
-                    height: pointer.size.width)
+                    height: pointer.size.width
+                )
 
                 let point2Y: CGFloat
                 if triangleBounds.origin.y < boxCornerRadius {
@@ -246,7 +249,8 @@ extension Pointer {
                     x: mainRect.maxX,
                     y: (mainRect.midY - pointer.size.width / 2 + pointer.offset),
                     width: pointer.size.height,
-                    height: pointer.size.width)
+                    height: pointer.size.width
+                )
 
                 let point2Y: CGFloat
                 if triangleBounds.origin.y < boxCornerRadius {

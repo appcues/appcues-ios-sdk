@@ -120,13 +120,15 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.map { item in
                 let (experience, error) = item.parsed
                 let experiment = experiments.first { $0.experienceID == experience.id }
-                return ExperienceData(experience,
-                                      trigger: .qualification(reason: qualifyResponse.qualificationReason),
-                                      priority: qualifyResponse.renderPriority,
-                                      published: true,
-                                      experiment: experiment,
-                                      requestID: activity.requestID,
-                                      error: error)
+                return ExperienceData(
+                    experience,
+                    trigger: .qualification(reason: qualifyResponse.qualificationReason),
+                    priority: qualifyResponse.renderPriority,
+                    published: true,
+                    experiment: experiment,
+                    requestID: activity.requestID,
+                    error: error
+                )
             }
             experienceRenderer.show(qualifiedExperiences: qualifiedExperienceData, completion: nil)
         }
@@ -137,36 +139,41 @@ extension Activity {
     init(from update: TrackingUpdate, config: Appcues.Config, storage: DataStoring) {
         switch update.type {
         case let .event(name, _):
-            self.init(accountID: config.accountID,
-                      userID: storage.userID,
-                      events: [Event(name: name, attributes: update.properties, context: update.context)],
-                      profileUpdate: update.eventAutoProperties,
-                      groupID: storage.groupID,
-                      userSignature: storage.userSignature)
-
+            self.init(
+                accountID: config.accountID,
+                userID: storage.userID,
+                events: [Event(name: name, attributes: update.properties, context: update.context)],
+                profileUpdate: update.eventAutoProperties,
+                groupID: storage.groupID,
+                userSignature: storage.userSignature
+            )
         case let .screen(title):
-            self.init(accountID: config.accountID,
-                      userID: storage.userID,
-                      events: [Event(screen: title, attributes: update.properties, context: update.context)],
-                      profileUpdate: update.eventAutoProperties,
-                      groupID: storage.groupID,
-                      userSignature: storage.userSignature)
-
+            self.init(
+                accountID: config.accountID,
+                userID: storage.userID,
+                events: [Event(screen: title, attributes: update.properties, context: update.context)],
+                profileUpdate: update.eventAutoProperties,
+                groupID: storage.groupID,
+                userSignature: storage.userSignature
+            )
         case .profile:
-            self.init(accountID: config.accountID,
-                      userID: storage.userID,
-                      events: nil,
-                      profileUpdate: update.properties,
-                      groupID: storage.groupID,
-                      userSignature: storage.userSignature)
-
+            self.init(
+                accountID: config.accountID,
+                userID: storage.userID,
+                events: nil,
+                profileUpdate: update.properties,
+                groupID: storage.groupID,
+                userSignature: storage.userSignature
+            )
         case .group:
-            self.init(accountID: config.accountID,
-                      userID: storage.userID,
-                      events: nil,
-                      groupID: storage.groupID,
-                      groupUpdate: update.properties,
-                      userSignature: storage.userSignature)
+            self.init(
+                accountID: config.accountID,
+                userID: storage.userID,
+                events: nil,
+                groupID: storage.groupID,
+                groupUpdate: update.properties,
+                userSignature: storage.userSignature
+            )
         }
     }
 
