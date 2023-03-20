@@ -29,7 +29,7 @@ extension CGPath {
 
         if !triangle.overridesTopLeftCorner {
             let topLeft = CGPoint(x: mainRect.minX + boxCornerRadius, y: mainRect.minY + boxCornerRadius)
-            path.addArc(center: topLeft, radius: boxCornerRadius, startAngle: .pi, endAngle: 3 * .pi / 2, clockwise: false)
+            path.addRelativeArc(center: topLeft, radius: boxCornerRadius, startAngle: .pi, delta: .pi / 2)
         } else {
             path.move(to: mainRect.origin)
         }
@@ -40,7 +40,7 @@ extension CGPath {
 
         if !triangle.overridesTopRightCorner {
             let topRight = CGPoint(x: mainRect.maxX - boxCornerRadius, y: mainRect.minY + boxCornerRadius)
-            path.addArc(center: topRight, radius: boxCornerRadius, startAngle: -.pi / 2, endAngle: 0, clockwise: false)
+            path.addRelativeArc(center: topRight, radius: boxCornerRadius, startAngle: 3 * .pi / 2, delta: .pi / 2)
         }
 
         if case .right = pointer.edge {
@@ -49,7 +49,7 @@ extension CGPath {
 
         if !triangle.overridesBottomRightCorner {
             let bottomRight = CGPoint(x: mainRect.maxX - boxCornerRadius, y: mainRect.maxY - boxCornerRadius)
-            path.addArc(center: bottomRight, radius: boxCornerRadius, startAngle: 0, endAngle: .pi / 2, clockwise: false)
+            path.addRelativeArc(center: bottomRight, radius: boxCornerRadius, startAngle: 0, delta: .pi / 2)
         }
 
         if case .bottom = pointer.edge {
@@ -58,7 +58,7 @@ extension CGPath {
 
         if !triangle.overridesBottomLeftCorner {
             let bottomLeft = CGPoint(x: mainRect.minX + boxCornerRadius, y: mainRect.maxY - boxCornerRadius)
-            path.addArc(center: bottomLeft, radius: boxCornerRadius, startAngle: .pi / 2, endAngle: .pi, clockwise: false)
+            path.addRelativeArc(center: bottomLeft, radius: boxCornerRadius, startAngle: .pi / 2, delta: .pi / 2)
         }
 
         if case .left = pointer.edge {
