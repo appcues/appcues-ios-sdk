@@ -35,7 +35,8 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
             top: modalStyle?.paddingTop ?? 0,
             leading: modalStyle?.paddingLeading ?? 0,
             bottom: modalStyle?.paddingBottom ?? 0,
-            trailing: modalStyle?.paddingTrailing ?? 0)
+            trailing: modalStyle?.paddingTrailing ?? 0
+        )
     }
 
     func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {

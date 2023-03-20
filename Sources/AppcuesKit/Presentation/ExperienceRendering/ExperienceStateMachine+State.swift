@@ -204,7 +204,8 @@ extension ExperienceStateMachine.Transition {
         guard let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex) else {
             return .init(
                 toState: nil,
-                sideEffect: .error(.step(experience, currentIndex, "Step at \(stepRef) does not exist"), reset: false))
+                sideEffect: .error(.step(experience, currentIndex, "Step at \(stepRef) does not exist"), reset: false)
+            )
         }
 
         let stepGroup = experience.steps[stepIndex.group]

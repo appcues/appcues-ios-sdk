@@ -123,7 +123,8 @@ extension View {
                     color: Color(dynamicColor: val.color) ?? Color(.sRGBLinear, white: 0, opacity: 0.33),
                     radius: val.radius,
                     x: val.x,
-                    y: val.y)
+                    y: val.y
+                )
             }
     }
 

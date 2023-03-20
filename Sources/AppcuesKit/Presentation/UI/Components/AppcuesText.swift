@@ -37,7 +37,8 @@ extension Text {
 
             if let font = Font(
                 name: span.style?.fontName ?? textModel.style?.fontName,
-                size: span.style?.fontSize ?? textModel.style?.fontSize ?? UIFont.labelFontSize) {
+                size: span.style?.fontSize ?? textModel.style?.fontSize ?? UIFont.labelFontSize
+            ) {
                 text = text.font(font)
             }
 

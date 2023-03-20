@@ -81,9 +81,13 @@ private extension AnalyticsPublisher {
 extension AnalyticsPublishing {
     // helper used for internal SDK events to allow for enum cases to be passed for the event name
     func track<T>(_ item: T, properties: [String: Any]?, interactive: Bool) where T: RawRepresentable, T.RawValue == String {
-        publish(TrackingUpdate(type: .event(name: item.rawValue, interactive: interactive),
-                               properties: properties,
-                               isInternal: true))
+        publish(
+            TrackingUpdate(
+                type: .event(name: item.rawValue, interactive: interactive),
+                properties: properties,
+                isInternal: true
+            )
+        )
     }
 
     func screen(title: String) {

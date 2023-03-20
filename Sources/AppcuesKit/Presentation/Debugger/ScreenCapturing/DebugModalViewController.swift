@@ -58,12 +58,14 @@ internal class DebugModalViewController<Content: View>: UIViewController {
             self,
             selector: #selector(adjustForKeyboard),
             name: UIResponder.keyboardWillHideNotification,
-            object: nil)
+            object: nil
+        )
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(adjustForKeyboard),
             name: UIResponder.keyboardWillChangeFrameNotification,
-            object: nil)
+            object: nil
+        )
     }
 
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {

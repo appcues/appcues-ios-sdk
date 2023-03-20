@@ -28,9 +28,10 @@ internal class UIKitScreenTracker {
             method_exchangeImplementations(originalMethod, swizzledMethod)
         }
 
-        swizzle(forClass: UIViewController.self,
-                original: #selector(UIViewController.viewDidAppear(_:)),
-                new: #selector(UIViewController.appcues__viewDidAppear)
+        swizzle(
+            forClass: UIViewController.self,
+            original: #selector(UIViewController.viewDidAppear(_:)),
+            new: #selector(UIViewController.appcues__viewDidAppear)
         )
 
         container.resolve(Appcues.Config.self).logger.info("Automatic screen tracking enabled")

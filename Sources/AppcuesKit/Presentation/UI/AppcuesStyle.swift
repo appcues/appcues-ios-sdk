@@ -39,12 +39,14 @@ internal struct AppcuesStyle {
             top: model?.paddingTop ?? 0,
             leading: model?.paddingLeading ?? 0,
             bottom: model?.paddingBottom ?? 0,
-            trailing: model?.paddingTrailing ?? 0)
+            trailing: model?.paddingTrailing ?? 0
+        )
         self.margin = EdgeInsets(
             top: model?.marginTop ?? 0,
             leading: model?.marginLeading ?? 0,
             bottom: model?.marginBottom ?? 0,
-            trailing: model?.marginTrailing ?? 0)
+            trailing: model?.marginTrailing ?? 0
+        )
         self.height = CGFloat(model?.height)
 
         if let width = model?.width, width > 0 {
@@ -95,6 +97,7 @@ internal struct AppcuesStyle {
             top: hasHeight || (hasWidth && willApplyAspectRatio) ? borderInsetSize : 0,
             leading: hasWidth || (hasHeight && willApplyAspectRatio) ? borderInsetSize : 0,
             bottom: hasHeight || (hasWidth && willApplyAspectRatio) ? borderInsetSize : 0,
-            trailing: hasWidth || (hasHeight && willApplyAspectRatio) ? borderInsetSize : 0)
+            trailing: hasWidth || (hasHeight && willApplyAspectRatio) ? borderInsetSize : 0
+        )
     }
 }

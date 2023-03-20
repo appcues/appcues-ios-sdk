@@ -91,7 +91,8 @@ internal class DebugViewController: UIViewController {
                 // pass along the result
                 completion(result)
             },
-            screenName: screen.displayName)
+            screenName: screen.displayName
+        )
 
         let confirmationViewController = DebugModalViewController(rootView: confirmationView)
         present(confirmationViewController, animated: true)
