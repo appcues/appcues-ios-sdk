@@ -52,7 +52,8 @@ extension ExperienceComponent {
                     spacing: model.spacing,
                     items: nonStickyComponents,
                     sticky: model.sticky,
-                    style: model.style)),
+                    style: model.style
+                )),
                 stickyTopComponents,
                 stickyBottomComponents
             )
@@ -70,7 +71,8 @@ extension ExperienceComponent {
                 .box(BoxModel(
                     id: model.id,
                     items: nonStickyComponents,
-                    style: model.style)),
+                    style: model.style
+                )),
                 stickyTopComponents,
                 stickyBottomComponents
             )
@@ -96,7 +98,8 @@ private extension Array where Element == ExperienceComponent {
                 spacing: nil,
                 items: self,
                 sticky: nil,
-                style: nil))
+                style: nil
+            ))
         }
     }
 }

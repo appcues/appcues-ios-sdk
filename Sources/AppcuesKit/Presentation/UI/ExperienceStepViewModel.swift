@@ -40,7 +40,9 @@ internal class ExperienceStepViewModel: ObservableObject {
             content: .spacer(ExperienceComponent.SpacerModel(
                 id: UUID(),
                 spacing: nil,
-                style: nil)))
+                style: nil
+            ))
+        )
         self.actions = [:]
         self.actionRegistry = nil
     }
@@ -49,7 +51,8 @@ internal class ExperienceStepViewModel: ObservableObject {
         actionRegistry?.enqueue(
             actionModels: actions,
             interactionType: type,
-            viewDescription: viewDescription)
+            viewDescription: viewDescription
+        )
     }
 
     func actions(for id: UUID) -> [ActionType?: [Experience.Action]] {

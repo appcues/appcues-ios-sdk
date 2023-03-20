@@ -20,13 +20,15 @@ internal class ExperienceData {
     let trigger: ExperienceTrigger
     private let formState: FormState
 
-    internal init(_ experience: Experience,
-                  trigger: ExperienceTrigger,
-                  priority: RenderPriority = .normal,
-                  published: Bool = true,
-                  experiment: Experiment? = nil,
-                  requestID: UUID? = nil,
-                  error: String? = nil) {
+    internal init(
+        _ experience: Experience,
+        trigger: ExperienceTrigger,
+        priority: RenderPriority = .normal,
+        published: Bool = true,
+        experiment: Experiment? = nil,
+        requestID: UUID? = nil,
+        error: String? = nil
+    ) {
         self.model = experience
         self.trigger = trigger
         self.priority = priority
@@ -121,7 +123,8 @@ extension ExperienceData {
                 get: { self.formItems[key]?.getValue() ?? "" },
                 set: {
                     self.formItems[key]?.setValue($0)
-                })
+                }
+            )
         }
 
         func formBinding(for key: UUID, value: String) -> Binding<Bool> {
@@ -129,7 +132,8 @@ extension ExperienceData {
                 get: { self.formItems[key]?.isSelected(searchValue: value) ?? false },
                 set: { _ in
                     self.formItems[key]?.setValue(value)
-                })
+                }
+            )
         }
 
         func shouldShowError(for key: UUID) -> Bool {

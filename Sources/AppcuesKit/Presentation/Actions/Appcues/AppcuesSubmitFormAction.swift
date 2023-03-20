@@ -44,12 +44,14 @@ internal class AppcuesSubmitFormAction: ExperienceAction, ExperienceActionQueueT
         analyticsPublisher.publish(TrackingUpdate(
             type: .profile(interactive: false),
             properties: stepState.formattedAsProfileUpdate(),
-            isInternal: true))
+            isInternal: true
+        ))
 
         analyticsPublisher.publish(TrackingUpdate(
             type: .event(name: LifecycleEvent.stepInteraction.rawValue, interactive: false),
             properties: interactionProperties,
-            isInternal: true))
+            isInternal: true
+        ))
     }
 
     // If the form state is invalid, remove this action and all subsequent.

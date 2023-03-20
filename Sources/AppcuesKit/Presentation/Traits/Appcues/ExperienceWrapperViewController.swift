@@ -43,12 +43,14 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
              self,
              selector: #selector(adjustForKeyboard),
              name: UIResponder.keyboardWillHideNotification,
-             object: nil)
+             object: nil
+         )
          NotificationCenter.default.addObserver(
              self,
              selector: #selector(adjustForKeyboard),
              name: UIResponder.keyboardWillChangeFrameNotification,
-             object: nil)
+             object: nil
+         )
      }
 
     @discardableResult

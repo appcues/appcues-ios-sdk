@@ -41,14 +41,18 @@ internal class SessionMonitor: SessionMonitoring {
         self.storage = container.resolve(DataStoring.self)
         self.sessionTimeout = container.resolve(Appcues.Config.self).sessionTimeout
 
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(applicationWillEnterForeground),
-                                               name: UIApplication.willEnterForegroundNotification,
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(didEnterBackground),
-                                               name: UIApplication.didEnterBackgroundNotification,
-                                               object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(didEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
     }
 
     // called on (A) sdk init (B) user identity change

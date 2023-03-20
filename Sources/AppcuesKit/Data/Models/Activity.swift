@@ -19,13 +19,15 @@ internal struct Activity {
     let groupUpdate: [String: Any]?
     let userSignature: String?
 
-    internal init(accountID: String,
-                  userID: String,
-                  events: [Event]?,
-                  profileUpdate: [String: Any]? = nil,
-                  groupID: String? = nil,
-                  groupUpdate: [String: Any]? = nil,
-                  userSignature: String? = nil) {
+    internal init(
+        accountID: String,
+        userID: String,
+        events: [Event]?,
+        profileUpdate: [String: Any]? = nil,
+        groupID: String? = nil,
+        groupUpdate: [String: Any]? = nil,
+        userSignature: String? = nil
+    ) {
         self.accountID = accountID
         self.userID = userID
         self.events = events

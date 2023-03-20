@@ -18,11 +18,12 @@ internal enum ScreenCaptureError: Error {
 @available(iOS 13.0, *)
 extension UIDebugger {
 
-    func saveScreenCapture(networking: Networking,
-                           screen: Capture,
-                           authorization: Authorization,
-                           completion: @escaping (Result<Void, Error>) -> Void) {
-
+    func saveScreenCapture(
+        networking: Networking,
+        screen: Capture,
+        authorization: Authorization,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
         // this is a 4-step chain of nested async completion blocks
 
         // Step 1 - lookup customer API endpoint in from settings endpoint
@@ -41,10 +42,12 @@ extension UIDebugger {
                 }
 
                 // Step 2 - call pre-upload endpoint and get pre-signed image upload URL
-                networking.post(to: CustomerAPIEndpoint.preSignedImageUpload(host: customerAPIHost, filename: "\(screen.id).png"),
-                                authorization: authorization,
-                                body: nil,
-                                requestId: nil) { (result: Result<ScreenshotUpload, Error>) -> Void in
+                networking.post(
+                    to: CustomerAPIEndpoint.preSignedImageUpload(host: customerAPIHost, filename: "\(screen.id).png"),
+                    authorization: authorization,
+                    body: nil,
+                    requestId: nil
+                ) { (result: Result<ScreenshotUpload, Error>) -> Void in
 
                     switch result {
 
@@ -65,11 +68,13 @@ extension UIDebugger {
                             case let .success(screen): // screen value here is now updated with screenshotImageUrl
 
                                 // Step 4 - save the screen into the customer Appcues account
-                                self.saveScreen(networking: networking,
-                                                customerAPIHost: customerAPIHost,
-                                                screen: screen,
-                                                authorization: authorization,
-                                                completion: completion) // final completion here will go back to caller of saveScreenCapture
+                                self.saveScreen(
+                                    networking: networking,
+                                    customerAPIHost: customerAPIHost,
+                                    screen: screen,
+                                    authorization: authorization,
+                                    completion: completion // final completion here will go back to caller of saveScreenCapture
+                                )
                             }
                         }
                     }
@@ -78,10 +83,12 @@ extension UIDebugger {
         }
     }
 
-    private func uploadImage(networking: Networking,
-                             screen: Capture,
-                             upload: ScreenshotUpload,
-                             completion: @escaping (Result<Capture, Error>) -> Void) {
+    private func uploadImage(
+        networking: Networking,
+        screen: Capture,
+        upload: ScreenshotUpload,
+        completion: @escaping (Result<Capture, Error>) -> Void
+    ) {
         guard let imageData = screen.screenshot.pngData() else {
             completion(.failure(ScreenCaptureError.noImageData))
             return
@@ -99,10 +106,12 @@ extension UIDebugger {
         var screen = screen
         screen.screenshotImageUrl = screenshotImageUrl
 
-        networking.put(to: URLEndpoint(url: URL(string: upload.upload.presignedUrl)),
-                       authorization: nil, // pre-signed url, no auth needed on upload
-                       body: imageData,
-                       contentType: "image/png") { result in
+        networking.put(
+            to: URLEndpoint(url: URL(string: upload.upload.presignedUrl)),
+            authorization: nil, // pre-signed url, no auth needed on upload
+            body: imageData,
+            contentType: "image/png"
+        ) { result in
 
             switch result {
             case .success:
@@ -113,16 +122,16 @@ extension UIDebugger {
                 // bubble up error
                 completion(.failure(error))
             }
-
         }
     }
 
-    private func saveScreen(networking: Networking,
-                            customerAPIHost: URL,
-                            screen: Capture,
-                            authorization: Authorization,
-                            completion: @escaping (Result<Void, Error>) -> Void) {
-
+    private func saveScreen(
+        networking: Networking,
+        customerAPIHost: URL,
+        screen: Capture,
+        authorization: Authorization,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
         guard let data = try? NetworkClient.encoder.encode(screen) else {
             completion(.failure(ScreenCaptureError.failedCaptureEncoding))
             return
@@ -130,11 +139,11 @@ extension UIDebugger {
 
         // this will ultimately resolve the initial completion handler that started this
         // chain of requests, with either success or failure of saving the full screen capture information
-        networking.post(to: CustomerAPIEndpoint.screenCapture(host: customerAPIHost),
-                        authorization: authorization,
-                        body: data,
-                        completion: completion)
-
+        networking.post(
+            to: CustomerAPIEndpoint.screenCapture(host: customerAPIHost),
+            authorization: authorization,
+            body: data,
+            completion: completion
+        )
     }
-
 }

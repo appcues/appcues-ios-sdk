@@ -35,11 +35,13 @@ internal class DebugViewModel: ObservableObject {
     @Published var filter: DebugViewModel.LoggedEvent.EventType?
     @Published private(set) var connectedStatus = StatusItem(
         status: .pending,
-        title: "Connected to Appcues")
+        title: "Connected to Appcues"
+    )
     @Published private(set) var deepLinkStatus = StatusItem(
         status: .pending,
         title: "Appcues Deep Link",
-        subtitle: "Tap to check configuration")
+        subtitle: "Tap to check configuration"
+    )
     @Published private(set) var trackingPages = false
     @Published private(set) var userIdentified = false
     @Published var isAnonymous = false
@@ -54,22 +56,26 @@ internal class DebugViewModel: ObservableObject {
         return [
             StatusItem(
                 status: .info,
-                title: "\(UIDevice.current.modelName) iOS \(UIDevice.current.systemVersion)"),
+                title: "\(UIDevice.current.modelName) iOS \(UIDevice.current.systemVersion)"
+            ),
             StatusItem(
                 status: .verified,
                 title: "Installed SDK \(Appcues.version())",
-                subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)"),
+                subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)"
+            ),
             connectedStatus,
             deepLinkStatus,
             StatusItem(
                 status: trackingPages ? .verified : .pending,
                 title: "Tracking Screens",
-                subtitle: trackingPages ? nil : "Navigate to another screen to test"),
+                subtitle: trackingPages ? nil : "Navigate to another screen to test"
+            ),
             StatusItem(
                 status: userIdentified ? .verified : .unverfied,
                 title: "User Identified",
                 subtitle: userDescription,
-                detailText: currentUserID)
+                detailText: currentUserID
+            )
         ] + experienceStatuses
     }
 
