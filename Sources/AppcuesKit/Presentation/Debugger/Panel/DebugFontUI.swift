@@ -140,12 +140,15 @@ extension View {
     }
 }
 
+// These extensions follow the interfaces of `CaseIterable` and `CustomStringConvertible`, but do not conform to those protocols
+// so that the extension methods aren't required to be public.
+
 @available(iOS 13.0, *)
-extension Font.Design: CaseIterable, CustomStringConvertible {
-    public static var allCases: [Font.Design] {
+extension Font.Design {
+    static var allCases: [Font.Design] {
         [.default, monospaced, .rounded, .serif]
     }
-    public var description: String {
+    var description: String {
         switch self {
         case .serif: return "Serif"
         case .rounded: return "Rounded"
@@ -156,11 +159,11 @@ extension Font.Design: CaseIterable, CustomStringConvertible {
     }
 }
 @available(iOS 13.0, *)
-extension Font.Weight: CaseIterable, CustomStringConvertible {
-    public static var allCases: [Font.Weight] {
+extension Font.Weight {
+    static var allCases: [Font.Weight] {
         [.ultraLight, .thin, .light, .regular, .medium, .semibold, .bold, .heavy, .black]
     }
-    public var description: String {
+    var description: String {
         switch self {
         case .ultraLight: return "Ultralight"
         case .thin: return "Thin"
