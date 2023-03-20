@@ -82,16 +82,3 @@ internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
         )
     }
 }
-
-private class FrameObserverView: UIView {
-    private var oldBounds: CGRect = .zero
-    var onChange: ((_ bounds: CGRect) -> Void)?
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        if oldBounds != bounds {
-            onChange?(bounds)
-        }
-        oldBounds = bounds
-    }
-}
