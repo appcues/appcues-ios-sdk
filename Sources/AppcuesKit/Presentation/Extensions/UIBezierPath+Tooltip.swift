@@ -17,17 +17,20 @@ internal struct Pointer {
     let size: CGSize
     let cornerRadius: CGFloat
     let offset: CGFloat
+
+    func pathInfo(mainRect: CGRect, boxCornerRadius: CGFloat) -> Pointer.PathInfo {
+        PathInfo(pointer: self, mainRect: mainRect, boxCornerRadius: boxCornerRadius)
+    }
 }
 
 extension CGPath {
     static func tooltip(around mainRect: CGRect, boxCornerRadius: CGFloat, pointer: Pointer) -> CGPath {
         let path = CGMutablePath()
-
-        let triangle = CGMutablePath.Triangle(pointer: pointer, mainRect: mainRect, boxCornerRadius: boxCornerRadius)
+        let pointerPathInfo = pointer.pathInfo(mainRect: mainRect, boxCornerRadius: boxCornerRadius)
 
         // Draw the path clockwise from top left
 
-        if !triangle.overridesTopLeftCorner {
+        if !pointerPathInfo.overridesTopLeftCorner {
             let topLeft = CGPoint(x: mainRect.minX + boxCornerRadius, y: mainRect.minY + boxCornerRadius)
             path.addRelativeArc(center: topLeft, radius: boxCornerRadius, startAngle: .pi, delta: .pi / 2)
         } else {
@@ -35,34 +38,34 @@ extension CGPath {
         }
 
         if case .top = pointer.edge {
-            path.addTriangle(triangle)
+            path.addPointer(pointerPathInfo)
         }
 
-        if !triangle.overridesTopRightCorner {
+        if !pointerPathInfo.overridesTopRightCorner {
             let topRight = CGPoint(x: mainRect.maxX - boxCornerRadius, y: mainRect.minY + boxCornerRadius)
             path.addRelativeArc(center: topRight, radius: boxCornerRadius, startAngle: 3 * .pi / 2, delta: .pi / 2)
         }
 
         if case .right = pointer.edge {
-            path.addTriangle(triangle)
+            path.addPointer(pointerPathInfo)
         }
 
-        if !triangle.overridesBottomRightCorner {
+        if !pointerPathInfo.overridesBottomRightCorner {
             let bottomRight = CGPoint(x: mainRect.maxX - boxCornerRadius, y: mainRect.maxY - boxCornerRadius)
             path.addRelativeArc(center: bottomRight, radius: boxCornerRadius, startAngle: 0, delta: .pi / 2)
         }
 
         if case .bottom = pointer.edge {
-            path.addTriangle(triangle)
+            path.addPointer(pointerPathInfo)
         }
 
-        if !triangle.overridesBottomLeftCorner {
+        if !pointerPathInfo.overridesBottomLeftCorner {
             let bottomLeft = CGPoint(x: mainRect.minX + boxCornerRadius, y: mainRect.maxY - boxCornerRadius)
             path.addRelativeArc(center: bottomLeft, radius: boxCornerRadius, startAngle: .pi / 2, delta: .pi / 2)
         }
 
         if case .left = pointer.edge {
-            path.addTriangle(triangle)
+            path.addPointer(pointerPathInfo)
         }
 
         path.closeSubpath()
@@ -71,31 +74,33 @@ extension CGPath {
 }
 
 private extension CGMutablePath {
-    func addTriangle(_ triangle: Triangle) {
-        if triangle.cornerRadius == 0 {
-            addLine(to: triangle.point1)
-            addLine(to: triangle.point2)
-            addLine(to: triangle.point3)
+    func addPointer(_ pathInfo: Pointer.PathInfo) {
+        if pathInfo.cornerRadius == 0 {
+            addLine(to: pathInfo.point1)
+            addLine(to: pathInfo.point2)
+            addLine(to: pathInfo.point3)
         } else {
-            if triangle.offCenterPointer1 {
+            if pathInfo.drawStraightPoint1 {
                 // Can't round the straight edge
-                addLine(to: triangle.point1)
+                addLine(to: pathInfo.point1)
             } else {
-                addArc(tangent1End: triangle.point1, tangent2End: triangle.point2, radius: triangle.cornerRadius)
+                addArc(tangent1End: pathInfo.point1, tangent2End: pathInfo.point2, radius: pathInfo.cornerRadius)
             }
 
-            addArc(tangent1End: triangle.point2, tangent2End: triangle.point3, radius: triangle.cornerRadius)
+            addArc(tangent1End: pathInfo.point2, tangent2End: pathInfo.point3, radius: pathInfo.cornerRadius)
 
-            if triangle.offCenterPointer2 {
+            if pathInfo.drawStraightPoint3 {
                 // Can't round the straight edge
-                addLine(to: triangle.point3)
+                addLine(to: pathInfo.point3)
             } else {
-                addArc(tangent1End: triangle.point3, tangent2End: triangle.point4, radius: triangle.cornerRadius)
+                addArc(tangent1End: pathInfo.point3, tangent2End: pathInfo.point4, radius: pathInfo.cornerRadius)
             }
         }
     }
+}
 
-    struct Triangle {
+extension Pointer {
+    struct PathInfo {
         // Points are ordered for a tooltip drawn clockwise
         let point1: CGPoint
         let point2: CGPoint
@@ -112,8 +117,8 @@ private extension CGMutablePath {
         private(set) var overridesBottomRightCorner: Bool
         private(set) var overridesBottomLeftCorner: Bool
 
-        private(set) var offCenterPointer1: Bool
-        private(set) var offCenterPointer2: Bool
+        private(set) var drawStraightPoint1: Bool
+        private(set) var drawStraightPoint3: Bool
 
         // swiftlint:disable:next cyclomatic_complexity function_body_length
         init(pointer: Pointer, mainRect: CGRect, boxCornerRadius: CGFloat) {
@@ -124,8 +129,8 @@ private extension CGMutablePath {
             overridesBottomRightCorner = false
             overridesBottomLeftCorner = false
 
-            offCenterPointer1 = false
-            offCenterPointer2 = false
+            drawStraightPoint1 = false
+            drawStraightPoint3 = false
 
             switch pointer.edge {
             case .top:
@@ -145,7 +150,7 @@ private extension CGMutablePath {
                         triangleBounds.origin.x = boxCornerRadius
                     }
                     point2X = triangleBounds.minX
-                    offCenterPointer1 = true
+                    drawStraightPoint1 = true
                 } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - boxCornerRadius {
                     // Check for collisions with right corner
                     if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
@@ -155,7 +160,7 @@ private extension CGMutablePath {
                         triangleBounds.origin.x = mainRect.maxX - pointer.size.width - boxCornerRadius
                     }
                     point2X = triangleBounds.maxX
-                    offCenterPointer2 = true
+                    drawStraightPoint3 = true
                 } else {
                     // Centered pointer
                     point2X = triangleBounds.midX
@@ -182,7 +187,7 @@ private extension CGMutablePath {
                         triangleBounds.origin.x = boxCornerRadius
                     }
                     point2X = triangleBounds.minX
-                    offCenterPointer2 = true
+                    drawStraightPoint3 = true
                 } else if triangleBounds.origin.x > mainRect.maxX - pointer.size.width - boxCornerRadius {
                     if triangleBounds.origin.x > mainRect.maxX - pointer.size.width {
                         overridesBottomRightCorner = true
@@ -191,7 +196,7 @@ private extension CGMutablePath {
                         triangleBounds.origin.x = mainRect.maxX - pointer.size.width - boxCornerRadius
                     }
                     point2X = triangleBounds.maxX
-                    offCenterPointer1 = true
+                    drawStraightPoint1 = true
                 } else {
                     point2X = triangleBounds.midX
                 }
@@ -217,7 +222,7 @@ private extension CGMutablePath {
                         triangleBounds.origin.y = boxCornerRadius
                     }
                     point2Y = triangleBounds.minY
-                    offCenterPointer2 = true
+                    drawStraightPoint3 = true
                 } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - boxCornerRadius {
                     if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
                         overridesBottomLeftCorner = true
@@ -226,7 +231,7 @@ private extension CGMutablePath {
                         triangleBounds.origin.y = mainRect.maxY - pointer.size.width - boxCornerRadius
                     }
                     point2Y = triangleBounds.maxY
-                    offCenterPointer1 = true
+                    drawStraightPoint1 = true
                 } else {
                     point2Y = triangleBounds.midY
                 }
@@ -252,7 +257,7 @@ private extension CGMutablePath {
                         triangleBounds.origin.y = boxCornerRadius
                     }
                     point2Y = triangleBounds.minY
-                    offCenterPointer1 = true
+                    drawStraightPoint1 = true
                 } else if triangleBounds.origin.y > mainRect.maxY - pointer.size.width - boxCornerRadius {
                     if triangleBounds.origin.y > mainRect.maxY - pointer.size.width {
                         overridesBottomRightCorner = true
@@ -261,7 +266,7 @@ private extension CGMutablePath {
                         triangleBounds.origin.y = mainRect.maxY - pointer.size.width - boxCornerRadius
                     }
                     point2Y = triangleBounds.maxY
-                    offCenterPointer2 = true
+                    drawStraightPoint3 = true
                 } else {
                     point2Y = triangleBounds.midY
                 }
