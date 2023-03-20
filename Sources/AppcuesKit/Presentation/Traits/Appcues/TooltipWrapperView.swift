@@ -89,7 +89,8 @@ internal class TooltipWrapperView: ExperienceWrapperView {
         if let innerView = contentWrapperView.subviews.first {
             innerMaskLayer.path = tooltipPath(
                 in: contentWrapperView.bounds,
-                boxCornerRadius: boxCornerRadius - borderLayer.lineWidth / 2)
+                boxCornerRadius: boxCornerRadius - borderLayer.lineWidth / 2
+            )
             innerView.layer.mask = innerMaskLayer
         }
     }
@@ -113,7 +114,8 @@ internal class TooltipWrapperView: ExperienceWrapperView {
                 x: (bounds.width - contentWidth) / 2,
                 y: safeBounds.maxY - contentHeight,
                 width: contentWidth,
-                height: contentHeight)
+                height: contentHeight
+            )
             actualPosition = nil
 
             return
@@ -146,7 +148,8 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             x: 0,
             y: 0,
             width: ceil(preferredWidth ?? preferredContentWidth ?? Self.defaultMaxWidth),
-            height: ceil(max((preferredContentSize?.height ?? 0), Self.minContentHeight)))
+            height: ceil(max((preferredContentSize?.height ?? 0), Self.minContentHeight))
+        )
 
         // Account for border size and safe area space allocated to the pointer.
         let additionalBorderHeight = contentWrapperView.layoutMargins.top + contentWrapperView.layoutMargins.bottom
@@ -287,8 +290,8 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             top: tooltipPosition == .bottom ? pointerSize.height : 0,
             left: tooltipPosition == .right ? pointerSize.height : 0,
             bottom: tooltipPosition == .top ? pointerSize.height : 0,
-            right: tooltipPosition == .left ? pointerSize.height : 0)
-        )
+            right: tooltipPosition == .left ? pointerSize.height : 0
+        ))
 
         let pointerEdge: Pointer.Edge
         let pointerSideLength: CGFloat
@@ -318,7 +321,8 @@ internal class TooltipWrapperView: ExperienceWrapperView {
             edge: pointerEdge,
             size: constrainedPointerSize,
             cornerRadius: constrainedPointerCornerRadius,
-            offset: offsetFromCenter)
+            offset: offsetFromCenter
+        )
         return CGPath.tooltip(around: mainRect, boxCornerRadius: boxCornerRadius, pointer: pointer)
     }
 

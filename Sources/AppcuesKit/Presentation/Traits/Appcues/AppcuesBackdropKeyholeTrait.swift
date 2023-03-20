@@ -103,10 +103,12 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
         if case let .circle(blurRadius: newBlurRadius) = newShape {
             let newStartPoint = CGPoint(
                 x: newKeyholeBezierPath.bounds.midX,
-                y: newKeyholeBezierPath.bounds.midY)
+                y: newKeyholeBezierPath.bounds.midY
+            )
             let newEndPoint = CGPoint(
                 x: newKeyholeBezierPath.bounds.maxX + newBlurRadius,
-                y: newKeyholeBezierPath.bounds.maxY + newBlurRadius)
+                y: newKeyholeBezierPath.bounds.maxY + newBlurRadius
+            )
 
             // Start the gradient at the edge of the keyhole path.
             // Doesn't matter whether we use x or y since it's a circle.
@@ -141,10 +143,12 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
                 }()
                 let oldStartPoint = CGPoint(
                     x: oldKeyholeBezierPath.bounds.midX,
-                    y: oldKeyholeBezierPath.bounds.midY)
+                    y: oldKeyholeBezierPath.bounds.midY
+                )
                 let oldEndPoint = CGPoint(
                     x: oldKeyholeBezierPath.bounds.maxX + oldBlurRadius,
-                    y: oldKeyholeBezierPath.bounds.maxY + oldBlurRadius)
+                    y: oldKeyholeBezierPath.bounds.maxY + oldBlurRadius
+                )
                 let oldStartLocation: Double
                 if newEndPoint.x != newStartPoint.x {
                     oldStartLocation = min(

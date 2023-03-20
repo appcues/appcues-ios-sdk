@@ -36,7 +36,8 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
             top: style?.marginTop ?? 0,
             leading: style?.marginLeading ?? 0,
             bottom: style?.marginBottom ?? 0,
-            trailing: style?.marginTrailing ?? 0)
+            trailing: style?.marginTrailing ?? 0
+        )
 
         let pageControl = UIPageControl()
         pageControl.currentPageIndicatorTintColor = UIColor(dynamicColor: style?.foregroundColor) ?? .secondaryLabel

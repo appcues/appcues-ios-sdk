@@ -48,7 +48,8 @@ internal class ExperienceWrapperView: UIView {
             // this is required so the dialogView has an initial non-zero height, after which it can start sizing to the content.
             contentWrapperView.layoutMarginsGuide.bottomAnchor.constraint(
                 greaterThanOrEqualTo: contentWrapperView.layoutMarginsGuide.topAnchor,
-                constant: 1),
+                constant: 1
+            ),
 
             contentWrapperView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor),
             contentWrapperView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor),

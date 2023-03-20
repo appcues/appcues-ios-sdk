@@ -51,7 +51,8 @@ internal class TraitComposer: TraitComposing {
             // Decorator traits and allTraitInstances for a single step are handled below with the stepModels.
             decomposedTraits.append(
                 contentsOf: DecomposedTraits(traits: traitRegistry.instances(for: childStep.traits, level: .step)),
-                ignoringDecorators: true)
+                ignoringDecorators: true
+            )
         }
 
         let stepModelsWithTraits: [(step: Experience.Step.Child, decomposedTraits: DecomposedTraits)] = stepModels.map { stepModel in
@@ -70,7 +71,8 @@ internal class TraitComposer: TraitComposing {
             let stepViewController = ExperienceStepViewController(
                 viewModel: viewModel,
                 stepState: experience.state(for: $0.step.id),
-                notificationCenter: notificationCenter)
+                notificationCenter: notificationCenter
+            )
             try $0.decomposedTraits.stepDecorating.forEach { try $0.decorate(stepController: stepViewController) }
             return stepViewController
         }

@@ -95,7 +95,8 @@ internal class DeepLinkHandler: DeepLinkHandling {
                 self,
                 selector: #selector(sceneDidActivate),
                 name: UIScene.didActivateNotification,
-                object: nil)
+                object: nil
+            )
         } else {
             actionsToHandle.insert(action)
         }
@@ -104,15 +105,19 @@ internal class DeepLinkHandler: DeepLinkHandling {
     private func handle(action: Action) {
         switch action {
         case .preview(let experienceID):
-            container?.resolve(ExperienceLoading.self).load(experienceID: experienceID,
-                                                            published: false,
-                                                            trigger: .preview,
-                                                            completion: nil)
+            container?.resolve(ExperienceLoading.self).load(
+                experienceID: experienceID,
+                published: false,
+                trigger: .preview,
+                completion: nil
+            )
         case .show(let experienceID):
-            container?.resolve(ExperienceLoading.self).load(experienceID: experienceID,
-                                                            published: true,
-                                                            trigger: .deepLink,
-                                                            completion: nil)
+            container?.resolve(ExperienceLoading.self).load(
+                experienceID: experienceID,
+                published: true,
+                trigger: .deepLink,
+                completion: nil
+            )
         case .debugger(let destination):
             container?.resolve(UIDebugging.self).show(mode: .debugger(destination))
         case .verifyInstall(let token):

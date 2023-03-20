@@ -224,10 +224,12 @@ extension ExperienceStateMachine {
                 try machine.transition(action)
             case let .presentContainer(experience, stepIndex, package, actions):
                 machine.actionRegistry.enqueue(actionModels: actions) {
-                    executePresentContainer(machine: machine,
-                                            experience: experience,
-                                            stepIndex: stepIndex,
-                                            package: package)
+                    executePresentContainer(
+                        machine: machine,
+                        experience: experience,
+                        stepIndex: stepIndex,
+                        package: package
+                    )
                 }
             case let .navigateInContainer(package, pageIndex):
                 package.containerController.navigate(to: pageIndex, animated: true)
@@ -246,10 +248,11 @@ extension ExperienceStateMachine {
             }
         }
 
-        private func executePresentContainer(machine: ExperienceStateMachine,
-                                             experience: ExperienceData,
-                                             stepIndex: Experience.StepIndex,
-                                             package: ExperiencePackage
+        private func executePresentContainer(
+            machine: ExperienceStateMachine,
+            experience: ExperienceData,
+            stepIndex: Experience.StepIndex,
+            package: ExperiencePackage
         ) {
             machine.clientControllerDelegate = UIApplication.shared.topViewController() as? AppcuesExperienceDelegate
             guard machine.canDisplay(experience: experience.model) else {
