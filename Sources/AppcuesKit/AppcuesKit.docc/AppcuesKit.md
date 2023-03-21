@@ -44,3 +44,8 @@ A Swift library for sending user properties and events to the Appcues API and re
 - ``TraitMetadata``
 - ``TraitMetadataDelegate``
 - <doc:Traits>
+
+### Element Targeting
+- ``AppcuesElementTargeting``
+- ``AppcuesElementSelector``
+- ``AppcuesViewElement``
