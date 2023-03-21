@@ -32,7 +32,7 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertNil(failedAction)
     }
 
-    func testExecute() throws {
+    func testExecuteWebLink() throws {
         // Arrange
         var completionCount = 0
         var presentCount = 0
@@ -52,7 +52,7 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertEqual(presentCount, 1)
     }
 
-    func testExecuteExternal() throws {
+    func testExecuteExternalWebLink() throws {
         // Arrange
         var completionCount = 0
         var openCount = 0
@@ -72,7 +72,7 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertEqual(openCount, 1)
     }
 
-    func testExecuteNonWebURL() throws {
+    func testExecuteSchemeLink() throws {
         // Arrange
         var completionCount = 0
         var openCount = 0
@@ -92,7 +92,7 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertEqual(openCount, 1, "A non http(s) link must always open externally, even if that means overriding the config")
     }
 
-    func testExecuteUniversal() throws {
+    func testExecuteUniversalLink() throws {
         // Arrange
         var completionCount = 0
         var openCount = 0
@@ -116,7 +116,7 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertEqual(openCount, 1)
     }
 
-    func testExecuteUniversalDisabled() throws {
+    func testExecuteUniversalLinkDisabled() throws {
         // Arrange
         var completionCount = 0
         var openCount = 0
@@ -140,6 +140,78 @@ class AppcuesLinkActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
+    }
+
+    func testExecuteWebLinkWithNavigationDelegate() throws {
+        // Arrange
+        var completionCount = 0
+        var openCount = 0
+        let mockNavigationDelegate = MockNavigationDelegate()
+        mockNavigationDelegate.onNavigate = { url, openExternally in
+            XCTAssertEqual(url.absoluteString, "https://appcues.com")
+            XCTAssertTrue(openExternally)
+            openCount += 1
+        }
+        appcues.navigationDelegate = mockNavigationDelegate
+
+        let mockURLOpener = MockURLOpener()
+        mockURLOpener.onUniversalOpen = { url in
+            XCTFail("Shouldn't be called since the URL should be handled by the navigation delegate")
+            return false
+        }
+        mockURLOpener.onOpen = { url in
+            XCTFail("Shouldn't be called since the URL should be handled by the navigation delegate")
+        }
+
+        let action = AppcuesLinkAction(path: "https://appcues.com", openExternally: true)
+        action?.urlOpener = mockURLOpener
+
+        // Act
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(openCount, 1)
+    }
+
+    func testExecuteSchemeLinkWithNavigationDelegate() throws {
+        // Arrange
+        var completionCount = 0
+        var openCount = 0
+        let mockNavigationDelegate = MockNavigationDelegate()
+        mockNavigationDelegate.onNavigate = { url, openExternally in
+            XCTAssertEqual(url.absoluteString, "deeplink://test")
+            XCTAssertFalse(openExternally)
+            openCount += 1
+        }
+        appcues.navigationDelegate = mockNavigationDelegate
+
+        let mockURLOpener = MockURLOpener()
+        mockURLOpener.onUniversalOpen = { url in
+            XCTFail("Shouldn't be called since the URL should be handled by the navigation delegate")
+            return false
+        }
+        mockURLOpener.onOpen = { url in
+            XCTFail("Shouldn't be called since the URL should be handled by the navigation delegate")
+        }
+
+        let action = AppcuesLinkAction(path: "deeplink://test", openExternally: false)
+        action?.urlOpener = mockURLOpener
+
+        // Act
+        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(openCount, 1)
+    }
+}
+
+private class MockNavigationDelegate: AppcuesNavigationDelegate {
+    var onNavigate: ((URL, Bool) -> Void)?
+    func navigate(to url: URL, openExternally: Bool, completion: @escaping (Bool) -> Void) {
+        onNavigate?(url, openExternally)
+        completion(true)
     }
 }
 
