@@ -12,6 +12,10 @@ import Foundation
 @objc(Appcues)
 public class Appcues: NSObject {
 
+    // internal static, made available to the AppcuesTargetElementTrait
+    @available(iOS 13.0, *)
+    static var elementTargeting: AppcuesElementTargeting = UIKitElementTargeting()
+
     let container = DIContainer()
     let config: Appcues.Config
 
@@ -82,6 +86,12 @@ public class Appcues: NSObject {
         super.init()
 
         initializeContainer()
+
+        if #available(iOS 13.0, *), let elementTargeting = config.elementTargeting {
+            // sharing this in a static property since element targeting strategy is
+            // defined at the app level based on the app framework
+            Appcues.elementTargeting = elementTargeting
+        }
 
         config.logger.info("Appcues SDK %{public}s initialized", version())
     }
