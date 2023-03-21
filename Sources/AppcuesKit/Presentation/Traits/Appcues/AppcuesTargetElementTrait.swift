@@ -13,8 +13,7 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
     struct Config: Decodable {
         let contentPreferredPosition: ContentPosition?
         let contentDistanceFromTarget: Double?
-
-        let selector: ElementSelector
+        let selector: [String: String]
     }
 
     static let type: String = "@appcues/target-element"
@@ -71,22 +70,22 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
     }
 
     private func calculateRect() throws -> CGRect {
-        guard let window = UIApplication.shared.windows.first(where: { !($0 is DebugUIWindow) }) else {
-            throw TraitError(description: "No active window found")
+        let view = try viewMatchingSelector()
+        return CGRect(x: view.x, y: view.y, width: view.width, height: view.height)
+    }
+
+    private func viewMatchingSelector() throws -> AppcuesViewElement {
+
+        let strategy = Appcues.elementTargeting
+
+        guard let selector = strategy.inflateSelector(from: config.selector) else {
+            throw TraitError(description: "Invalid selector \(config.selector)")
         }
 
-        let view = try window.viewMatchingSelector(config.selector)
-        return view.convert(view.bounds, to: nil)
-    }
-}
-
-private extension UIView {
-
-    func viewMatchingSelector(_ target: ElementSelector) throws -> UIView {
-        let views = viewsMatchingSelector(target)
+        let views = strategy.findMatches(for: selector)
 
         guard !views.isEmpty else {
-            throw TraitError(description: "No view matching selector \(target)")
+            throw TraitError(description: "No view matching selector \(config.selector)")
         }
 
         // if only a single match of anything, use it
@@ -95,21 +94,8 @@ private extension UIView {
         }
 
         // weight the selector property matches by how distinct they are considered
-        let weightedMatches = views.map { view -> (UIView, Int) in
-            var weight = 0
-
-            if view.isMatch(for: target, on: \.accessibilityIdentifier) {
-                weight += 10_000
-            }
-
-            if view.isMatch(for: target, on: \.tag) {
-                weight += 1_000
-            }
-
-            if view.isMatch(for: target, on: \.description) {
-                weight += 100
-            }
-
+        let weightedMatches = views.map { view -> (AppcuesViewElement, Int) in
+            let weight = view.selector?.evaluateMatch(for: selector) ?? 0
             return (view, weight)
         }
 
@@ -124,32 +110,6 @@ private extension UIView {
         }
 
         // otherwise, this selector was not able to find a distinct match in this view
-        throw TraitError(description: "multiple non-distinct views (\(views.count)) matched selector \(target)")
-    }
-
-    func viewsMatchingSelector(_ target: ElementSelector) -> [UIView] {
-        var views: [UIView] = []
-
-        if let current = self.appcuesSelector {
-            if (target.accessibilityIdentifier != nil && target.accessibilityIdentifier == current.accessibilityIdentifier) ||
-                (target.tag != nil && target.tag == current.tag) ||
-                (target.description != nil && target.description == current.description) {
-                views.append(self)
-            }
-        }
-
-        for subview in self.subviews {
-            views.append(contentsOf: subview.viewsMatchingSelector(target))
-        }
-
-        return views
-    }
-
-    func isMatch(for targetSelector: ElementSelector, on keyPath: KeyPath<ElementSelector, String?>) -> Bool {
-        guard let targetValue = targetSelector[keyPath: keyPath],
-              let selector = self.appcuesSelector else {
-            return false
-        }
-        return selector[keyPath: keyPath] == targetValue
+        throw TraitError(description: "multiple non-distinct views (\(views.count)) matched selector \(config.selector)")
     }
 }
