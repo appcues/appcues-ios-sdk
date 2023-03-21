@@ -122,7 +122,7 @@ class SampleAnalyticsDelegate: AppcuesAnalyticsDelegate {
 }
 
 class SampleNavigationDelegate: AppcuesNavigationDelegate {
-    func navigate(to url: URL, completion: @escaping (Bool) -> Void) {
+    func navigate(to url: URL, openExternally: Bool, completion: @escaping (Bool) -> Void) {
         completion(true)
     }
 }
