@@ -10,17 +10,6 @@ import UIKit
 
 internal struct Capture: Identifiable {
 
-    struct View: Encodable {
-        let id = UUID().appcuesFormatted
-        let x: CGFloat
-        let y: CGFloat
-        let width: CGFloat
-        let height: CGFloat
-        let type: String
-        let selector: ElementSelector?
-        let children: [View]?
-    }
-
     struct Metadata: Encodable {
         let appName = Bundle.main.displayName
         let appBuild = Bundle.main.build
@@ -56,7 +45,7 @@ internal struct Capture: Identifiable {
     let appId: String
     var displayName: String
     var screenshotImageUrl: URL?
-    let layout: View
+    let layout: AppcuesViewElement
     let metadata: Metadata
     let timestamp: Date
 

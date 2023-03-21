@@ -152,7 +152,7 @@ extension UIDebugger: DebugViewDelegate {
         guard let debugViewController = debugViewController,
               let window = UIApplication.shared.windows.first(where: { !($0 is DebugUIWindow) }),
               let screenshot = window.screenshot(),
-              let layout = window.captureLayout() else {
+              let layout = Appcues.elementTargeting.captureLayout() else {
 
             // show error?
 
