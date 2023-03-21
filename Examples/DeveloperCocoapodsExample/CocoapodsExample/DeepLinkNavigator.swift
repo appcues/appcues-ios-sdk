@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SafariServices
 import AppcuesKit
 
 // NOTE: This deep link implementation should not be taken as an example of best practices. It's not particularly scalable,
@@ -111,24 +112,18 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
     var scene: UIScene?
 
     // conforming to AppcuesNavigationDelegate for navigation requests coming from the Appcues SDK
-    func navigate(to url: URL, completion: @escaping (Bool) -> Void) {
-        handle(url: url, completion: completion)
+    func navigate(to url: URL, openExternally: Bool, completion: @escaping (Bool) -> Void) {
+        handle(url: url, openExternally: openExternally, completion: completion)
     }
 
     // called by scheme links or universal links attempting to deep link into our application
     // returns `true` if the link was a known deep link destination and was sent for processing, `false`
     // if an unknown link and not handled. The completion block indicates full link processing completed async.
     @discardableResult
-    func handle(url: URL?, completion: ((Bool) -> Void)? = nil) -> Bool {
+    func handle(url: URL?, openExternally: Bool = false, completion: ((Bool) -> Void)? = nil) -> Bool {
         guard let url = url else {
             // no valid URL given, cannot navigate
             completion?(false)
-            return false
-        }
-
-        guard let target = DeepLink(url: url) else {
-            // the link was not a known deep link for this application, so pass along off to OS to handle
-            UIApplication.shared.open(url, options: [:]) { success in completion?(success) }
             return false
         }
 
@@ -138,6 +133,20 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
         else {
             // cannot find the screen information to navigate, fail navigation
             completion?(false)
+            return false
+        }
+
+        guard let target = DeepLink(url: url) else {
+            // the link was not a known deep link for this application, so pass along off to OS to handle
+            if openExternally {
+                UIApplication.shared.open(url, options: [:]) { success in completion?(success) }
+            } else {
+                if let topController = window.topViewController() {
+                    topController.present(SFSafariViewController(url: url), animated: true) { completion?(true) }
+                } else {
+                    completion?(false)
+                }
+            }
             return false
         }
 
@@ -223,5 +232,32 @@ extension UIWindow {
         }
 
         return nil
+    }
+
+    func topViewController() -> UIViewController? {
+        guard let rootViewController = rootViewController else { return nil }
+        return topViewController(controller: rootViewController)
+    }
+
+    private func topViewController(controller: UIViewController) -> UIViewController {
+        if let navigationController = controller as? UINavigationController,
+           let visibleViewController = navigationController.visibleViewController {
+            if !visibleViewController.isBeingDismissed {
+                return topViewController(controller: visibleViewController)
+            } else if let topStack = navigationController.viewControllers.last {
+                // This gets the VC under what is being dismissed
+                return topViewController(controller: topStack)
+            } else {
+                return topViewController(controller: visibleViewController)
+            }
+        }
+        if let tabController = controller as? UITabBarController,
+           let selected = tabController.selectedViewController {
+            return topViewController(controller: selected)
+        }
+        if let presented = controller.presentedViewController, !presented.isBeingDismissed {
+            return topViewController(controller: presented)
+        }
+        return controller
     }
 }
