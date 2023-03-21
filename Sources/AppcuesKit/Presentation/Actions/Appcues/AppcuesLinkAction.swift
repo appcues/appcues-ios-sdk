@@ -36,6 +36,17 @@ internal class AppcuesLinkAction: ExperienceAction {
     }
 
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
+        // If a delegate is provided from the host application, preference is to use it for
+        // handling navigation and invoking the completion handler.
+        if let delegate = appcues.navigationDelegate {
+            delegate.navigate(to: url, openExternally: openExternally) { _ in completion() }
+            return
+        }
+
+        // If no delegate provided, fall back to automatic handling behavior provided by the
+        // UIApplication - caveat, the completion callback may execute before the app has
+        // fully navigated to the destination.
+
         let isWebLink = ["http", "https"].contains(url.scheme?.lowercased())
 
         // SFSafariViewController only supports HTTP and HTTPS URLs and crashes otherwise,
@@ -49,29 +60,13 @@ internal class AppcuesLinkAction: ExperienceAction {
                 completion()
             } else {
                 if openExternally {
-                    // since we know it is not a univeral link at this point, and it is a web link requesting to open
-                    // externally - we will launch the link directly here with the urlOpener and not pass through the
-                    // navigationDelegate in the openLink function
                     urlOpener.open(url, options: [:]) { _ in completion() }
                 } else {
                     urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true, completion: completion)
                 }
             }
         } else {
-            // pass to this helper that will optionally allow a navigationDelegate to handle
-            openLink(appcues: appcues, completion: completion)
-        }
-    }
-
-    private func openLink(appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
-        if let delegate = appcues.navigationDelegate {
-            // if a delegate is provided from the host application, preference is to use it for
-            // handling navigation and invoking the completion handler.
-            delegate.navigate(to: url) { _ in completion() }
-        } else {
-            // if no delegate provided, fall back to automatic handling behavior provided by the
-            // UIApplication - caveat, the completion callback may execute before the app has
-            // fully navigated to the destination.
+            // Scheme link
             urlOpener.open(url, options: [:]) { _ in completion() }
         }
     }
