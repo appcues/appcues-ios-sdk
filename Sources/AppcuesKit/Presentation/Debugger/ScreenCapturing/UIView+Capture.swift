@@ -31,14 +31,12 @@ private extension UIViewController {
     }
 }
 
-extension UIView {
-
-    var appcuesSelector: ElementSelector? {
-        return ElementSelector(
+internal extension UIView {
+    var appcuesSelector: UIKitElementSelector? {
+        return UIKitElementSelector(
             accessibilityIdentifier: accessibilityIdentifier,
-            description: accessibilityLabel,
-            tag: tag != 0 ? "\(self.tag)" : nil,
-            id: nil
+            accessiblityLabel: accessibilityLabel,
+            tag: tag != 0 ? "\(self.tag)" : nil
         )
     }
 
@@ -66,23 +64,23 @@ extension UIView {
         return UIGraphicsGetImageFromCurrentImageContext()
     }
 
-    func captureLayout() -> Capture.View? {
+    func captureLayout() -> AppcuesViewElement? {
         return self.asCaptureView(in: self.bounds)
     }
 
-    private func asCaptureView(in bounds: CGRect) -> Capture.View? {
+    private func asCaptureView(in bounds: CGRect) -> AppcuesViewElement? {
         let absolutePosition = self.convert(self.bounds, to: nil)
 
         // discard views that are not visible in the screenshot image
         guard absolutePosition.intersects(bounds) else { return nil }
 
-        let children: [Capture.View] = self.subviews.compactMap {
+        let children: [AppcuesViewElement] = self.subviews.compactMap {
             // discard hidden views and subviews within
             guard !$0.isHidden else { return nil }
             return $0.asCaptureView(in: bounds)
         }
 
-        return Capture.View(
+        return AppcuesViewElement(
             x: absolutePosition.origin.x,
             y: absolutePosition.origin.y,
             width: absolutePosition.width,
