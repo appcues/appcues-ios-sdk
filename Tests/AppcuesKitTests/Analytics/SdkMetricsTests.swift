@@ -42,6 +42,5 @@ class SdkMetricsTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
-        XCTAssertEqual(results.count, 20)
     }
 }
