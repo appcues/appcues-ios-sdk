@@ -34,6 +34,9 @@ A Swift library for sending user properties and events to the Appcues API and re
 - <doc:Extending>
 - ``ExperienceAction``
 - ``ExperienceTrait``
+- ``ExperiencePluginConfiguration``
 - ``ExperienceTraitLevel``
 - ``ExperienceContainer``
+- ``TraitMetadata``
+- ``TraitMetadataDelegate``
 - <doc:Traits>
