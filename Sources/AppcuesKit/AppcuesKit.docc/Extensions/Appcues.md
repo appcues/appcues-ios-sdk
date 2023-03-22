@@ -39,6 +39,7 @@
 - <doc:Extending>
 - ``Appcues/experienceDelegate``
 - ``Appcues/analyticsDelegate``
+- ``Appcues/navigationDelegate``
 - ``Appcues/register(action:)``
 - ``Appcues/register(trait:)``
 

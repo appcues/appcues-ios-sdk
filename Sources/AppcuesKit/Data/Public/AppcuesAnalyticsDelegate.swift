@@ -11,9 +11,13 @@ import Foundation
 /// The different types of analytics tracked by the SDK.
 @objc
 public enum AppcuesAnalytic: Int {
+    /// A call to ``Appcues/track(name:properties:)`` or an internal SDK-generated event.
     case event
+    /// A call to ``Appcues/screen(title:properties:)``.
     case screen
+    /// A call to ``Appcues/identify(userID:properties:)``.
     case identify
+    /// A call to ``Appcues/group(groupID:properties:)``.
     case group
 }
 
