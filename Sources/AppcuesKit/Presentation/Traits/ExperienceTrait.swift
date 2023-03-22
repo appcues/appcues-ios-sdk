@@ -13,11 +13,11 @@ import UIKit
 /// Context in which a trait can be applied.
 @objc
 public enum ExperienceTraitLevel: Int {
-    /// A trait to be applied to the entire experiene.
+    /// A trait to be applied to the entire experience.
     case experience
-    /// A trait to be applied to a group of steps in  an experience.
+    /// A trait to be applied to a group of steps in an experience.
     case group
-    /// A trait to be applied to a single step in an experiene.
+    /// A trait to be applied to a single step in an experience.
     case step
 }
 
@@ -80,7 +80,7 @@ public protocol ContainerDecoratingTrait: ExperienceTrait {
     /// ending the attempt to display the experience.
     func decorate(containerController: ExperienceContainerViewController) throws
 
-    /// Remove the decoratation from a container view controller.
+    /// Remove the decoration from a container view controller.
     /// - Parameter containerController: The `ExperienceContainerViewController` to modify.
     ///
     /// A call to ``undecorate(containerController:)`` should remove all modifications performed by ``decorate(containerController:)``.
@@ -106,7 +106,7 @@ public protocol BackdropDecoratingTrait: ExperienceTrait {
     /// ending the attempt to display the experience.
     func decorate(backdropView: UIView) throws
 
-    /// Remove the decoratation from a backdrop view.
+    /// Remove the decoration from a backdrop view.
     /// - Parameter backdropView: The `UIView` to modify.
     ///
     /// A call to ``undecorate(backdropView:)`` should remove all modifications performed by ``decorate(backdropView:)``.
