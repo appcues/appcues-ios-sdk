@@ -47,8 +47,4 @@ public class TraitMetadata: NSObject {
     public subscript<T>(previous key: String) -> T? {
         previousData[key] as? T
     }
-
-    public subscript<T>(pair key: String) -> (new: T?, previous: T?) {
-        (newData[key] as? T, previousData[key] as? T)
-    }
 }
