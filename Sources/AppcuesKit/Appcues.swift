@@ -64,7 +64,7 @@ public class Appcues: NSObject {
     /// The delegate object that manages and observes experience presentations.
     @objc public weak var experienceDelegate: AppcuesExperienceDelegate?
 
-    /// The delegate object that observes published analytics events
+    /// The delegate object that observes published analytics events.
     @objc public weak var analyticsDelegate: AppcuesAnalyticsDelegate?
 
     /// The delegate object that handles application screen navigation during experience presentation.

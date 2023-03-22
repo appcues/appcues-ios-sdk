@@ -268,7 +268,7 @@ extension UIView {
     enum KeyboardAvoidanceStrategy {
         /// Scroll content in a scrollView to ensure visibility.
         case scroll(intersection: CGRect)
-        /// Move the container to ensure visibity.
+        /// Move the container to ensure visibility.
         case move(keyboardFrame: CGRect)
     }
     // Shared logic to determine responsibility for keyboard avoidance.

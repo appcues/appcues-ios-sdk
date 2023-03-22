@@ -85,7 +85,7 @@ In practice this distinction looks like this in the experience data model:
 }
 ```
 
-A trait is made aware of the level at which it is being applied by the ``ExperienceTraitLevel`` passed into ``ExperienceTrait/init(config:level:)``. A trait may choose to alter its behavior depending on the `level` at which it is applied.
+A trait is made aware of the level at which it is being applied by the ``ExperienceTraitLevel`` passed into ``ExperienceTrait/init(configuration:level:)``. A trait may choose to alter its behavior depending on the `level` at which it is applied.
 
 For example, a trait might simultaneously conform to ``StepDecoratingTrait`` and ``ContainerDecoratingTrait`` and the choose to apply it's decoration in only one of those contexts:
 
