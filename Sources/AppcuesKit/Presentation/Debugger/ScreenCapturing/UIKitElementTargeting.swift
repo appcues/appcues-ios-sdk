@@ -11,22 +11,29 @@ import UIKit
 // UIKit selector implementation that uses accessibilityIdentifier,
 // accessibiltyLabel, and tag data from the underlying UIView to identify elements.
 internal class UIKitElementSelector: AppcuesElementSelector {
+    private enum CodingKeys: String, CodingKey {
+        case accessibilityIdentifier
+        case accessibilityLabel
+        case tag
+    }
 
     let accessibilityIdentifier: String?
-    let accessiblityLabel: String?
+    // let accessibilityLabel: String?
     let tag: String?
 
-    init?(accessibilityIdentifier: String?, accessiblityLabel: String?, tag: String?) {
+    init?(accessibilityIdentifier: String?, accessibilityLabel: String?, tag: String?) {
         // must have at least one identifiable property to be a valid selector
-        if accessibilityIdentifier == nil && accessiblityLabel == nil && tag == nil {
+        if accessibilityIdentifier == nil && accessibilityLabel == nil && tag == nil {
             return nil
         }
 
         self.accessibilityIdentifier = accessibilityIdentifier
-        self.accessiblityLabel = accessiblityLabel
         self.tag = tag
 
         super.init()
+
+        self.accessibilityLabel = accessibilityLabel
+
     }
 
     override func evaluateMatch(for target: AppcuesElementSelector) -> Int {
@@ -45,11 +52,24 @@ internal class UIKitElementSelector: AppcuesElementSelector {
             weight += 1_000
         }
 
-        if accessiblityLabel != nil && accessiblityLabel == other.accessiblityLabel {
+        if accessibilityLabel != nil && accessibilityLabel == other.accessibilityLabel {
             weight += 100
         }
 
         return weight
+    }
+
+    override func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if let accessibilityIdentifier = accessibilityIdentifier, !accessibilityIdentifier.isEmpty {
+            try container.encode(accessibilityIdentifier, forKey: .accessibilityIdentifier)
+        }
+        if let accessibilityLabel = accessibilityLabel, !accessibilityLabel.isEmpty {
+            try container.encode(accessibilityLabel, forKey: .accessibilityLabel)
+        }
+        if let tag = tag, !tag.isEmpty {
+            try container.encode(tag, forKey: .tag)
+        }
     }
 }
 
@@ -64,7 +84,7 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
     func inflateSelector(from properties: [String: String]) -> AppcuesElementSelector? {
         return UIKitElementSelector(
             accessibilityIdentifier: properties["accessibilityIdentifier"],
-            accessiblityLabel: properties["accessiblityLabel"],
+            accessibilityLabel: properties["accessibilityLabel"],
             tag: properties["tag"]
         )
     }
