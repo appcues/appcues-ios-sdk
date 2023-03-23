@@ -62,7 +62,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 if flushWorkItem == nil {
                     let workItem = DispatchWorkItem { [weak self] in
                         self?.syncQueue.sync {
-                            self?.flushPendingActivity() // no timing tracking on background actvity flush
+                            self?.flushPendingActivity() // no timing tracking on background activity flush
                         }
                     }
                     flushWorkItem = workItem
