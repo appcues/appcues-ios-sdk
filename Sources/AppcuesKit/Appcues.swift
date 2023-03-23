@@ -12,9 +12,13 @@ import Foundation
 @objc(Appcues)
 public class Appcues: NSObject {
 
-    // internal static, made available to the AppcuesTargetElementTrait
+    /// The element targeting strategy used by the Appcues SDK.
+    ///
+    /// This strategy controls how the application UI layout hierarchy is captured for building targeted element
+    /// experiences. It is also used to control how elements are found for positioning content during rendering of targeted element
+    /// experiences, such as anchored tooltips. By default, the SDK uses a strategy for native iOS UIKit applications.
     @available(iOS 13.0, *)
-    static var elementTargeting: AppcuesElementTargeting = UIKitElementTargeting()
+    public static var elementTargeting: AppcuesElementTargeting = UIKitElementTargeting()
 
     let container = DIContainer()
     let config: Appcues.Config
@@ -86,12 +90,6 @@ public class Appcues: NSObject {
         super.init()
 
         initializeContainer()
-
-        if #available(iOS 13.0, *), let elementTargeting = config.elementTargeting {
-            // sharing this in a static property since element targeting strategy is
-            // defined at the app level based on the app framework
-            Appcues.elementTargeting = elementTargeting
-        }
 
         config.logger.info("Appcues SDK %{public}s initialized", version())
     }

@@ -19,10 +19,12 @@ public class AppcuesViewElement: NSObject, Encodable {
     /// Auto-generated unique ID for the view.
     let id = UUID().appcuesFormatted
 
-    /// The x-coordinate for view position, with origin in the upper-left corner.
+    /// The x-coordinate for view position, with origin in the upper-left corner. This value is in screen
+    /// coordinates, not relative to the parent.
     let x: CGFloat
 
-    /// The y-coordinate for view position, with origin is in the upper-left corner.
+    /// The y-coordinate for view position, with origin is in the upper-left corner. This value is in screen
+    /// coordinates, not relative to the parent.
     let y: CGFloat
 
     /// The width of the view.
@@ -43,12 +45,13 @@ public class AppcuesViewElement: NSObject, Encodable {
 
     /// Creates an instance of an AppcuesViewElement.
     /// - Parameters:
-    ///   - x: The x-coordinate for view position, with origin in the upper-left corner.
-    ///   - y: The y-coordinate for view position, with origin is in the upper-left corner.
+    ///   - x: The x-coordinate for view position, with origin in the upper-left corner, in screen coordinates.
+    ///   - y: The y-coordinate for view position, with origin is in the upper-left corner, in screen coordinates.
+    ///        This value is in screen coordinates, not relative to the parent.
     ///   - width: The width of the view.
     ///   - height: The height of the view.
     ///   - type: The type of the view.
-    ///   - selector: The selector to idenfify the view.
+    ///   - selector: The selector to identify the view.
     ///   - children: The sub-views contained within the view.
     @objc
     public init(
@@ -74,12 +77,13 @@ internal extension AppcuesViewElement {
     // Used internally by the SDK to find all views, recursively, that have at least a
     // partial match with the given selector. Used to find the position of an element
     // targeted experience.
-    func viewsMatchingSelector(_ target: AppcuesElementSelector) -> [AppcuesViewElement] {
-        var views: [AppcuesViewElement] = []
+    func viewsMatchingSelector(_ target: AppcuesElementSelector) -> [(AppcuesViewElement, Int)] {
+        var views: [(AppcuesViewElement, Int)] = []
 
         if let current = selector {
-            if current.evaluateMatch(for: target) > 0 {
-                views.append(self)
+            let match = current.evaluateMatch(for: target)
+            if match > 0 {
+                views.append((self, match))
             }
         }
 

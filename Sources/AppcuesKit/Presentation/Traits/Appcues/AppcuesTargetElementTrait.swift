@@ -82,34 +82,46 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
             throw TraitError(description: "Invalid selector \(config.selector)")
         }
 
-        let views = strategy.findMatches(for: selector)
+        guard let weightedViews = strategy.findMatches(for: selector) else {
+            throw TraitError(description: "Could not read application layout information")
+        }
 
-        guard !views.isEmpty else {
+        // views contains an array of tuples, each item being the view and its integer
+        // match value
+
+        guard !weightedViews.isEmpty else {
             throw TraitError(description: "No view matching selector \(config.selector)")
         }
 
         // if only a single match of anything, use it
-        if views.count == 1 {
-            return views[0]
+        if weightedViews.count == 1 {
+            return weightedViews[0].0
         }
 
-        // weight the selector property matches by how distinct they are considered
-        let weightedMatches = views.map { view -> (AppcuesViewElement, Int) in
-            let weight = view.selector?.evaluateMatch(for: selector) ?? 0
-            return (view, weight)
-        }
+        // iterating through the array, storing the highest weight value and the list of views
+        // with that weight, resetting the list when we find a higher weight
+        var maxWeight = -1
+        var maxWeightViews: [AppcuesViewElement] = []
 
-        // find the maximum weight value from all matches
-        if let maxWeight = weightedMatches.max(by: { $0.1 > $1.1 })?.1 {
-            // find the items with this weight
-            let maxItems = weightedMatches.filter { $0.1 == maxWeight }
-            // if this has produced a single most distinct result, use it
-            if maxItems.count == 1 {
-                return maxItems[0].0
+        weightedViews.forEach {
+            let view = $0.0
+            let weight = $0.1
+            if weight > maxWeight {
+                // new max weight, reset list
+                maxWeight = weight
+                maxWeightViews = [view]
+            } else if weight == maxWeight {
+                // add to the list of current max weight views
+                maxWeightViews.append(view)
             }
         }
 
+        // if this has produced a single most distinct result, use it
+        if maxWeightViews.count == 1 {
+            return maxWeightViews[0]
+        }
+
         // otherwise, this selector was not able to find a distinct match in this view
-        throw TraitError(description: "multiple non-distinct views (\(views.count)) matched selector \(config.selector)")
+        throw TraitError(description: "multiple non-distinct views (\(weightedViews.count)) matched selector \(config.selector)")
     }
 }
