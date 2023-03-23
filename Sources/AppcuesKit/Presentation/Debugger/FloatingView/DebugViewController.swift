@@ -66,11 +66,11 @@ internal class DebugViewController: UIViewController {
     }
 
     func open(animated: Bool) {
-        debugView.setPanelInterface(open: true, animated: animated, programatically: true)
+        debugView.setPanelInterface(open: true, animated: animated, programmatically: true)
     }
 
     func close(animated: Bool) {
-        debugView.setPanelInterface(open: false, animated: animated, programatically: true)
+        debugView.setPanelInterface(open: false, animated: animated, programmatically: true)
     }
 
     func logFleeting(message: String, symbolName: String?) {
@@ -84,7 +84,7 @@ internal class DebugViewController: UIViewController {
         let confirmationView = SendCaptureUI.ConfirmationDialogView(
             capture: screen,
             completion: { [weak self] result in
-                // dimiss the presented modal
+                // dismiss the presented modal
                 self?.dismiss(animated: true)
                 // show the FAB
                 self?.show(animated: true)
@@ -135,7 +135,7 @@ extension DebugViewController: FloatingViewDelegate {
         switch mode {
         case .debugger:
             let isCurrentlyOpen = debugView.floatingView.center == debugView.floatingViewOpenCenter
-            debugView.setPanelInterface(open: !isCurrentlyOpen, animated: true, programatically: false)
+            debugView.setPanelInterface(open: !isCurrentlyOpen, animated: true, programmatically: false)
             debugView.fleetingLogView.clear()
         case .screenCapture(let authorization):
             delegate?.debugView(did: .screenCapture(authorization))

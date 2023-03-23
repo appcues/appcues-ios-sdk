@@ -36,7 +36,7 @@ internal class AppcuesLaunchExperienceAction: ExperienceAction {
     func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
         let experienceLoading = appcues.container.resolve(ExperienceLoading.self)
 
-        // If no trigger value is passedin, we know it was not triggered by a post-flow action
+        // If no trigger value is passed in, we know it was not triggered by a post-flow action
         // and we can use the standard `.launchExperienceAction` case, for a normal link within a flow
         // that launches another flow from a button, for example.
         let trigger = self.trigger ?? launchExperienceTrigger(appcues)

@@ -240,10 +240,10 @@ internal class DebugView: UIView {
         }
     }
 
-    func setPanelInterface(open isOpen: Bool, animated: Bool, programatically: Bool) {
+    func setPanelInterface(open isOpen: Bool, animated: Bool, programmatically: Bool) {
         let center = isOpen ? floatingViewOpenCenter : floatingViewDockedCenter
-        floatingView.animatePosition(to: center, animated: animated, haptics: !programatically)
-        animatePanel(visible: isOpen, animated: animated, haptics: !programatically)
+        floatingView.animatePosition(to: center, animated: animated, haptics: !programmatically)
+        animatePanel(visible: isOpen, animated: animated, haptics: !programmatically)
         delegate?.debugView(did: isOpen ? .open : .close)
 
         fleetingLogView.isLocked = isOpen
@@ -277,7 +277,7 @@ internal class DebugView: UIView {
 
     @objc
     private func backgroundTapped(recognizer: UITapGestureRecognizer) {
-        setPanelInterface(open: false, animated: true, programatically: true)
+        setPanelInterface(open: false, animated: true, programmatically: true)
     }
 
     @objc

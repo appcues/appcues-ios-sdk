@@ -44,7 +44,7 @@ internal class ActivityFileStorage: ActivityStoring {
         let jsonString = activity.toString()
         if let jsonData = jsonString.data(using: .utf8) {
             let file = storageDirectory.appendingPathComponent(activity.requestID.uuidString)
-            // will replace if exists (shouldnt)
+            // will replace if exists (shouldn't)
             FileManager.default.createFile(atPath: file.path, contents: jsonData)
         }
     }

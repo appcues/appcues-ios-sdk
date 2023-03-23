@@ -19,7 +19,7 @@ internal struct EmbedWebView: UIViewRepresentable {
         config.allowsInlineMediaPlayback = true // video plays in its position, not popping open fullscreen
         config.mediaTypesRequiringUserActionForPlayback = [] // for video autoplay
 
-        // the script here is to prevent automatic 8px margins around embed content in the webview
+        // the script here is to prevent automatic 8px margins around embed content in the web view
         // swiftlint:disable:next line_length
         let source = "var node = document.createElement(\"style\"); node.innerHTML = \"body { margin:0; }\";document.body.appendChild(node);"
         let script = WKUserScript(
@@ -30,17 +30,17 @@ internal struct EmbedWebView: UIViewRepresentable {
 
         config.userContentController.addUserScript(script)
 
-        let webview = WKWebView(frame: CGRect.zero, configuration: config)
-        webview.scrollView.isScrollEnabled = false
-        webview.isOpaque = false
+        let webView = WKWebView(frame: CGRect.zero, configuration: config)
+        webView.scrollView.isScrollEnabled = false
+        webView.isOpaque = false
         // the header here allows the content to scale as expected for a mobile viewport
         // https://stackoverflow.com/a/46000849
         // swiftlint:disable:next line_length
         let headerString = "<head><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no'></head>"
-        webview.loadHTMLString(headerString + embed, baseURL: nil)
+        webView.loadHTMLString(headerString + embed, baseURL: nil)
 
-        return webview
+        return webView
     }
 
-    func updateUIView(_ webview: WKWebView, context: Context) { }
+    func updateUIView(_ webView: WKWebView, context: Context) { }
 }
