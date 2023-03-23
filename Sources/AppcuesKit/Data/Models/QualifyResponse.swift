@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// API repsonse stucture for a `/qualify` request.
+/// API response structure for a `/qualify` request.
 internal struct QualifyResponse {
 
     enum QualificationReason: String, Decodable {

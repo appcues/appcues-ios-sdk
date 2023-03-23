@@ -56,7 +56,7 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
         if let preferredWidth = tooltipStyle?.width {
             experienceWrapperViewController.bodyView.preferredWidth = preferredWidth
         }
-        // Ensure content isnt hidden by the tooltip pointer
+        // Ensure content isn't hidden by the tooltip pointer
         experienceWrapperViewController.bodyView.pointerInsetHandler = { insets in
             containerController.additionalSafeAreaInsets = insets
         }

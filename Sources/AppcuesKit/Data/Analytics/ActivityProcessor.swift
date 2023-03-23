@@ -12,7 +12,7 @@ internal protocol ActivityProcessing: AnyObject {
     func process(_ activity: Activity, completion: @escaping (Result<QualifyResponse, Error>) -> Void)
 }
 
-/// This class is responsible for the network transport of analytics data to the /activity API endpoint.  This includes
+/// This class is responsible for the network transport of analytics data to the /activity API endpoint. This includes
 /// the underlying persistent storage and retry, if necessary, for connection issues or app termination - to avoid loss of data.
 internal class ActivityProcessor: ActivityProcessing {
 
@@ -198,7 +198,7 @@ private extension Error {
             return true
         default:
             // all other responses are considered a successful request, in terms of client behavior
-            // and we should clear the item out of storage and not retry.  This avoid continously sending
+            // and we should clear the item out of storage and not retry. This avoids continuously sending
             // something that the server is rejecting as malformed, for example.
             // in the future, we may retry on some types of server errors, but out of scope currently.
             return false

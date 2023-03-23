@@ -77,7 +77,7 @@ extension ExperienceStateMachine {
                 return Transition(toState: nil, sideEffect: .error(.experienceAlreadyActive(ignoredExperience: experience), reset: false))
             case let (_, .reportError(error, fatal)):
                 // Don't transition directly to .idling for fatal errors because that removes
-                // obsevers before they're notified of the error by the side effect.
+                // observers before they're notified of the error by the side effect.
                 return Transition(toState: nil, sideEffect: .error(error, reset: fatal))
             default:
                 return nil
