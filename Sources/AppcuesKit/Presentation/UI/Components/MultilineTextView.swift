@@ -52,7 +52,7 @@ internal struct TextInputStyle: TextInputStyling {
     }
 }
 
-// An implementation of text input for SwiftUI that provides full flexibily
+// An implementation of text input for SwiftUI that provides full flexibility
 // from iOS 13 and up, since SwiftUI TextField has different feature support
 // on later iOS versions, and not all available in 13. This implementation
 // wraps UIKit UITextField for single line, and UIKit UITextView for multi-line.

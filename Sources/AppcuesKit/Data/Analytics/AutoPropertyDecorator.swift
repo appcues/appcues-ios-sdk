@@ -23,7 +23,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     // these are the fixed values for the duration of the app runtime
     private var applicationProperties: [String: Any] = [:]
 
-    // these may be redundant with _identity autoprops in some cases, but backend
+    // these may be redundant with _identity auto props in some cases, but backend
     // systems requested that we send in both spots on requests
     private lazy var contextProperties: [String: Any] = [
         "app_id": config.applicationID,
@@ -53,7 +53,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             currentScreen = nil
             previousScreen = nil
         case .group:
-            // group updates do not have autoprops, don't manipulate anything in the properties
+            // group updates do not have auto props, don't manipulate anything in the properties
             return tracking
         default:
             break

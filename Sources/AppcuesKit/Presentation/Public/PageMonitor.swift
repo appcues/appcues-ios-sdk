@@ -33,7 +33,7 @@ public class PageMonitor: NSObject {
         super.init()
     }
 
-    /// Adds the specified closure to the list of closures to invoke whent he ``currentPage`` value changes.
+    /// Adds the specified closure to the list of closures to invoke when the ``currentPage`` value changes.
     /// - Parameter closure: The closure to invoke.
     @objc
     public func addObserver(closure: @escaping (_ currentIndex: Int, _ oldIndex: Int) -> Void) {

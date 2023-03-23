@@ -10,7 +10,7 @@ import Foundation
 
 internal class DIContainer {
 
-    // could look into something like SwinjectAutoregistration to make this even
+    // could look into something like SwinjectAutoRegistration to make this even
     // simpler to register/resolve
     // reference:
     // https://github.com/Swinject/SwinjectAutoregistration/blob/master/Sources/AutoRegistration.swift
