@@ -71,7 +71,7 @@ internal class DebugViewModel: ObservableObject {
                 subtitle: trackingPages ? nil : "Navigate to another screen to test"
             ),
             StatusItem(
-                status: userIdentified ? .verified : .unverfied,
+                status: userIdentified ? .verified : .unverified,
                 title: "User Identified",
                 subtitle: userDescription,
                 detailText: currentUserID
@@ -136,7 +136,7 @@ internal class DebugViewModel: ObservableObject {
 
         switch properties.type {
         case .experienceError, .stepError:
-            status = .unverfied
+            status = .unverified
             title = "Content Omitted: \(properties.experienceName)"
             if let message = properties.message {
                 subtitle = message
@@ -177,7 +177,7 @@ internal class DebugViewModel: ObservableObject {
 
         DispatchQueue.main.sync {
             // Errors are listed last
-            self.experienceStatuses = experienceStatuses.sorted { $0.status == .verified && $1.status == .unverfied }
+            self.experienceStatuses = experienceStatuses.sorted { $0.status == .verified && $1.status == .unverified }
         }
     }
 
@@ -194,7 +194,7 @@ internal class DebugViewModel: ObservableObject {
                 case .success:
                     self?.connectedStatus.status = .verified
                 case .failure(let error):
-                    self?.connectedStatus.status = .unverfied
+                    self?.connectedStatus.status = .unverified
                     self?.connectedStatus.subtitle = error.localizedDescription
                     self?.connectedStatus.detailText = "\(error)"
                 }
@@ -209,7 +209,7 @@ internal class DebugViewModel: ObservableObject {
         deepLinkStatus.subtitle = nil
 
         if !infoPlistContainsScheme() {
-            deepLinkStatus.status = .unverfied
+            deepLinkStatus.status = .unverified
             deepLinkStatus.subtitle = "Error 1: CFBundleURLSchemes value missing"
             return
         }
@@ -227,7 +227,7 @@ internal class DebugViewModel: ObservableObject {
 
     private func verifyDeepLinkHandling(token: String) {
         guard let url = URL(string: "appcues-\(applicationID)://sdk/verify/\(token)") else {
-            deepLinkStatus.status = .unverfied
+            deepLinkStatus.status = .unverified
             deepLinkStatus.subtitle = "Error 0: Failed to set up verification"
             return
         }
@@ -238,7 +238,7 @@ internal class DebugViewModel: ObservableObject {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             if self.deepLinkVerificationToken != nil {
-                self.deepLinkStatus.status = .unverfied
+                self.deepLinkStatus.status = .unverified
                 self.deepLinkStatus.subtitle = "Error 2: Appcues SDK not receiving links"
                 self.deepLinkVerificationToken = nil
             }
@@ -250,7 +250,7 @@ internal class DebugViewModel: ObservableObject {
             deepLinkStatus.status = .verified
             deepLinkStatus.subtitle = nil
         } else {
-            deepLinkStatus.status = .unverfied
+            deepLinkStatus.status = .unverified
             deepLinkStatus.subtitle = "Error 3: Unexpected result"
         }
 
@@ -263,14 +263,14 @@ extension DebugViewModel {
     enum Status {
         case verified
         case pending
-        case unverfied
+        case unverified
         case info
 
         var symbolName: String {
             switch self {
             case .verified: return "checkmark"
             case .pending: return "ellipsis"
-            case .unverfied: return "xmark"
+            case .unverified: return "xmark"
             case .info: return "info.circle"
             }
         }
@@ -279,7 +279,7 @@ extension DebugViewModel {
             switch self {
             case .verified: return .green
             case .pending: return .gray
-            case .unverfied: return .red
+            case .unverified: return .red
             case .info: return .blue
             }
         }

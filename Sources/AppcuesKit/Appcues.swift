@@ -136,7 +136,7 @@ public class Appcues: NSObject {
     }
 
     /// Generate a unique ID for the current user when there is not a known identity to use in
-    /// the `identify` call.  This will cause the SDK to begin tracking activity and checking for
+    /// the `identify` call. This will cause the SDK to begin tracking activity and checking for
     /// qualified content.
     @objc
     public func anonymous() {
@@ -150,7 +150,7 @@ public class Appcues: NSObject {
         // removed
     }
 
-    /// Clears out the current user in this session.  Can be used when the user logs out of your application.
+    /// Clears out the current user in this session. Can be used when the user logs out of your application.
     @objc
     public func reset() {
         // call this first to close final analytics on the session
@@ -307,7 +307,7 @@ public class Appcues: NSObject {
         let analyticsBroadcaster = container.resolve(AnalyticsBroadcaster.self)
         analyticsPublisher.register(subscriber: analyticsBroadcaster)
 
-        // register the autoproperty decorator
+        // register the auto property decorator
         let autoPropDecorator = container.resolve(AutoPropertyDecorator.self)
         analyticsPublisher.register(decorator: autoPropDecorator)
 

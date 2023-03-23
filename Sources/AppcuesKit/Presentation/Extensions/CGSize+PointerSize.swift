@@ -11,7 +11,7 @@ import UIKit
 extension CGSize {
     // How does this work?
     // We're interested in the radius value such that the arc from outer circle (C1) and arc from the inner circle (C2)
-    // intersect, drawing a continuous line for the pointer rather than C2 exceeding C1 and there being an odd straigt line
+    // intersect, drawing a continuous line for the pointer rather than C2 exceeding C1 and there being an odd straight line
     // while the path backtracks.
     // There's a few constraints we know:
     // 1. The angle of the line between C1 and C2 (perpendicular to the side of the pointer triangle)
@@ -38,7 +38,7 @@ extension CGSize {
         // We know pt1.y - r = centerC1.y                    // (6)
         //      => r = pt1.y - centerC1.y
 
-        // Subtitute and solve for r:
+        // Substitute and solve for r:
         let radius = (pt1.y - pt2.y) / (1 + 2 * sin(angle - .pi / 2) + (1 / cos(angle)))
 
         return radius

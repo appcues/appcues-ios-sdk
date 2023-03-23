@@ -94,7 +94,7 @@ internal class UIDebugger: UIDebugging {
         if let previousMode = debugViewController?.mode {
             switch (previousMode, mode) {
             case (.debugger, .screenCapture), (.screenCapture, .debugger):
-                // Debugger already open but in different mode, dimiss it
+                // Debugger already open but in different mode, dismiss it
                 hide()
             default:
                 // Debugger already open in desired mode

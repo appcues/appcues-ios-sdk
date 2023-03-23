@@ -95,7 +95,7 @@ extension UIDebugger {
         }
 
         // make sure we have a valid URL to reference this screen
-        // otherwise dont bother with upload
+        // otherwise don't bother with upload
         guard let screenshotImageUrl = URL(string: upload.url) else {
             completion(.failure(ScreenCaptureError.noImageURL))
             return
