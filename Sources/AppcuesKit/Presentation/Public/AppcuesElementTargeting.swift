@@ -29,7 +29,7 @@ public protocol AppcuesElementTargeting {
 internal extension AppcuesElementTargeting {
     // Default implementation that looks at the current view capture and finds any matches.
     // Used during targeted element experiences to find the position in the UI for the experience.
-    func findMatches(for selector: AppcuesElementSelector) -> [AppcuesViewElement] {
-        return captureLayout()?.viewsMatchingSelector(selector) ?? []
+    func findMatches(for selector: AppcuesElementSelector) -> [(AppcuesViewElement, Int)]? {
+        return captureLayout()?.viewsMatchingSelector(selector)
     }
 }
