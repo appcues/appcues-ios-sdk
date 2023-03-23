@@ -43,8 +43,6 @@ public extension Appcues {
 
         var enableUniversalLinks = true
 
-        var elementTargeting: AppcuesElementTargeting?
-
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
         /// - Parameter applicationID: Appcues Application ID - a string containing a UUID,
@@ -173,23 +171,6 @@ public extension Appcues {
         @objc
         public func enableUniversalLinks(_ enabled: Bool) -> Self {
             self.enableUniversalLinks = enabled
-            return self
-        }
-
-        /// Set the element targeting strategy for the configuration.
-        ///
-        /// This strategy is used to control how the application UI layout hierarchy is captured for building targeted element
-        /// experiences. It is also used to control how elements are found and used during rendering of targeted element
-        /// experiences, such as anchored tooltips for example.
-        ///
-        /// If no strategy is supplied in the configuration, the SDK will use a default strategy for native iOS UIKit applications.
-        ///
-        /// - Parameter strategy: The strategy implementation to use for element targeted experiences.
-        /// - Returns: The `Configuration` object.
-        @discardableResult
-        @objc
-        public func elementTargeting(_ strategy: AppcuesElementTargeting) -> Self {
-            self.elementTargeting = strategy
             return self
         }
     }
