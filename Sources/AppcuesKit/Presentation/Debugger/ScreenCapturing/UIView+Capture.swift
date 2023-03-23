@@ -35,7 +35,7 @@ internal extension UIView {
     var appcuesSelector: UIKitElementSelector? {
         return UIKitElementSelector(
             accessibilityIdentifier: accessibilityIdentifier,
-            accessiblityLabel: accessibilityLabel,
+            accessibilityLabel: accessibilityLabel,
             tag: tag != 0 ? "\(self.tag)" : nil
         )
     }
