@@ -32,14 +32,6 @@ private extension UIViewController {
 }
 
 internal extension UIView {
-    var appcuesSelector: UIKitElementSelector? {
-        return UIKitElementSelector(
-            accessibilityIdentifier: accessibilityIdentifier,
-            accessibilityLabel: accessibilityLabel,
-            tag: tag != 0 ? "\(self.tag)" : nil
-        )
-    }
-
     func screenCaptureDisplayName(at timestamp: Date) -> String {
         var name = ""
         if let window = self as? UIWindow,
@@ -62,32 +54,5 @@ internal extension UIView {
         drawHierarchy(in: self.bounds, afterScreenUpdates: false)
 
         return UIGraphicsGetImageFromCurrentImageContext()
-    }
-
-    func captureLayout() -> AppcuesViewElement? {
-        return self.asCaptureView(in: self.bounds)
-    }
-
-    private func asCaptureView(in bounds: CGRect) -> AppcuesViewElement? {
-        let absolutePosition = self.convert(self.bounds, to: nil)
-
-        // discard views that are not visible in the screenshot image
-        guard absolutePosition.intersects(bounds) else { return nil }
-
-        let children: [AppcuesViewElement] = self.subviews.compactMap {
-            // discard hidden views and subviews within
-            guard !$0.isHidden else { return nil }
-            return $0.asCaptureView(in: bounds)
-        }
-
-        return AppcuesViewElement(
-            x: absolutePosition.origin.x,
-            y: absolutePosition.origin.y,
-            width: absolutePosition.width,
-            height: absolutePosition.height,
-            type: "\(type(of: self))",
-            selector: appcuesSelector,
-            children: children.isEmpty ? nil : children
-        )
     }
 }

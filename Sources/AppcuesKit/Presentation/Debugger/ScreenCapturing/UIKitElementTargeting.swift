@@ -18,7 +18,6 @@ internal class UIKitElementSelector: AppcuesElementSelector {
     }
 
     let accessibilityIdentifier: String?
-    // let accessibilityLabel: String?
     let tag: String?
 
     init?(accessibilityIdentifier: String?, accessibilityLabel: String?, tag: String?) {
@@ -32,6 +31,7 @@ internal class UIKitElementSelector: AppcuesElementSelector {
 
         super.init()
 
+        // note: accessibilityLabel is inhertied from base type NSObject and used here
         self.accessibilityLabel = accessibilityLabel
 
     }
@@ -78,7 +78,7 @@ internal class UIKitElementSelector: AppcuesElementSelector {
 @available(iOS 13.0, *)
 internal class UIKitElementTargeting: AppcuesElementTargeting {
     func captureLayout() -> AppcuesViewElement? {
-        return UIApplication.shared.windows.first { !$0.isAppcuesWindow }?.captureLayout()
+        return UIApplication.shared.windows.first { !$0.isAppcuesWindow }?.asViewElement()
     }
 
     func inflateSelector(from properties: [String: String]) -> AppcuesElementSelector? {
@@ -86,6 +86,43 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
             accessibilityIdentifier: properties["accessibilityIdentifier"],
             accessibilityLabel: properties["accessibilityLabel"],
             tag: properties["tag"]
+        )
+    }
+}
+
+internal extension UIView {
+    var appcuesSelector: UIKitElementSelector? {
+        return UIKitElementSelector(
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibilityLabel: accessibilityLabel,
+            tag: tag != 0 ? "\(self.tag)" : nil
+        )
+    }
+
+    func asViewElement() -> AppcuesViewElement? {
+        return self.asViewElement(in: self.bounds)
+    }
+
+    private func asViewElement(in bounds: CGRect) -> AppcuesViewElement? {
+        let absolutePosition = self.convert(self.bounds, to: nil)
+
+        // discard views that are not visible in the screenshot image
+        guard absolutePosition.intersects(bounds) else { return nil }
+
+        let children: [AppcuesViewElement] = self.subviews.compactMap {
+            // discard hidden views and subviews within
+            guard !$0.isHidden else { return nil }
+            return $0.asViewElement(in: bounds)
+        }
+
+        return AppcuesViewElement(
+            x: absolutePosition.origin.x,
+            y: absolutePosition.origin.y,
+            width: absolutePosition.width,
+            height: absolutePosition.height,
+            type: "\(type(of: self))",
+            selector: appcuesSelector,
+            children: children.isEmpty ? nil : children
         )
     }
 }

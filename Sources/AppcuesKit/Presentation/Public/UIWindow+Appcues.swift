@@ -14,8 +14,11 @@ public extension UIWindow {
     ///
     /// Implementations of `AppcuesElementTargeting` may need this value to reliably exclude any Appcues content windows
     /// that are overlaid on top of the application, when capturing screen layout information.
-    @available(iOS 13.0, *)
     var isAppcuesWindow: Bool {
-        return self is DebugUIWindow
+        if #available(iOS 13.0, *) {
+            return self is DebugUIWindow
+        } else {
+            return false
+        }
     }
 }
