@@ -77,7 +77,7 @@ internal extension AppcuesViewElement {
     // Used internally by the SDK to find all views, recursively, that have at least a
     // partial match with the given selector. Used to find the position of an element
     // targeted experience.
-    func viewsMatchingSelector(_ target: AppcuesElementSelector) -> [(AppcuesViewElement, Int)] {
+    func viewsMatchingSelector(_ target: AppcuesElementSelector) -> [(view: AppcuesViewElement, weight: Int)] {
         var views: [(AppcuesViewElement, Int)] = []
 
         if let current = selector {

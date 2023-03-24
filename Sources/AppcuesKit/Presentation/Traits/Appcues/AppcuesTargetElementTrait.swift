@@ -95,7 +95,7 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
 
         // if only a single match of anything, use it
         if weightedViews.count == 1 {
-            return weightedViews[0].0
+            return weightedViews[0].view
         }
 
         // iterating through the array, storing the highest weight value and the list of views
@@ -104,8 +104,8 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
         var maxWeightViews: [AppcuesViewElement] = []
 
         weightedViews.forEach {
-            let view = $0.0
-            let weight = $0.1
+            let view = $0.view
+            let weight = $0.weight
             if weight > maxWeight {
                 // new max weight, reset list
                 maxWeight = weight
@@ -116,12 +116,12 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
             }
         }
 
-        // if this has produced a single most distinct result, use it
-        if maxWeightViews.count == 1 {
-            return maxWeightViews[0]
+        guard maxWeightViews.count == 1 else {
+            // this selector was not able to find a distinct match in this view
+            throw TraitError(description: "multiple non-distinct views (\(weightedViews.count)) matched selector \(config.selector)")
         }
 
-        // otherwise, this selector was not able to find a distinct match in this view
-        throw TraitError(description: "multiple non-distinct views (\(weightedViews.count)) matched selector \(config.selector)")
+        // if this has produced a single most distinct result, use it
+        return maxWeightViews[0]
     }
 }
