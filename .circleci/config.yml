@@ -21,7 +21,7 @@ orbs:
 executors:
   xcode_14:
     macos:
-      xcode: 14.0.0
+      xcode: 14.2.0
     working_directory: /Users/distiller/project
     shell: /bin/bash --login -o pipefail
     environment:
