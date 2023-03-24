@@ -31,7 +31,7 @@ internal class UIKitElementSelector: AppcuesElementSelector {
 
         super.init()
 
-        // note: accessibilityLabel is inhertied from base type NSObject and used here
+        // note: accessibilityLabel is inherited from base type NSObject and used here
         self.accessibilityLabel = accessibilityLabel
 
     }
