@@ -18,9 +18,15 @@ extension CGSize {
     // 2. The x value of the center of C2 must be in the middle of the pointer (so pointerSize.width / 2)
     // 3. The y value of the center of C2 (h) can be calculated from the tip of the pointer
     // 4. The distance between C1 and C2 is 2 * radius
-    // 5. The center of C1 can be calculated by projecting from C1 distance 2 * radius by the angle
+    // 5. The center of C1 can be calculated by projecting from C2 distance 2 * radius by the angle
     // 6. The y value of the center of C1 must be exactly -radius from the base (so pointerSize.height - radius)
     var maxPointerCornerRadius: CGFloat {
+        // (0) (pt2)
+        //      /\
+        //     /  \
+        //    /    \
+        //   /      \
+        // (pt1)
         let pt1 = CGPoint(x: 0, y: self.height)
         let pt2 = CGPoint(x: self.width / 2, y: 0)
 
