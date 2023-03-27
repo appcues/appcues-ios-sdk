@@ -14,6 +14,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
         let buttonAppearance: ButtonAppearance?
         // swiftlint:disable:next discouraged_optional_boolean
         let ignoreBackdropTap: Bool?
+        let buttonStyle: ExperienceComponent.Style?
     }
 
     static var type: String = "@appcues/skippable"
@@ -22,6 +23,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
 
     private let buttonAppearance: ButtonAppearance
     private let ignoreBackdropTap: Bool
+    private let buttonStyle: ExperienceComponent.Style?
 
     private weak var containerController: UIViewController?
     private weak var view: UIViewController.CloseButton?
@@ -31,13 +33,14 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
         let config = configuration.decode(Config.self)
         self.buttonAppearance = config?.buttonAppearance ?? .default
         self.ignoreBackdropTap = config?.ignoreBackdropTap ?? false
+        self.buttonStyle = config?.buttonStyle
     }
 
     func decorate(containerController: ExperienceContainerViewController) throws {
         self.containerController = containerController
 
         if buttonAppearance != .hidden {
-            self.view = containerController.addDismissButton(appearance: buttonAppearance)
+            self.view = containerController.addDismissButton(appearance: buttonAppearance, style: buttonStyle)
         }
 
         // Allow interactive dismissal
@@ -82,19 +85,28 @@ extension AppcuesSkippableTrait {
 @available(iOS 13.0, *)
 private extension UIViewController {
     @discardableResult
-    func addDismissButton(appearance: AppcuesSkippableTrait.ButtonAppearance) -> CloseButton {
-        let dismissButton = CloseButton(minimal: appearance == .minimal)
+    func addDismissButton(appearance: AppcuesSkippableTrait.ButtonAppearance, style: ExperienceComponent.Style?) -> CloseButton {
+        let dismissWrapView = UIView()
+        dismissWrapView.translatesAutoresizingMaskIntoConstraints = false
+        // 8px default margins for backwards compatibility
+        dismissWrapView.directionalLayoutMargins = NSDirectionalEdgeInsets(
+            top: style?.marginTop ?? 8,
+            leading: style?.marginLeading ?? 8,
+            bottom: style?.marginBottom ?? 8,
+            trailing: style?.marginTrailing ?? 8
+        )
+
+        let dismissButton = CloseButton(style: style, isMinimal: appearance == .minimal)
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
         dismissButton.addTarget(self, action: #selector(dismissButtonTapped), for: .touchUpInside)
 
-        view.addSubview(dismissButton)
+        view.addSubview(dismissWrapView)
+        dismissWrapView.addSubview(dismissButton)
+        dismissButton.pin(to: dismissWrapView.layoutMarginsGuide)
 
         dismissButton.accessibilityLabel = "Close"
 
-        NSLayoutConstraint.activate([
-            view.safeAreaLayoutGuide.trailingAnchor.constraint(equalToSystemSpacingAfter: dismissButton.trailingAnchor, multiplier: 1),
-            dismissButton.topAnchor.constraint(equalToSystemSpacingBelow: view.safeAreaLayoutGuide.topAnchor, multiplier: 1)
-        ])
+        NSLayoutConstraint.activate(dismissButtonConstraints(dismissWrapView, style: style))
 
         return dismissButton
     }
@@ -103,49 +115,113 @@ private extension UIViewController {
     func dismissButtonTapped() {
         dismiss(animated: true)
     }
+
+    private func dismissButtonConstraints(_ dismissButton: UIView, style: ExperienceComponent.Style?) -> [NSLayoutConstraint] {
+        var constraints: [NSLayoutConstraint] = []
+
+        // Default to top/trailing for backwards compatibility
+
+        switch style?.verticalAlignment {
+        case "center":
+            constraints.append(dismissButton.centerYAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.centerYAnchor))
+        case "bottom":
+            constraints.append(dismissButton.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor))
+        default:
+            // top
+            constraints.append(dismissButton.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor))
+        }
+
+        switch style?.horizontalAlignment {
+        case "leading":
+            constraints.append(dismissButton.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor))
+        case "center":
+            constraints.append(dismissButton.centerXAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.centerXAnchor))
+        default:
+            // trailing
+            constraints.append(dismissButton.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor))
+        }
+
+        return constraints
+    }
 }
 
 @available(iOS 13.0, *)
 private extension UIViewController {
     class CloseButton: UIButton {
-        private static let size: CGFloat = 30
+        private static let defaultSize: Double = 30
 
-        init(minimal: Bool = false) {
+        init(style: ExperienceComponent.Style?, isMinimal: Bool = false) {
             super.init(frame: .zero)
 
-            layer.cornerRadius = CloseButton.size / 2
-            layer.masksToBounds = true
+            let width: Double = style?.width ?? style?.height ?? CloseButton.defaultSize
+            let height: Double = style?.height ?? CloseButton.defaultSize
 
-            let symbolFont = UIFont.systemFont(ofSize: CloseButton.size / 2, weight: minimal ? .regular : .bold)
+            layer.cornerRadius = style?.cornerRadius ?? min(width, height) / 2
+
+            let symbolFont = UIFont.systemFont(ofSize: height / 2, weight: isMinimal ? .regular : .bold)
             let xmark = UIImage(systemName: "xmark", withConfiguration: UIImage.SymbolConfiguration(font: symbolFont))
             let imageView = UIImageView(image: xmark)
 
-            if minimal {
-                imageView.tintColor = UIColor(white: 0.7, alpha: 1)
-                layer.compositingFilter = "differenceBlendMode"
+            let shadowView: UIView
+
+            if isMinimal {
+                shadowView = imageView
+
+                if let foregroundColor = UIColor(dynamicColor: style?.foregroundColor) {
+                    imageView.tintColor = foregroundColor
+                } else {
+                    imageView.tintColor = UIColor(white: 0.7, alpha: 1)
+                    layer.compositingFilter = "differenceBlendMode"
+                }
+
                 addSubview(imageView)
                 imageView.center(in: self)
             } else {
-                let blurEffect = UIBlurEffect(style: .systemThinMaterial)
-                let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect)
+                shadowView = self
 
-                let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
-                vibrancyEffectView.contentView.addSubview(imageView)
-                imageView.center(in: vibrancyEffectView.contentView)
+                if let foregroundColor = UIColor(dynamicColor: style?.foregroundColor) {
+                    imageView.tintColor = foregroundColor
+                    backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
 
-                let blurredEffectView = UIVisualEffectView(effect: blurEffect)
-                blurredEffectView.isUserInteractionEnabled = false
-                blurredEffectView.contentView.addSubview(vibrancyEffectView)
-                vibrancyEffectView.pin(to: blurredEffectView.contentView)
+                    addSubview(imageView)
+                    imageView.center(in: self)
+                } else {
+                    let blurEffect = UIBlurEffect(style: .systemThinMaterial)
+                    let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect)
 
-                addSubview(blurredEffectView)
-                blurredEffectView.pin(to: self)
+                    let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
+                    vibrancyEffectView.contentView.addSubview(imageView)
+                    imageView.center(in: vibrancyEffectView.contentView)
+
+                    let blurredEffectView = UIVisualEffectView(effect: blurEffect)
+                    blurredEffectView.layer.cornerRadius = layer.cornerRadius
+                    blurredEffectView.layer.masksToBounds = true
+                    blurredEffectView.isUserInteractionEnabled = false
+                    blurredEffectView.contentView.addSubview(vibrancyEffectView)
+                    vibrancyEffectView.pin(to: blurredEffectView.contentView)
+
+                    addSubview(blurredEffectView)
+                    blurredEffectView.pin(to: self)
+                }
             }
 
             NSLayoutConstraint.activate([
-                widthAnchor.constraint(equalToConstant: CloseButton.size),
-                heightAnchor.constraint(equalToConstant: CloseButton.size)
+                widthAnchor.constraint(equalToConstant: width),
+                heightAnchor.constraint(equalToConstant: height)
             ])
+
+            if let borderColor = UIColor(dynamicColor: style?.borderColor), let borderWidth = style?.borderWidth {
+                layer.borderColor = borderColor.cgColor
+                layer.borderWidth = borderWidth
+            }
+
+            if let shadowModel = style?.shadow {
+                shadowView.layer.shadowColor = UIColor(dynamicColor: shadowModel.color)?.cgColor
+                shadowView.layer.shadowOpacity = 1
+                shadowView.layer.shadowRadius = shadowModel.radius
+                shadowView.layer.shadowOffset = CGSize(width: shadowModel.x, height: shadowModel.y)
+                shadowView.layer.cornerRadius = layer.cornerRadius
+            }
         }
 
         @available(*, unavailable)
