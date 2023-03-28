@@ -27,7 +27,7 @@ internal struct AppcuesText: View {
 
 @available(iOS 13.0, *)
 extension Text {
-    init(textModel: ExperienceComponent.TextModel) {
+    init(textModel: ExperienceComponent.TextModel, skipColor: Bool = false) {
         self.init("")
 
         // Note: a ViewBuilder approach here doesn't work because the requirement that we operate strictly on `Text`
@@ -41,7 +41,7 @@ extension Text {
                 text = text.font(font)
             }
 
-            if let foregroundColor = Color(dynamicColor: span.style?.foregroundColor) {
+            if !skipColor, let foregroundColor = Color(dynamicColor: span.style?.foregroundColor) {
                 text = text.foregroundColor(foregroundColor)
             }
 
