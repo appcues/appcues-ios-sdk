@@ -150,7 +150,7 @@ extension UIDebugger: DebugViewDelegate {
 
     private func captureScreen(authorization: Authorization) {
         guard let debugViewController = debugViewController,
-              let window = UIApplication.shared.windows.first(where: { !($0 is DebugUIWindow) }),
+              let window = UIApplication.shared.windows.first(where: { !$0.isAppcuesWindow }),
               let screenshot = window.screenshot(),
               let layout = Appcues.elementTargeting.captureLayout() else {
 
