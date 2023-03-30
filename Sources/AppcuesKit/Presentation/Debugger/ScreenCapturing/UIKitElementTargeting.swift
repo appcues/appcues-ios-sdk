@@ -9,7 +9,7 @@
 import UIKit
 
 // UIKit selector implementation that uses accessibilityIdentifier,
-// accessibiltyLabel, and tag data from the underlying UIView to identify elements.
+// accessibilityLabel, and tag data from the underlying UIView to identify elements.
 internal class UIKitElementSelector: AppcuesElementSelector {
     private enum CodingKeys: String, CodingKey {
         case accessibilityIdentifier
