@@ -38,7 +38,13 @@ extension UIApplication: TopControllerGetting {
     }
 
     func topViewController() -> UIViewController? {
-        guard let rootViewController = activeKeyWindow?.rootViewController else { return nil }
+        var window: UIWindow? = activeKeyWindow
+
+        if window == nil || window!.isAppcuesWindow {
+            window = UIApplication.shared.windows.first { !$0.isAppcuesWindow }
+        }
+
+        guard let rootViewController = window?.rootViewController else { return nil }
         return topViewController(controller: rootViewController)
     }
 
