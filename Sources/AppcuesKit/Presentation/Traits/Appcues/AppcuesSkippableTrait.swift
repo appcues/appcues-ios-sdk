@@ -186,20 +186,7 @@ private extension UIViewController {
                     addSubview(imageView)
                     imageView.center(in: self)
                 } else {
-                    let blurEffect = UIBlurEffect(style: .systemThinMaterial)
-                    let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect)
-
-                    let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
-                    vibrancyEffectView.contentView.addSubview(imageView)
-                    imageView.center(in: vibrancyEffectView.contentView)
-
-                    let blurredEffectView = UIVisualEffectView(effect: blurEffect)
-                    blurredEffectView.layer.cornerRadius = layer.cornerRadius
-                    blurredEffectView.layer.masksToBounds = true
-                    blurredEffectView.isUserInteractionEnabled = false
-                    blurredEffectView.contentView.addSubview(vibrancyEffectView)
-                    vibrancyEffectView.pin(to: blurredEffectView.contentView)
-
+                    let blurredEffectView = wrapInSystemMaterials(view: imageView)
                     addSubview(blurredEffectView)
                     blurredEffectView.pin(to: self)
                 }
@@ -227,6 +214,24 @@ private extension UIViewController {
         @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
+        }
+
+        private func wrapInSystemMaterials(view: UIView) -> UIView {
+            let blurEffect = UIBlurEffect(style: .systemThinMaterial)
+            let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect)
+
+            let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
+            vibrancyEffectView.contentView.addSubview(view)
+            view.center(in: vibrancyEffectView.contentView)
+
+            let blurredEffectView = UIVisualEffectView(effect: blurEffect)
+            blurredEffectView.layer.cornerRadius = layer.cornerRadius
+            blurredEffectView.layer.masksToBounds = true
+            blurredEffectView.isUserInteractionEnabled = false
+            blurredEffectView.contentView.addSubview(vibrancyEffectView)
+            vibrancyEffectView.pin(to: blurredEffectView.contentView)
+
+            return blurredEffectView
         }
     }
 }
