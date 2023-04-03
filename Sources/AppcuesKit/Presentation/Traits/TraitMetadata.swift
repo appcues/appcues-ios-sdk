@@ -19,7 +19,7 @@ public class TraitMetadata: NSObject {
 
     func viewAnimation(_ block: @escaping () -> Void) {
         guard let duration = newData["animationDuration"] as? TimeInterval,
-                let easing = newData["animationEasing"] as? AppcuesStepTransitionAnimationTrait.Easing else {
+                let easing = AppcuesStepTransitionAnimationTrait.Easing(metadataValue: newData["animationEasing"] as? String) else {
             block()
             return
         }
@@ -30,7 +30,7 @@ public class TraitMetadata: NSObject {
 
     func animationGroup() -> CAAnimationGroup? {
         guard let duration = newData["animationDuration"] as? TimeInterval,
-              let easing = newData["animationEasing"] as? AppcuesStepTransitionAnimationTrait.Easing else {
+              let easing = AppcuesStepTransitionAnimationTrait.Easing(metadataValue: newData["animationEasing"] as? String) else {
             return nil
         }
 

@@ -30,7 +30,8 @@ internal class AppcuesStepTransitionAnimationTrait: ContainerDecoratingTrait {
     func decorate(containerController: ExperienceContainerViewController) throws {
         metadataDelegate?.set([
             "animationDuration": duration,
-            "animationEasing": easing
+            // Use String value so it can be read by third party traits.
+            "animationEasing": easing.rawValue
         ])
     }
 
@@ -68,6 +69,11 @@ extension AppcuesStepTransitionAnimationTrait {
             case .easeInOut:
                 return .easeInEaseOut
             }
+        }
+
+        init?(metadataValue: String?) {
+            guard let metadataValue = metadataValue else { return nil }
+            self.init(rawValue: metadataValue)
         }
     }
 }
