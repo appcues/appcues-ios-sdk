@@ -14,8 +14,8 @@ public class TraitMetadataDelegate: NSObject {
     private var metadata: [String: Any?] = [:]
     private var previousMetadata: [String: Any?] = [:]
 
-    private var nonAnimatingSubscribers: [String: (TraitMetadata) -> Void] = [:]
-    private var viewAnimatingSubscribers: [String: (TraitMetadata) -> Void] = [:]
+    private var nonAnimatingHandlers: [String: (TraitMetadata) -> Void] = [:]
+    private var viewAnimatingHandlers: [String: (TraitMetadata) -> Void] = [:]
 
     public func set(_ newDict: [String: Any?]) {
         metadata = metadata.merging(newDict)
@@ -32,26 +32,26 @@ public class TraitMetadataDelegate: NSObject {
     public func publish() {
         let traitMetadata = TraitMetadata(newData: metadata, previousData: previousMetadata)
 
-        nonAnimatingSubscribers.forEach { _, observer in observer(traitMetadata) }
+        nonAnimatingHandlers.forEach { _, observer in observer(traitMetadata) }
 
         traitMetadata.viewAnimation {
-            self.viewAnimatingSubscribers.forEach { _, block in block(traitMetadata) }
+            self.viewAnimatingHandlers.forEach { _, block in block(traitMetadata) }
         }
 
         previousMetadata = metadata
     }
 
-    public func registerHandler(for key: String, animating: Bool, observer: @escaping (TraitMetadata) -> Void) {
+    public func registerHandler(for key: String, animating: Bool, handler: @escaping (TraitMetadata) -> Void) {
         if animating {
-            viewAnimatingSubscribers[key] = observer
+            viewAnimatingHandlers[key] = handler
         } else {
-            nonAnimatingSubscribers[key] = observer
+            nonAnimatingHandlers[key] = handler
         }
     }
 
     public func removeHandler(for key: String) {
-        nonAnimatingSubscribers.removeValue(forKey: key)
-        viewAnimatingSubscribers.removeValue(forKey: key)
+        nonAnimatingHandlers.removeValue(forKey: key)
+        viewAnimatingHandlers.removeValue(forKey: key)
     }
 
 }
