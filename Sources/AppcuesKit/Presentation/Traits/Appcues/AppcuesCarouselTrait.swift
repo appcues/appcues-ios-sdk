@@ -14,7 +14,7 @@ internal class AppcuesCarouselTrait: ContainerCreatingTrait {
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
     }
 
     func createContainer(
