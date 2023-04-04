@@ -10,8 +10,7 @@ import Foundation
 
 /// A type that describes an element targeting strategy for views in the application UI.
 ///
-/// The SDK provides a default implementation for element targeting, but it can be overridden at initialization of the SDK
-/// using the `Appcues.Config` option for `elementTargeting`.
+/// The default implementation for element targeting can be overridden by setting ``Appcues/elementTargeting``.
 @objc
 public protocol AppcuesElementTargeting {
     /// Capture the layout hierarchy in the currently rendered screen of the application.
