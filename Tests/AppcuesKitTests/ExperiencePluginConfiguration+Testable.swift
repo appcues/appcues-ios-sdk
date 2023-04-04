@@ -11,8 +11,8 @@ import XCTest
 @testable import AppcuesKit
 
 extension ExperiencePluginConfiguration {
-    convenience init(_ config: Any?) {
-        self.init(FakePluginDecoder(config))
+    convenience init(_ config: Any?, level: Level = .step) {
+        self.init(FakePluginDecoder(config), level: level)
     }
 }
 

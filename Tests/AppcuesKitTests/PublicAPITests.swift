@@ -132,9 +132,9 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         // Do not add `@unknown default` here, since we want to know about new cases
-        switch level {
+        switch configuration.level {
         case .experience:
             break
         case .group:
