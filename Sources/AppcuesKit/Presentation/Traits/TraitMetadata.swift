@@ -8,6 +8,8 @@
 
 import UIKit
 
+/// Stores values to be shared across ``ExperienceTrait`` instances. The instances may be the same trait applied to different steps,
+/// or different traits that coordinate to create a more complex user interface.
 public class TraitMetadata: NSObject {
     private let newData: [String: Any?]
     private let previousData: [String: Any?]
@@ -40,10 +42,14 @@ public class TraitMetadata: NSObject {
         return animationGroup
     }
 
+    /// Accesses the value associated with the given key for reading.
     public subscript<T>(_ key: String) -> T? {
         newData[key] as? T
     }
 
+    /// Accesses the previous value associated with the given key for reading.
+    ///
+    /// This may be useful for coordinating transitions.
     public subscript<T>(previous key: String) -> T? {
         previousData[key] as? T
     }
