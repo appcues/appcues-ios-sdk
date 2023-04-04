@@ -29,7 +29,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
     private weak var view: UIViewController.CloseButton?
     private var gestureRecognizer: UITapGestureRecognizer?
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         self.buttonAppearance = config?.buttonAppearance ?? .default
         self.ignoreBackdropTap = config?.ignoreBackdropTap ?? false

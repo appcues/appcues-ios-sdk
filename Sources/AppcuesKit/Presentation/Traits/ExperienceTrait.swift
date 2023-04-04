@@ -10,17 +10,6 @@ import UIKit
 
 // swiftlint:disable file_types_order
 
-/// Context in which a trait can be applied.
-@objc
-public enum ExperienceTraitLevel: Int {
-    /// A trait to be applied to the entire experience.
-    case experience
-    /// A trait to be applied to a group of steps in an experience.
-    case group
-    /// A trait to be applied to a single step in an experience.
-    case step
-}
-
 /// A type that describes a trait of an `Experience`.
 @objc
 public protocol ExperienceTrait {
@@ -36,7 +25,7 @@ public protocol ExperienceTrait {
     /// Initializer from an `Experience.Trait` data model.
     ///
     /// This initializer should verify the config has any required properties and return `nil` if not.
-    init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel)
+    init?(configuration: ExperiencePluginConfiguration)
 }
 
 /// A trait that modifies the `UIViewController` that encapsulates the contents of a specific step in the experience.

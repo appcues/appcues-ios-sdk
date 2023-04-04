@@ -12,10 +12,25 @@ import Foundation
 @objc
 public class ExperiencePluginConfiguration: NSObject {
 
+    /// Context in which a plugin can be applied.
+    @objc
+    public enum Level: Int {
+        /// A plugin defined on an entire experience.
+        case experience
+        /// A plugin defined on a group of steps in an experience.
+        case group
+        /// A plugin defined on single step in an experience.
+        case step
+    }
+
     private var decoder: PluginDecoder
 
-    init(_ decoder: PluginDecoder) {
+    /// The context where the plugin was defined.
+    public let level: Level
+
+    init(_ decoder: PluginDecoder, level: Level) {
         self.decoder = decoder
+        self.level = level
     }
 
     /// Returns a value of the type you specify, decoded from a JSON object.

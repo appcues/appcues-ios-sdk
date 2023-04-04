@@ -22,7 +22,7 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
     private let presentationStyle: PresentationStyle
     private let modalStyle: ExperienceComponent.Style?
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.presentationStyle = config.presentationStyle
         self.modalStyle = config.style

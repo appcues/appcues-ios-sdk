@@ -28,7 +28,7 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
     let pointerSize: CGSize
     let pointerCornerRadius: CGFloat
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         self.hidePointer = config?.hidePointer ?? false
         self.pointerSize = CGSize(width: config?.pointerBase ?? 16, height: config?.pointerLength ?? 8)

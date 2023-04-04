@@ -33,7 +33,7 @@ internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
 
     private lazy var frameObserverView = FrameObserverView()
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.config = config
     }

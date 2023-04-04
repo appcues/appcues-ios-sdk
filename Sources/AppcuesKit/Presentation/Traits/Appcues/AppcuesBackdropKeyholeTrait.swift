@@ -24,7 +24,7 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
     private let shape: KeyholeShape
     private let spreadRadius: CGFloat?
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
 
         self.shape = KeyholeShape(config?.shape, cornerRadius: config?.cornerRadius, blurRadius: config?.blurRadius)

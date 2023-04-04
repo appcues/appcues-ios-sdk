@@ -20,7 +20,7 @@ internal class AppcuesBackdropTrait: BackdropDecoratingTrait {
 
     private let backgroundColor: UIColor
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self),
               let backgroundColor = UIColor(dynamicColor: config.backgroundColor) else {
             return nil

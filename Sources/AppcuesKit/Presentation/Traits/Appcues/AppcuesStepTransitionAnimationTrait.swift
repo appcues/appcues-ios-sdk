@@ -21,7 +21,7 @@ internal class AppcuesStepTransitionAnimationTrait: ContainerDecoratingTrait {
     private let duration: TimeInterval
     private let easing: Easing
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         self.duration = Double(config?.duration ?? 300) / 1_000
         self.easing = config?.easing ?? .linear

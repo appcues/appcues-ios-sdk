@@ -18,15 +18,15 @@ internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDeco
 
     weak var metadataDelegate: TraitMetadataDelegate?
 
-    private let level: ExperienceTraitLevel
+    private let level: ExperiencePluginConfiguration.Level
     private let content: ExperienceComponent
 
     private weak var backgroundViewController: UIViewController?
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
 
-        self.level = level
+        self.level = configuration.level
         self.content = config.content
     }
 
