@@ -35,6 +35,7 @@ class ActionRegistryTests: XCTestCase {
         // Assert
         actionRegistry.enqueue(
             actionModels: [actionModel],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
         waitForExpectations(timeout: 1)
@@ -56,6 +57,7 @@ class ActionRegistryTests: XCTestCase {
         // Assert
         actionRegistry.enqueue(
             actionModels: [actionModel],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
         waitForExpectations(timeout: 1)
@@ -81,6 +83,7 @@ class ActionRegistryTests: XCTestCase {
         // Assert
         actionRegistry.enqueue(
             actionModels: [actionModel],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
         waitForExpectations(timeout: 1)
@@ -100,6 +103,7 @@ class ActionRegistryTests: XCTestCase {
         // Act
         actionRegistry.enqueue(
             actionModels: [actionModel, actionModel, actionModel, actionModel, actionModel],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -127,12 +131,14 @@ class ActionRegistryTests: XCTestCase {
         // Act
         actionRegistry.enqueue(
             actionModels: [delayedActionModel],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
         // Enqueue more while the delayed one is processing
         actionRegistry.enqueue(
             actionModels: [actionModel, actionModel, actionModel, actionModel],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "Another Button")
 
@@ -159,6 +165,7 @@ class ActionRegistryTests: XCTestCase {
         // Act
         actionRegistry.enqueue(
             actionModels: [actionModel, actionModel, actionModel2, actionModel, actionModel],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
