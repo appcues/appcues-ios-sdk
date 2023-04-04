@@ -37,6 +37,7 @@ class StepInteractionActionTests: XCTestCase {
                     type: "@appcues/track",
                     config: AppcuesTrackAction.Config(eventName: "Some event"))
             ],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -70,6 +71,7 @@ class StepInteractionActionTests: XCTestCase {
                     type: "@appcues/track",
                     config: AppcuesTrackAction.Config(eventName: "Some event"))
             ],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -103,6 +105,7 @@ class StepInteractionActionTests: XCTestCase {
                     type: "@appcues/link",
                     config: AppcuesLinkAction.Config(url: URL(string: "https://appcues.com")!, openExternally: nil))
             ],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -136,6 +139,7 @@ class StepInteractionActionTests: XCTestCase {
                     type: "@appcues/launch-experience",
                     config: AppcuesLaunchExperienceAction.Config(experienceID: "c1d5336f-6416-4805-9e82-4073c9b8cdb8"))
             ],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -165,6 +169,7 @@ class StepInteractionActionTests: XCTestCase {
                     type: "@appcues/close",
                     config: AppcuesCloseAction.Config(markComplete: true))
             ],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -194,6 +199,7 @@ class StepInteractionActionTests: XCTestCase {
                     type: "@appcues/continue",
                     config: AppcuesContinueAction.Config(index: nil, offset: nil, stepID: UUID(uuidString: "c1ba5af5-df15-4e38-834b-c7c33ee91e44")))
             ],
+            level: .step,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 

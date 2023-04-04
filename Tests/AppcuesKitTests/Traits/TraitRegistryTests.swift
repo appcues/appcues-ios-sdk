@@ -66,6 +66,6 @@ private extension TraitRegistryTests {
 
         weak var metadataDelegate: AppcuesKit.TraitMetadataDelegate?
 
-        required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {}
+        required init?(configuration: ExperiencePluginConfiguration) {}
     }
 }

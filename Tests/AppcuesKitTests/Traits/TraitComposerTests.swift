@@ -280,7 +280,7 @@ class TraitComposerTests: XCTestCase {
     }
 
     func testDefaultContainerCreatingTrait() throws {
-        let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(configuration: ExperiencePluginConfiguration(nil), level: .group))
+        let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(configuration: ExperiencePluginConfiguration(nil, level: .group)))
         let pageMonitor = PageMonitor(numberOfPages: 0, currentPage: 0)
         let container = try traitInstance.createContainer(for: [], with: pageMonitor)
         XCTAssertTrue(container is DefaultContainerViewController)
@@ -319,8 +319,8 @@ class TraitComposerTests: XCTestCase {
     func testDecompose() throws {
         // Arrange
         let traits: [ExperienceTrait] = [
-            try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil), level: .experience)),
-            try XCTUnwrap(TestPresentingTrait(configuration: ExperiencePluginConfiguration(nil), level: .experience))
+            try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience))),
+            try XCTUnwrap(TestPresentingTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience)))
         ]
 
         // Act
@@ -339,10 +339,10 @@ class TraitComposerTests: XCTestCase {
     func testAppendDecomposedTraits() throws {
         // Arrange
         let experienceTraits: [ExperienceTrait] = [
-            try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil), level: .experience)),
-            try XCTUnwrap(TestPresentingTrait(configuration: ExperiencePluginConfiguration(nil), level: .experience))
+            try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience))),
+            try XCTUnwrap(TestPresentingTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience)))
         ]
-        let groupTrait = try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil), level: .experience))
+        let groupTrait = try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience)))
         let decomposedTraits = TraitComposer.DecomposedTraits(traits: experienceTraits)
 
         // Act
@@ -361,11 +361,11 @@ class TraitComposerTests: XCTestCase {
     func testPropagateDecomposedTraits() throws {
         // Arrange
         let experienceTraits: [ExperienceTrait] = [
-            try XCTUnwrap(Test2Trait(configuration: ExperiencePluginConfiguration(nil), level: .experience)),
-            try XCTUnwrap(Test3Trait(configuration: ExperiencePluginConfiguration(nil), level: .group))
+            try XCTUnwrap(Test2Trait(configuration: ExperiencePluginConfiguration(nil, level: .experience))),
+            try XCTUnwrap(Test3Trait(configuration: ExperiencePluginConfiguration(nil, level: .group)))
         ]
         let decomposedTraits = TraitComposer.DecomposedTraits(traits: experienceTraits)
-        let stepTrait = try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil), level: .experience))
+        let stepTrait = try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience)))
         let decomposedStepTraits = TraitComposer.DecomposedTraits(traits: [stepTrait])
 
         // Act
@@ -512,7 +512,7 @@ extension TraitComposerTests {
 
         var backdropDecoratingExpectation: XCTestExpectation?
 
-        required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        required init?(configuration: ExperiencePluginConfiguration) {
             let config = configuration.decode(Config.self)
             self.groupID = config?.groupID
 
@@ -589,7 +589,7 @@ extension TraitComposerTests {
         var presentExpectation: XCTestExpectation?
         var removeExpectation: XCTestExpectation?
 
-        required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+        required init?(configuration: ExperiencePluginConfiguration) {
             let config = configuration.decode(Config.self)
             self.groupID = config?.groupID
 
