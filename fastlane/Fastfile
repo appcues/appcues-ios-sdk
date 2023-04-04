@@ -23,7 +23,15 @@ platform :ios do
       scheme: "Appcues",
       proj: "Appcues.xcodeproj",
       cobertura_xml: true,
-      ignore: ["Tests/*"],
+      ignore: [
+        # Presentation layer is tested with snapshot and UI tests
+        "Sources/AppcuesKit/Presentation/Debugger/*",
+        "Sources/AppcuesKit/Presentation/Extensions/*",
+        "Sources/AppcuesKit/Presentation/Generated/*",
+        "Sources/AppcuesKit/Presentation/UI/*",
+        "Sources/AppcuesKit/Vendor/*",
+        "Tests/*"
+      ],
       output_directory: "fastlane/test_output"
     )
   end
