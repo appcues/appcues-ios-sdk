@@ -22,7 +22,7 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
     private weak var containerController: ExperienceContainerViewController?
     private weak var view: UIView?
 
-    required init?(configuration: ExperiencePluginConfiguration, level: ExperienceTraitLevel) {
+    required init?(configuration: ExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         self.style = config?.style
     }

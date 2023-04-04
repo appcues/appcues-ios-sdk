@@ -40,9 +40,9 @@ internal class TraitRegistry {
         traits[trait.type] = trait
     }
 
-    func instances(for models: [Experience.Trait], level: ExperienceTraitLevel) -> [ExperienceTrait] {
+    func instances(for models: [Experience.Trait], level: ExperiencePluginConfiguration.Level) -> [ExperienceTrait] {
         models.compactMap { traitModel in
-            traits[traitModel.type]?.init(configuration: ExperiencePluginConfiguration(traitModel.configDecoder), level: level)
+            traits[traitModel.type]?.init(configuration: ExperiencePluginConfiguration(traitModel.configDecoder, level: level))
         }
     }
 }

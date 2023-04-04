@@ -50,6 +50,7 @@ internal class ExperienceStepViewModel: ObservableObject {
     func enqueueActions(_ actions: [Experience.Action], type: String, viewDescription: String?) {
         actionRegistry?.enqueue(
             actionModels: actions,
+            level: .step,
             interactionType: type,
             viewDescription: viewDescription
         )
