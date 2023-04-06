@@ -56,6 +56,8 @@ public class TraitMetadataDelegate: NSObject {
     ///   - animating: Whether the observer should be called in a `UIView.animate` block.
     ///   - handler: Block to execute on publish.
     public func registerHandler(for key: String, animating: Bool, handler: @escaping (TraitMetadata) -> Void) {
+        removeHandler(for: key)
+
         if animating {
             viewAnimatingHandlers[key] = handler
         } else {
