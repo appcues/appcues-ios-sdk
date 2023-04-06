@@ -61,13 +61,23 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
             containerController.additionalSafeAreaInsets = insets
         }
 
-        metadataDelegate?.registerHandler(for: Self.type, animating: true) { metadata in
-            experienceWrapperViewController.bodyView.preferredPosition = metadata["contentPreferredPosition"]
-            experienceWrapperViewController.bodyView.distanceFromTarget = metadata["contentDistanceFromTarget"] ?? 0
-            experienceWrapperViewController.bodyView.targetRectangle = metadata["targetRectangle"]
-        }
+        setHandler(wrapperController: experienceWrapperViewController, initial: true)
 
         return experienceWrapperViewController
+    }
+
+    // We want a non-animating handler until we have a targetRectangle value at which point we want to switch to an animating handler.
+    // This ensure the first step in a group doesn't awkwardly animate from the no target bottom position.
+    private func setHandler(wrapperController: ExperienceWrapperViewController<TooltipWrapperView>, initial: Bool) {
+        metadataDelegate?.registerHandler(for: Self.type, animating: !initial) { [weak self] metadata in
+            wrapperController.bodyView.preferredPosition = metadata["contentPreferredPosition"]
+            wrapperController.bodyView.distanceFromTarget = metadata["contentDistanceFromTarget"] ?? 0
+            wrapperController.bodyView.targetRectangle = metadata["targetRectangle"]
+
+            if initial && wrapperController.bodyView.targetRectangle != nil {
+                self?.setHandler(wrapperController: wrapperController, initial: false)
+            }
+        }
     }
 
     func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
