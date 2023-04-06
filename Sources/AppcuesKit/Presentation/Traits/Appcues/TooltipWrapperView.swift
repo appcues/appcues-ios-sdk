@@ -55,7 +55,11 @@ internal class TooltipWrapperView: ExperienceWrapperView {
 
     private let maskLayer = CAShapeLayer()
     private let innerMaskLayer = CAShapeLayer()
-    private let borderLayer = CAShapeLayer()
+    private let borderLayer: CAShapeLayer = {
+        let layer = CAShapeLayer()
+        layer.lineWidth = 0
+        return layer
+    }()
 
     required init() {
         super.init()
@@ -87,8 +91,15 @@ internal class TooltipWrapperView: ExperienceWrapperView {
 
         // Set tooltip shape for content inside the border
         if let innerView = contentWrapperView.subviews.first {
+            let innerBounds = CGRect(
+                x: 0,
+                y: 0,
+                // the visible lineWidth is /2, but then we need to *2 for each side
+                width: contentWrapperView.bounds.width - borderLayer.lineWidth,
+                height: contentWrapperView.bounds.height - borderLayer.lineWidth
+            )
             innerMaskLayer.path = tooltipPath(
-                in: contentWrapperView.bounds,
+                in: innerBounds,
                 boxCornerRadius: boxCornerRadius - borderLayer.lineWidth / 2
             )
             innerView.layer.mask = innerMaskLayer
