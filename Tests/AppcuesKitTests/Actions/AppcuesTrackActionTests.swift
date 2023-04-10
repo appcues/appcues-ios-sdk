@@ -21,7 +21,7 @@ class AppcuesTrackActionTests: XCTestCase {
     func testInit() throws {
         // Act
         let action = AppcuesTrackAction(eventName: "My Custom Event")
-        let failedAction = AppcuesTrackAction(configuration: ExperiencePluginConfiguration(nil))
+        let failedAction = AppcuesTrackAction(configuration: AppcuesExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesTrackAction.type, "@appcues/track")
@@ -52,9 +52,9 @@ class AppcuesTrackActionTests: XCTestCase {
 
 extension AppcuesTrackAction {
     convenience init?() {
-        self.init(configuration: ExperiencePluginConfiguration(nil))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
     }
     convenience init?(eventName: String) {
-        self.init(configuration: ExperiencePluginConfiguration(AppcuesTrackAction.Config(eventName: eventName)))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesTrackAction.Config(eventName: eventName)))
     }
 }

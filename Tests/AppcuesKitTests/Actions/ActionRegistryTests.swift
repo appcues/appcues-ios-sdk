@@ -178,7 +178,7 @@ class ActionRegistryTests: XCTestCase {
 
 @available(iOS 13.0, *)
 private extension ActionRegistryTests {
-    class TestAction: ExperienceAction, ExperienceActionQueueTransforming {
+    class TestAction: AppcuesExperienceAction, ExperienceActionQueueTransforming {
         struct Config: Decodable {
             let executionExpectation: DecodableExpectation?
             let executionExpectation2: DecodableExpectation?
@@ -202,7 +202,7 @@ private extension ActionRegistryTests {
         let delay: TimeInterval?
         let removeSubsequent: Bool
 
-        required init?(configuration: ExperiencePluginConfiguration) {
+        required init?(configuration: AppcuesExperiencePluginConfiguration) {
             let config = configuration.decode(Config.self)
             executionExpectation = config?.executionExpectation?.expectation
             delay = config?.delay
@@ -221,18 +221,18 @@ private extension ActionRegistryTests {
             }
         }
 
-        func transformQueue(_ queue: [ExperienceAction], index: Int, inContext appcues: Appcues) -> [ExperienceAction] {
+        func transformQueue(_ queue: [AppcuesExperienceAction], index: Int, inContext appcues: Appcues) -> [AppcuesExperienceAction] {
             guard removeSubsequent else { return queue }
             return Array(queue[0...index])
         }
     }
 
-    class TestAction2: ExperienceAction {
+    class TestAction2: AppcuesExperienceAction {
         static let type = "@test/action"
 
         var executionExpectation2: XCTestExpectation?
 
-        required init?(configuration: ExperiencePluginConfiguration) {
+        required init?(configuration: AppcuesExperiencePluginConfiguration) {
             let config = configuration.decode(TestAction.Config.self)
             executionExpectation2 = config?.executionExpectation2?.expectation
         }

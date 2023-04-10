@@ -180,7 +180,7 @@ class ExperienceRendererTests: XCTestCase {
             if experience.instanceID == validExperience.instanceID {
                 return preconditionPackage
             } else {
-                throw TraitError(description: "Presenting capability trait required")
+                throw AppcuesTraitError(description: "Presenting capability trait required")
             }
         }
 
@@ -447,7 +447,7 @@ class ExperienceRendererTests: XCTestCase {
 private extension ExperienceData {
     @available(iOS 13.0, *)
     func packageWithDelay(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
-        let pageMonitor = PageMonitor(numberOfPages: 1, currentPage: 0)
+        let pageMonitor = AppcuesExperiencePageMonitor(numberOfPages: 1, currentPage: 0)
         let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()], pageMonitor: pageMonitor)
         return ExperiencePackage(
             traitInstances: [],

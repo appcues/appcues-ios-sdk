@@ -202,7 +202,7 @@ extension ExperienceData {
     }
 
     func package(onPresent: @escaping (() -> Void), onDismiss: @escaping (() -> Void)) -> ExperiencePackage {
-        let pageMonitor = PageMonitor(numberOfPages: 1, currentPage: 0)
+        let pageMonitor = AppcuesExperiencePageMonitor(numberOfPages: 1, currentPage: 0)
         let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()], pageMonitor: pageMonitor)
         return ExperiencePackage(
             traitInstances: [],
@@ -213,16 +213,16 @@ extension ExperienceData {
             pageMonitor: pageMonitor,
             presenter: {
                 containerController.mockIsBeingPresented = true
-                containerController.lifecycleHandler?.containerWillAppear()
-                containerController.lifecycleHandler?.containerDidAppear()
+                containerController.eventHandler?.containerWillAppear()
+                containerController.eventHandler?.containerDidAppear()
                 containerController.mockIsBeingPresented = false
                 onPresent()
                 $0?()
             },
             dismisser: {
                 containerController.mockIsBeingDismissed = true
-                containerController.lifecycleHandler?.containerWillDisappear()
-                containerController.lifecycleHandler?.containerDidDisappear()
+                containerController.eventHandler?.containerWillDisappear()
+                containerController.eventHandler?.containerDidDisappear()
                 containerController.mockIsBeingDismissed = false
                 onDismiss()
                 $0?()

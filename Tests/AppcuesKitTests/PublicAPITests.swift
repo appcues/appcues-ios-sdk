@@ -122,7 +122,7 @@ class SampleNavigationDelegate: AppcuesNavigationDelegate {
     }
 }
 
-class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait, ContainerDecoratingTrait, BackdropDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
+class SampleTrait: AppcuesExperienceTrait, AppcuesStepDecoratingTrait, AppcuesContainerCreatingTrait, AppcuesContainerDecoratingTrait, AppcuesBackdropDecoratingTrait, AppcuesWrapperCreatingTrait, AppcuesPresentingTrait {
 
     struct Config: Decodable {
         let key: String?
@@ -130,9 +130,9 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
 
     static var type: String = "@sample/trait"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         // Do not add `@unknown default` here, since we want to know about new cases
         switch configuration.level {
         case .experience:
@@ -147,26 +147,26 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
         _ = config?.key
     }
 
-    // MARK: StepDecoratingTrait
+    // MARK: AppcuesStepDecoratingTrait
     func decorate(stepController: UIViewController) throws {
         // no-op
     }
 
-    // MARK: ContainerCreatingTrait
-    func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
+    // MARK: AppcuesContainerCreatingTrait
+    func createContainer(for stepControllers: [UIViewController], with pageMonitor: AppcuesExperiencePageMonitor) throws -> AppcuesExperienceContainerViewController {
         return SampleExperienceContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
     }
 
-    // MARK: ContainerDecoratingTrait
-    func decorate(containerController: ExperienceContainerViewController) throws {
+    // MARK: AppcuesContainerDecoratingTrait
+    func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         // no-op
     }
 
-    func undecorate(containerController: AppcuesKit.ExperienceContainerViewController) throws {
+    func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
         // no-op
     }
 
-    // MARK: BackdropDecoratingTrait
+    // MARK: AppcuesBackdropDecoratingTrait
     func decorate(backdropView: UIView) throws {
         // no-op
     }
@@ -175,8 +175,8 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
         // no-op
     }
 
-    // MARK: WrapperCreatingTrait
-    func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {
+    // MARK: AppcuesWrapperCreatingTrait
+    func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
         return containerController
     }
 
@@ -184,7 +184,7 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
         // no-op
     }
 
-    // MARK: PresentingTrait
+    // MARK: AppcuesPresentingTrait
     func present(viewController: UIViewController, completion: (() -> Void)?) throws {
         completion?()
     }
@@ -194,18 +194,18 @@ class SampleTrait: ExperienceTrait, StepDecoratingTrait, ContainerCreatingTrait,
     }
 }
 
-class SampleExperienceContainerViewController: ExperienceContainerViewController {
+class SampleExperienceContainerViewController: AppcuesExperienceContainerViewController {
 
-    weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
-    let pageMonitor: PageMonitor
+    weak var eventHandler: AppcuesExperienceContainerEventHandler?
+    let pageMonitor: AppcuesExperiencePageMonitor
 
-    init(stepControllers: [UIViewController], pageMonitor: PageMonitor) {
+    init(stepControllers: [UIViewController], pageMonitor: AppcuesExperiencePageMonitor) {
         self.pageMonitor = pageMonitor
 
         super.init(nibName: nil, bundle: nil)
 
         pageMonitor.addObserver { [weak self] newIndex, oldIndex in
-            self?.lifecycleHandler?.containerNavigated(from: oldIndex, to: newIndex)
+            self?.eventHandler?.containerNavigated(from: oldIndex, to: newIndex)
         }
 
         // PageMonitor getters
@@ -223,30 +223,30 @@ class SampleExperienceContainerViewController: ExperienceContainerViewController
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        lifecycleHandler?.containerWillAppear()
+        eventHandler?.containerWillAppear()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        lifecycleHandler?.containerDidAppear()
+        eventHandler?.containerDidAppear()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        lifecycleHandler?.containerWillDisappear()
+        eventHandler?.containerWillDisappear()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        lifecycleHandler?.containerDidDisappear()
+        eventHandler?.containerDidDisappear()
     }
 }
 
 
-class SampleAction: ExperienceAction {
+class SampleAction: AppcuesExperienceAction {
     static var type: String = "@sample/action"
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         // no-op
     }
 

@@ -54,7 +54,7 @@ class ExperienceStateMachineTests: XCTestCase {
             stateMachine.state,
             .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
         )
-        XCTAssertTrue(package.containerController.lifecycleHandler === stateMachine)
+        XCTAssertTrue(package.containerController.eventHandler === stateMachine)
     }
 
     func test_stateIsRenderingStep_whenStartStep_transitionsToRenderingStepInSameGroup() throws {
@@ -74,7 +74,7 @@ class ExperienceStateMachineTests: XCTestCase {
         // the initial state of the machine. This is relied upon so the containerController can notify the state machine
         // of the completed change. This being properly set is tested in
         // test_stateIsIdling_whenStartExperience_transitionsToRenderingStep
-        package.containerController.lifecycleHandler = stateMachine
+        package.containerController.eventHandler = stateMachine
         package.pageMonitor.addObserver { newIndex, oldIndex in
             stateMachine.containerNavigated(from: oldIndex, to: newIndex)
         }
@@ -167,7 +167,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
         let stateMachine = givenState(is: initialState)
-        package.containerController.lifecycleHandler = stateMachine
+        package.containerController.eventHandler = stateMachine
 
         // Act
         (package.containerController as! Mocks.ContainerViewController).mockIsBeingDismissed = true
@@ -190,7 +190,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: true)
         let stateMachine = givenState(is: initialState)
-        package.containerController.lifecycleHandler = stateMachine
+        package.containerController.eventHandler = stateMachine
         appcues.analyticsPublisher.onPublish = { update in updates.append(update) }
 
         let observer = ExperienceStateMachine.AnalyticsObserver(container: appcues.container)
@@ -468,7 +468,7 @@ class ExperienceStateMachineTests: XCTestCase {
         // Arrange
         let experience = ExperienceData.mock
         appcues.traitComposer.onPackage = { _, stepIndex in
-            throw TraitError(description: "Presenting capability trait required")
+            throw AppcuesTraitError(description: "Presenting capability trait required")
         }
 
         let initialState: State = .idling
@@ -489,7 +489,7 @@ class ExperienceStateMachineTests: XCTestCase {
         // Arrange
         let experience = ExperienceData.mock
         appcues.traitComposer.onPackage = { _, stepIndex in
-            throw TraitError(description: "Presenting capability trait required")
+            throw AppcuesTraitError(description: "Presenting capability trait required")
         }
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
@@ -659,7 +659,7 @@ private class ListingObserver: ExperienceStateObserver {
 
 @available(iOS 13.0, *)
 private extension ExperienceStateMachineTests {
-    class TestAction: ExperienceAction {
+    class TestAction: AppcuesExperienceAction {
         struct Config: Decodable {
             let onExecute: DecodableExecuteBlock?
         }
@@ -667,7 +667,7 @@ private extension ExperienceStateMachineTests {
 
         var onExecute: (() -> Void)?
 
-        required init?(configuration: ExperiencePluginConfiguration) {
+        required init?(configuration: AppcuesExperiencePluginConfiguration) {
             let config = configuration.decode(Config.self)
             onExecute = config?.onExecute?.block
         }

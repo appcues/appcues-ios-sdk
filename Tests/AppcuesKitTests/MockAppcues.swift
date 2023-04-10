@@ -208,7 +208,7 @@ class MockTraitComposer: TraitComposing {
         if let onPackage = onPackage {
             return try onPackage(experience, stepIndex)
         } else {
-            throw TraitError(description: "no mock set")
+            throw AppcuesTraitError(description: "no mock set")
         }
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 import XCTest
 @testable import AppcuesKit
 
-extension ExperiencePluginConfiguration {
+extension AppcuesExperiencePluginConfiguration {
     convenience init(_ config: Any?, level: Level = .step) {
         self.init(FakePluginDecoder(config), level: level)
     }
