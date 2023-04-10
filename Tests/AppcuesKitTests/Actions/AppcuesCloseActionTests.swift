@@ -20,7 +20,7 @@ class AppcuesCloseActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesCloseAction(configuration: ExperiencePluginConfiguration(nil))
+        let action = AppcuesCloseAction(configuration: AppcuesExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesCloseAction.type, "@appcues/close")
@@ -68,9 +68,9 @@ class AppcuesCloseActionTests: XCTestCase {
 
 extension AppcuesCloseAction {
     convenience init?() {
-        self.init(configuration: ExperiencePluginConfiguration(nil))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
     }
     convenience init?(markComplete: Bool) {
-        self.init(configuration: ExperiencePluginConfiguration(AppcuesCloseAction.Config(markComplete: markComplete)))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesCloseAction.Config(markComplete: markComplete)))
     }
 }

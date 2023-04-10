@@ -21,7 +21,7 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
     func testInit() throws {
         // Act
         let action = AppcuesUpdateProfileAction(properties: ["profile_attribute": "value"])
-        let failedAction = AppcuesUpdateProfileAction(configuration: ExperiencePluginConfiguration(nil))
+        let failedAction = AppcuesUpdateProfileAction(configuration: AppcuesExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesUpdateProfileAction.type, "@appcues/update-profile")
@@ -60,9 +60,9 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
 
 extension AppcuesUpdateProfileAction {
     convenience init?() {
-        self.init(configuration: ExperiencePluginConfiguration(nil))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
     }
     convenience init?(properties: [String: Any]) {
-        self.init(configuration: ExperiencePluginConfiguration(AppcuesUpdateProfileAction.Config(properties: properties)))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesUpdateProfileAction.Config(properties: properties)))
     }
 }

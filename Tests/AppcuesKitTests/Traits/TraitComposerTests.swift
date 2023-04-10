@@ -280,8 +280,8 @@ class TraitComposerTests: XCTestCase {
     }
 
     func testDefaultContainerCreatingTrait() throws {
-        let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(configuration: ExperiencePluginConfiguration(nil, level: .group)))
-        let pageMonitor = PageMonitor(numberOfPages: 0, currentPage: 0)
+        let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .group)))
+        let pageMonitor = AppcuesExperiencePageMonitor(numberOfPages: 0, currentPage: 0)
         let container = try traitInstance.createContainer(for: [], with: pageMonitor)
         XCTAssertTrue(container is DefaultContainerViewController)
     }
@@ -318,9 +318,9 @@ class TraitComposerTests: XCTestCase {
 
     func testDecompose() throws {
         // Arrange
-        let traits: [ExperienceTrait] = [
-            try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience))),
-            try XCTUnwrap(TestPresentingTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience)))
+        let traits: [AppcuesExperienceTrait] = [
+            try XCTUnwrap(TestTrait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .experience))),
+            try XCTUnwrap(TestPresentingTrait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .experience)))
         ]
 
         // Act
@@ -338,11 +338,11 @@ class TraitComposerTests: XCTestCase {
 
     func testAppendDecomposedTraits() throws {
         // Arrange
-        let experienceTraits: [ExperienceTrait] = [
-            try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience))),
-            try XCTUnwrap(TestPresentingTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience)))
+        let experienceTraits: [AppcuesExperienceTrait] = [
+            try XCTUnwrap(TestTrait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .experience))),
+            try XCTUnwrap(TestPresentingTrait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .experience)))
         ]
-        let groupTrait = try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience)))
+        let groupTrait = try XCTUnwrap(TestTrait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .experience)))
         let decomposedTraits = TraitComposer.DecomposedTraits(traits: experienceTraits)
 
         // Act
@@ -360,12 +360,12 @@ class TraitComposerTests: XCTestCase {
 
     func testPropagateDecomposedTraits() throws {
         // Arrange
-        let experienceTraits: [ExperienceTrait] = [
-            try XCTUnwrap(Test2Trait(configuration: ExperiencePluginConfiguration(nil, level: .experience))),
-            try XCTUnwrap(Test3Trait(configuration: ExperiencePluginConfiguration(nil, level: .group)))
+        let experienceTraits: [AppcuesExperienceTrait] = [
+            try XCTUnwrap(Test2Trait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .experience))),
+            try XCTUnwrap(Test3Trait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .group)))
         ]
         let decomposedTraits = TraitComposer.DecomposedTraits(traits: experienceTraits)
-        let stepTrait = try XCTUnwrap(TestTrait(configuration: ExperiencePluginConfiguration(nil, level: .experience)))
+        let stepTrait = try XCTUnwrap(TestTrait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .experience)))
         let decomposedStepTraits = TraitComposer.DecomposedTraits(traits: [stepTrait])
 
         // Act
@@ -473,7 +473,7 @@ extension TraitComposerTests {
         override class var type: String { "@test/trait-3" }
     }
 
-    class TestTrait: StepDecoratingTrait, ContainerCreatingTrait, ContainerDecoratingTrait, WrapperCreatingTrait, BackdropDecoratingTrait {
+    class TestTrait: AppcuesStepDecoratingTrait, AppcuesContainerCreatingTrait, AppcuesContainerDecoratingTrait, AppcuesWrapperCreatingTrait, AppcuesBackdropDecoratingTrait {
         struct Config: Decodable {
             let groupID: String?
             let stepDecoratingExpectation: DecodableExpectation?
@@ -498,7 +498,7 @@ extension TraitComposerTests {
         }
         class var type: String { "@test/trait" }
 
-        weak var metadataDelegate: AppcuesKit.TraitMetadataDelegate?
+        weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
         let groupID: String?
 
@@ -512,7 +512,7 @@ extension TraitComposerTests {
 
         var backdropDecoratingExpectation: XCTestExpectation?
 
-        required init?(configuration: ExperiencePluginConfiguration) {
+        required init?(configuration: AppcuesExperiencePluginConfiguration) {
             let config = configuration.decode(Config.self)
             self.groupID = config?.groupID
 
@@ -529,26 +529,26 @@ extension TraitComposerTests {
             stepDecoratingExpectation?.fulfill()
         }
 
-        // ContainerCreatingTrait
+        // AppcuesContainerCreatingTrait
 
-        func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController {
+        func createContainer(for stepControllers: [UIViewController], with pageMonitor: AppcuesExperiencePageMonitor) throws -> AppcuesExperienceContainerViewController {
             containerCreatingExpectation?.fulfill()
             return DefaultContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
         }
 
-        // ContainerDecoratingTrait
+        // AppcuesContainerDecoratingTrait
 
-        func decorate(containerController: ExperienceContainerViewController) throws {
+        func decorate(containerController: AppcuesExperienceContainerViewController) throws {
             containerDecoratingExpectation?.fulfill()
         }
 
-        func undecorate(containerController: AppcuesKit.ExperienceContainerViewController) throws {
+        func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
             // no-op
         }
 
-        // WrapperCreatingTrait
+        // AppcuesWrapperCreatingTrait
 
-        func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {
+        func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
             wrapperCreatingExpectation?.fulfill()
             return containerController
         }
@@ -557,7 +557,7 @@ extension TraitComposerTests {
             // nothing
         }
 
-        // BackdropDecoratingTrait
+        // AppcuesBackdropDecoratingTrait
 
         func decorate(backdropView: UIView) throws {
             backdropDecoratingExpectation?.fulfill()
@@ -568,7 +568,7 @@ extension TraitComposerTests {
         }
     }
 
-    class TestPresentingTrait: PresentingTrait {
+    class TestPresentingTrait: AppcuesPresentingTrait {
         struct Config: Decodable {
             let groupID: String?
             let presentExpectation: DecodableExpectation?
@@ -582,14 +582,14 @@ extension TraitComposerTests {
         }
         static let type = "@test/presenting"
 
-        weak var metadataDelegate: AppcuesKit.TraitMetadataDelegate?
+        weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
         let groupID: String?
 
         var presentExpectation: XCTestExpectation?
         var removeExpectation: XCTestExpectation?
 
-        required init?(configuration: ExperiencePluginConfiguration) {
+        required init?(configuration: AppcuesExperiencePluginConfiguration) {
             let config = configuration.decode(Config.self)
             self.groupID = config?.groupID
 

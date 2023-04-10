@@ -61,11 +61,11 @@ class TraitRegistryTests: XCTestCase {
 
 @available(iOS 13.0, *)
 private extension TraitRegistryTests {
-    class TestTrait: ExperienceTrait {
+    class TestTrait: AppcuesExperienceTrait {
         static let type = "@test/trait"
 
-        weak var metadataDelegate: AppcuesKit.TraitMetadataDelegate?
+        weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
-        required init?(configuration: ExperiencePluginConfiguration) {}
+        required init?(configuration: AppcuesExperiencePluginConfiguration) {}
     }
 }

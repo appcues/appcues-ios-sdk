@@ -20,7 +20,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesSubmitFormAction(configuration: ExperiencePluginConfiguration(nil))
+        let action = AppcuesSubmitFormAction(configuration: AppcuesExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesSubmitFormAction.type, "@appcues/submit-form")
@@ -104,7 +104,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         let action = try XCTUnwrap(AppcuesSubmitFormAction())
         let action1 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
         let action2 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
-        let initialQueue: [ExperienceAction] = [action0, action, action1, action2]
+        let initialQueue: [AppcuesExperienceAction] = [action0, action, action1, action2]
 
         // Act
         let updatedQueue = action.transformQueue(initialQueue, index: 1, inContext: appcues)
@@ -127,7 +127,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         let action = try XCTUnwrap(AppcuesSubmitFormAction(skipValidation: true))
         let action1 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
         let action2 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
-        let initialQueue: [ExperienceAction] = [action0, action, action1, action2]
+        let initialQueue: [AppcuesExperienceAction] = [action0, action, action1, action2]
 
         // Act
         let updatedQueue = action.transformQueue(initialQueue, index: 1, inContext: appcues)
@@ -169,9 +169,9 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
 extension AppcuesSubmitFormAction {
     convenience init?() {
-        self.init(configuration: ExperiencePluginConfiguration(nil))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
     }
     convenience init?(skipValidation: Bool) {
-        self.init(configuration: ExperiencePluginConfiguration(AppcuesSubmitFormAction.Config(skipValidation: skipValidation)))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesSubmitFormAction.Config(skipValidation: skipValidation)))
     }
 }

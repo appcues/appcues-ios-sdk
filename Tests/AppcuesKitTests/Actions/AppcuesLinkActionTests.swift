@@ -21,7 +21,7 @@ class AppcuesLinkActionTests: XCTestCase {
 
     func testInit() throws {
         // Act)
-        let action = AppcuesLinkAction(configuration: ExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: "https://appcues.com")!, openExternally: nil)))
+        let action = AppcuesLinkAction(configuration: AppcuesExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: "https://appcues.com")!, openExternally: nil)))
         let failedAction = AppcuesLinkAction()
 
         // Assert
@@ -251,9 +251,9 @@ extension AppcuesLinkActionTests {
 
 extension AppcuesLinkAction {
     convenience init?() {
-        self.init(configuration: ExperiencePluginConfiguration(nil))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
     }
     convenience init?(path: String, openExternally: Bool? = nil) {
-        self.init(configuration: ExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: path)!, openExternally: openExternally)))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: path)!, openExternally: openExternally)))
     }
 }
