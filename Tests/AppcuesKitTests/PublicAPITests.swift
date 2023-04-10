@@ -7,7 +7,6 @@
 //
 
 import XCTest
-import SwiftUI
 import AppcuesKit
 
 /// This test class exists to verify the full breadth of the public API contract. It does not assert any specific results.
@@ -15,6 +14,12 @@ import AppcuesKit
 class PublicAPITests: XCTestCase {
 
     func testAPI() throws {
+        if #available(iOS 13.0, *) {
+            Appcues.elementTargeting = SampleElementTargeting()
+        }
+
+        _ = AppcuesElementSelector().evaluateMatch(for: AppcuesElementSelector())
+
         let config = Appcues.Config(accountID: "12345", applicationID: "abc")
             .logging(true)
             .apiHost(URL(string: "localhost")!)
@@ -73,6 +78,23 @@ class PublicAPITests: XCTestCase {
         if #available(iOS 13.0, *) {
             _ = appcuesInstance.filterAndHandle(Set())
         }
+    }
+}
+
+class SampleElementTargeting: AppcuesElementTargeting {
+    func captureLayout() -> AppcuesViewElement? {
+        AppcuesViewElement(
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+            type: "view",
+            selector: AppcuesElementSelector(),
+            children: nil)
+    }
+
+    func inflateSelector(from properties: [String : String]) -> AppcuesElementSelector? {
+        return AppcuesElementSelector()
     }
 }
 
@@ -145,6 +167,17 @@ class SampleTrait: AppcuesExperienceTrait, AppcuesStepDecoratingTrait, AppcuesCo
 
         let config = configuration.decode(Config.self)
         _ = config?.key
+
+        metadataDelegate?.unset(keys: ["key"])
+        metadataDelegate?.set(["key": "value"])
+        metadataDelegate?.publish()
+
+        metadataDelegate?.registerHandler(for: "trait", animating: true) { metadata in
+            print(metadata)
+            let newValue: String? = metadata["key"]
+            let oldValue: String? = metadata[previous: "key"]
+        }
+        metadataDelegate?.removeHandler(for: "trait")
     }
 
     // MARK: AppcuesStepDecoratingTrait
@@ -177,6 +210,10 @@ class SampleTrait: AppcuesExperienceTrait, AppcuesStepDecoratingTrait, AppcuesCo
 
     // MARK: AppcuesWrapperCreatingTrait
     func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
+
+        let error = AppcuesTraitError(description: "Error")
+        _ = error.description
+
         return containerController
     }
 
