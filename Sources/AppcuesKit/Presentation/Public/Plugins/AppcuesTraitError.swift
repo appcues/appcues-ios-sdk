@@ -1,5 +1,5 @@
 //
-//  TraitError.swift
+//  AppcuesTraitError.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2022-01-28.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// An `Error` preventing an Experience from being presented.
-public struct TraitError: Error, CustomStringConvertible {
+public struct AppcuesTraitError: Error, CustomStringConvertible {
 
     /// A description of the nature of the error.
     ///

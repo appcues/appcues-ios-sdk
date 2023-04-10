@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal class AppcuesContinueAction: ExperienceAction {
+internal class AppcuesContinueAction: AppcuesExperienceAction {
     struct Config: Decodable {
         let index: Int?
         let offset: Int?
@@ -20,7 +20,7 @@ internal class AppcuesContinueAction: ExperienceAction {
 
     let stepReference: StepReference
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         if let index = config?.index {
             stepReference = .index(index)

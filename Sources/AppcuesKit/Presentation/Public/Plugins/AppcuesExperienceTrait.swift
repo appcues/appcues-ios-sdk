@@ -1,5 +1,5 @@
 //
-//  ExperienceTrait.swift
+//  AppcuesExperienceTrait.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-03.
@@ -12,7 +12,7 @@ import UIKit
 
 /// A type that describes a trait of an `Experience`.
 @objc
-public protocol ExperienceTrait {
+public protocol AppcuesExperienceTrait {
 
     /// The name of the trait.
     ///
@@ -20,31 +20,31 @@ public protocol ExperienceTrait {
     static var type: String { get }
 
     /// The object that provides access to data shared across trait instances.
-    weak var metadataDelegate: TraitMetadataDelegate? { get set }
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate? { get set }
 
     /// Initializer from an `Experience.Trait` data model.
     ///
     /// This initializer should verify the config has any required properties and return `nil` if not.
-    init?(configuration: ExperiencePluginConfiguration)
+    init?(configuration: AppcuesExperiencePluginConfiguration)
 }
 
 /// A trait that modifies the `UIViewController` that encapsulates the contents of a specific step in the experience.
 @objc
-public protocol StepDecoratingTrait: ExperienceTrait {
+public protocol AppcuesStepDecoratingTrait: AppcuesExperienceTrait {
 
     /// Modify the view controller for a step.
     /// - Parameter stepController: The `UIViewController` to modify.
     ///
-    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
+    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
     func decorate(stepController: UIViewController) throws
 }
 
-/// A trait responsible for creating the `UIViewController` (specifically a ``ExperienceContainerViewController``) that holds the
-/// experience step(s) being presented. The returned controller must call the ``ExperienceContainerLifecycleHandler``
+/// A trait responsible for creating the `UIViewController` (specifically a ``AppcuesExperienceContainerViewController``) that holds the
+/// experience step(s) being presented. The returned controller must call the ``AppcuesExperienceContainerEventHandler``
 /// methods at the appropriate times.
 @objc
-public protocol ContainerCreatingTrait: ExperienceTrait {
+public protocol AppcuesContainerCreatingTrait: AppcuesExperienceTrait {
 
     /// Create the container controller for experience step(s).
     /// - Parameter stepControllers: Array of controllers being presented.
@@ -53,37 +53,40 @@ public protocol ContainerCreatingTrait: ExperienceTrait {
     ///
     /// `stepControllers` is guaranteed to be non-empty and may frequently have only a single item.
     ///
-    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
+    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
-    func createContainer(for stepControllers: [UIViewController], with pageMonitor: PageMonitor) throws -> ExperienceContainerViewController
+    func createContainer(
+        for stepControllers: [UIViewController],
+        with pageMonitor: AppcuesExperiencePageMonitor
+    ) throws -> AppcuesExperienceContainerViewController
 }
 
-/// A trait that modifies the container view controller created by an ``ContainerCreatingTrait``.
+/// A trait that modifies the container view controller created by an ``AppcuesContainerCreatingTrait``.
 @objc
-public protocol ContainerDecoratingTrait: ExperienceTrait {
+public protocol AppcuesContainerDecoratingTrait: AppcuesExperienceTrait {
 
     /// Modify a container view controller.
-    /// - Parameter containerController: The `ExperienceContainerViewController` to modify.
+    /// - Parameter containerController: The `AppcuesExperienceContainerViewController` to modify.
     ///
-    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
+    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
-    func decorate(containerController: ExperienceContainerViewController) throws
+    func decorate(containerController: AppcuesExperienceContainerViewController) throws
 
     /// Remove the decoration from a container view controller.
-    /// - Parameter containerController: The `ExperienceContainerViewController` to modify.
+    /// - Parameter containerController: The `AppcuesExperienceContainerViewController` to modify.
     ///
     /// A call to ``undecorate(containerController:)`` should remove all modifications performed by ``decorate(containerController:)``.
     ///
     /// This method will only be called for traits applied at the step level when navigating between steps in a group.
     ///
-    /// If this method cannot properly remove the trait behavior, it may throw an error of type ``TraitError``,
+    /// If this method cannot properly remove the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending presentation of the experience.
-    func undecorate(containerController: ExperienceContainerViewController) throws
+    func undecorate(containerController: AppcuesExperienceContainerViewController) throws
 }
 
 /// A trait that modifies the backdrop `UIView` that may be included in the presented experience.
 @objc
-public protocol BackdropDecoratingTrait: ExperienceTrait {
+public protocol AppcuesBackdropDecoratingTrait: AppcuesExperienceTrait {
 
     /// Modify the backdrop view.
     /// - Parameter backdropView: The `UIView` to modify.
@@ -91,7 +94,7 @@ public protocol BackdropDecoratingTrait: ExperienceTrait {
     /// Prefer adding a subview to `backdropView` over modifying `backdropView` itself where possible
     /// to preserve composability of multiple traits.
     ///
-    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
+    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
     func decorate(backdropView: UIView) throws
 
@@ -102,22 +105,22 @@ public protocol BackdropDecoratingTrait: ExperienceTrait {
     ///
     /// This method will only be called for traits applied at the step level when navigating between steps in a group.
     ///
-    /// If this method cannot properly remove the trait behavior, it may throw an error of type ``TraitError``,
+    /// If this method cannot properly remove the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending presentation of the experience.
     func undecorate(backdropView: UIView) throws
 }
 
-/// A trait that creates a `UIViewController` that wraps the ``ExperienceContainerViewController``.
+/// A trait that creates a `UIViewController` that wraps the ``AppcuesExperienceContainerViewController``.
 @objc
-public protocol WrapperCreatingTrait: ExperienceTrait {
+public protocol AppcuesWrapperCreatingTrait: AppcuesExperienceTrait {
 
     /// Create a wrapper controller around a container controller.
     /// - Parameter containerController: The container controller.
     /// - Returns: A `UIViewController` that contains the `containerController` as a child.
     ///
-    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
+    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
-    func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController
+    func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController
 
     /// Add the decorated backdrop view to the wrapper.
     /// - Parameter backdropView: The backdrop.
@@ -127,13 +130,13 @@ public protocol WrapperCreatingTrait: ExperienceTrait {
 
 /// A trait responsible for providing the ability to show and hide the experience.
 @objc
-public protocol PresentingTrait: ExperienceTrait {
+public protocol AppcuesPresentingTrait: AppcuesExperienceTrait {
 
     /// Shows the view controller for an experience.
     /// - Parameter viewController: The view controller to present.
     /// - Parameter completion: The block to execute after the presentation is completed.
     ///
-    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``TraitError``,
+    /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
     func present(viewController: UIViewController, completion: (() -> Void)?) throws
 

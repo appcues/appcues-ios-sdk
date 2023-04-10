@@ -12,10 +12,10 @@ import Foundation
 internal class ActionRegistry {
     typealias Completion = () -> Void
 
-    private var actions: [String: ExperienceAction.Type] = [:]
+    private var actions: [String: AppcuesExperienceAction.Type] = [:]
 
     private var isProcessing = false
-    private var actionQueue: [ExperienceAction] = [] {
+    private var actionQueue: [AppcuesExperienceAction] = [] {
         didSet { processFirstAction() }
     }
 
@@ -35,7 +35,7 @@ internal class ActionRegistry {
         register(action: AppcuesRequestReviewAction.self)
     }
 
-    func register(action: ExperienceAction.Type) {
+    func register(action: AppcuesExperienceAction.Type) {
         guard actions[action.type] == nil else {
             #if DEBUG
             if ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil {
@@ -65,15 +65,15 @@ internal class ActionRegistry {
 
     /// Enqueue an array of experience action data models to be executed. This version is for non-interactive action execution,
     /// such as actions that execute as part of the navigation to a step.
-    func enqueue(actionModels: [Experience.Action], level: ExperiencePluginConfiguration.Level, completion: @escaping () -> Void) {
+    func enqueue(actionModels: [Experience.Action], level: AppcuesExperiencePluginConfiguration.Level, completion: @escaping () -> Void) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(configuration: ExperiencePluginConfiguration($0.configDecoder, level: level))
+            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level))
         }
         execute(transformQueue(actionInstances), completion: completion)
     }
 
     /// Enqueue an array of experience actions instance to be executed. This version is used for post-completion actions on an experience.
-    func enqueue(actionInstances: [ExperienceAction]) {
+    func enqueue(actionInstances: [AppcuesExperienceAction]) {
         actionQueue.append(contentsOf: transformQueue(actionInstances))
     }
 
@@ -81,12 +81,12 @@ internal class ActionRegistry {
     /// during an experience, such as button taps.
     func enqueue(
         actionModels: [Experience.Action],
-        level: ExperiencePluginConfiguration.Level,
+        level: AppcuesExperiencePluginConfiguration.Level,
         interactionType: String,
         viewDescription: String?
     ) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(configuration: ExperiencePluginConfiguration($0.configDecoder, level: level))
+            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level))
         }
 
         // As a heuristic, take the last action that's `MetadataSettingAction`, since that's most likely
@@ -107,7 +107,7 @@ internal class ActionRegistry {
 
     // Queue transforms are applied in the order of the original queue,
     // and actions added to the queue will not have their queue transform executed.
-    private func transformQueue(_ actionInstances: [ExperienceAction]) -> [ExperienceAction] {
+    private func transformQueue(_ actionInstances: [AppcuesExperienceAction]) -> [AppcuesExperienceAction] {
         return actionInstances.reduce(actionInstances) { currentQueue, action in
             guard let indexInCurrent = currentQueue.firstIndex(where: { $0 === action }),
                   let transformingAction = action as? ExperienceActionQueueTransforming,
@@ -117,7 +117,7 @@ internal class ActionRegistry {
         }
     }
 
-    private func execute(_ models: [ExperienceAction], completion: (() -> Void)? = nil) {
+    private func execute(_ models: [AppcuesExperienceAction], completion: (() -> Void)? = nil) {
         var models = models
 
         guard let appcues = appcues, !models.isEmpty else {

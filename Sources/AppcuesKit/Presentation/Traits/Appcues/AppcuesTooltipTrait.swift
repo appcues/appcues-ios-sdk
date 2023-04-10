@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
+internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCreatingTrait, AppcuesPresentingTrait {
     struct Config: Decodable {
         // swiftlint:disable:next discouraged_optional_boolean
         let hidePointer: Bool?
@@ -21,14 +21,14 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
 
     static let type = "@appcues/tooltip"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     let tooltipStyle: ExperienceComponent.Style?
     let hidePointer: Bool
     let pointerSize: CGSize
     let pointerCornerRadius: CGFloat
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         self.hidePointer = config?.hidePointer ?? false
         self.pointerSize = CGSize(width: config?.pointerBase ?? 16, height: config?.pointerLength ?? 8)
@@ -47,7 +47,7 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
         )
     }
 
-    func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {
+    func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
         let experienceWrapperViewController = ExperienceWrapperViewController<TooltipWrapperView>(wrapping: containerController)
         experienceWrapperViewController.configureStyle(tooltipStyle)
         experienceWrapperViewController.bodyView.pointerSize = hidePointer ? nil : pointerSize
@@ -87,7 +87,7 @@ internal class AppcuesTooltipTrait: StepDecoratingTrait, WrapperCreatingTrait, P
 
     func present(viewController: UIViewController, completion: (() -> Void)?) throws {
         guard let topViewController = UIApplication.shared.topViewController() else {
-            throw TraitError(description: "No top VC found")
+            throw AppcuesTraitError(description: "No top VC found")
         }
 
         topViewController.present(viewController, animated: true, completion: completion)

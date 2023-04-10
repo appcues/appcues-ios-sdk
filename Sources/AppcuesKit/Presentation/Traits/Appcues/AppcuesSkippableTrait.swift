@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecoratingTrait {
+internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         let buttonAppearance: ButtonAppearance?
         // swiftlint:disable:next discouraged_optional_boolean
@@ -19,7 +19,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
 
     static var type: String = "@appcues/skippable"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     private let buttonAppearance: ButtonAppearance
     private let ignoreBackdropTap: Bool
@@ -29,14 +29,14 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
     private weak var view: UIViewController.CloseButton?
     private var gestureRecognizer: UITapGestureRecognizer?
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         self.buttonAppearance = config?.buttonAppearance ?? .default
         self.ignoreBackdropTap = config?.ignoreBackdropTap ?? false
         self.buttonStyle = config?.buttonStyle
     }
 
-    func decorate(containerController: ExperienceContainerViewController) throws {
+    func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         self.containerController = containerController
 
         if buttonAppearance != .hidden {
@@ -47,7 +47,7 @@ internal class AppcuesSkippableTrait: ContainerDecoratingTrait, BackdropDecorati
         containerController.isModalInPresentation = false
     }
 
-    func undecorate(containerController: ExperienceContainerViewController) throws {
+    func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
         view?.removeFromSuperview()
         containerController.isModalInPresentation = true
     }

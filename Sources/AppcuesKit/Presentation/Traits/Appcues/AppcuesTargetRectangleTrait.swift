@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
+internal class AppcuesTargetRectangleTrait: AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         let contentPreferredPosition: ContentPosition?
         let contentDistanceFromTarget: Double?
@@ -27,13 +27,13 @@ internal class AppcuesTargetRectangleTrait: BackdropDecoratingTrait {
 
     static let type: String = "@appcues/target-rectangle"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     private let config: Config
 
     private lazy var frameObserverView = FrameObserverView()
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.config = config
     }

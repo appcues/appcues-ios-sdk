@@ -1,5 +1,5 @@
 //
-//  ExperienceContainerLifecycleHandler.swift
+//  AppcuesExperienceContainerEventHandler.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-17.
@@ -8,9 +8,9 @@
 
 import UIKit
 
-/// A protocol that defines the methods to adopt to respond to changes in an ``ExperienceContainerViewController``.
+/// A protocol that defines the methods to adopt to respond to changes in an ``AppcuesExperienceContainerViewController``.
 @objc
-public protocol ExperienceContainerLifecycleHandler: AnyObject {
+public protocol AppcuesExperienceContainerEventHandler: AnyObject {
 
     /// Tells the delegate that the container will appear.
     ///

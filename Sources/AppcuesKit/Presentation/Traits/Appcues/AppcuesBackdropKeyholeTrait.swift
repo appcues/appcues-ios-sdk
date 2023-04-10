@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
+internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         let shape: String?
         let cornerRadius: Double?
@@ -19,12 +19,12 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
 
     static let type: String = "@appcues/backdrop-keyhole"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     private let shape: KeyholeShape
     private let spreadRadius: CGFloat?
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
 
         self.shape = KeyholeShape(config?.shape, cornerRadius: config?.cornerRadius, blurRadius: config?.blurRadius)
@@ -63,7 +63,7 @@ internal class AppcuesBackdropKeyholeTrait: BackdropDecoratingTrait {
     }
 
     // swiftlint:disable:next function_body_length
-    private func handle(backdropView: UIView, metadata: TraitMetadata) {
+    private func handle(backdropView: UIView, metadata: AppcuesTraitMetadata) {
         guard backdropView.bounds != .zero else { return }
 
         let newMaskPath = UIBezierPath(rect: backdropView.bounds)

@@ -68,11 +68,7 @@ extension ExperienceComponent {
             }
             return (
                 // Same box, just with sticky items filtered out
-                .box(BoxModel(
-                    id: model.id,
-                    items: nonStickyComponents,
-                    style: model.style
-                )),
+                .box(BoxModel(id: model.id, items: nonStickyComponents, style: model.style)),
                 stickyTopComponents,
                 stickyBottomComponents
             )
