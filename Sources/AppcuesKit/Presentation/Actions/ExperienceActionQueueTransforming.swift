@@ -10,7 +10,7 @@ import Foundation
 
 /// An `ExperienceAction` that performs modifications of the action queue executed following an interaction in an experience.
 @objc
-internal protocol ExperienceActionQueueTransforming: ExperienceAction {
+internal protocol ExperienceActionQueueTransforming: AppcuesExperienceAction {
 
     /// Modify the queue of actions executed in an experience.
     /// - Parameters:
@@ -18,5 +18,5 @@ internal protocol ExperienceActionQueueTransforming: ExperienceAction {
     ///   - index: The index of the current action in the `queue`.
     ///   - appcues: The `Appcues` instance that displayed the experience triggering the action.
     /// - Returns: The updated queue.
-    func transformQueue(_ queue: [ExperienceAction], index: Int, inContext appcues: Appcues) -> [ExperienceAction]
+    func transformQueue(_ queue: [AppcuesExperienceAction], index: Int, inContext appcues: Appcues) -> [AppcuesExperienceAction]
 }

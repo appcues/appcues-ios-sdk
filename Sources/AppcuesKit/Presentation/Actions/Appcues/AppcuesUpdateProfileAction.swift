@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal class AppcuesUpdateProfileAction: ExperienceAction {
+internal class AppcuesUpdateProfileAction: AppcuesExperienceAction {
     struct Config {
         let properties: [String: Any]
     }
@@ -18,7 +18,7 @@ internal class AppcuesUpdateProfileAction: ExperienceAction {
 
     let properties: [String: Any]
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         if let properties = config?.properties, !properties.isEmpty {
             self.properties = properties

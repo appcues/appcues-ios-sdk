@@ -1,5 +1,5 @@
 //
-//  TraitMetadata.swift
+//  AppcuesTraitMetadata.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2023-02-06.
@@ -8,9 +8,9 @@
 
 import UIKit
 
-/// Stores values to be shared across ``ExperienceTrait`` instances. The instances may be the same trait applied to different steps,
+/// Stores values to be shared across ``AppcuesExperienceTrait`` instances. The instances may be the same trait applied to different steps,
 /// or different traits that coordinate to create a more complex user interface.
-public class TraitMetadata: NSObject {
+public class AppcuesTraitMetadata: NSObject {
     private let newData: [String: Any?]
     private let previousData: [String: Any?]
 

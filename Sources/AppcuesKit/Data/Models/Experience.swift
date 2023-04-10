@@ -175,8 +175,8 @@ extension Experience: Decodable {
 
 extension Experience {
     @available(iOS 13.0, *)
-    var postExperienceActions: [ExperienceAction] {
-        var actions: [ExperienceAction] = []
+    var postExperienceActions: [AppcuesExperienceAction] {
+        var actions: [AppcuesExperienceAction] = []
 
         if let redirectURL = redirectURL {
             actions.append(AppcuesLinkAction(url: redirectURL))

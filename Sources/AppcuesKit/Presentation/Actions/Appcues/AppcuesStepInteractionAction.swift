@@ -10,7 +10,7 @@ import Foundation
 
 /// Internal-only action: This action isn't registered in the `ActionRegistry`.
 @available(iOS 13.0, *)
-internal class AppcuesStepInteractionAction: ExperienceAction {
+internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
 
     static let type = "@appcues/step_interaction"
 
@@ -19,7 +19,7 @@ internal class AppcuesStepInteractionAction: ExperienceAction {
     let category: String
     let destination: String
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         // An internal-only action, so can't be initialized from an Experience.Action model.
         return nil
     }

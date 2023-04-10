@@ -10,22 +10,22 @@ import UIKit
 
 internal class ExperiencePackage {
     // References to the trait instances are held here to ensure they persist the lifetime of the experience being rendered.
-    private let traitInstances: [ExperienceTrait]
+    private let traitInstances: [AppcuesExperienceTrait]
     let stepDecoratingTraitUpdater: (Int, Int?) throws -> Void
     let steps: [Experience.Step.Child]
-    let containerController: ExperienceContainerViewController
+    let containerController: AppcuesExperienceContainerViewController
     let wrapperController: UIViewController
-    let pageMonitor: PageMonitor
+    let pageMonitor: AppcuesExperiencePageMonitor
     let presenter: (_ completion: (() -> Void)?) throws -> Void
     let dismisser: (_ completion: (() -> Void)?) -> Void
 
     internal init(
-        traitInstances: [ExperienceTrait],
+        traitInstances: [AppcuesExperienceTrait],
         stepDecoratingTraitUpdater: @escaping (Int, Int?) throws -> Void,
         steps: [Experience.Step.Child],
-        containerController: ExperienceContainerViewController,
+        containerController: AppcuesExperienceContainerViewController,
         wrapperController: UIViewController,
-        pageMonitor: PageMonitor,
+        pageMonitor: AppcuesExperiencePageMonitor,
         presenter: @escaping ((() -> Void)?) throws -> Void,
         dismisser: @escaping ((() -> Void)?) -> Void
     ) {

@@ -1,5 +1,5 @@
 //
-//  ExperiencePluginConfiguration.swift
+//  AppcuesExperiencePluginConfiguration.swift
 //  AppcuesKit
 //
 //  Created by James Ellis on 12/19/22.
@@ -10,7 +10,7 @@ import Foundation
 
 /// An object that decodes instances of a plugin configuration from an Experience JSON model.
 @objc
-public class ExperiencePluginConfiguration: NSObject {
+public class AppcuesExperiencePluginConfiguration: NSObject {
 
     /// Context in which a plugin can be applied.
     @objc

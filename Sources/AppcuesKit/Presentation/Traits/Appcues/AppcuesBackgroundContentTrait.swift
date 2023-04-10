@@ -9,21 +9,21 @@
 import SwiftUI
 
 @available(iOS 13.0, *)
-internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDecoratingTrait {
+internal class AppcuesBackgroundContentTrait: AppcuesStepDecoratingTrait, AppcuesContainerDecoratingTrait {
     struct Config: Decodable {
         let content: ExperienceComponent
     }
 
     static let type = "@appcues/background-content"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
-    private let level: ExperiencePluginConfiguration.Level
+    private let level: AppcuesExperiencePluginConfiguration.Level
     private let content: ExperienceComponent
 
     private weak var backgroundViewController: UIViewController?
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
 
         self.level = configuration.level
@@ -39,7 +39,7 @@ internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDeco
         applyBackground(with: viewController.viewModel, parent: viewController)
     }
 
-    func decorate(containerController: ExperienceContainerViewController) throws {
+    func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         guard level == .group || level == .experience else { return }
 
         let emptyViewModel = ExperienceStepViewModel()
@@ -47,7 +47,7 @@ internal class AppcuesBackgroundContentTrait: StepDecoratingTrait, ContainerDeco
         backgroundViewController = applyBackground(with: emptyViewModel, parent: containerController)
     }
 
-    func undecorate(containerController: ExperienceContainerViewController) throws {
+    func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
         if let backgroundViewController = backgroundViewController {
             containerController.unembedChildViewController(backgroundViewController)
         }
