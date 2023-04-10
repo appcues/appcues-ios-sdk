@@ -1,5 +1,5 @@
 //
-//  MetadataSettingAction.swift
+//  InteractionLoggingAction.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2022-10-06.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal protocol MetadataSettingAction {
+internal protocol InteractionLoggingAction {
     var category: String { get }
     var destination: String { get }
 }
@@ -17,25 +17,25 @@ internal protocol MetadataSettingAction {
 // These are the actions that can define the step_interaction analytic values.
 
 @available(iOS 13.0, *)
-extension AppcuesLinkAction: MetadataSettingAction {
+extension AppcuesLinkAction: InteractionLoggingAction {
     var category: String { "link" }
     var destination: String { url.absoluteString }
 }
 
 @available(iOS 13.0, *)
-extension AppcuesLaunchExperienceAction: MetadataSettingAction {
+extension AppcuesLaunchExperienceAction: InteractionLoggingAction {
     var category: String { "internal" }
     var destination: String { experienceID }
 }
 
 @available(iOS 13.0, *)
-extension AppcuesContinueAction: MetadataSettingAction {
+extension AppcuesContinueAction: InteractionLoggingAction {
     var category: String { "internal" }
     var destination: String { stepReference.description }
 }
 
 @available(iOS 13.0, *)
-extension AppcuesCloseAction: MetadataSettingAction {
+extension AppcuesCloseAction: InteractionLoggingAction {
     var category: String { "internal" }
     var destination: String { "end-experience" }
 }

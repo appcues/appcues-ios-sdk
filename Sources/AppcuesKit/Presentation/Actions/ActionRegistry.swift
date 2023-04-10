@@ -91,7 +91,7 @@ internal class ActionRegistry {
 
         // As a heuristic, take the last action that's `MetadataSettingAction`, since that's most likely
         // to be the action that we'd want to see in the event export.
-        let primaryAction = actionInstances.reversed().compactMapFirst { $0 as? MetadataSettingAction }
+        let primaryAction = actionInstances.reversed().compactMapFirst { $0 as? InteractionLoggingAction }
         let interactionAction = AppcuesStepInteractionAction(
             interactionType: interactionType,
             viewDescription: viewDescription ?? "",
