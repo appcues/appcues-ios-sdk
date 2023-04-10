@@ -15,4 +15,10 @@ public struct AppcuesTraitError: Error, CustomStringConvertible {
     ///
     /// This value will be logged to Appcues Studio.
     public var description: String
+
+    /// Creates an instance of an error.
+    /// - Parameter description: A description of the nature of the error.
+    public init(description: String) {
+        self.description = description
+    }
 }
