@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, PresentingTrait {
+internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCreatingTrait, AppcuesPresentingTrait {
     struct Config: Decodable {
         let presentationStyle: PresentationStyle
         let style: ExperienceComponent.Style?
@@ -17,12 +17,12 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
 
     static let type = "@appcues/modal"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     private let presentationStyle: PresentationStyle
     private let modalStyle: ExperienceComponent.Style?
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.presentationStyle = config.presentationStyle
         self.modalStyle = config.style
@@ -39,7 +39,7 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
         )
     }
 
-    func createWrapper(around containerController: ExperienceContainerViewController) throws -> UIViewController {
+    func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
         containerController.modalPresentationStyle = presentationStyle.modalPresentationStyle
 
         if presentationStyle == .dialog {
@@ -70,7 +70,7 @@ internal class AppcuesModalTrait: StepDecoratingTrait, WrapperCreatingTrait, Pre
 
     func present(viewController: UIViewController, completion: (() -> Void)?) throws {
         guard let topViewController = UIApplication.shared.topViewController() else {
-            throw TraitError(description: "No top VC found")
+            throw AppcuesTraitError(description: "No top VC found")
         }
 
         topViewController.present(viewController, animated: true, completion: completion)

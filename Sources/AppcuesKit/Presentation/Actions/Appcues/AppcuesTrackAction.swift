@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal class AppcuesTrackAction: ExperienceAction {
+internal class AppcuesTrackAction: AppcuesExperienceAction {
     struct Config: Decodable {
         let eventName: String
     }
@@ -18,7 +18,7 @@ internal class AppcuesTrackAction: ExperienceAction {
 
     let eventName: String
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.eventName = config.eventName
     }

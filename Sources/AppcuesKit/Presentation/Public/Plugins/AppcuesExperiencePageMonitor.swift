@@ -1,5 +1,5 @@
 //
-//  PageMonitor.swift
+//  AppcuesExperiencePageMonitor.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2022-02-03.
@@ -8,18 +8,18 @@
 
 import Foundation
 
-/// Maintains page state metadata for an ``ExperienceContainerViewController``.
+/// Maintains page state metadata for an ``AppcuesExperienceContainerViewController``.
 @objc
-public class PageMonitor: NSObject {
+public class AppcuesExperiencePageMonitor: NSObject {
 
     // Using closures as observers is ok from a memory management perspective because the lifecycle of any Trait
     // observing the experience controller and the experience controller itself should be the same.
     private var observers: [(Int, Int) -> Void] = []
 
-    /// The number of pages in the ``ExperienceContainerViewController``.
+    /// The number of pages in the ``AppcuesExperienceContainerViewController``.
     @objc public let numberOfPages: Int
 
-    /// The current page in the ``ExperienceContainerViewController``.
+    /// The current page in the ``AppcuesExperienceContainerViewController``.
     @objc public private(set) var currentPage: Int
 
     /// Creates an instance of a page monitor.
@@ -43,7 +43,7 @@ public class PageMonitor: NSObject {
     /// Update the ``currentPage`` value and notify all observers of the change.
     /// - Parameter currentPage: Page index
     ///
-    /// Setting a value equal to the current state wil not notify observers.
+    /// Setting a value equal to the current state will not notify observers.
     @objc
     public func set(currentPage: Int) {
         let previousPage = self.currentPage

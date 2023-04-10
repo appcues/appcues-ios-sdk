@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal class AppcuesLaunchExperienceAction: ExperienceAction {
+internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
     struct Config: Decodable {
         let experienceID: String
     }
@@ -19,7 +19,7 @@ internal class AppcuesLaunchExperienceAction: ExperienceAction {
     let experienceID: String
     private let trigger: ExperienceTrigger?
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.experienceID = config.experienceID
         self.trigger = nil

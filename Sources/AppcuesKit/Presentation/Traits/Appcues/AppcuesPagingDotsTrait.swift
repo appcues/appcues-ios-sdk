@@ -8,26 +8,26 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
+internal class AppcuesPagingDotsTrait: AppcuesContainerDecoratingTrait {
     struct Config: Decodable {
         let style: ExperienceComponent.Style?
     }
 
     static let type = "@appcues/paging-dots"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     private let style: ExperienceComponent.Style?
 
-    private weak var containerController: ExperienceContainerViewController?
+    private weak var containerController: AppcuesExperienceContainerViewController?
     private weak var view: UIView?
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         self.style = config?.style
     }
 
-    func decorate(containerController: ExperienceContainerViewController) throws {
+    func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         guard containerController.pageMonitor.numberOfPages > 1 else { return }
 
         let pageWrapView = UIView()
@@ -83,7 +83,7 @@ internal class AppcuesPagingDotsTrait: ContainerDecoratingTrait {
         self.view = pageWrapView
     }
 
-    func undecorate(containerController: ExperienceContainerViewController) throws {
+    func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
         view?.removeFromSuperview()
     }
 

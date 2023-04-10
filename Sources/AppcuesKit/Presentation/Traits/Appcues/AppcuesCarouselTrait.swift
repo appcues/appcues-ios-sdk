@@ -9,18 +9,18 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesCarouselTrait: ContainerCreatingTrait {
+internal class AppcuesCarouselTrait: AppcuesContainerCreatingTrait {
     static let type = "@appcues/carousel"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
     }
 
     func createContainer(
         for stepControllers: [UIViewController],
-        with pageMonitor: PageMonitor
-    ) throws -> ExperienceContainerViewController {
+        with pageMonitor: AppcuesExperiencePageMonitor
+    ) throws -> AppcuesExperienceContainerViewController {
         CarouselContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
     }
 }
@@ -28,17 +28,17 @@ internal class AppcuesCarouselTrait: ContainerCreatingTrait {
 @available(iOS 13.0, *)
 extension AppcuesCarouselTrait {
 
-    class CarouselContainerViewController: ExperienceContainerViewController, UICollectionViewDataSource, UICollectionViewDelegate {
+    class CarouselContainerViewController: AppcuesExperienceContainerViewController, UICollectionViewDataSource, UICollectionViewDelegate {
 
-        weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
-        let pageMonitor: PageMonitor
+        weak var eventHandler: AppcuesExperienceContainerEventHandler?
+        let pageMonitor: AppcuesExperiencePageMonitor
 
         private lazy var carouselView = ExperienceCarouselView()
 
         private let stepControllers: [UIViewController]
 
         /// **Note:** `stepControllers` are expected to have a preferredContentSize specified.
-        init(stepControllers: [UIViewController], pageMonitor: PageMonitor) {
+        init(stepControllers: [UIViewController], pageMonitor: AppcuesExperiencePageMonitor) {
             self.stepControllers = stepControllers
             self.pageMonitor = pageMonitor
 
@@ -69,22 +69,22 @@ extension AppcuesCarouselTrait {
 
         override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
-            lifecycleHandler?.containerWillAppear()
+            eventHandler?.containerWillAppear()
         }
 
         override func viewDidAppear(_ animated: Bool) {
             super.viewDidAppear(animated)
-            lifecycleHandler?.containerDidAppear()
+            eventHandler?.containerDidAppear()
         }
 
         override func viewWillDisappear(_ animated: Bool) {
             super.viewWillDisappear(animated)
-            lifecycleHandler?.containerWillDisappear()
+            eventHandler?.containerWillDisappear()
         }
 
         override func viewDidDisappear(_ animated: Bool) {
             super.viewDidDisappear(animated)
-            lifecycleHandler?.containerDidDisappear()
+            eventHandler?.containerDidDisappear()
         }
 
         override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {

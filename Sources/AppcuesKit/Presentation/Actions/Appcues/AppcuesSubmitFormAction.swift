@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal class AppcuesSubmitFormAction: ExperienceAction, ExperienceActionQueueTransforming {
+internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActionQueueTransforming {
     struct Config: Decodable {
         let skipValidation: Bool
     }
@@ -18,7 +18,7 @@ internal class AppcuesSubmitFormAction: ExperienceAction, ExperienceActionQueueT
 
     let skipValidation: Bool
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         self.skipValidation = config?.skipValidation ?? false
     }
@@ -55,7 +55,7 @@ internal class AppcuesSubmitFormAction: ExperienceAction, ExperienceActionQueueT
     }
 
     // If the form state is invalid, remove this action and all subsequent.
-    func transformQueue(_ queue: [ExperienceAction], index: Int, inContext appcues: Appcues) -> [ExperienceAction] {
+    func transformQueue(_ queue: [AppcuesExperienceAction], index: Int, inContext appcues: Appcues) -> [AppcuesExperienceAction] {
         guard !skipValidation else { return queue }
 
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)

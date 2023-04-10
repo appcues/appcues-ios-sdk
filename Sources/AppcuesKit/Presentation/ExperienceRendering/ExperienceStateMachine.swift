@@ -82,10 +82,10 @@ internal class ExperienceStateMachine {
     }
 }
 
-// MARK: - ExperienceContainerLifecycleHandler
+// MARK: - AppcuesExperienceContainerEventHandler
 
 @available(iOS 13.0, *)
-extension ExperienceStateMachine: ExperienceContainerLifecycleHandler {
+extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
     // MARK: Step Lifecycle
 
     func containerWillAppear() {
@@ -216,7 +216,7 @@ extension ExperienceStateMachine {
         case navigateInContainer(ExperiencePackage, pageIndex: Int)
         case dismissContainer(ExperiencePackage, continuation: Action)
         case error(ExperienceError, reset: Bool)
-        case processActions([ExperienceAction])
+        case processActions([AppcuesExperienceAction])
 
         func execute(in machine: ExperienceStateMachine) throws {
             switch self {
@@ -260,7 +260,7 @@ extension ExperienceStateMachine {
                 return
             }
 
-            package.containerController.lifecycleHandler = machine
+            package.containerController.eventHandler = machine
 
             package.pageMonitor.addObserver { [weak machine, weak package] newIndex, oldIndex in
                 do {

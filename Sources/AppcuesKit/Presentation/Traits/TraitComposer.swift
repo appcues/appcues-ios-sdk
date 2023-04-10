@@ -62,7 +62,7 @@ internal class TraitComposer: TraitComposing {
             return (stepModel, decomposedStepTraits)
         }
 
-        let metadataDelegate = TraitMetadataDelegate()
+        let metadataDelegate = AppcuesTraitMetadataDelegate()
         // Ensure the delegate is set for all the traits before we start applying any of them
         allTraitInstances.forEach { $0.metadataDelegate = metadataDelegate }
 
@@ -77,7 +77,7 @@ internal class TraitComposer: TraitComposing {
             return stepViewController
         }
 
-        let pageMonitor = PageMonitor(numberOfPages: stepControllers.count, currentPage: targetPageIndex)
+        let pageMonitor = AppcuesExperiencePageMonitor(numberOfPages: stepControllers.count, currentPage: targetPageIndex)
         let containerController = try (decomposedTraits.containerCreating ?? DefaultContainerCreatingTrait())
             .createContainer(for: stepControllers, with: pageMonitor)
         let wrapperController = try decomposedTraits.wrapperCreating?.createWrapper(around: containerController) ?? containerController
@@ -109,7 +109,9 @@ internal class TraitComposer: TraitComposing {
             metadataDelegate.publish()
         }
 
-        let presentingTrait = try decomposedTraits.presenting.unwrap(or: TraitError(description: "Presenting capability trait required"))
+        let presentingTrait = try decomposedTraits.presenting.unwrap(
+            or: AppcuesTraitError(description: "Presenting capability trait required")
+        )
 
         return ExperiencePackage(
             traitInstances: decomposedTraits.allTraitInstances,
@@ -127,24 +129,24 @@ internal class TraitComposer: TraitComposing {
 @available(iOS 13.0, *)
 extension TraitComposer {
     class DecomposedTraits {
-        private(set) var allTraitInstances: [ExperienceTrait]
+        private(set) var allTraitInstances: [AppcuesExperienceTrait]
 
-        private(set) var stepDecorating: [StepDecoratingTrait]
-        private(set) var containerCreating: ContainerCreatingTrait?
-        private(set) var containerDecorating: [ContainerDecoratingTrait]
-        private(set) var backdropDecorating: [BackdropDecoratingTrait]
-        private(set) var wrapperCreating: WrapperCreatingTrait?
-        private(set) var presenting: PresentingTrait?
+        private(set) var stepDecorating: [AppcuesStepDecoratingTrait]
+        private(set) var containerCreating: AppcuesContainerCreatingTrait?
+        private(set) var containerDecorating: [AppcuesContainerDecoratingTrait]
+        private(set) var backdropDecorating: [AppcuesBackdropDecoratingTrait]
+        private(set) var wrapperCreating: AppcuesWrapperCreatingTrait?
+        private(set) var presenting: AppcuesPresentingTrait?
 
-        init(traits: [ExperienceTrait]) {
+        init(traits: [AppcuesExperienceTrait]) {
             allTraitInstances = traits
 
-            stepDecorating = traits.compactMap { ($0 as? StepDecoratingTrait) }
-            containerCreating = traits.compactMapFirst { ($0 as? ContainerCreatingTrait) }
-            containerDecorating = traits.compactMap { ($0 as? ContainerDecoratingTrait) }
-            backdropDecorating = traits.compactMap { ($0 as? BackdropDecoratingTrait) }
-            wrapperCreating = traits.compactMapFirst { ($0 as? WrapperCreatingTrait) }
-            presenting = traits.compactMapFirst { ($0 as? PresentingTrait) }
+            stepDecorating = traits.compactMap { ($0 as? AppcuesStepDecoratingTrait) }
+            containerCreating = traits.compactMapFirst { ($0 as? AppcuesContainerCreatingTrait) }
+            containerDecorating = traits.compactMap { ($0 as? AppcuesContainerDecoratingTrait) }
+            backdropDecorating = traits.compactMap { ($0 as? AppcuesBackdropDecoratingTrait) }
+            wrapperCreating = traits.compactMapFirst { ($0 as? AppcuesWrapperCreatingTrait) }
+            presenting = traits.compactMapFirst { ($0 as? AppcuesPresentingTrait) }
         }
 
         /// Combine two `DecomposedTrait` instances. For trait types where a single instance is allowed, take the newer, more specific one.
@@ -189,18 +191,18 @@ extension TraitComposer {
         }
     }
 
-    class DefaultContainerCreatingTrait: ContainerCreatingTrait {
+    class DefaultContainerCreatingTrait: AppcuesContainerCreatingTrait {
         static var type: String = "_defaultContainerCreatingTrait"
 
-        weak var metadataDelegate: TraitMetadataDelegate?
+        weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
         init() {}
-        required init?(configuration: ExperiencePluginConfiguration) {}
+        required init?(configuration: AppcuesExperiencePluginConfiguration) {}
 
         func createContainer(
             for stepControllers: [UIViewController],
-            with pageMonitor: PageMonitor
-        ) throws -> ExperienceContainerViewController {
+            with pageMonitor: AppcuesExperiencePageMonitor
+        ) throws -> AppcuesExperienceContainerViewController {
             DefaultContainerViewController(stepControllers: stepControllers, pageMonitor: pageMonitor)
         }
     }

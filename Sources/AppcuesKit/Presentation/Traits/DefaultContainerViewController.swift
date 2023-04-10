@@ -9,10 +9,10 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class DefaultContainerViewController: ExperienceContainerViewController {
+internal class DefaultContainerViewController: AppcuesExperienceContainerViewController {
 
-    weak var lifecycleHandler: ExperienceContainerLifecycleHandler?
-    let pageMonitor: PageMonitor
+    weak var eventHandler: AppcuesExperienceContainerEventHandler?
+    let pageMonitor: AppcuesExperiencePageMonitor
 
     private let stepControllers: [UIViewController]
 
@@ -25,7 +25,7 @@ internal class DefaultContainerViewController: ExperienceContainerViewController
     }()
 
     /// **Note:** `stepControllers` are expected to have a preferredContentSize specified.
-    init(stepControllers: [UIViewController], pageMonitor: PageMonitor) {
+    init(stepControllers: [UIViewController], pageMonitor: AppcuesExperiencePageMonitor) {
         self.stepControllers = stepControllers
         self.pageMonitor = pageMonitor
 
@@ -51,22 +51,22 @@ internal class DefaultContainerViewController: ExperienceContainerViewController
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        lifecycleHandler?.containerWillAppear()
+        eventHandler?.containerWillAppear()
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        lifecycleHandler?.containerDidAppear()
+        eventHandler?.containerDidAppear()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        lifecycleHandler?.containerWillDisappear()
+        eventHandler?.containerWillDisappear()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        lifecycleHandler?.containerDidDisappear()
+        eventHandler?.containerDidDisappear()
     }
 
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {

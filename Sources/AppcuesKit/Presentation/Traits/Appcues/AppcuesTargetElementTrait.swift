@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
+internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         let contentPreferredPosition: ContentPosition?
         let contentDistanceFromTarget: Double?
@@ -18,13 +18,13 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
 
     static let type: String = "@appcues/target-element"
 
-    weak var metadataDelegate: TraitMetadataDelegate?
+    weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     private let config: Config
 
     private lazy var frameObserverView = FrameObserverView()
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.config = config
     }
@@ -79,18 +79,18 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
         let strategy = Appcues.elementTargeting
 
         guard let selector = strategy.inflateSelector(from: config.selector) else {
-            throw TraitError(description: "Invalid selector \(config.selector)")
+            throw AppcuesTraitError(description: "Invalid selector \(config.selector)")
         }
 
         guard let weightedViews = strategy.findMatches(for: selector) else {
-            throw TraitError(description: "Could not read application layout information")
+            throw AppcuesTraitError(description: "Could not read application layout information")
         }
 
         // views contains an array of tuples, each item being the view and its integer
         // match value
 
         guard !weightedViews.isEmpty else {
-            throw TraitError(description: "No view matching selector \(config.selector)")
+            throw AppcuesTraitError(description: "No view matching selector \(config.selector)")
         }
 
         // if only a single match of anything, use it
@@ -118,7 +118,7 @@ internal class AppcuesTargetElementTrait: BackdropDecoratingTrait {
 
         guard maxWeightViews.count == 1 else {
             // this selector was not able to find a distinct match in this view
-            throw TraitError(description: "multiple non-distinct views (\(weightedViews.count)) matched selector \(config.selector)")
+            throw AppcuesTraitError(description: "multiple non-distinct views (\(weightedViews.count)) matched selector \(config.selector)")
         }
 
         // if this has produced a single most distinct result, use it

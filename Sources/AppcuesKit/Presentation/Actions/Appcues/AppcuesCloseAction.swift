@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesCloseAction: ExperienceAction {
+internal class AppcuesCloseAction: AppcuesExperienceAction {
     struct Config: Decodable {
         let markComplete: Bool
     }
@@ -19,7 +19,7 @@ internal class AppcuesCloseAction: ExperienceAction {
 
     private let markComplete: Bool
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         let config = configuration.decode(Config.self)
         markComplete = config?.markComplete ?? false
     }

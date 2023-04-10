@@ -10,7 +10,7 @@ import UIKit
 import SafariServices
 
 @available(iOS 13.0, *)
-internal class AppcuesLinkAction: ExperienceAction {
+internal class AppcuesLinkAction: AppcuesExperienceAction {
     struct Config: Decodable {
         let url: URL
         // swiftlint:disable:next discouraged_optional_boolean
@@ -24,7 +24,7 @@ internal class AppcuesLinkAction: ExperienceAction {
     let url: URL
     let openExternally: Bool
 
-    required init?(configuration: ExperiencePluginConfiguration) {
+    required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.url = config.url
         self.openExternally = config.openExternally ?? false

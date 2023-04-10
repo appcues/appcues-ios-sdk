@@ -1,5 +1,5 @@
 //
-//  TraitMetadataDelegate.swift
+//  AppcuesTraitMetadataDelegate.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2022-12-06.
@@ -10,12 +10,12 @@ import UIKit
 
 /// Methods for managing data to be shared across trait instances.
 @objc
-public class TraitMetadataDelegate: NSObject {
+public class AppcuesTraitMetadataDelegate: NSObject {
     private var metadata: [String: Any?] = [:]
     private var previousMetadata: [String: Any?] = [:]
 
-    private var nonAnimatingHandlers: [String: (TraitMetadata) -> Void] = [:]
-    private var viewAnimatingHandlers: [String: (TraitMetadata) -> Void] = [:]
+    private var nonAnimatingHandlers: [String: (AppcuesTraitMetadata) -> Void] = [:]
+    private var viewAnimatingHandlers: [String: (AppcuesTraitMetadata) -> Void] = [:]
 
     /// Sets metadata values.
     /// - Parameter newDict: Key/value pairs to update in the metadata dictionary.
@@ -39,7 +39,7 @@ public class TraitMetadataDelegate: NSObject {
     ///
     /// There are no guarantees about the order in which handlers will be called.
     public func publish() {
-        let traitMetadata = TraitMetadata(newData: metadata, previousData: previousMetadata)
+        let traitMetadata = AppcuesTraitMetadata(newData: metadata, previousData: previousMetadata)
 
         nonAnimatingHandlers.forEach { _, observer in observer(traitMetadata) }
 
@@ -55,7 +55,7 @@ public class TraitMetadataDelegate: NSObject {
     ///   - key: The key for the handler block.
     ///   - animating: Whether the observer should be called in a `UIView.animate` block.
     ///   - handler: Block to execute on publish.
-    public func registerHandler(for key: String, animating: Bool, handler: @escaping (TraitMetadata) -> Void) {
+    public func registerHandler(for key: String, animating: Bool, handler: @escaping (AppcuesTraitMetadata) -> Void) {
         removeHandler(for: key)
 
         if animating {

@@ -10,7 +10,7 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal class TraitRegistry {
-    private var traits: [String: ExperienceTrait.Type] = [:]
+    private var traits: [String: AppcuesExperienceTrait.Type] = [:]
 
     init(container: DIContainer) {
         // Register default traits
@@ -27,7 +27,7 @@ internal class TraitRegistry {
         register(trait: AppcuesBackdropKeyholeTrait.self)
     }
 
-    func register(trait: ExperienceTrait.Type) {
+    func register(trait: AppcuesExperienceTrait.Type) {
         guard traits[trait.type] == nil else {
             #if DEBUG
             if ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil {
@@ -40,9 +40,9 @@ internal class TraitRegistry {
         traits[trait.type] = trait
     }
 
-    func instances(for models: [Experience.Trait], level: ExperiencePluginConfiguration.Level) -> [ExperienceTrait] {
+    func instances(for models: [Experience.Trait], level: AppcuesExperiencePluginConfiguration.Level) -> [AppcuesExperienceTrait] {
         models.compactMap { traitModel in
-            traits[traitModel.type]?.init(configuration: ExperiencePluginConfiguration(traitModel.configDecoder, level: level))
+            traits[traitModel.type]?.init(configuration: AppcuesExperiencePluginConfiguration(traitModel.configDecoder, level: level))
         }
     }
 }
