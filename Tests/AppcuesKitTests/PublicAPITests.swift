@@ -47,7 +47,6 @@ class PublicAPITests: XCTestCase {
         appcuesInstance.group(groupID: "groupID", properties: ["test": "value"])
 
         appcuesInstance.anonymous()
-        appcuesInstance.anonymous(properties: ["test": "value"])
 
         appcuesInstance.reset()
 
