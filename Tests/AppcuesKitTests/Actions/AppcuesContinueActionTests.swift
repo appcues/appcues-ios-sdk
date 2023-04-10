@@ -21,13 +21,13 @@ class AppcuesContinueActionTests: XCTestCase {
     func testInit() throws {
         // Act
         let indexAction = AppcuesContinueAction(
-            configuration: ExperiencePluginConfiguration(AppcuesContinueAction.Config(index: 1, offset: nil, stepID: nil)))
+            configuration: AppcuesExperiencePluginConfiguration(AppcuesContinueAction.Config(index: 1, offset: nil, stepID: nil)))
         let offsetAction = AppcuesContinueAction(
-            configuration: ExperiencePluginConfiguration(AppcuesContinueAction.Config(index: nil, offset: -1, stepID: nil)))
+            configuration: AppcuesExperiencePluginConfiguration(AppcuesContinueAction.Config(index: nil, offset: -1, stepID: nil)))
         let stepIDAction = AppcuesContinueAction(
-            configuration: ExperiencePluginConfiguration(AppcuesContinueAction.Config(index: nil, offset: nil, stepID: UUID(uuidString: "8ebcb374-0eff-45a5-9d62-ffee52d8a57b"))))
+            configuration: AppcuesExperiencePluginConfiguration(AppcuesContinueAction.Config(index: nil, offset: nil, stepID: UUID(uuidString: "8ebcb374-0eff-45a5-9d62-ffee52d8a57b"))))
         let defaultAction = AppcuesContinueAction(
-            configuration: ExperiencePluginConfiguration(nil))
+            configuration: AppcuesExperiencePluginConfiguration(nil))
 
         // Assert
         XCTAssertEqual(AppcuesContinueAction.type, "@appcues/continue")
@@ -65,13 +65,13 @@ class AppcuesContinueActionTests: XCTestCase {
 
 extension AppcuesContinueAction {
     convenience init?() {
-        self.init(configuration: ExperiencePluginConfiguration(nil))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
     }
     convenience init?(index: Int? = nil, offset: Int? = nil, stepID: String? = nil) {
         var uuid: UUID?
         if let stepID = stepID {
             uuid = UUID(uuidString: stepID)
         }
-        self.init(configuration: ExperiencePluginConfiguration(AppcuesContinueAction.Config(index: index, offset: offset, stepID: uuid)))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesContinueAction.Config(index: index, offset: offset, stepID: uuid)))
     }
 }

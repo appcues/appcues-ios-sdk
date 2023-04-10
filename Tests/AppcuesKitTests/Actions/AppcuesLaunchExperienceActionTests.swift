@@ -21,7 +21,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesLaunchExperienceAction(configuration: ExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: "123")))
+        let action = AppcuesLaunchExperienceAction(configuration: AppcuesExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: "123")))
         let failedAction = AppcuesLaunchExperienceAction()
 
         // Assert
@@ -75,9 +75,9 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
 
 extension AppcuesLaunchExperienceAction {
     convenience init?() {
-        self.init(configuration: ExperiencePluginConfiguration(nil))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
     }
     convenience init?(experienceID: String) {
-        self.init(configuration: ExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: experienceID)))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: experienceID)))
     }
 }
