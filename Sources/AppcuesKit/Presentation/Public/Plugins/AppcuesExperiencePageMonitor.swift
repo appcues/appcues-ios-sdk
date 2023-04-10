@@ -26,8 +26,7 @@ public class AppcuesExperiencePageMonitor: NSObject {
     /// - Parameters:
     ///   - numberOfPages: The total number of pages
     ///   - currentPage: The initial page
-    @objc
-    public init(numberOfPages: Int, currentPage: Int) {
+    init(numberOfPages: Int, currentPage: Int) {
         self.numberOfPages = numberOfPages
         self.currentPage = currentPage
         super.init()
