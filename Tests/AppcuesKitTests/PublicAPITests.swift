@@ -73,11 +73,6 @@ class PublicAPITests: XCTestCase {
         if #available(iOS 13.0, *) {
             _ = appcuesInstance.filterAndHandle(Set())
         }
-
-        _ = Font.Design.allCases
-        _ = Font.Design.default.description
-        _ = Font.Weight.allCases
-        _ = Font.Weight.regular.description
     }
 }
 
