@@ -23,6 +23,8 @@ platform :ios do
       scheme: "Appcues",
       proj: "Appcues.xcodeproj",
       cobertura_xml: true,
+      use_bundle_exec: true,
+      circleci: ENV["CIRCLECI"],
       ignore: [
         # Presentation layer is tested with snapshot and UI tests
         "Sources/AppcuesKit/Presentation/Debugger/*",
