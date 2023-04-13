@@ -58,6 +58,7 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 extension AppcuesUpdateProfileAction {
     convenience init?() {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil))

@@ -63,6 +63,7 @@ class AppcuesContinueActionTests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 extension AppcuesContinueAction {
     convenience init?() {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil))

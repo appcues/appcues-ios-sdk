@@ -249,6 +249,7 @@ extension AppcuesLinkActionTests {
     }
 }
 
+@available(iOS 13.0, *)
 extension AppcuesLinkAction {
     convenience init?() {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil))

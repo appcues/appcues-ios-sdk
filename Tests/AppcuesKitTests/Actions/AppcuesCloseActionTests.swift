@@ -66,6 +66,7 @@ class AppcuesCloseActionTests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 extension AppcuesCloseAction {
     convenience init?() {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil))

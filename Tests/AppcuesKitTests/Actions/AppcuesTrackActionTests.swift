@@ -50,6 +50,7 @@ class AppcuesTrackActionTests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 extension AppcuesTrackAction {
     convenience init?() {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
