@@ -73,6 +73,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
 
 }
 
+@available(iOS 13.0, *)
 extension AppcuesLaunchExperienceAction {
     convenience init?() {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil))

@@ -167,6 +167,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
     }
 }
 
+@available(iOS 13.0, *)
 extension AppcuesSubmitFormAction {
     convenience init?() {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
