@@ -16,7 +16,7 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
         let selector: [String: String]
     }
 
-    static let type: String = "@appcues/target-element"
+    static let type: String = "@appcues/target-element-beta"
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
