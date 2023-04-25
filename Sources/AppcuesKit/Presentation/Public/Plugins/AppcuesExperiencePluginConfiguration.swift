@@ -28,9 +28,13 @@ public class AppcuesExperiencePluginConfiguration: NSObject {
     /// The context where the plugin was defined.
     public let level: Level
 
-    init(_ decoder: PluginDecoder, level: Level) {
+    /// The instance of the Appcues SDK where the plugin is being applied.
+    public weak var appcues: Appcues?
+
+    init(_ decoder: PluginDecoder, level: Level, appcues: Appcues?) {
         self.decoder = decoder
         self.level = level
+        self.appcues = appcues
     }
 
     /// Returns a value of the type you specify, decoded from a JSON object.

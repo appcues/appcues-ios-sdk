@@ -67,7 +67,7 @@ internal class ActionRegistry {
     /// such as actions that execute as part of the navigation to a step.
     func enqueue(actionModels: [Experience.Action], level: AppcuesExperiencePluginConfiguration.Level, completion: @escaping () -> Void) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level))
+            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, appcues: appcues))
         }
         execute(transformQueue(actionInstances), completion: completion)
     }
@@ -86,10 +86,10 @@ internal class ActionRegistry {
         viewDescription: String?
     ) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level))
+            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, appcues: appcues))
         }
 
-        // As a heuristic, take the last action that's `MetadataSettingAction`, since that's most likely
+        // As a heuristic, take the last action that's `InteractionLoggingAction`, since that's most likely
         // to be the action that we'd want to see in the event export.
         let primaryAction = actionInstances.reversed().compactMapFirst { $0 as? InteractionLoggingAction }
         let interactionAction = AppcuesStepInteractionAction(
