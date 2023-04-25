@@ -11,8 +11,11 @@ import UIKit
 @available(iOS 13.0, *)
 internal class TraitRegistry {
     private var traits: [String: AppcuesExperienceTrait.Type] = [:]
+    private weak var appcues: Appcues?
 
     init(container: DIContainer) {
+        self.appcues = container.owner
+
         // Register default traits
         register(trait: AppcuesStepTransitionAnimationTrait.self)
         register(trait: AppcuesModalTrait.self)
@@ -25,6 +28,7 @@ internal class TraitRegistry {
         register(trait: AppcuesTargetRectangleTrait.self)
         register(trait: AppcuesTargetElementTrait.self)
         register(trait: AppcuesBackdropKeyholeTrait.self)
+        register(trait: AppcuesTargetBehaviorTrait.self)
     }
 
     func register(trait: AppcuesExperienceTrait.Type) {
@@ -42,7 +46,9 @@ internal class TraitRegistry {
 
     func instances(for models: [Experience.Trait], level: AppcuesExperiencePluginConfiguration.Level) -> [AppcuesExperienceTrait] {
         models.compactMap { traitModel in
-            traits[traitModel.type]?.init(configuration: AppcuesExperiencePluginConfiguration(traitModel.configDecoder, level: level))
+            traits[traitModel.type]?.init(
+                configuration: AppcuesExperiencePluginConfiguration(traitModel.configDecoder, level: level, appcues: appcues)
+            )
         }
     }
 }
