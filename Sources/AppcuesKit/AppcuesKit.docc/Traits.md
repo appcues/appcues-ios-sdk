@@ -103,7 +103,7 @@ In practice this distinction looks like this in the experience data model:
 }
 ```
 
-Only a single instance of each trait type may be included in the `traits` array at any given level. If multiple traits with the same `id` are included in the same array, the experience is invalid, an error will be logged, and the experience will not display. The most specific instance of a trait type will take precedence over a trait of the same type specified at a higher level.
+Only a single instance of each trait type may be included in the `traits` array at any given level. If multiple traits with the same `type` are included in the same array, the experience is invalid, an error will be logged, and the experience will not display. The most specific instance of a trait type will take precedence over a trait of the same type specified at a higher level.
 
 A trait is made aware of the level at which it is being applied by the ``AppcuesExperiencePluginConfiguration/Level-swift.enum`` passed into ``AppcuesExperienceTrait/init(configuration:)``. A trait may choose to alter its behavior depending on the `level` at which it is applied.
 
