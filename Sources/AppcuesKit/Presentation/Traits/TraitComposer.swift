@@ -82,7 +82,7 @@ internal class TraitComposer: TraitComposing {
             .createContainer(for: stepControllers, with: pageMonitor)
         let wrapperController = try decomposedTraits.wrapperCreating?.createWrapper(around: containerController) ?? containerController
 
-        let backdropView = UIView()
+        let backdropView = BackdropView()
         decomposedTraits.wrapperCreating?.addBackdrop(backdropView: backdropView, to: wrapperController)
 
         let stepDecoratingTraitUpdater: (Int, Int?) throws -> Void = { newIndex, previousIndex in

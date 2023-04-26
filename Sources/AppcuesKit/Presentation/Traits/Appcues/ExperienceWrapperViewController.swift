@@ -53,6 +53,11 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
          )
      }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        bodyView.touchDelegate = presentingViewController?.view
+    }
+
     @discardableResult
     func configureStyle(_ style: ExperienceComponent.Style?) -> Self {
         bodyView.contentWrapperView.backgroundColor = UIColor(dynamicColor: style?.backgroundColor)

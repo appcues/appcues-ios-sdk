@@ -13,6 +13,8 @@ internal class ExperienceWrapperView: UIView {
 
     var preferredContentSize: CGSize?
 
+    weak var touchDelegate: UIView? = nil
+
     let contentWrapperView: UIView = {
         // contentWrapperView can take a tooltip shape mask, so ignore hits outside that shape when it's set.
         let view = HitTestingOverrideUIView(overrideApproach: .applyMask)
@@ -70,5 +72,24 @@ internal class ExperienceWrapperView: UIView {
         contentWrapperView.layer.borderColor = color.cgColor
         contentWrapperView.layer.borderWidth = width
         contentWrapperView.layoutMargins = UIEdgeInsets(top: width, left: width, bottom: width, right: width)
+    }
+
+    // if a touch is on this container view, allow it to flow through to parent controller,
+    // to be delegated back to underlying application controller that is presenting the experience
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        guard let touchDelegate = touchDelegate else {
+            return super.hitTest(point, with: event)
+        }
+
+        guard let view = super.hitTest(point, with: event) else {
+            return nil
+        }
+
+        guard view === self else {
+            return view
+        }
+
+        let point = touchDelegate.convert(point, from: self)
+        return touchDelegate.hitTest(point, with: event)
     }
 }

@@ -61,6 +61,11 @@ internal class AppcuesTargetBehaviorTrait: AppcuesBackdropDecoratingTrait {
         targetView.removeFromSuperview()
 
         metadataDelegate?.removeHandler(for: Self.type)
+
+        // remove conditional touch pass through
+        if let backdropView = backdropView as? BackdropView {
+            backdropView.touchPassThrough = nil
+        }
     }
 
     private func handle(backdropView: UIView, metadata: AppcuesTraitMetadata) {
@@ -76,6 +81,11 @@ internal class AppcuesTargetBehaviorTrait: AppcuesBackdropDecoratingTrait {
         }
 
         targetView.frame = newTarget
+
+        // could conditionally allow touches to pass through the given rect here
+        if let backdropView = backdropView as? BackdropView {
+            backdropView.touchPassThrough = newTarget
+        }
     }
 
     @objc
