@@ -20,8 +20,8 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesUpdateProfileAction(properties: ["profile_attribute": "value"])
-        let failedAction = AppcuesUpdateProfileAction(configuration: AppcuesExperiencePluginConfiguration(nil))
+        let action = AppcuesUpdateProfileAction(appcues: appcues, properties: ["profile_attribute": "value"])
+        let failedAction = AppcuesUpdateProfileAction(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
 
         // Assert
         XCTAssertEqual(AppcuesUpdateProfileAction.type, "@appcues/update-profile")
@@ -43,14 +43,17 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
 
             identifyCount += 1
         }
-        let action = AppcuesUpdateProfileAction(properties: [
-            "profile_attribute": "value",
-            "int_value": 5,
-            "bool_value": false
-        ])
+        let action = AppcuesUpdateProfileAction(
+            appcues: appcues,
+            properties: [
+                "profile_attribute": "value",
+                "int_value": 5,
+                "bool_value": false
+            ]
+        )
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -60,10 +63,10 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
 
 @available(iOS 13.0, *)
 extension AppcuesUpdateProfileAction {
-    convenience init?() {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
+    convenience init?(appcues: Appcues) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(properties: [String: Any]) {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesUpdateProfileAction.Config(properties: properties)))
+    convenience init?(appcues: Appcues, properties: [String: Any]) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesUpdateProfileAction.Config(properties: properties), appcues: appcues))
     }
 }

@@ -287,7 +287,7 @@ class SampleAction: AppcuesExperienceAction {
         // no-op
     }
 
-    func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
+    func execute(completion: @escaping () -> Void) {
         completion()
     }
 }

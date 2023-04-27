@@ -21,8 +21,8 @@ class AppcuesLinkActionTests: XCTestCase {
 
     func testInit() throws {
         // Act)
-        let action = AppcuesLinkAction(configuration: AppcuesExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: "https://appcues.com")!, openExternally: nil)))
-        let failedAction = AppcuesLinkAction()
+        let action = AppcuesLinkAction(configuration: AppcuesExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: "https://appcues.com")!, openExternally: nil), appcues: appcues))
+        let failedAction = AppcuesLinkAction(appcues: appcues)
 
         // Assert
         XCTAssertEqual(AppcuesLinkAction.type, "@appcues/link")
@@ -41,11 +41,11 @@ class AppcuesLinkActionTests: XCTestCase {
             XCTAssertTrue(vc is SFSafariViewController)
             presentCount += 1
         }
-        let action = AppcuesLinkAction(path: "https://appcues.com", openExternally: false)
+        let action = AppcuesLinkAction(appcues: appcues, path: "https://appcues.com", openExternally: false)
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -61,11 +61,11 @@ class AppcuesLinkActionTests: XCTestCase {
             XCTAssertEqual(url.absoluteString, "https://appcues.com")
             openCount += 1
         }
-        let action = AppcuesLinkAction(path: "https://appcues.com", openExternally: true)
+        let action = AppcuesLinkAction(appcues: appcues, path: "https://appcues.com", openExternally: true)
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -81,11 +81,11 @@ class AppcuesLinkActionTests: XCTestCase {
             XCTAssertEqual(url.absoluteString, "deeplink://test")
             openCount += 1
         }
-        let action = AppcuesLinkAction(path: "deeplink://test", openExternally: false)
+        let action = AppcuesLinkAction(appcues: appcues, path: "deeplink://test", openExternally: false)
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -105,11 +105,11 @@ class AppcuesLinkActionTests: XCTestCase {
         mockURLOpener.onOpen = { url in
             XCTFail("Shouldn't be called since the URL should be handled by the universal link")
         }
-        let action = AppcuesLinkAction(path: "https://appcues.com", openExternally: true)
+        let action = AppcuesLinkAction(appcues: appcues, path: "https://appcues.com", openExternally: true)
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -129,13 +129,13 @@ class AppcuesLinkActionTests: XCTestCase {
             XCTAssertEqual(url.absoluteString, "https://appcues.com")
             openCount += 1
         }
-        let action = AppcuesLinkAction(path: "https://appcues.com", openExternally: true)
-        action?.urlOpener = mockURLOpener
         let config = Appcues.Config(accountID: "00000", applicationID: "abc").enableUniversalLinks(false)
         let appcuesDisabledUniversalLinks = MockAppcues(config: config)
+        let action = AppcuesLinkAction(appcues: appcuesDisabledUniversalLinks, path: "https://appcues.com", openExternally: true)
+        action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcuesDisabledUniversalLinks, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -163,11 +163,11 @@ class AppcuesLinkActionTests: XCTestCase {
             XCTFail("Shouldn't be called since the URL should be handled by the navigation delegate")
         }
 
-        let action = AppcuesLinkAction(path: "https://appcues.com", openExternally: true)
+        let action = AppcuesLinkAction(appcues: appcues, path: "https://appcues.com", openExternally: true)
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -195,11 +195,11 @@ class AppcuesLinkActionTests: XCTestCase {
             XCTFail("Shouldn't be called since the URL should be handled by the navigation delegate")
         }
 
-        let action = AppcuesLinkAction(path: "deeplink://test", openExternally: false)
+        let action = AppcuesLinkAction(appcues: appcues, path: "deeplink://test", openExternally: false)
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -251,10 +251,10 @@ extension AppcuesLinkActionTests {
 
 @available(iOS 13.0, *)
 extension AppcuesLinkAction {
-    convenience init?() {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
+    convenience init?(appcues: Appcues) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(path: String, openExternally: Bool? = nil) {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: path)!, openExternally: openExternally)))
+    convenience init?(appcues: Appcues, path: String, openExternally: Bool? = nil) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: path)!, openExternally: openExternally), appcues: appcues))
     }
 }
