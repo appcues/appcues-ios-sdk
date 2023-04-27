@@ -16,14 +16,20 @@ internal class AppcuesTrackAction: AppcuesExperienceAction {
 
     static let type = "@appcues/track"
 
+    private weak var appcues: Appcues?
+
     let eventName: String
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
+        self.appcues = configuration.appcues
+
         guard let config = configuration.decode(Config.self) else { return nil }
         self.eventName = config.eventName
     }
 
-    func execute(inContext appcues: Appcues, completion: ActionRegistry.Completion) {
+    func execute(completion: ActionRegistry.Completion) {
+        guard let appcues = appcues else { return completion() }
+
         appcues.track(name: eventName)
         completion()
     }

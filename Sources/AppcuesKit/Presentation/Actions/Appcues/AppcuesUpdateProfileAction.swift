@@ -16,9 +16,13 @@ internal class AppcuesUpdateProfileAction: AppcuesExperienceAction {
 
     static let type = "@appcues/update-profile"
 
+    private weak var appcues: Appcues?
+
     let properties: [String: Any]
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
+        self.appcues = configuration.appcues
+
         let config = configuration.decode(Config.self)
         if let properties = config?.properties, !properties.isEmpty {
             self.properties = properties
@@ -27,7 +31,9 @@ internal class AppcuesUpdateProfileAction: AppcuesExperienceAction {
         }
     }
 
-    func execute(inContext appcues: Appcues, completion: ActionRegistry.Completion) {
+    func execute(completion: ActionRegistry.Completion) {
+        guard let appcues = appcues else { return completion() }
+
         let userID = appcues.container.resolve(DataStoring.self).userID
         appcues.identify(userID: userID, properties: properties)
         completion()

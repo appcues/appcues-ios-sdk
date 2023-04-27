@@ -18,7 +18,7 @@ internal class AppcuesRequestReviewAction: AppcuesExperienceAction {
         // No config
     }
 
-    func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
+    func execute(completion: @escaping ActionRegistry.Completion) {
         if #available(iOS 14.0, *), let windowScene = UIApplication.shared.activeWindowScenes.first {
             SKStoreReviewController.requestReview(in: windowScene)
         } else {

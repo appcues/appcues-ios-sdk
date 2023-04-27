@@ -68,7 +68,7 @@ extension ExperienceStateMachine {
             case let (.endingExperience(experience, _, markComplete), .reset):
                 var sideEffect: SideEffect?
                 if markComplete {
-                    sideEffect = .processActions(experience.postExperienceActions)
+                    sideEffect = .processActions(experience.postExperienceActionFactory)
                 }
                 return Transition(toState: .idling, sideEffect: sideEffect)
 

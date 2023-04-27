@@ -19,23 +19,30 @@ internal class AppcuesLinkAction: AppcuesExperienceAction {
 
     static let type = "@appcues/link"
 
+    private weak var appcues: Appcues?
+
     var urlOpener: TopControllerGetting & URLOpening = UIApplication.shared
 
     let url: URL
     let openExternally: Bool
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
+        self.appcues = configuration.appcues
+
         guard let config = configuration.decode(Config.self) else { return nil }
         self.url = config.url
         self.openExternally = config.openExternally ?? false
     }
 
-    init(url: URL, openExternally: Bool = false) {
+    init(appcues: Appcues?, url: URL, openExternally: Bool = false) {
+        self.appcues = appcues
         self.url = url
         self.openExternally = openExternally
     }
 
-    func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
+    func execute(completion: @escaping ActionRegistry.Completion) {
+        guard let appcues = appcues else { return completion() }
+
         // If a delegate is provided from the host application, preference is to use it for
         // handling navigation and invoking the completion handler.
         if let delegate = appcues.navigationDelegate {

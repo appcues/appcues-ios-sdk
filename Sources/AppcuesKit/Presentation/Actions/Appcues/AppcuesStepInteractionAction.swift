@@ -14,6 +14,8 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
 
     static let type = "@appcues/step_interaction"
 
+    private weak var appcues: Appcues?
+
     let interactionType: String
     let viewDescription: String
     let category: String
@@ -24,14 +26,17 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
         return nil
     }
 
-    init(interactionType: String, viewDescription: String, category: String, destination: String) {
+    init(appcues: Appcues?, interactionType: String, viewDescription: String, category: String, destination: String) {
+        self.appcues = appcues
         self.interactionType = interactionType
         self.viewDescription = viewDescription
         self.category = category
         self.destination = destination
     }
 
-    func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
+    func execute(completion: @escaping ActionRegistry.Completion) {
+        guard let appcues = appcues else { return completion() }
+
         let analyticsPublisher = appcues.container.resolve(AnalyticsPublishing.self)
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
 

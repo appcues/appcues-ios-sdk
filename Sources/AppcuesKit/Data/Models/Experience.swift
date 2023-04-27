@@ -174,22 +174,26 @@ extension Experience: Decodable {
 }
 
 extension Experience {
+    /// Returns a function that creates the post experience actions given an ``Appcues`` instance.
     @available(iOS 13.0, *)
-    var postExperienceActions: [AppcuesExperienceAction] {
-        var actions: [AppcuesExperienceAction] = []
+    var postExperienceActionFactory: ((Appcues?) -> [AppcuesExperienceAction]) {
+        return { appcues in
+            var actions: [AppcuesExperienceAction] = []
 
-        if let redirectURL = redirectURL {
-            actions.append(AppcuesLinkAction(url: redirectURL))
+            if let redirectURL = redirectURL {
+                actions.append(AppcuesLinkAction(appcues: appcues, url: redirectURL))
+            }
+
+            if let nextContentID = nextContentID {
+                actions.append(AppcuesLaunchExperienceAction(
+                    appcues: appcues,
+                    experienceID: nextContentID,
+                    trigger: .experienceCompletionAction(fromExperienceID: self.id)
+                ))
+            }
+
+            return actions
         }
-
-        if let nextContentID = nextContentID {
-            actions.append(AppcuesLaunchExperienceAction(
-                experienceID: nextContentID,
-                trigger: .experienceCompletionAction(fromExperienceID: self.id)
-            ))
-        }
-
-        return actions
     }
 }
 

@@ -216,7 +216,7 @@ extension ExperienceStateMachine {
         case navigateInContainer(ExperiencePackage, pageIndex: Int)
         case dismissContainer(ExperiencePackage, continuation: Action)
         case error(ExperienceError, reset: Bool)
-        case processActions([AppcuesExperienceAction])
+        case processActions((Appcues?) -> [AppcuesExperienceAction])
 
         func execute(in machine: ExperienceStateMachine) throws {
             switch self {
@@ -243,8 +243,8 @@ extension ExperienceStateMachine {
                 if reset {
                     machine.state = .idling
                 }
-            case let .processActions(actions):
-                machine.actionRegistry.enqueue(actionInstances: actions)
+            case let .processActions(actionFactory):
+                machine.actionRegistry.enqueue(actionFactory: actionFactory)
             }
         }
 

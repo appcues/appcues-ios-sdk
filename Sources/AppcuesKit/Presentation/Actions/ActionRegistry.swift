@@ -49,11 +49,11 @@ internal class ActionRegistry {
     }
 
     private func processFirstAction() {
-        guard !isProcessing, let appcues = appcues else { return }
+        guard !isProcessing else { return }
 
         if let actionInstance = actionQueue.first {
             isProcessing = true
-            actionInstance.execute(inContext: appcues) {
+            actionInstance.execute {
                 DispatchQueue.main.async {
                     // On completion, remove the action, which triggers the didSet to process the remaining action handlers.
                     self.isProcessing = false
@@ -72,8 +72,14 @@ internal class ActionRegistry {
         execute(transformQueue(actionInstances), completion: completion)
     }
 
-    /// Enqueue an array of experience actions instance to be executed. This version is used for post-completion actions on an experience.
+    /// Enqueue an array of experience actions instances to be executed.
     func enqueue(actionInstances: [AppcuesExperienceAction]) {
+        actionQueue.append(contentsOf: transformQueue(actionInstances))
+    }
+
+    /// Enqueue the action instances generated from a factory function to be executed. This version is used for post-completion actions on an experience.
+    func enqueue(actionFactory: (Appcues?) -> [AppcuesExperienceAction]) {
+        let actionInstances = actionFactory(appcues)
         actionQueue.append(contentsOf: transformQueue(actionInstances))
     }
 
@@ -93,6 +99,7 @@ internal class ActionRegistry {
         // to be the action that we'd want to see in the event export.
         let primaryAction = actionInstances.reversed().compactMapFirst { $0 as? InteractionLoggingAction }
         let interactionAction = AppcuesStepInteractionAction(
+            appcues: appcues,
             interactionType: interactionType,
             viewDescription: viewDescription ?? "",
             category: primaryAction?.category ?? "",
@@ -120,13 +127,13 @@ internal class ActionRegistry {
     private func execute(_ models: [AppcuesExperienceAction], completion: (() -> Void)? = nil) {
         var models = models
 
-        guard let appcues = appcues, !models.isEmpty else {
+        guard !models.isEmpty else {
             completion?()
             return
         }
 
         let next = models.removeFirst()
-        next.execute(inContext: appcues) {
+        next.execute {
             self.execute(models, completion: completion)
         }
     }
