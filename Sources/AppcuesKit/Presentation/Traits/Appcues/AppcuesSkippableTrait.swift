@@ -21,6 +21,8 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
+    private weak var appcues: Appcues?
+
     private let buttonAppearance: ButtonAppearance
     private let ignoreBackdropTap: Bool
     private let buttonStyle: ExperienceComponent.Style?
@@ -30,6 +32,8 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
     private var gestureRecognizer: UITapGestureRecognizer?
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
+        self.appcues = configuration.appcues
+
         let config = configuration.decode(Config.self)
         self.buttonAppearance = config?.buttonAppearance ?? .default
         self.ignoreBackdropTap = config?.ignoreBackdropTap ?? false
@@ -40,7 +44,9 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
         self.containerController = containerController
 
         if buttonAppearance != .hidden {
-            self.view = containerController.addDismissButton(appearance: buttonAppearance, style: buttonStyle)
+            let closeButton = containerController.addDismissButton(appearance: buttonAppearance, style: buttonStyle)
+            closeButton.addTarget(self, action: #selector(dismissExperience), for: .touchUpInside)
+            self.view = closeButton
         }
 
         // Allow interactive dismissal
@@ -54,7 +60,7 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
 
     func decorate(backdropView: UIView) throws {
         if !ignoreBackdropTap {
-            let recognizer = gestureRecognizer ?? UITapGestureRecognizer(target: self, action: #selector(didTapBackground))
+            let recognizer = gestureRecognizer ?? UITapGestureRecognizer(target: self, action: #selector(dismissExperience))
 
             backdropView.addGestureRecognizer(recognizer)
             gestureRecognizer = recognizer
@@ -68,8 +74,11 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
     }
 
     @objc
-    private func didTapBackground() {
-        containerController?.dismiss(animated: true)
+    private func dismissExperience() {
+        guard let appcues = appcues else { return }
+
+        let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
+        experienceRenderer.dismissCurrentExperience(markComplete: false, completion: nil)
     }
 }
 
@@ -98,7 +107,6 @@ private extension UIViewController {
 
         let dismissButton = CloseButton(style: style, isMinimal: appearance == .minimal)
         dismissButton.translatesAutoresizingMaskIntoConstraints = false
-        dismissButton.addTarget(self, action: #selector(dismissButtonTapped), for: .touchUpInside)
 
         view.addSubview(dismissWrapView)
         dismissWrapView.addSubview(dismissButton)
@@ -109,11 +117,6 @@ private extension UIViewController {
         NSLayoutConstraint.activate(dismissButtonConstraints(dismissWrapView, style: style))
 
         return dismissButton
-    }
-
-    @objc
-    func dismissButtonTapped() {
-        dismiss(animated: true)
     }
 
     private func dismissButtonConstraints(_ dismissButton: UIView, style: ExperienceComponent.Style?) -> [NSLayoutConstraint] {
