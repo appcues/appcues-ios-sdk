@@ -209,7 +209,7 @@ private extension ActionRegistryTests {
             removeSubsequent = config?.removeSubsequent ?? false
         }
 
-        func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
+        func execute(completion: @escaping () -> Void) {
             if let delay = delay {
                 DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                     self.executionExpectation?.fulfill()
@@ -237,7 +237,7 @@ private extension ActionRegistryTests {
             executionExpectation2 = config?.executionExpectation2?.expectation
         }
 
-        func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
+        func execute(completion: @escaping () -> Void) {
             executionExpectation2?.fulfill()
             completion()
         }

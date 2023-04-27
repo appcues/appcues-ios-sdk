@@ -672,7 +672,7 @@ private extension ExperienceStateMachineTests {
             onExecute = config?.onExecute?.block
         }
 
-        func execute(inContext appcues: Appcues, completion: @escaping () -> Void) {
+        func execute(completion: @escaping () -> Void) {
             onExecute?()
             completion()
         }

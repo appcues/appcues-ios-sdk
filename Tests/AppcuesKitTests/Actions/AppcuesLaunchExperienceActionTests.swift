@@ -21,8 +21,8 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesLaunchExperienceAction(configuration: AppcuesExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: "123")))
-        let failedAction = AppcuesLaunchExperienceAction()
+        let action = AppcuesLaunchExperienceAction(configuration: AppcuesExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: "123"), appcues: appcues))
+        let failedAction = AppcuesLaunchExperienceAction(appcues: appcues)
 
         // Assert
         XCTAssertEqual(AppcuesLaunchExperienceAction.type, "@appcues/launch-experience")
@@ -41,10 +41,10 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
             loadCount += 1
             completion?(.success(()))
         }
-        let action = AppcuesLaunchExperienceAction(experienceID: "123")
+        let action = AppcuesLaunchExperienceAction(appcues: appcues, experienceID: "123")
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -61,10 +61,10 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
             loadCount += 1
             completion?(.failure(AppcuesError.noActiveSession))
         }
-        let action = AppcuesLaunchExperienceAction(experienceID: "123")
+        let action = AppcuesLaunchExperienceAction(appcues: appcues, experienceID: "123")
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -75,10 +75,10 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
 
 @available(iOS 13.0, *)
 extension AppcuesLaunchExperienceAction {
-    convenience init?() {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
+    convenience init?(appcues: Appcues) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(experienceID: String) {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: experienceID)))
+    convenience init?(appcues: Appcues, experienceID: String) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: experienceID), appcues: appcues))
     }
 }

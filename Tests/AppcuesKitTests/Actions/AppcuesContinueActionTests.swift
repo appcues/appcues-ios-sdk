@@ -21,13 +21,29 @@ class AppcuesContinueActionTests: XCTestCase {
     func testInit() throws {
         // Act
         let indexAction = AppcuesContinueAction(
-            configuration: AppcuesExperiencePluginConfiguration(AppcuesContinueAction.Config(index: 1, offset: nil, stepID: nil)))
+            configuration: AppcuesExperiencePluginConfiguration(
+                AppcuesContinueAction.Config(index: 1, offset: nil, stepID: nil),
+                appcues: appcues
+            )
+        )
         let offsetAction = AppcuesContinueAction(
-            configuration: AppcuesExperiencePluginConfiguration(AppcuesContinueAction.Config(index: nil, offset: -1, stepID: nil)))
+            configuration: AppcuesExperiencePluginConfiguration(
+                AppcuesContinueAction.Config(index: nil, offset: -1, stepID: nil),
+                appcues: appcues
+            )
+        )
         let stepIDAction = AppcuesContinueAction(
-            configuration: AppcuesExperiencePluginConfiguration(AppcuesContinueAction.Config(index: nil, offset: nil, stepID: UUID(uuidString: "8ebcb374-0eff-45a5-9d62-ffee52d8a57b"))))
+            configuration: AppcuesExperiencePluginConfiguration(
+                AppcuesContinueAction.Config(index: nil, offset: nil, stepID: UUID(uuidString: "8ebcb374-0eff-45a5-9d62-ffee52d8a57b")),
+                appcues: appcues
+            )
+        )
         let defaultAction = AppcuesContinueAction(
-            configuration: AppcuesExperiencePluginConfiguration(nil))
+            configuration: AppcuesExperiencePluginConfiguration(
+                nil,
+                appcues: appcues
+            )
+        )
 
         // Assert
         XCTAssertEqual(AppcuesContinueAction.type, "@appcues/continue")
@@ -52,10 +68,10 @@ class AppcuesContinueActionTests: XCTestCase {
             }
             completion?()
         }
-        let action = AppcuesContinueAction()
+        let action = AppcuesContinueAction(appcues: appcues)
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -65,14 +81,14 @@ class AppcuesContinueActionTests: XCTestCase {
 
 @available(iOS 13.0, *)
 extension AppcuesContinueAction {
-    convenience init?() {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
+    convenience init?(appcues: Appcues) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(index: Int? = nil, offset: Int? = nil, stepID: String? = nil) {
+    convenience init?(appcues: Appcues, index: Int? = nil, offset: Int? = nil, stepID: String? = nil) {
         var uuid: UUID?
         if let stepID = stepID {
             uuid = UUID(uuidString: stepID)
         }
-        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesContinueAction.Config(index: index, offset: offset, stepID: uuid)))
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesContinueAction.Config(index: index, offset: offset, stepID: uuid), appcues: appcues))
     }
 }

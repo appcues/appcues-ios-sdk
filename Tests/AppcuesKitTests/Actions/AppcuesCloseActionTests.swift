@@ -20,7 +20,7 @@ class AppcuesCloseActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesCloseAction(configuration: AppcuesExperiencePluginConfiguration(nil))
+        let action = AppcuesCloseAction(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
 
         // Assert
         XCTAssertEqual(AppcuesCloseAction.type, "@appcues/close")
@@ -36,10 +36,10 @@ class AppcuesCloseActionTests: XCTestCase {
             dismissCount += 1
             completion?(.success(()))
         }
-        let action = AppcuesCloseAction()
+        let action = AppcuesCloseAction(appcues: appcues)
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -55,10 +55,10 @@ class AppcuesCloseActionTests: XCTestCase {
             dismissCount += 1
             completion?(.success(()))
         }
-        let action = AppcuesCloseAction(markComplete: true)
+        let action = AppcuesCloseAction(appcues: appcues, markComplete: true)
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -68,10 +68,10 @@ class AppcuesCloseActionTests: XCTestCase {
 
 @available(iOS 13.0, *)
 extension AppcuesCloseAction {
-    convenience init?() {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
+    convenience init?(appcues: Appcues) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(markComplete: Bool) {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesCloseAction.Config(markComplete: markComplete)))
+    convenience init?(appcues: Appcues, markComplete: Bool) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesCloseAction.Config(markComplete: markComplete), appcues: appcues))
     }
 }

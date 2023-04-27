@@ -20,7 +20,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesSubmitFormAction(configuration: AppcuesExperiencePluginConfiguration(nil))
+        let action = AppcuesSubmitFormAction(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
 
         // Assert
         XCTAssertEqual(AppcuesSubmitFormAction.type, "@appcues/submit-form")
@@ -58,10 +58,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             updates.append(trackingUpdate)
         }
 
-        let action = AppcuesSubmitFormAction()
+        let action = AppcuesSubmitFormAction(appcues: appcues)
 
         // Act
-        action?.execute(inContext: appcues, completion: { completionCount += 1 })
+        action?.execute(completion: { completionCount += 1 })
 
         // Assert
         XCTAssertEqual(completionCount, 1)
@@ -100,10 +100,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             .initial
         }
 
-        let action0 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
-        let action = try XCTUnwrap(AppcuesSubmitFormAction())
-        let action1 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
-        let action2 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
+        let action0 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let action = try XCTUnwrap(AppcuesSubmitFormAction(appcues: appcues))
+        let action1 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let action2 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
         let initialQueue: [AppcuesExperienceAction] = [action0, action, action1, action2]
 
         // Act
@@ -123,10 +123,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             .initial
         }
 
-        let action0 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
-        let action = try XCTUnwrap(AppcuesSubmitFormAction(skipValidation: true))
-        let action1 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
-        let action2 = try XCTUnwrap(AppcuesTrackAction(eventName: "My Custom Event"))
+        let action0 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let action = try XCTUnwrap(AppcuesSubmitFormAction(appcues: appcues, skipValidation: true))
+        let action1 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let action2 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
         let initialQueue: [AppcuesExperienceAction] = [action0, action, action1, action2]
 
         // Act
@@ -154,10 +154,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             updates.append(trackingUpdate)
         }
 
-        let action = AppcuesSubmitFormAction()
+        let action = AppcuesSubmitFormAction(appcues: appcues)
 
         // Act
-        action?.execute(inContext: appcues, completion: { })
+        action?.execute(completion: { })
 
         // Assert
         [
@@ -169,10 +169,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
 @available(iOS 13.0, *)
 extension AppcuesSubmitFormAction {
-    convenience init?() {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(nil))
+    convenience init?(appcues: Appcues) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(skipValidation: Bool) {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesSubmitFormAction.Config(skipValidation: skipValidation)))
+    convenience init?(appcues: Appcues, skipValidation: Bool) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesSubmitFormAction.Config(skipValidation: skipValidation), appcues: appcues))
     }
 }
