@@ -1,5 +1,5 @@
 //
-//  AppcuesTargetBehaviorTrait.swift
+//  AppcuesTargetInteractionTrait.swift
 //  AppcuesKit
 //
 //  Created by James Ellis on 4/25/23.
@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesTargetBehaviorTrait: AppcuesBackdropDecoratingTrait {
+internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         let actions: [Experience.Action]?
     }
@@ -19,7 +19,7 @@ internal class AppcuesTargetBehaviorTrait: AppcuesBackdropDecoratingTrait {
         case longPress
     }
 
-    static let type: String = "@appcues/target-behavior"
+    static let type: String = "@appcues/target-interaction"
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
@@ -87,8 +87,8 @@ internal class AppcuesTargetBehaviorTrait: AppcuesBackdropDecoratingTrait {
         actionRegistry.enqueue(
             actionModels: tapActions,
             level: .step,
-            interactionType: "Target Tapped",   // ??
-            viewDescription: "Target Rectangle" // ??
+            interactionType: "Target Tapped",
+            viewDescription: "Target Rectangle"
         )
     }
 
@@ -101,8 +101,8 @@ internal class AppcuesTargetBehaviorTrait: AppcuesBackdropDecoratingTrait {
         actionRegistry.enqueue(
             actionModels: longPressActions,
             level: .step,
-            interactionType: "Target Long Pressed", // ??
-            viewDescription: "Target Rectangle"     // ??
+            interactionType: "Target Long Pressed",
+            viewDescription: "Target Rectangle"
         )
     }
 }
