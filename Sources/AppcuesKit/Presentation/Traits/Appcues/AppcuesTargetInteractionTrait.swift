@@ -23,10 +23,10 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
+    private weak var appcues: Appcues?
+
     private let tapActions: [Experience.Action]
     private let longPressActions: [Experience.Action]
-
-    private weak var appcues: Appcues?
 
     private lazy var targetView: UIView = {
         let view = UIView()

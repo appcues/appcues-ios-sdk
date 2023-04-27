@@ -16,14 +16,20 @@ internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActio
 
     static let type = "@appcues/submit-form"
 
+    private weak var appcues: Appcues?
+
     let skipValidation: Bool
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
+        self.appcues = configuration.appcues
+
         let config = configuration.decode(Config.self)
         self.skipValidation = config?.skipValidation ?? false
     }
 
-    func execute(inContext appcues: Appcues, completion: ActionRegistry.Completion) {
+    func execute(completion: ActionRegistry.Completion) {
+        guard let appcues = appcues else { return completion() }
+
         defer {
             completion()
         }

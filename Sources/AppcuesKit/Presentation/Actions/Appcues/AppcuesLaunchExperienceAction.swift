@@ -16,16 +16,21 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
 
     static let type = "@appcues/launch-experience"
 
+    private weak var appcues: Appcues?
+
     let experienceID: String
     private let trigger: ExperienceTrigger?
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
+        self.appcues = configuration.appcues
+
         guard let config = configuration.decode(Config.self) else { return nil }
         self.experienceID = config.experienceID
         self.trigger = nil
     }
 
-    init(experienceID: String, trigger: ExperienceTrigger) {
+    init(appcues: Appcues?, experienceID: String, trigger: ExperienceTrigger) {
+        self.appcues = appcues
         self.experienceID = experienceID
 
         // This is used when a flow is triggered as a post flow action from another flow.
@@ -33,7 +38,11 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
         self.trigger = trigger
     }
 
-    func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
+    func execute(completion: @escaping ActionRegistry.Completion) {
+        guard let appcues = appcues else {
+            return completion()
+        }
+
         let experienceLoading = appcues.container.resolve(ExperienceLoading.self)
 
         // If no trigger value is passed in, we know it was not triggered by a post-flow action

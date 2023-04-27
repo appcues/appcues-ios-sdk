@@ -18,9 +18,13 @@ internal class AppcuesContinueAction: AppcuesExperienceAction {
 
     static let type = "@appcues/continue"
 
+    private weak var appcues: Appcues?
+
     let stepReference: StepReference
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
+        appcues = configuration.appcues
+
         let config = configuration.decode(Config.self)
         if let index = config?.index {
             stepReference = .index(index)
@@ -34,7 +38,9 @@ internal class AppcuesContinueAction: AppcuesExperienceAction {
         }
     }
 
-    func execute(inContext appcues: Appcues, completion: @escaping ActionRegistry.Completion) {
+    func execute(completion: @escaping ActionRegistry.Completion) {
+        guard let appcues = appcues else { return completion() }
+
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
         experienceRenderer.show(stepInCurrentExperience: stepReference, completion: completion)
     }
