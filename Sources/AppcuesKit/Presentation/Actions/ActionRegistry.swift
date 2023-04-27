@@ -72,11 +72,6 @@ internal class ActionRegistry {
         execute(transformQueue(actionInstances), completion: completion)
     }
 
-    /// Enqueue an array of experience actions instances to be executed.
-    func enqueue(actionInstances: [AppcuesExperienceAction]) {
-        actionQueue.append(contentsOf: transformQueue(actionInstances))
-    }
-
     /// Enqueue the action instances generated from a factory function to be executed. This version is used for post-completion actions on an experience.
     func enqueue(actionFactory: (Appcues?) -> [AppcuesExperienceAction]) {
         let actionInstances = actionFactory(appcues)
@@ -109,7 +104,7 @@ internal class ActionRegistry {
         // Directly enqueue the interactionAction separately from the others so that it can't be modified by the queue transformation.
         actionQueue.append(interactionAction)
 
-        enqueue(actionInstances: actionInstances)
+        actionQueue.append(contentsOf: transformQueue(actionInstances))
     }
 
     // Queue transforms are applied in the order of the original queue,
