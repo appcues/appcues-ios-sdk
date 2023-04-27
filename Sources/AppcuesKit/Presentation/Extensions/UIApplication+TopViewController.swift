@@ -40,6 +40,7 @@ extension UIApplication: TopControllerGetting {
     func topViewController() -> UIViewController? {
         var window: UIWindow? = activeKeyWindow
 
+        // swiftlint:disable:next force_unwrapping
         if window == nil || window!.isAppcuesWindow {
             window = UIApplication.shared.windows.first { !$0.isAppcuesWindow }
         }
