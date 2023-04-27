@@ -28,7 +28,7 @@ internal class TraitRegistry {
         register(trait: AppcuesTargetRectangleTrait.self)
         register(trait: AppcuesTargetElementTrait.self)
         register(trait: AppcuesBackdropKeyholeTrait.self)
-        register(trait: AppcuesTargetBehaviorTrait.self)
+        register(trait: AppcuesTargetInteractionTrait.self)
     }
 
     func register(trait: AppcuesExperienceTrait.Type) {
