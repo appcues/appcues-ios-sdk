@@ -29,7 +29,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     private let longPressActions: [Experience.Action]
 
     private lazy var targetView: UIView = {
-        let view = UIView()
+        let view = HitTestingOverrideUIView(overrideApproach: .applyMask)
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapTarget)))
         view.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(didLongPressTarget)))
         return view
@@ -64,8 +64,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     }
 
     private func handle(backdropView: UIView, metadata: AppcuesTraitMetadata) {
-        guard let newTarget: CGRect = metadata["targetRectangle"] else {
-            targetView.frame = .zero
+        guard var newTarget: CGRect = metadata["targetRectangle"] else {
             targetView.removeFromSuperview()
             return
         }
@@ -73,9 +72,18 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
         if targetView.superview != backdropView {
             targetView.removeFromSuperview()
             backdropView.addSubview(targetView)
+            targetView.pin(to: backdropView)
         }
 
-        targetView.frame = newTarget
+        // apply any additional spread to the target that may be specified by a keyhole
+        newTarget = newTarget.spread(by: metadata["keyholeSpread"])
+
+        // If we have a keyhole defined on the target, prefer to use this for the tap target
+        // as it may be larger or a different shape (circle). We use a HitTestingOverrideUIView
+        // for this target, so setting the mask to match the keyhole will cause it to
+        // only capture taps inside of that mask area. If no keyhole set, it will default
+        // to the target rectangle space only.
+        targetView.layer.mask = getKeyholeShapeMask(backdropView: backdropView, targetRectangle: newTarget, metadata: metadata)
     }
 
     @objc
@@ -104,5 +112,20 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
             interactionType: "Target Long Pressed",
             viewDescription: "Target Rectangle"
         )
+    }
+
+    // simplified version of how AppcuesBackdropKeyholeTrait gets the mask layer for a keyhole
+    // in this case, we just want a CAShapeLayer for hit testing, and are not concerned with animations
+    // or gradients for the circle blur - just the bounds of the keyhole
+    private func getKeyholeShapeMask(backdropView: UIView, targetRectangle: CGRect, metadata: AppcuesTraitMetadata) -> CALayer? {
+        guard backdropView.bounds != .zero else { return nil }
+
+        // if no keyhole, just use a rectangle that matches the target exactly, no corner radius
+        let keyholeShape: AppcuesBackdropKeyholeTrait.KeyholeShape = metadata["keyholeShape"] ?? .rectangle(cornerRadius: 0)
+        let keyholeBezierPath = keyholeShape.path(for: targetRectangle, includeBlur: true)
+
+        let shapeMaskLayer = CAShapeLayer()
+        shapeMaskLayer.path = keyholeBezierPath.cgPath
+        return shapeMaskLayer
     }
 }
