@@ -219,13 +219,13 @@ extension AppcuesBackdropKeyholeTrait {
             }
         }
 
-        func path(for rect: CGRect) -> UIBezierPath {
+        func path(for rect: CGRect, includeBlur: Bool = false) -> UIBezierPath {
             switch self {
             case .rectangle(let cornerRadius):
                 return UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
-            case .circle:
+            case .circle(let blurRadius):
                 // A circle that fully encompasses the target rectangle
-                let radius = sqrt(pow(rect.width, 2) + pow(rect.height, 2)) / 2
+                let radius = sqrt(pow(rect.width, 2) + pow(rect.height, 2)) / 2 + (includeBlur ? blurRadius : 0)
                 let rect = CGRect(
                     x: rect.midX - radius,
                     y: rect.midY - radius,
@@ -235,22 +235,5 @@ extension AppcuesBackdropKeyholeTrait {
                 return UIBezierPath(roundedRect: rect, cornerRadius: radius)
             }
         }
-    }
-}
-
-private extension CGRect {
-    var zeroed: CGRect {
-        CGRect(x: midX, y: midY, width: 0, height: 0)
-    }
-
-    func spread(by spreadRadius: CGFloat?) -> CGRect {
-        guard let radius = spreadRadius else { return self }
-        return self.insetBy(dx: -radius, dy: -radius)
-    }
-}
-
-private extension CGPoint {
-    func relative(in size: CGSize) -> CGPoint {
-        CGPoint(x: self.x / size.width, y: self.y / size.height)
     }
 }
