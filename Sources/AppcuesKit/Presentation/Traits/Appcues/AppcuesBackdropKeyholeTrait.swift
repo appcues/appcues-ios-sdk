@@ -105,9 +105,14 @@ internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
                 x: newKeyholeBezierPath.bounds.midX,
                 y: newKeyholeBezierPath.bounds.midY
             )
+            // This point is twice as far from newStartPoint as expected so that the gradient locations can be set to 0.5 instead of 1.0.
+            // A gradient with locations at 1.0 and no feathering, means the locations would be trying to form a hard stop like [0.99, 1.0]
+            // and that renders oddly where the end color isn't correct. Hard stop locations do work properly in the middle of a gradient,
+            // so doubling the size and setting the locations at 0.5 instead of 1.0 is the workaround.
             let newEndPoint = CGPoint(
-                x: newKeyholeBezierPath.bounds.maxX + newBlurRadius,
-                y: newKeyholeBezierPath.bounds.maxY + newBlurRadius
+                // width and height are the diameter of the circle and so 2x the radius.
+                x: newStartPoint.x + newKeyholeBezierPath.bounds.width + newBlurRadius * 2,
+                y: newStartPoint.y + newKeyholeBezierPath.bounds.height + newBlurRadius * 2
             )
 
             // Start the gradient at the edge of the keyhole path.
@@ -115,11 +120,7 @@ internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
             let newStartLocation: Double
             // Avoid a potential division by zero. If the start and end are the same, the gradient is irrelevant anyways.
             if newEndPoint.x != newStartPoint.x {
-                // Cap at 0.995 so we don't collide with the end location.
-                newStartLocation = min(
-                    0.995,
-                    (newEndPoint.x - newBlurRadius - newStartPoint.x) / (newEndPoint.x - newStartPoint.x)
-                )
+                newStartLocation = (newEndPoint.x - newBlurRadius - newStartPoint.x) / (newEndPoint.x - newStartPoint.x) - 0.5
             } else {
                 newStartLocation = 0
             }
@@ -128,8 +129,9 @@ internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
             gradientMaskLayer.frame = backdropView.bounds
             gradientMaskLayer.type = .radial
             gradientMaskLayer.colors = [UIColor.clear.cgColor, UIColor.white.cgColor]
+            // Limit the first location to be just less than the second location to preserve monotonicity.
             // swiftlint:disable:next legacy_objc_type
-            gradientMaskLayer.locations = [NSNumber(value: newStartLocation), 1.0]
+            gradientMaskLayer.locations = [NSNumber(value: min(newStartLocation, 0.5 - .leastNormalMagnitude)), 0.5]
             gradientMaskLayer.startPoint = newStartPoint.relative(in: backdropView.bounds.size)
             gradientMaskLayer.endPoint = newEndPoint.relative(in: backdropView.bounds.size)
 
@@ -146,22 +148,19 @@ internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
                     y: oldKeyholeBezierPath.bounds.midY
                 )
                 let oldEndPoint = CGPoint(
-                    x: oldKeyholeBezierPath.bounds.maxX + oldBlurRadius,
-                    y: oldKeyholeBezierPath.bounds.maxY + oldBlurRadius
+                    x: oldKeyholeBezierPath.bounds.midX + oldKeyholeBezierPath.bounds.width + oldBlurRadius,
+                    y: oldKeyholeBezierPath.bounds.maxY + oldKeyholeBezierPath.bounds.height + oldBlurRadius
                 )
                 let oldStartLocation: Double
                 if newEndPoint.x != newStartPoint.x {
-                    oldStartLocation = min(
-                        0.995,
-                        (oldEndPoint.x - oldBlurRadius - oldStartPoint.x) / (oldEndPoint.x - oldStartPoint.x)
-                    )
+                    oldStartLocation = (oldEndPoint.x - oldBlurRadius - oldStartPoint.x) / (oldEndPoint.x - oldStartPoint.x) - 0.5
                 } else {
                     oldStartLocation = 0
                 }
 
                 let locationsAnimation = CABasicAnimation(keyPath: "locations")
                 // swiftlint:disable:next legacy_objc_type
-                locationsAnimation.fromValue = [NSNumber(value: oldStartLocation), 1.0]
+                locationsAnimation.fromValue = [NSNumber(value: min(oldStartLocation, 0.5 - .leastNormalMagnitude)), 0.5]
                 locationsAnimation.toValue = gradientMaskLayer.locations
 
                 let startPointAnimation = CABasicAnimation(keyPath: "startPoint")
