@@ -77,14 +77,26 @@ class AppcuesContinueActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(showStepCount, 1)
     }
+
+    func testExecuteCompletesWithoutAppcuesInstance() throws {
+        // Arrange
+        var completionCount = 0
+        let action = try XCTUnwrap(AppcuesContinueAction(appcues: nil))
+
+        // Act
+        action.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+    }
 }
 
 @available(iOS 13.0, *)
 extension AppcuesContinueAction {
-    convenience init?(appcues: Appcues) {
+    convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(appcues: Appcues, index: Int? = nil, offset: Int? = nil, stepID: String? = nil) {
+    convenience init?(appcues: Appcues?, index: Int? = nil, offset: Int? = nil, stepID: String? = nil) {
         var uuid: UUID?
         if let stepID = stepID {
             uuid = UUID(uuidString: stepID)

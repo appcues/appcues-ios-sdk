@@ -71,14 +71,25 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
         XCTAssertEqual(loadCount, 1)
     }
 
+    func testExecuteCompletesWithoutAppcuesInstance() throws {
+        // Arrange
+        var completionCount = 0
+        let action = try XCTUnwrap(AppcuesLaunchExperienceAction(appcues: nil, experienceID: "123"))
+
+        // Act
+        action.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+    }
 }
 
 @available(iOS 13.0, *)
 extension AppcuesLaunchExperienceAction {
-    convenience init?(appcues: Appcues) {
+    convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(appcues: Appcues, experienceID: String) {
+    convenience init?(appcues: Appcues?, experienceID: String) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesLaunchExperienceAction.Config(experienceID: experienceID), appcues: appcues))
     }
 }

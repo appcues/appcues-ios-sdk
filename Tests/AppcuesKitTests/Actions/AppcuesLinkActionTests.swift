@@ -32,6 +32,13 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertNil(failedAction)
     }
 
+    func testInternalInit() throws {
+        let action = AppcuesLinkAction(appcues: appcues, url: URL(string: "https://appcues.com")!, openExternally: true)
+
+        XCTAssertEqual(action.url.absoluteString, "https://appcues.com")
+        XCTAssertTrue(action.openExternally)
+    }
+
     func testExecuteWebLink() throws {
         // Arrange
         var completionCount = 0
@@ -205,6 +212,18 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
     }
+
+    func testExecuteCompletesWithoutAppcuesInstance() throws {
+        // Arrange
+        var completionCount = 0
+        let action = try XCTUnwrap(AppcuesLinkAction(appcues: nil, path: "https://appcues.com"))
+
+        // Act
+        action.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+    }
 }
 
 private class MockNavigationDelegate: AppcuesNavigationDelegate {
@@ -251,10 +270,10 @@ extension AppcuesLinkActionTests {
 
 @available(iOS 13.0, *)
 extension AppcuesLinkAction {
-    convenience init?(appcues: Appcues) {
+    convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(appcues: Appcues, path: String, openExternally: Bool? = nil) {
+    convenience init?(appcues: Appcues?, path: String, openExternally: Bool? = nil) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesLinkAction.Config(url: URL(string: path)!, openExternally: openExternally), appcues: appcues))
     }
 }
