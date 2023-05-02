@@ -116,12 +116,6 @@ case "$response" in
 		;;
 esac
 
-# get the commits since the last release, filtering ones that aren't relevant.
-changelog=$(git log --pretty=format:"- [%as] %s (%h)" $(git describe --tags --abbrev=0 @^)..@ --abbrev=7 | sed '/[🔧🎬⬆📸✅💡📝]/d')
-tempFile=$(mktemp)
-# write changelog to temp file.
-echo "$changelog" >> $tempFile
-
 # update sources/AppcuesKit/Version.swift
 # - remove last line...
 sed -i '' -e '$ d' $versionFile
@@ -134,6 +128,14 @@ sed -i '' -e "s/$version/$newVersion/g" Appcues.podspec
 # commit the version change.
 git commit -am "🍏 Update version to $newVersion"
 git push
+
+# get the commits since the last release, filtering ones that aren't relevant.
+changelog=$(git log --pretty=format:"- [%as] %s (%h)" $(git describe --tags --abbrev=0 @^)..@ --abbrev=7 | sed '/[🔧🎬⬆📸✅💡📝]/d')
+tempFile=$(mktemp)
+
+# write changelog to temp file.
+echo "$changelog" >> $tempFile
+
 # gh release will make both the tag and the release itself.
 gh release create $newVersion -F $tempFile -t $newVersion --target $branch
 
