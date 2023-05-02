@@ -47,7 +47,7 @@ extension AppcuesUpdateProfileAction.Config: Decodable {
     // only those of supported data types and then store in the resulting properties
     // dictionary
     init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: JSONCodingKeys.self)
+        let container = try decoder.container(keyedBy: DynamicCodingKeys.self)
 
         var dict: [String: Any] = [:]
 
