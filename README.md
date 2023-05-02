@@ -2,7 +2,7 @@
 
 # Appcues iOS SDK
 
-[![CircleCI](https://circleci.com/gh/appcues/appcues-ios-sdk/tree/main.svg?style=shield&circle-token=16de1b3a77b1e448557552caa17a5c33ec38b679)](https://circleci.com/gh/appcues/appcues-ios-sdk/tree/main)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/appcues/appcues-ios-sdk/tree/main.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/appcues/appcues-ios-sdk/tree/main)
 [![Cocoapods](https://img.shields.io/cocoapods/v/Appcues)](https://cocoapods.org/pods/Appcues)
 [![](https://img.shields.io/badge/-documentation-informational)](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/appcues/appcues-ios-sdk/blob/main/LICENSE)
