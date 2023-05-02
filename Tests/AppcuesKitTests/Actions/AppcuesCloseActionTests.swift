@@ -64,14 +64,26 @@ class AppcuesCloseActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(dismissCount, 1)
     }
+
+    func testExecuteCompletesWithoutAppcuesInstance() throws {
+        // Arrange
+        var completionCount = 0
+        let action = try XCTUnwrap(AppcuesCloseAction(appcues: nil))
+
+        // Act
+        action.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+    }
 }
 
 @available(iOS 13.0, *)
 extension AppcuesCloseAction {
-    convenience init?(appcues: Appcues) {
+    convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(appcues: Appcues, markComplete: Bool) {
+    convenience init?(appcues: Appcues?, markComplete: Bool) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesCloseAction.Config(markComplete: markComplete), appcues: appcues))
     }
 }

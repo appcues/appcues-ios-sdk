@@ -30,6 +30,33 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
         XCTAssertNil(failedAction)
     }
 
+    func testInitFromJSON() throws {
+        let modelData = """
+        {
+            "on": "tap",
+            "type": "@appcues/update-profile",
+            "config": {
+                "attribute1": "Hello!",
+                "attribute2": 0,
+                "attribute3": false,
+                "attribute4": 3.14
+            }
+        }
+        """.data(using: .utf8)!
+
+        let action = try XCTUnwrap(JSONDecoder().decode(Experience.Action.self, from: modelData))
+        let instance = try XCTUnwrap(AppcuesUpdateProfileAction(
+            configuration: AppcuesExperiencePluginConfiguration(action.configDecoder, level: .step, appcues: appcues)
+        ))
+
+        XCTAssertEqual(instance.properties.count, 4)
+        XCTAssertEqual(instance.properties["attribute1"] as? String, "Hello!")
+        XCTAssertEqual(instance.properties["attribute2"] as? Int, 0)
+        XCTAssertEqual(instance.properties["attribute3"] as? Bool, false)
+        XCTAssertEqual(instance.properties["attribute4"] as? Double, 3.14)
+
+    }
+
     func testExecute() throws {
         // Arrange
         var completionCount = 0
@@ -59,14 +86,26 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(identifyCount, 1)
     }
+
+    func testExecuteCompletesWithoutAppcuesInstance() throws {
+        // Arrange
+        var completionCount = 0
+        let action = try XCTUnwrap(AppcuesUpdateProfileAction(appcues: nil, properties: ["profile_attribute": "value"]))
+
+        // Act
+        action.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+    }
 }
 
 @available(iOS 13.0, *)
 extension AppcuesUpdateProfileAction {
-    convenience init?(appcues: Appcues) {
+    convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(appcues: Appcues, properties: [String: Any]) {
+    convenience init?(appcues: Appcues?, properties: [String: Any]) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesUpdateProfileAction.Config(properties: properties), appcues: appcues))
     }
 }

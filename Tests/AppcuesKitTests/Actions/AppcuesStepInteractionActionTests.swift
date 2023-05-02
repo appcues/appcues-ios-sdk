@@ -1,5 +1,5 @@
 //
-//  StepInteractionActionTests.swift
+//  AppcuesStepInteractionActionTests.swift
 //  AppcuesKitTests
 //
 //  Created by Matt on 2022-10-06.
@@ -10,7 +10,7 @@ import XCTest
 @testable import AppcuesKit
 
 @available(iOS 13.0, *)
-class StepInteractionActionTests: XCTestCase {
+class AppcuesStepInteractionActionTests: XCTestCase {
 
     var appcues: MockAppcues!
     var actionRegistry: ActionRegistry!
@@ -20,9 +20,25 @@ class StepInteractionActionTests: XCTestCase {
         actionRegistry = ActionRegistry(container: appcues.container)
     }
 
+    func testInit() throws {
+        // Act
+        let failedAction = AppcuesStepInteractionAction(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
+
+        // Assert
+        XCTAssertNil(failedAction)
+    }
+
     func testNextStep() throws {
         // Arrange
         var mostRecentUpdate: TrackingUpdate?
+
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
+            ExperienceData.mock
+        }
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
+            .initial
+        }
+
         appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
 
         // Act
@@ -50,7 +66,15 @@ class StepInteractionActionTests: XCTestCase {
                 "category": "internal",
                 "destination": "+1",
                 "text": "My Button"
-            ]
+            ],
+            // Event properties
+            "experienceId": Experience.mock.id.appcuesFormatted,
+            "experienceName": Experience.mock.name,
+            "experienceType": Experience.mock.type,
+            "stepId": Experience.mock.steps[0].items[0].id.appcuesFormatted,
+            "stepType": Experience.mock.steps[0].items[0].type,
+            "stepIndex": "0,0",
+            "version": try XCTUnwrap(Experience.mock.publishedAt)
         ].verifyPropertiesMatch(lastUpdate.properties)
     }
 
@@ -214,5 +238,17 @@ class StepInteractionActionTests: XCTestCase {
                 "text": "My Button"
             ]
         ].verifyPropertiesMatch(lastUpdate.properties)
+    }
+
+    func testExecuteCompletesWithoutAppcuesInstance() throws {
+        // Arrange
+        var completionCount = 0
+        let action = try XCTUnwrap(AppcuesStepInteractionAction(appcues: nil, interactionType: "String", viewDescription: "String", category: "String", destination: "String"))
+
+        // Act
+        action.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
     }
 }

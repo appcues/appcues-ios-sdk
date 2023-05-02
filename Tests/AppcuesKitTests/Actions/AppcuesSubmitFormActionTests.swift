@@ -91,6 +91,90 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         ].verifyPropertiesMatch(updates[1].properties)
     }
 
+    func testExecuteEarlyReturn() throws {
+        // Arrange
+        var completionCount = 0
+        var updates: [TrackingUpdate] = []
+
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
+            ExperienceData.mockWithForm(defaultValue: nil)
+        }
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
+            // Invalid step index causes failure and early return
+            Experience.StepIndex(group: 2, item: 2)
+        }
+
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            XCTFail("unexpected analytics event")
+        }
+
+        let action = AppcuesSubmitFormAction(appcues: appcues)
+
+        // Act
+        action?.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(updates.count, 0)
+    }
+
+    func testExecuteCompletesWithoutAppcuesInstance() throws {
+        // Arrange
+        var completionCount = 0
+        let action = try XCTUnwrap(AppcuesSubmitFormAction(appcues: nil))
+
+        // Act
+        action.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+    }
+
+    func testTransformQueueEarlyReturn() throws {
+        // Arrange
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
+            ExperienceData.mockWithForm(defaultValue: nil)
+        }
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
+            // Invalid step index causes failure and early return
+            Experience.StepIndex(group: 2, item: 2)
+        }
+
+        let action0 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let action = try XCTUnwrap(AppcuesSubmitFormAction(appcues: appcues))
+        let action1 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let action2 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let initialQueue: [AppcuesExperienceAction] = [action0, action, action1, action2]
+
+        // Act
+        let updatedQueue = action.transformQueue(initialQueue, index: 1, inContext: appcues)
+
+        // Assert
+        XCTAssertEqual(updatedQueue.count, 4, "no change to queue")
+    }
+
+    func testTransformQueueValidForm() throws {
+        // Arrange
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
+            ExperienceData.mockWithForm(defaultValue: "123")
+        }
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
+            .initial
+        }
+
+        let action0 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let action = try XCTUnwrap(AppcuesSubmitFormAction(appcues: appcues))
+        let action1 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let action2 = try XCTUnwrap(AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event"))
+        let initialQueue: [AppcuesExperienceAction] = [action0, action, action1, action2]
+
+        // Act
+        let updatedQueue = action.transformQueue(initialQueue, index: 1, inContext: appcues)
+
+        // Assert
+        XCTAssertEqual(updatedQueue.count, 4, "no change to queue")
+    }
+
     func testTransformQueueInvalidForm() throws {
         // Arrange
         appcues.experienceRenderer.onGetCurrentExperienceData = {
@@ -169,10 +253,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
 @available(iOS 13.0, *)
 extension AppcuesSubmitFormAction {
-    convenience init?(appcues: Appcues) {
+    convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(appcues: Appcues, skipValidation: Bool) {
+    convenience init?(appcues: Appcues?, skipValidation: Bool) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesSubmitFormAction.Config(skipValidation: skipValidation), appcues: appcues))
     }
 }

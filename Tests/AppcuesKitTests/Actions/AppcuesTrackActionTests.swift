@@ -48,14 +48,26 @@ class AppcuesTrackActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(trackCount, 1)
     }
+
+    func testExecuteCompletesWithoutAppcuesInstance() throws {
+        // Arrange
+        var completionCount = 0
+        let action = try XCTUnwrap(AppcuesTrackAction(appcues: nil, eventName: "My Custom Event"))
+
+        // Act
+        action.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+    }
 }
 
 @available(iOS 13.0, *)
 extension AppcuesTrackAction {
-    convenience init?(appcues: Appcues) {
+    convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(appcues: Appcues, eventName: String) {
+    convenience init?(appcues: Appcues?, eventName: String) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesTrackAction.Config(eventName: eventName), appcues: appcues))
     }
 }
