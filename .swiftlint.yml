@@ -106,6 +106,7 @@ analyzer_rules:
 excluded:
   - Pods
   - Sources/AppcuesKit/Version.swift
+  - Sources/AppcuesKit/AppcuesKit.docc
 
 # listing the SL default values 
 cyclomatic_complexity:
