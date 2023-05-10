@@ -1,0 +1,17 @@
+@Tutorials(name: "AppcuesKit") {
+    @Intro(title: "Using AppcuesKit") {
+        Integrate Appcues experiences into your native iOS and iPadOS apps.
+        
+        @Image(source: banner.png, alt: "AppcuesKit")
+    }
+    
+    @Chapter(name: "Permission Primers") {
+        A permission primer is a contextual modal that provides additional context about why your app will request permission to use a protected device capability like the camera or microphone.
+
+        Appcues iOS SDK provides the ability to create custom targeted permission primers for the protected capabilities that your app utilizes. 
+                
+        @Image(source: PermissionPrimers, alt: "Permission Primers")
+        
+        @TutorialReference(tutorial: "doc:PermissionPrimers")
+    }
+}

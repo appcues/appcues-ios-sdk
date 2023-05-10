@@ -1,0 +1,116 @@
+@Tutorial(time: 30) {
+    @Intro(title: "Creating a Camera Permission Primers") {
+        This tutorial creates a permission primer for camera usage, but the same process can be used for other protected resources.
+    }
+    
+    @Section(title: "In-app configuration") {
+        @ContentAndMedia {
+            Configure your app to report the permission status as an Appcues profile attribute and configure the Appcues iOS SDK to be able to trigger the permission prompt.
+        }
+        
+        @Steps {
+            @Step {
+                Add a `NSCameraUsageDescription` to your Info.plist.
+                
+                To use protected device resources, a usage description for the resource must be provided, and the permission request must be triggered. If no usage description is provided in your apps Info.plist file, your app will be rejected during App Store review.
+                
+                @Code(name: "Info.plist", file: PermissionPrimers-01-01.plist, previousFile: PermissionPrimers-01-01-0.plist)
+            }
+            
+            @Step {
+                Create an extension on `AVAuthorizationStatus` to get a standardized, human-readable string for each possible status.
+                
+                This status value will be used for the Appcues user profile property.
+                
+                @Code(name: "AVAuthorizationStatus+Description.swift", file: PermissionPrimers-01-02.swift)
+            }
+            
+            @Step {
+                Update your existing `Appcues.identify()` call to set a user property with the current camera permission status.
+                
+                Having an up-to-date profile property allows for targeting an Appcues flow to the latest property value.
+                
+                @Code(name: "MyAppAuth.swift", file: PermissionPrimers-01-03.swift, previousFile: PermissionPrimers-01-03-0.swift)
+            }
+            
+            @Step {
+                Configure the ``AppcuesKit/Appcues/analyticsDelegate`` of your Appcues instance.
+                
+                The analytics delegate is notified of every event handled within the Appcues iOS SDK, and allows us to detect the event that will trigger the system permission prompt.
+                                
+                @Code(name: "AppDelegate.swift", file: PermissionPrimers-01-04.swift, previousFile: PermissionPrimers-01-04-0.swift)
+            }
+            
+            @Step {
+                Filter for an event with value `request-permission-camera` and call `AVCaptureDevice.requestAccess`.
+                
+                A flow can trigger an event with this name to execute the system permission prompt.
+                                
+                @Code(name: "AppDelegate.swift", file: PermissionPrimers-01-05.swift, previousFile: PermissionPrimers-01-04.swift)
+            }
+            
+            @Step {
+                Update the completion callback to save the new state.
+                
+                                
+                @Code(name: "AppDelegate.swift", file: PermissionPrimers-01-06.swift, previousFile: PermissionPrimers-01-05.swift)
+            }
+
+        }
+    }
+        
+    @Section(title: "Create the flow in Appcues Mobile Builder") {
+        @ContentAndMedia {
+            Configure your app to report the permission status as an Appcues profile attribute and configure the Appcues iOS SDK to be able to trigger the permission prompt.
+        }
+        
+        @Steps {
+            @Step {
+                Create a new flow for your permission primer.
+                
+                @Image(source: PermissionPrimers-02-01.png, alt: "Mobile Builder Create Flow dialog")
+            }
+            
+            @Step {
+                Design your flow.
+                
+                Consider reviewing the [Human Interface Guidelines for Pre-alert screens](https://developer.apple.com/design/human-interface-guidelines/accessing-private-data#Pre-alert-screens).
+                
+                @Image(source: PermissionPrimers-02-02.png, alt: "Mobile permission primer flow")
+            }
+            
+            @Step {
+                Set the Actions for your button to "Dismiss Flow", enable the Track event toggle, and use `request-permission-camera` as the event name. 
+                                
+                @Image(source: PermissionPrimers-02-03.png, alt: "Mobile builder button action settings")
+            }
+
+        }
+    }
+        
+    @Section(title: "Target the flow in Appcues Studio") {
+        @ContentAndMedia {
+            Configure your app to report the permission status as an Appcues profile attribute and configure the Appcues iOS SDK to be able to trigger the permission prompt.
+        }
+        
+        @Steps {
+            @Step {
+                Set the Audience targeting for the flow to "Specific users". Select "User property", "Permission Status Camera", "equals", "notDetermined".
+                
+                This ensures only users who haven't been prompted to grant access to the camera will be shown the flow.
+                
+                @Image(source: PermissionPrimers-03-01.png, alt: "Audience targeting settings")
+            }
+            
+            @Step {
+                Configure the Trigger and Screen targeting rules for your use case.
+            }
+            
+            @Step {
+                Publish!
+            }
+
+        }
+    }
+
+}
