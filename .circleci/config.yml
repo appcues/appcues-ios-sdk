@@ -166,6 +166,53 @@ jobs:
               ]
             }
           channel: team-mobile-bots
+  trigger-spec-test-pipeline:
+      docker: 
+        - image: cimg/base:current
+      resource_class: small
+      steps:
+        - run:
+            name: Trigger spec pipeline
+            # branch value below should be `main` once `appcues-mobile-experience-spec/feature/ci-orchestration` is merged to `main`
+            command: |
+              CREATED_PIPELINE_ID=$(curl --request POST \
+                --url https://circleci.com/api/v2/project/github/appcues/appcues-mobile-experience-spec/pipeline \
+                --header "Circle-Token: $CIRCLE_API_TOKEN" \
+                --header "content-type: application/json" \
+                --data "{ \"branch\": \"feature/ci-orchestration\", \"parameters\": { \"platform\": \"ios\", \"sdk-branch\": \"$CIRCLE_BRANCH\", \"triggering-pipeline-id\": \"<< pipeline.id >>\" }}" \
+              | jq -r '.id'
+              )
+              echo "Triggered spec pipeline $CREATED_PIPELINE_ID"
+              echo $CREATED_PIPELINE_ID > pipeline.txt
+        - persist_to_workspace:
+            root: .
+            paths: 
+              - pipeline.txt  
+  check-status-of-spec-test-pipeline:
+    docker: 
+      - image: cimg/base:current
+    resource_class: small 
+    steps:
+      - attach_workspace:
+          at: workspace
+      - run:
+          name: Check triggered workflow status
+          command: |
+            triggered_pipeline_id=$(cat workspace/pipeline.txt)
+            created_workflow_status=$(curl --request GET \
+                --url "https://circleci.com/api/v2/pipeline/${triggered_pipeline_id}/workflow" \
+                --header "Circle-Token: $CIRCLE_API_TOKEN" \
+                --header "content-type: application/json" \
+              | jq -r '.items[0].status'
+            )
+            echo $created_workflow_status
+            if [[ "$created_workflow_status" != "success" ]]; then
+              echo "Workflow not successful - ${created_workflow_status}"
+              (exit -1) 
+            fi
+            
+            echo "Created workflow successful"
+      # TODO: get codecov report and upload
 
 # -------------------------
 #        WORKFLOWS
@@ -178,7 +225,20 @@ workflows:
         - not: *is_main
         - not: << pipeline.parameters.deploy-beta >>
     jobs:
-      - validate_code:
+      # Temporarily commented out to save resources while we test the rest
+      # - validate_code:
+      #     context:
+      #       - Appcues
+      - trigger-spec-test-pipeline:
+          context:
+            - Appcues
+      - wait-for-spec-test-pipeline:
+          type: approval
+          requires: 
+            - trigger-spec-test-pipeline
+      - check-status-of-spec-test-pipeline:
+          requires:
+            - wait-for-spec-test-pipeline
           context:
             - Appcues
 
