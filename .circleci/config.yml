@@ -187,24 +187,26 @@ jobs:
         - persist_to_workspace:
             root: .
             paths: 
-              - pipeline.txt  
+              - pipeline.txt
   check-status-of-spec-test-pipeline:
     docker: 
       - image: cimg/base:current
     resource_class: small 
     steps:
+      # checkout so the source files are here for the codecov upload
+      - checkout
       - attach_workspace:
           at: workspace
       - run:
           name: Check triggered workflow status
           command: |
             triggered_pipeline_id=$(cat workspace/pipeline.txt)
-            created_workflow_status=$(curl --request GET \
+            curl --request GET \
                 --url "https://circleci.com/api/v2/pipeline/${triggered_pipeline_id}/workflow" \
                 --header "Circle-Token: $CIRCLE_API_TOKEN" \
                 --header "content-type: application/json" \
-              | jq -r '.items[0].status'
-            )
+                --output pipeline.json
+            created_workflow_status=$(jq -r '.items[0].status' pipeline.json)
             echo $created_workflow_status
             if [[ "$created_workflow_status" != "success" ]]; then
               echo "Workflow not successful - ${created_workflow_status}"
@@ -212,7 +214,25 @@ jobs:
             fi
             
             echo "Created workflow successful"
-      # TODO: get codecov report and upload
+      - run:
+          name: Get codecov report
+          command: |
+            triggered_workflow_id=$(jq -r '.items[0].id' pipeline.json)
+            created_job_number=$(curl --request GET \
+                --url "https://circleci.com/api/v2/workflow/${triggered_workflow_id}/job" \
+                --header "Circle-Token: $CIRCLE_API_TOKEN" \
+                --header "content-type: application/json" \
+              | jq -r '.items[0].job_number'
+            )
+            cobertura_artifact_url=$(curl --request GET \
+                --url "https://circleci.com/api/v2/project/github/appcues/appcues-mobile-experience-spec/${created_job_number}/artifacts" \
+                --header "Circle-Token: $CIRCLE_API_TOKEN" \
+                --header "content-type: application/json" \
+              | jq -r '.items[] | select( .path == "fastlane/test_output/cobertura.xml" ).url'
+            )
+            curl -L "$cobertura_artifact_url?circle-token=$CIRCLE_API_TOKEN" --output cobertura.xml
+      - codecov/upload:
+          file: "cobertura.xml"
 
 # -------------------------
 #        WORKFLOWS
