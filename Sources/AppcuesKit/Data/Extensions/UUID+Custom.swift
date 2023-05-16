@@ -8,7 +8,7 @@
 
 import Foundation
 
-// Allows overriding of UUID creation for determenistic testing.
+// Allows overriding of UUID creation for deterministic testing.
 extension UUID {
     static var generator: () -> UUID = UUID.init
 
