@@ -292,7 +292,7 @@ extension ExperienceData.StepState: Encodable {
 
         try formItems.forEach { id, formItem in
             var itemContainer = container.nestedContainer(keyedBy: ItemKeys.self)
-            try itemContainer.encode(id, forKey: .fieldId)
+            try itemContainer.encode(id.appcuesFormatted, forKey: .fieldId)
             try itemContainer.encode(formItem.type, forKey: .fieldType)
             try itemContainer.encode(formItem.required, forKey: .fieldRequired)
             try itemContainer.encode(formItem.getValue(), forKey: .value)
