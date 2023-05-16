@@ -77,8 +77,12 @@ internal class UIKitElementSelector: AppcuesElementSelector {
 // and identifies applicable views with a UIKitElementSelector.
 @available(iOS 13.0, *)
 internal class UIKitElementTargeting: AppcuesElementTargeting {
+    // Inject a window for testing purposes
+    var window: UIWindow?
+
     func captureLayout() -> AppcuesViewElement? {
-        return UIApplication.shared.windows.first { !$0.isAppcuesWindow }?.asViewElement()
+        let captureWindow = (window ?? UIApplication.shared.windows.first { !$0.isAppcuesWindow })
+        return captureWindow?.asViewElement()
     }
 
     func inflateSelector(from properties: [String: String]) -> AppcuesElementSelector? {
