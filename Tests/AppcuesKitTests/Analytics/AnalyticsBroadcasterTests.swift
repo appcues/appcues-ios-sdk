@@ -130,7 +130,7 @@ class AnalyticsBroadcasterTests: XCTestCase {
             "interactionData": [
                 "formResponse": [
                     [
-                        "fieldId": "85259845-9661-463D-A90A-F500AD7F7DCF",
+                        "fieldId": "85259845-9661-463d-a90a-f500ad7f7dcf",
                         "fieldType": "textInput",
                         "fieldRequired": true,
                         "value": "default value",
