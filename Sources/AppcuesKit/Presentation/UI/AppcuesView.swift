@@ -14,22 +14,8 @@ public class AppcuesView: UIView {
     private var hasTracked = false          // has tracked the embed to check for qualified content
 
     private weak var appcues: Appcues?
-    internal private(set) var embedId: String?
-    private weak var viewController: UIViewController?
-
-    // the trait that is controlling this AppcuesView
-    private var _embedTrait: Any?
-    @available(iOS 13.0, *)
-    internal var embedTrait: AppcuesEmbedTrait? {
-        get {
-            _embedTrait as? AppcuesEmbedTrait
-        }
-        set {
-            _embedTrait = newValue
-        }
-    }
-
-    internal weak var experienceController: UIViewController?
+    internal private(set) var embedID: String?
+    private weak var parentViewController: UIViewController?
 
     // when the view content is empty, we use this zero height constraint
     private lazy var emptyHeightConstraint: NSLayoutConstraint = {
@@ -85,10 +71,10 @@ public class AppcuesView: UIView {
     }
 
     // this will only get called on iOS 13+ from the Appcues class during registration
-    internal func configure(appcues: Appcues, embedId: String, viewController: UIViewController) {
+    internal func configure(appcues: Appcues, embedID: String, parentViewController: UIViewController) {
         self.appcues = appcues
-        self.embedId = embedId
-        self.viewController = viewController
+        self.embedID = embedID
+        self.parentViewController = parentViewController
         trackEmbed()
     }
     override public func didMoveToSuperview() {
@@ -98,11 +84,10 @@ public class AppcuesView: UIView {
     }
 
     internal func embed(_ experienceController: UIViewController, margins: NSDirectionalEdgeInsets, animated: Bool) {
-        guard let viewController = viewController else { return }
+        guard let viewController = parentViewController else { return }
 
         configureConstraints(isEmpty: false)
 
-        self.experienceController = experienceController
         viewController.embedChildViewController(experienceController, inSuperview: self, margins: margins)
 
         if animated {
@@ -115,9 +100,7 @@ public class AppcuesView: UIView {
         }
     }
 
-    internal func unembed(animated: Bool) {
-        guard let experienceController = experienceController else { return }
-
+    internal func unembed(_ experienceController: UIViewController, animated: Bool) {
         if animated {
             UIView.animate(
                 withDuration: 0.3,
@@ -126,23 +109,15 @@ public class AppcuesView: UIView {
                     self.isHidden = true
                 },
                 completion: { _ in
-                    self.viewController?.unembedChildViewController(experienceController)
-                    self.experienceController = nil
+                    self.parentViewController?.unembedChildViewController(experienceController)
                     self.configureConstraints(isEmpty: true)
                 }
             )
         } else {
             isHidden = true
-            viewController?.unembedChildViewController(experienceController)
-            self.experienceController = nil
+            parentViewController?.unembedChildViewController(experienceController)
             configureConstraints(isEmpty: true)
         }
-    }
-
-    @available(iOS 13.0, *)
-    internal func remove() {
-        guard let viewController = viewController else { return }
-        embedTrait?.remove(viewController: viewController, completion: nil)
     }
 
     private func trackEmbed() {
@@ -154,12 +129,12 @@ public class AppcuesView: UIView {
         guard #available(iOS 13.0, *),
               !hasTracked,
               isAttachedToView,
-              let embedId = embedId,
-              !embedId.isEmpty,
+              let embedID = embedID,
+              !embedID.isEmpty,
               let appcues = appcues else { return }
 
         // this screen call notifies the server that the embed is available for rendering content
         // re-purposing screen for this in the short term, a deeper topic for how to best handle for embeds
-        appcues.screen(title: embedId)
+        appcues.screen(title: embedID)
     }
 }

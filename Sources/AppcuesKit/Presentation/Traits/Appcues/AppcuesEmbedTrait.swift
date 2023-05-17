@@ -13,7 +13,7 @@ internal class AppcuesEmbedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
 
     struct Config: Decodable {
         let embedID: String
-        let embedStyle: ExperienceComponent.Style?
+        let style: ExperienceComponent.Style?
         // swiftlint:disable:next discouraged_optional_boolean
         let animated: Bool?
     }
@@ -22,38 +22,38 @@ internal class AppcuesEmbedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
+    private weak var appcues: Appcues?
+
     // the title of the embed container
     let embedID: String
-    private let embedStyle: ExperienceComponent.Style?
+    private let style: ExperienceComponent.Style?
     private let animated: Bool
-
-    // the appcues experience content that is embedded
-    private weak var experienceController: UIViewController?
 
     // the view embedded somewhere in the customer application
     weak var embedView: AppcuesView?
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
+        self.appcues = configuration.appcues
+
         guard let config = configuration.decode(Config.self) else { return nil }
         self.embedID = config.embedID
         self.animated = config.animated ?? false
-        self.embedStyle = config.embedStyle
+        self.style = config.style
     }
 
     func decorate(stepController: UIViewController) throws {
         // Need to cast for access to the padding property.
         guard let stepController = stepController as? ExperienceStepViewController else { return }
         stepController.padding = NSDirectionalEdgeInsets(
-            top: embedStyle?.paddingTop ?? 0,
-            leading: embedStyle?.paddingLeading ?? 0,
-            bottom: embedStyle?.paddingBottom ?? 0,
-            trailing: embedStyle?.paddingTrailing ?? 0
+            top: style?.paddingTop ?? 0,
+            leading: style?.paddingLeading ?? 0,
+            bottom: style?.paddingBottom ?? 0,
+            trailing: style?.paddingTrailing ?? 0
         )
     }
 
     func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
-        experienceController = containerController
-        applyStyle(to: containerController, embedStyle)
+        applyStyle(style, to: containerController)
         return containerController
     }
 
@@ -62,36 +62,33 @@ internal class AppcuesEmbedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
     }
 
     func present(viewController: UIViewController, completion: (() -> Void)?) throws {
+        self.embedView = appcues?.embedViews.allObjects.first { $0.embedID == embedID }
 
         guard let embedView = embedView else {
             throw AppcuesTraitError(description: "No embed view found")
         }
 
-        guard embedView.experienceController == nil else {
+        guard embedView.subviews.isEmpty else {
             throw AppcuesTraitError(description: "Embed already in use")
         }
 
-        guard let experienceController = experienceController, experienceController.parent == nil else {
-            throw AppcuesTraitError(description: "No valid experience to embed")
-        }
-
         let margins = NSDirectionalEdgeInsets(
-            top: embedStyle?.marginTop ?? 0,
-            leading: embedStyle?.marginLeading ?? 0,
-            bottom: embedStyle?.marginBottom ?? 0,
-            trailing: embedStyle?.marginTrailing ?? 0
+            top: style?.marginTop ?? 0,
+            leading: style?.marginLeading ?? 0,
+            bottom: style?.marginBottom ?? 0,
+            trailing: style?.marginTrailing ?? 0
         )
 
-        embedView.embed(experienceController, margins: margins, animated: animated)
+        embedView.embed(viewController, margins: margins, animated: animated)
         completion?()
     }
 
     func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        embedView?.unembed(animated: animated)
+        embedView?.unembed(viewController, animated: animated)
         completion?()
     }
 
-    private func applyStyle(to container: UIViewController, _ style: ExperienceComponent.Style?) {
+    private func applyStyle(_ style: ExperienceComponent.Style?, to container: UIViewController) {
         container.view.backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
         container.view.layer.cornerRadius = style?.cornerRadius ?? 0
         container.view.layer.borderColor = UIColor(dynamicColor: style?.borderColor)?.cgColor

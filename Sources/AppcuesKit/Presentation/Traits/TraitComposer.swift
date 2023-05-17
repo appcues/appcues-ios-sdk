@@ -135,14 +135,6 @@ internal class TraitComposer: TraitComposing {
             or: AppcuesTraitError(description: "Presenting capability trait required")
         )
 
-        // special case - embeds - provide the trait access to the embed container view controller
-        // and vice-versa (for dismissal)
-        if let embedPresenting = presentingTrait as? AppcuesEmbedTrait {
-            let embedView = resolveEmbedViewFor(experience: experience.model)
-            embedPresenting.embedView = embedView
-            embedView?.embedTrait = embedPresenting
-        }
-
         return ExperiencePackage(
             traitInstances: decomposedTraits.allTraitInstances,
             stepDecoratingTraitUpdater: stepDecoratingTraitUpdater,
@@ -153,16 +145,6 @@ internal class TraitComposer: TraitComposing {
             presenter: { try presentingTrait.present(viewController: wrapperController, completion: $0) },
             dismisser: { presentingTrait.remove(viewController: wrapperController, completion: $0) }
         )
-    }
-
-    private func resolveEmbedViewFor(experience: Experience) -> AppcuesView? {
-        if let embedTrait = experience.traits.first(where: { $0.type == AppcuesEmbedTrait.type }),
-           let config = embedTrait.configDecoder.decode(AppcuesEmbedTrait.Config.self),
-           let embedView = appcues?.embedViews.allObjects.first(where: { $0.embedId == config.embedID }) {
-            return embedView
-        }
-
-        return nil
     }
 }
 

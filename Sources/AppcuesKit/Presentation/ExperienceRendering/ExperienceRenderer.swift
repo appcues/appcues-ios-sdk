@@ -121,16 +121,7 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func dismissExperience(experienceID: String?, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-
-        // by default, we'll dismiss whats in the shared state machine
-        var stateMachine = sharedStateMachine
-
-        // if the given experienceID represents a non-modal experience running its own state machine, dismiss in that
-        // machine instead.
-        if let experienceID = experienceID, let experienceStateMachine = experienceStateMachines[experienceID] {
-            stateMachine = experienceStateMachine
-        }
-
+        let stateMachine = stateMachine(experienceID: experienceID)
         endExperience(in: stateMachine, markComplete: markComplete, completion: completion)
     }
 

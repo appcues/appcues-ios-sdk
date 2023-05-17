@@ -18,10 +18,10 @@ class EmbedViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        Appcues.shared.registerEmbed(embedSlot1, embedId: "slot1", on: self)
-        Appcues.shared.registerEmbed(embedSlot2, embedId: "slot2", on: self)
-        Appcues.shared.registerEmbed(embedSlot3, embedId: "slot3", on: self)
-        Appcues.shared.registerEmbed(embedSlot4, embedId: "slot4", on: self)
+        Appcues.shared.registerEmbed(embedSlot1, embedID: "slot1", on: self)
+        Appcues.shared.registerEmbed(embedSlot2, embedID: "slot2", on: self)
+        Appcues.shared.registerEmbed(embedSlot3, embedID: "slot3", on: self)
+        Appcues.shared.registerEmbed(embedSlot4, embedID: "slot4", on: self)
     }
 
     override func viewDidAppear(_ animated: Bool) {
