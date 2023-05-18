@@ -19,10 +19,8 @@ internal class TraitComposer: TraitComposing {
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
     private let notificationCenter: NotificationCenter
-    private weak var appcues: Appcues?
 
     init(container: DIContainer) {
-        appcues = container.owner
         traitRegistry = container.resolve(TraitRegistry.self)
         actionRegistry = container.resolve(ActionRegistry.self)
         notificationCenter = container.resolve(NotificationCenter.self)

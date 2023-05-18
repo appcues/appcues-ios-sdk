@@ -52,13 +52,6 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
-        guard Thread.isMainThread else {
-            DispatchQueue.main.async {
-                self.show(experience: experience, completion: completion)
-            }
-            return
-        }
-
         guard let container = container else { return }
 
         let stateMachine: ExperienceStateMachine
@@ -107,16 +100,7 @@ internal class ExperienceRenderer: ExperienceRendering {
     }
 
     func show(step stepRef: StepReference, experienceID: String?, completion: (() -> Void)?) {
-
-        // by default, we'll show the step in the experience in the shared state machine
-        var stateMachine = sharedStateMachine
-
-        // if the given experienceID represents a non-modal experience running its own state machine,
-        // use that machine instead.
-        if let experienceID = experienceID, let experienceStateMachine = experienceStateMachines[experienceID] {
-            stateMachine = experienceStateMachine
-        }
-
+        let stateMachine = stateMachine(experienceID: experienceID)
         show(step: stepRef, in: stateMachine, completion: completion)
     }
 

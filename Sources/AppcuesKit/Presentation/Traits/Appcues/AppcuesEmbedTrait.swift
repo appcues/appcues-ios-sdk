@@ -79,13 +79,11 @@ internal class AppcuesEmbedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
             trailing: style?.marginTrailing ?? 0
         )
 
-        embedView.embed(viewController, margins: margins, animated: animated)
-        completion?()
+        embedView.embed(viewController, margins: margins, animated: animated, completion: completion)
     }
 
     func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        embedView?.unembed(viewController, animated: animated)
-        completion?()
+        embedView?.unembed(viewController, animated: animated, completion: completion)
     }
 
     private func applyStyle(_ style: ExperienceComponent.Style?, to container: UIViewController) {

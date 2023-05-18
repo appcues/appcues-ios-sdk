@@ -22,7 +22,6 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     private weak var appcues: Appcues?
-
     private let experienceID: String?
 
     private let buttonAppearance: ButtonAppearance

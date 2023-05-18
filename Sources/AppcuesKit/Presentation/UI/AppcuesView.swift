@@ -83,7 +83,7 @@ public class AppcuesView: UIView {
         trackEmbed()
     }
 
-    internal func embed(_ experienceController: UIViewController, margins: NSDirectionalEdgeInsets, animated: Bool) {
+    internal func embed(_ experienceController: UIViewController, margins: NSDirectionalEdgeInsets, animated: Bool, completion: (() -> Void)?) {
         guard let viewController = parentViewController else { return }
 
         configureConstraints(isEmpty: false)
@@ -91,16 +91,23 @@ public class AppcuesView: UIView {
         viewController.embedChildViewController(experienceController, inSuperview: self, margins: margins)
 
         if animated {
-            UIView.animate(withDuration: 0.3) {
-                // possibly have a delegate for these embeds that would allow the host app to have more control over this?
-                self.isHidden = false
-            }
+            UIView.animate(
+                withDuration: 0.3,
+                animations: {
+                    // possibly have a delegate for these embeds that would allow the host app to have more control over this?
+                    self.isHidden = false
+                },
+                completion: { _ in
+                    completion?()
+                }
+            )
         } else {
             isHidden = false
+            completion?()
         }
     }
 
-    internal func unembed(_ experienceController: UIViewController, animated: Bool) {
+    internal func unembed(_ experienceController: UIViewController, animated: Bool, completion: (() -> Void)?) {
         if animated {
             UIView.animate(
                 withDuration: 0.3,
@@ -111,12 +118,14 @@ public class AppcuesView: UIView {
                 completion: { _ in
                     self.parentViewController?.unembedChildViewController(experienceController)
                     self.configureConstraints(isEmpty: true)
+                    completion?()
                 }
             )
         } else {
             isHidden = true
             parentViewController?.unembedChildViewController(experienceController)
             configureConstraints(isEmpty: true)
+            completion?()
         }
     }
 
