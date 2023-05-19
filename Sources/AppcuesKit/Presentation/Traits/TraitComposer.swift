@@ -18,11 +18,13 @@ internal class TraitComposer: TraitComposing {
 
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
+    private let customEmbedRegistry: CustomEmbedRegistry
     private let notificationCenter: NotificationCenter
 
     init(container: DIContainer) {
         traitRegistry = container.resolve(TraitRegistry.self)
         actionRegistry = container.resolve(ActionRegistry.self)
+        customEmbedRegistry = container.resolve(CustomEmbedRegistry.self)
         notificationCenter = container.resolve(NotificationCenter.self)
     }
 
@@ -86,6 +88,7 @@ internal class TraitComposer: TraitComposing {
             let viewModel = ExperienceStepViewModel(
                 step: $0.step,
                 actionRegistry: actionRegistry,
+                customEmbedRegistry: customEmbedRegistry,
                 experienceID: experience.instanceID.uuidString
             )
             let stepViewController = ExperienceStepViewController(
