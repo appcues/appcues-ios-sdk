@@ -20,9 +20,16 @@ internal class ExperienceStepViewModel: ObservableObject {
     let enableTextScaling: Bool
     private let actions: [UUID: [Experience.Action]]
     private let actionRegistry: ActionRegistry?
+    private let customEmbedRegistry: CustomEmbedRegistry?
     private let renderContext: RenderContext
 
-    init(step: Experience.Step.Child, actionRegistry: ActionRegistry, renderContext: RenderContext, config: Appcues.Config?) {
+    init(
+        step: Experience.Step.Child,
+        actionRegistry: ActionRegistry,
+        customEmbedRegistry: CustomEmbedRegistry,
+        renderContext: RenderContext,
+        config: Appcues.Config?
+    ) {
         self.step = step
         // Update the action list to be keyed by the UUID.
         self.actions = step.actions.reduce(into: [:]) { dict, item in
@@ -30,6 +37,7 @@ internal class ExperienceStepViewModel: ObservableObject {
             dict[uuidKey] = item.value
         }
         self.actionRegistry = actionRegistry
+        self.customEmbedRegistry = customEmbedRegistry
         self.renderContext = renderContext
         self.enableTextScaling = config?.enableTextScaling ?? false
     }
@@ -49,6 +57,7 @@ internal class ExperienceStepViewModel: ObservableObject {
         )
         self.actions = [:]
         self.actionRegistry = nil
+        self.customEmbedRegistry = nil
         self.renderContext = renderContext
         self.enableTextScaling = false
     }
@@ -67,6 +76,10 @@ internal class ExperienceStepViewModel: ObservableObject {
         // An unknown trigger value will get lumped into Dictionary[nil] and be ignored.
         Dictionary(grouping: actions[id] ?? []) { ActionType(rawValue: $0.trigger) }
     }
+
+    func embed(for model: ExperienceComponent.CustomEmbedModel) -> (AppcuesEmbedView.Type, AppcuesExperiencePluginConfiguration)? {
+        return customEmbedRegistry?.embed(for: model, renderContext: renderContext)
+    }
 }
 
 @available(iOS 13.0, *)
@@ -76,7 +89,7 @@ extension ExperienceComponent {
         var components: [UUID: ExperienceData.FormItem] = [:]
 
         switch self {
-        case .text, .button, .image, .spacer, .embed:
+        case .text, .button, .image, .spacer, .embed, .customEmbed:
             break
         case .stack(let model):
             model.items.forEach {
