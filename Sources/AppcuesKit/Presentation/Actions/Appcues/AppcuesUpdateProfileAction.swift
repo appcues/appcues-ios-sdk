@@ -31,6 +31,11 @@ internal class AppcuesUpdateProfileAction: AppcuesExperienceAction {
         }
     }
 
+    init(appcues: Appcues?, properties: [String: Any]) {
+        self.appcues = appcues
+        self.properties = properties
+    }
+
     func execute(completion: ActionRegistry.Completion) {
         guard let appcues = appcues else { return completion() }
 

@@ -30,6 +30,12 @@ internal class AppcuesCloseAction: AppcuesExperienceAction {
         markComplete = config?.markComplete ?? false
     }
 
+    init(appcues: Appcues?, renderContext: RenderContext, markComplete: Bool) {
+        self.appcues = appcues
+        self.renderContext = renderContext
+        self.markComplete = markComplete
+    }
+
     func execute(completion: @escaping ActionRegistry.Completion) {
         guard let appcues = appcues else { return completion() }
 

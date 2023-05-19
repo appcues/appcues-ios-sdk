@@ -16,12 +16,14 @@ internal protocol TraitComposing: AnyObject {
 @available(iOS 13.0, *)
 internal class TraitComposer: TraitComposing {
 
+    private weak var appcues: Appcues?
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
     private let config: Appcues.Config
     private let notificationCenter: NotificationCenter
 
     init(container: DIContainer) {
+        appcues = container.owner
         traitRegistry = container.resolve(TraitRegistry.self)
         actionRegistry = container.resolve(ActionRegistry.self)
         notificationCenter = container.resolve(NotificationCenter.self)
@@ -89,7 +91,8 @@ internal class TraitComposer: TraitComposing {
                 step: $0.step,
                 actionRegistry: actionRegistry,
                 renderContext: experience.renderContext,
-                config: config
+                config: config,
+                appcues: appcues
             )
             let stepViewController = ExperienceStepViewController(
                 viewModel: viewModel,

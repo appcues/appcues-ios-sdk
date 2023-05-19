@@ -21,6 +21,9 @@ public class Appcues: NSObject {
     @available(iOS 13.0, *)
     public static var elementTargeting: AppcuesElementTargeting = UIKitElementTargeting()
 
+    @available(iOS 13.0, *)
+    internal static var customComponentRegistry = CustomComponentRegistry()
+
     let container = DIContainer()
     let config: Appcues.Config
 
@@ -116,6 +119,17 @@ public class Appcues: NSObject {
     @objc
     public static func enableAutomaticPushConfig() {
         PushAutoConfig.configureAutomatically()
+    }
+
+    /// Register a view controller that can be rendered in an `Experience`.
+    /// - Parameters:
+    ///   - identifier: View name
+    ///   - type: View controller type
+    public static func registerCustomComponent(identifier: String, type: AppcuesCustomComponentViewController.Type) {
+        // NOTE: this can't be @objc because the AppcuesCustomComponentView protocol inherits from UIView
+        guard #available(iOS 13.0, *) else { return }
+
+        customComponentRegistry.registerCustomComponent(identifier: identifier, type: type)
     }
 
     /// Get the current version of the Appcues SDK.

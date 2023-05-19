@@ -30,6 +30,8 @@ extension ExperienceComponent {
             AnyView(AppcuesTextInput(model: model))
         case .optionSelect(let model):
             AnyView(AppcuesOptionSelect(model: model))
+        case .customComponent(let model):
+            AnyView(AppcuesCustomComponent(model: model))
         case .spacer(let model):
             AnyView(Spacer(minLength: CGFloat(model.spacing)))
         }

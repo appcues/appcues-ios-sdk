@@ -30,6 +30,12 @@ internal class AppcuesTrackAction: AppcuesExperienceAction {
         self.attributes = config.attributes
     }
 
+    init(appcues: Appcues?, eventName: String, attributes: [String: Any]? = nil) {
+        self.appcues = appcues
+        self.eventName = eventName
+        self.attributes = attributes
+    }
+
     func execute(completion: ActionRegistry.Completion) {
         guard let appcues = appcues else { return completion() }
 
