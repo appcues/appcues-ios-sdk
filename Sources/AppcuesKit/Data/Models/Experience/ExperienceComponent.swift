@@ -27,6 +27,7 @@ internal indirect enum ExperienceComponent {
     case embed(EmbedModel)
     case optionSelect(OptionSelectModel)
     case textInput(TextInputModel)
+    case customEmbed(CustomEmbedModel)
 
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
@@ -39,6 +40,7 @@ internal indirect enum ExperienceComponent {
         case .embed(let model): return model[keyPath: keyPath]
         case .optionSelect(let model): return model[keyPath: keyPath]
         case .textInput(let model): return model[keyPath: keyPath]
+        case .customEmbed(let model): return model[keyPath: keyPath]
         }
     }
 }
@@ -80,6 +82,8 @@ extension ExperienceComponent: Decodable {
             self = .optionSelect(try modelContainer.decode(OptionSelectModel.self))
         case "textInput":
             self = .textInput(try modelContainer.decode(TextInputModel.self))
+        case "customEmbed":
+            self = .customEmbed(try modelContainer.decode(CustomEmbedModel.self))
         default:
             let context = DecodingError.Context(codingPath: container.codingPath, debugDescription: "unknown type '\(type)'")
             throw DecodingError.valueNotFound(Self.self, context)
@@ -279,6 +283,18 @@ extension ExperienceComponent {
         var textDescription: String? { label.textDescription }
     }
 
+    struct CustomEmbedModel: ComponentModel {
+        let id: UUID
+
+        let identifier: String
+
+        let configDecoder: PluginDecoder
+
+        let style: Style?
+
+        var textDescription: String? { nil }
+    }
+
     struct SpacerModel: ComponentModel, Decodable {
         let id: UUID
         let spacing: Double?
@@ -358,5 +374,31 @@ extension ExperienceComponent.Style {
         let verticalAlignment: String?
         let horizontalAlignment: String?
         let intrinsicSize: ExperienceComponent.IntrinsicSize?
+    }
+}
+
+extension ExperienceComponent.CustomEmbedModel: Decodable {
+    private enum CodingKeys: CodingKey {
+        case id, identifier, style, config
+    }
+
+    private struct EmbedDecoder: PluginDecoder {
+        private let container: KeyedDecodingContainer<CodingKeys>
+
+        init(_ container: KeyedDecodingContainer<CodingKeys>) {
+            self.container = container
+        }
+
+        func decode<T: Decodable>(_ type: T.Type) -> T? {
+            try? container.decode(T.self, forKey: .config)
+        }
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        identifier = try container.decode(String.self, forKey: .identifier)
+        configDecoder = EmbedDecoder(container)
+        style = try container.decodeIfPresent(ExperienceComponent.Style.self, forKey: .style)
     }
 }
