@@ -21,8 +21,15 @@ internal class ExperienceStepViewModel: ObservableObject {
     private let actions: [UUID: [Experience.Action]]
     private let actionRegistry: ActionRegistry?
     private let renderContext: RenderContext
+    private weak var appcues: Appcues?
 
-    init(step: Experience.Step.Child, actionRegistry: ActionRegistry, renderContext: RenderContext, config: Appcues.Config?) {
+    init(
+        step: Experience.Step.Child,
+        actionRegistry: ActionRegistry,
+        renderContext: RenderContext,
+        config: Appcues.Config?,
+        appcues: Appcues?
+    ) {
         self.step = step
         // Update the action list to be keyed by the UUID.
         self.actions = step.actions.reduce(into: [:]) { dict, item in
@@ -31,11 +38,12 @@ internal class ExperienceStepViewModel: ObservableObject {
         }
         self.actionRegistry = actionRegistry
         self.renderContext = renderContext
+        self.appcues = appcues
         self.enableTextScaling = config?.enableTextScaling ?? false
     }
 
     // Create an empty view model for contexts that require an `ExperienceStepViewModel` but aren't in a step context.
-    init(renderContext: RenderContext) {
+    init(renderContext: RenderContext, appcues: Appcues?) {
         self.step = Experience.Step.Child(
             id: UUID(),
             type: "",
@@ -50,6 +58,7 @@ internal class ExperienceStepViewModel: ObservableObject {
         self.actions = [:]
         self.actionRegistry = nil
         self.renderContext = renderContext
+        self.appcues = appcues
         self.enableTextScaling = false
     }
 
@@ -67,6 +76,16 @@ internal class ExperienceStepViewModel: ObservableObject {
         // An unknown trigger value will get lumped into Dictionary[nil] and be ignored.
         Dictionary(grouping: actions[id] ?? []) { ActionType(rawValue: $0.trigger) }
     }
+
+    func customComponent(for model: ExperienceComponent.CustomComponentModel) -> CustomComponentData? {
+        let customComponentData = Appcues.customComponentRegistry.customComponent(
+            for: model,
+            renderContext: renderContext,
+            appcuesInstance: appcues
+        )
+        customComponentData?.actionController.actions = actions[model.id]
+        return customComponentData
+    }
 }
 
 @available(iOS 13.0, *)
@@ -76,7 +95,7 @@ extension ExperienceComponent {
         var components: [UUID: ExperienceData.FormItem] = [:]
 
         switch self {
-        case .text, .button, .image, .spacer, .embed:
+        case .text, .button, .image, .spacer, .embed, .customComponent:
             break
         case .stack(let model):
             model.items.forEach {

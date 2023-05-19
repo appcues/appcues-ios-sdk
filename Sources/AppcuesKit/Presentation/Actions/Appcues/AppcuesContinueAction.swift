@@ -40,6 +40,12 @@ internal class AppcuesContinueAction: AppcuesExperienceAction {
         }
     }
 
+    init(appcues: Appcues?, renderContext: RenderContext, stepReference: StepReference) {
+        self.appcues = appcues
+        self.renderContext = renderContext
+        self.stepReference = stepReference
+    }
+
     func execute(completion: @escaping ActionRegistry.Completion) {
         guard let appcues = appcues else { return completion() }
 

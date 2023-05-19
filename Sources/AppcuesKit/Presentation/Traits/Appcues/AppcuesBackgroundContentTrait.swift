@@ -18,6 +18,7 @@ internal class AppcuesBackgroundContentTrait: AppcuesStepDecoratingTrait, Appcue
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
+    private weak var appcues: Appcues?
     private let renderContext: RenderContext
 
     private let level: AppcuesExperiencePluginConfiguration.Level
@@ -26,6 +27,7 @@ internal class AppcuesBackgroundContentTrait: AppcuesStepDecoratingTrait, Appcue
     private weak var backgroundViewController: UIViewController?
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
+        self.appcues = configuration.appcues
         self.renderContext = configuration.renderContext
 
         guard let config = configuration.decode(Config.self) else { return nil }
@@ -46,7 +48,7 @@ internal class AppcuesBackgroundContentTrait: AppcuesStepDecoratingTrait, Appcue
     func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         guard level == .group || level == .experience else { return }
 
-        let emptyViewModel = ExperienceStepViewModel(renderContext: renderContext)
+        let emptyViewModel = ExperienceStepViewModel(renderContext: renderContext, appcues: appcues)
 
         backgroundViewController = applyBackground(with: emptyViewModel, parent: containerController)
     }
