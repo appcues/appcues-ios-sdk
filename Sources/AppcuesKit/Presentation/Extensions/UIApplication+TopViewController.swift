@@ -9,6 +9,8 @@
 import UIKit
 
 internal protocol TopControllerGetting {
+    var hasActiveWindowScenes: Bool { get }
+
     func topViewController() -> UIViewController?
 }
 internal protocol URLOpening {
@@ -23,6 +25,15 @@ extension UIApplication: TopControllerGetting {
         self.connectedScenes
             .filter { $0.activationState == .foregroundActive }
             .compactMap { $0 as? UIWindowScene }
+    }
+
+    // We expose this property because a unit test cannot init a UIWindowScene for mocking different states.
+    var hasActiveWindowScenes: Bool {
+        if #available(iOS 13.0, *) {
+            return !activeWindowScenes.isEmpty
+        } else {
+            return false
+        }
     }
 
     // Note: multitasking with two instances of the same app side by side will have both designated as `.foregroundActive`,
