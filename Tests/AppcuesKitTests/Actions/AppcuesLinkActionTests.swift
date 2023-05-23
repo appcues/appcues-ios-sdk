@@ -237,6 +237,8 @@ private class MockNavigationDelegate: AppcuesNavigationDelegate {
 @available(iOS 13.0, *)
 extension AppcuesLinkActionTests {
     class MockURLOpener: TopControllerGetting, URLOpening {
+        var hasActiveWindowScenes: Bool = true
+
         var onOpen: ((URL) -> Void)?
         var onUniversalOpen: ((URL) -> Bool)?
         var onPresent: ((UIViewController) -> Void)?
