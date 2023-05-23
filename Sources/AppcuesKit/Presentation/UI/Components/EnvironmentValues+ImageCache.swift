@@ -10,7 +10,8 @@ import SwiftUI
 
 @available(iOS 13.0, *)
 internal struct ImageCacheKey: EnvironmentKey {
-    static let defaultValue = SessionImageCache()
+    // This is mutable so a custom cache can be injected for testing.
+    static var defaultValue = SessionImageCache()
 }
 
 @available(iOS 13.0, *)

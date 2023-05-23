@@ -277,17 +277,18 @@ extension Experience.Step: Decodable {
             type: String,
             traits: [Experience.Trait],
             actions: [String: [Experience.Action]],
-            content: ExperienceComponent,
-            stickyTopContent: ExperienceComponent? = nil,
-            stickyBottomContent: ExperienceComponent? = nil
+            content: ExperienceComponent
         ) {
             self.id = id
             self.type = type
             self.traits = traits
             self.actions = actions
-            self.content = content
-            self.stickyTopContent = stickyTopContent
-            self.stickyBottomContent = stickyBottomContent
+
+            let (bodyComponent, stickyTopComponent, stickyBottomComponent) = content.divided()
+
+            self.content = bodyComponent
+            self.stickyTopContent = stickyTopComponent
+            self.stickyBottomContent = stickyBottomComponent
         }
     }
 
