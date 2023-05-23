@@ -84,7 +84,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
     }
 
     private func dispatch(action: Action) {
-        if topControllerGetting.topViewController() != nil {
+        if topControllerGetting.hasActiveWindowScenes {
             // UIScene is already active and we can handle the action immediately.
             handle(action: action)
         } else if actionsToHandle.isEmpty {
