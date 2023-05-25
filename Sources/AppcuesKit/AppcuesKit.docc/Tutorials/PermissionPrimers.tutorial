@@ -61,7 +61,7 @@
         
     @Section(title: "Create the flow in Appcues Mobile Builder") {
         @ContentAndMedia {
-            Configure your app to report the permission status as an Appcues profile attribute and configure the Appcues iOS SDK to be able to trigger the permission prompt.
+            Create a flow to trigger the permission prompt in the Appcues Mobile Builder.
         }
         
         @Steps {
@@ -90,7 +90,7 @@
         
     @Section(title: "Target the flow in Appcues Studio") {
         @ContentAndMedia {
-            Configure your app to report the permission status as an Appcues profile attribute and configure the Appcues iOS SDK to be able to trigger the permission prompt.
+            Configure a flow to target users who haven't been prompted to grant permission.
         }
         
         @Steps {
