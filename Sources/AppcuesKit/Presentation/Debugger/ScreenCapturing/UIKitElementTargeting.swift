@@ -12,6 +12,7 @@ import UIKit
 // accessibilityLabel, and tag data from the underlying UIView to identify elements.
 internal class UIKitElementSelector: AppcuesElementSelector {
     private enum CodingKeys: String, CodingKey {
+        case appcuesID
         case accessibilityIdentifier
         case accessibilityLabel
         case tag
@@ -19,13 +20,15 @@ internal class UIKitElementSelector: AppcuesElementSelector {
 
     let accessibilityIdentifier: String?
     let tag: String?
+    let appcuesID: String?
 
-    init?(accessibilityIdentifier: String?, accessibilityLabel: String?, tag: String?) {
+    init?(appcuesID: String?, accessibilityIdentifier: String?, accessibilityLabel: String?, tag: String?) {
         // must have at least one identifiable property to be a valid selector
-        if accessibilityIdentifier == nil && accessibilityLabel == nil && tag == nil {
+        if appcuesID == nil && accessibilityIdentifier == nil && accessibilityLabel == nil && tag == nil {
             return nil
         }
 
+        self.appcuesID = appcuesID
         self.accessibilityIdentifier = accessibilityIdentifier
         self.tag = tag
 
@@ -44,6 +47,10 @@ internal class UIKitElementSelector: AppcuesElementSelector {
         // weight the selector property matches by how distinct they are considered
         var weight = 0
 
+        if appcuesID != nil && appcuesID == other.appcuesID {
+            weight += 10_000
+        }
+
         if accessibilityIdentifier != nil && accessibilityIdentifier == other.accessibilityIdentifier {
             weight += 10_000
         }
@@ -61,6 +68,9 @@ internal class UIKitElementSelector: AppcuesElementSelector {
 
     override func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        if let appcuesID = appcuesID, !appcuesID.isEmpty {
+            try container.encode(appcuesID, forKey: .appcuesID)
+        }
         if let accessibilityIdentifier = accessibilityIdentifier, !accessibilityIdentifier.isEmpty {
             try container.encode(accessibilityIdentifier, forKey: .accessibilityIdentifier)
         }
@@ -87,6 +97,7 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
 
     func inflateSelector(from properties: [String: String]) -> AppcuesElementSelector? {
         return UIKitElementSelector(
+            appcuesID: properties["appcuesID"],
             accessibilityIdentifier: properties["accessibilityIdentifier"],
             accessibilityLabel: properties["accessibilityLabel"],
             tag: properties["tag"]
@@ -97,6 +108,7 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
 internal extension UIView {
     var appcuesSelector: UIKitElementSelector? {
         return UIKitElementSelector(
+            appcuesID: (self as? AppcuesTargetView)?.appcuesID,
             accessibilityIdentifier: accessibilityIdentifier,
             accessibilityLabel: accessibilityLabel,
             tag: tag != 0 ? "\(self.tag)" : nil
