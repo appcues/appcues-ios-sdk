@@ -8,12 +8,6 @@
 
 import UIKit
 
-private var screenNameDateFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "yyyy-MM-dd_HH:mm:ss"
-    return formatter
-}()
-
 private extension UIViewController {
     var viewControllerForName: UIViewController {
         if let navigationController = self as? UINavigationController,
@@ -32,16 +26,14 @@ private extension UIViewController {
 }
 
 internal extension UIView {
-    func screenCaptureDisplayName(at timestamp: Date) -> String {
-        var name = ""
-        if let window = self as? UIWindow,
-           let root = window.rootViewController {
+    func screenCaptureDisplayName() -> String {
+        let name: String
+        if let window = self as? UIWindow, let root = window.rootViewController {
             name = root.viewControllerForName.displayName
         } else {
             name = String(describing: self.classForCoder)
         }
 
-        name += " (\(screenNameDateFormatter.string(from: timestamp)))"
         return name
     }
 
