@@ -11,7 +11,6 @@ import Foundation
 internal enum ScreenCaptureError: Error {
     case customerAPINotFound
     case noImageData
-    case noImageURL
     case failedCaptureEncoding
 }
 
@@ -94,20 +93,13 @@ extension UIDebugger {
             return
         }
 
-        // make sure we have a valid URL to reference this screen
-        // otherwise don't bother with upload
-        guard let screenshotImageUrl = URL(string: upload.url) else {
-            completion(.failure(ScreenCaptureError.noImageURL))
-            return
-        }
-
         // update the screenshotImageUrl on the screen we are capturing
         // this will be returned in completion handler if the upload succeeds
         var screen = screen
-        screen.screenshotImageUrl = screenshotImageUrl
+        screen.screenshotImageUrl = upload.url
 
         networking.put(
-            to: URLEndpoint(url: URL(string: upload.upload.presignedUrl)),
+            to: URLEndpoint(url: upload.upload.presignedUrl),
             authorization: nil, // pre-signed url, no auth needed on upload
             body: imageData,
             contentType: "image/png"

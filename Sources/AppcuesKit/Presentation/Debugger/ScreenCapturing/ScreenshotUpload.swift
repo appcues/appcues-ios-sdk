@@ -13,11 +13,11 @@ internal struct ScreenshotUpload: Decodable {
 
     struct Upload: Decodable {
         // the path to PUT image data to for upload, has credentials already included
-        let presignedUrl: String
+        let presignedUrl: URL
     }
 
     let upload: Upload
 
     // the resulting path to the uploaded screenshot to be linked to the screen capture metadata
-    let url: String
+    let url: URL
 }
