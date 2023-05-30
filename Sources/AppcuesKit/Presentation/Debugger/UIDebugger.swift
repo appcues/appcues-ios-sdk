@@ -162,7 +162,7 @@ extension UIDebugger: DebugViewDelegate {
         let timestamp = Date()
         var capture = Capture(
             appId: config.applicationID,
-            displayName: window.screenCaptureDisplayName(at: timestamp),
+            displayName: window.screenCaptureDisplayName(),
             screenshotImageUrl: nil,
             layout: layout,
             metadata: Capture.Metadata(insets: Capture.Insets(window.safeAreaInsets)),

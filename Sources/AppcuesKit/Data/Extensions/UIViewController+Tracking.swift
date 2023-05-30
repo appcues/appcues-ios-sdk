@@ -34,6 +34,9 @@ extension UIViewController {
         if name != "ViewController" {
             name = name.replacingOccurrences(of: "ViewController", with: "")
         }
+        if name.starts(with: "UIHostingController<") {
+            name = "UIHostingController"
+        }
         return name
     }
 
