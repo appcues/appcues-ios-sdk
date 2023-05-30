@@ -89,7 +89,7 @@ internal enum CustomerAPIEndpoint: Endpoint {
 
 /// Endpoint where the full URL is provided, such as the pre-signed image upload endpoint
 internal struct URLEndpoint: Endpoint {
-    let url: URL?
+    let url: URL
 
     func url(config: Appcues.Config, storage: DataStoring) -> URL? {
         return url
