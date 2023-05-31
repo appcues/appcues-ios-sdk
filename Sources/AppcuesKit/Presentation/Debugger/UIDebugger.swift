@@ -47,6 +47,7 @@ internal class UIDebugger: UIDebugging {
     private let notificationCenter: NotificationCenter
     private let analyticsPublisher: AnalyticsPublishing
     private let networking: Networking
+    private let experienceRenderer: ExperienceRendering
 
     private var debugViewController: DebugViewController? {
         return debugWindow?.rootViewController as? DebugViewController
@@ -58,6 +59,7 @@ internal class UIDebugger: UIDebugging {
         self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
         self.notificationCenter = container.resolve(NotificationCenter.self)
         self.networking = container.resolve(Networking.self)
+        self.experienceRenderer = container.resolve(ExperienceRendering.self)
 
         self.viewModel = DebugViewModel(
             networking: container.resolve(Networking.self),
@@ -149,6 +151,13 @@ extension UIDebugger: DebugViewDelegate {
     }
 
     private func captureScreen(authorization: Authorization) {
+        guard experienceRenderer.getCurrentExperienceData() == nil else {
+            experienceRenderer.dismissCurrentExperience(markComplete: false) { _ in
+                self.captureScreen(authorization: authorization)
+            }
+            return
+        }
+
         guard let debugViewController = debugViewController,
               let window = UIApplication.shared.windows.first(where: { !$0.isAppcuesWindow }),
               let screenshot = window.screenshot(),
