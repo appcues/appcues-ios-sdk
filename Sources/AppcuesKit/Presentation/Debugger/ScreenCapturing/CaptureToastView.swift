@@ -83,7 +83,7 @@ internal class CaptureToastView: UIView {
         onRetry = nil
     }
 
-    func configureFailure(onRetry: @escaping () -> Void) {
+    func configureSaveFailure(onRetry: @escaping () -> Void) {
         backgroundColor = .appcuesToastFailure
         retryButton.isHidden = false
         messageLabel.attributedText = NSAttributedString(string: "Upload failed", attributes: [
@@ -91,6 +91,16 @@ internal class CaptureToastView: UIView {
             .foregroundColor: UIColor.white
         ])
         self.onRetry = onRetry
+    }
+
+    func configureCaptureFailure() {
+        backgroundColor = .appcuesToastFailure
+        retryButton.isHidden = true
+        messageLabel.attributedText = NSAttributedString(string: "Screen capture failed", attributes: [
+            .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+            .foregroundColor: UIColor.white
+        ])
+        self.onRetry = nil
     }
 
     @objc

@@ -153,9 +153,7 @@ extension UIDebugger: DebugViewDelegate {
               let window = UIApplication.shared.windows.first(where: { !$0.isAppcuesWindow }),
               let screenshot = window.screenshot(),
               let layout = Appcues.elementTargeting.captureLayout() else {
-
-            // show error?
-
+            debugViewController?.showCaptureFailure()
             return
         }
 
@@ -193,7 +191,7 @@ extension UIDebugger: DebugViewDelegate {
                 }
             case .failure:
                 DispatchQueue.main.async {
-                    debugViewController.showCaptureFailure {
+                    debugViewController.showSaveFailure {
                         // onRetry - recursively call save to try again
                         self.saveScreen(debugViewController: debugViewController, capture: capture, authorization: authorization)
                     }

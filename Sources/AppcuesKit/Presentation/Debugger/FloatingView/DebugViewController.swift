@@ -103,8 +103,13 @@ internal class DebugViewController: UIViewController {
         showToast(seconds: 3.0)
     }
 
-    func showCaptureFailure(onRetry: @escaping () -> Void) {
-        debugView.toastView.configureFailure { [weak self] in
+    func showCaptureFailure() {
+        debugView.toastView.configureCaptureFailure()
+        showToast(seconds: 3.0)
+    }
+
+    func showSaveFailure(onRetry: @escaping () -> Void) {
+        debugView.toastView.configureSaveFailure { [weak self] in
             // handling retry tap
             // hide the toast, then execute the provided retry callback
             self?.debugView.setToastView(visible: false, animated: false) {
