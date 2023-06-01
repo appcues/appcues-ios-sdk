@@ -46,7 +46,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let trait = AppcuesTargetElementTrait(appcues: appcues, selector: [:])
 
         // Assert
-        XCTAssertEqual(AppcuesTargetElementTrait.type, "@appcues/target-element-beta")
+        XCTAssertEqual(AppcuesTargetElementTrait.type, "@appcues/target-element")
         XCTAssertNil(nilConfigTrait)
         XCTAssertNotNil(trait)
     }
