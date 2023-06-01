@@ -41,7 +41,10 @@ extension UIImage {
                 let value = String(blurHash[2 ..< 6]).decode83()
                 return decodeDC(value)
             } else {
-                let value = String(blurHash[4 + i * 2 ..< 4 + i * 2 + 2]).decode83()
+                // compile time optimization
+                let startIndex = 4 + i * 2
+                let endIndex = 4 + i * 2 + 2
+                let value = String(blurHash[startIndex..<endIndex]).decode83()
                 return decodeAC(value, maximumValue: maximumValue * punch)
             }
         }
