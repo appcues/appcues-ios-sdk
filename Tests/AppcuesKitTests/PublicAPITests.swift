@@ -83,14 +83,24 @@ class PublicAPITests: XCTestCase {
 
 class SampleElementTargeting: AppcuesElementTargeting {
     func captureLayout() -> AppcuesViewElement? {
-        AppcuesViewElement(
+        let elementWithDisplayName = AppcuesViewElement(
             x: 0,
             y: 0,
             width: 100,
             height: 100,
             type: "view",
             selector: AppcuesElementSelector(),
-            children: nil)
+            children: nil,
+            displayName: "display name")
+
+        return AppcuesViewElement(
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+            type: "view",
+            selector: AppcuesElementSelector(),
+            children: [elementWithDisplayName])
     }
 
     func inflateSelector(from properties: [String : String]) -> AppcuesElementSelector? {

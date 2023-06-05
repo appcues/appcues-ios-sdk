@@ -210,6 +210,30 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertNil(contentDistanceFromTarget)
     }
 
+    func testElementDisplayName() throws {
+        let view1 = UIView()
+        view1.accessibilityIdentifier = "myAccessibilityID"
+        let view1Element = try XCTUnwrap(view1.asViewElement())
+        XCTAssertEqual(view1Element.displayName, "myAccessibilityID")
+
+        let view2 = AppcuesTargetView(identifier: "someID")
+        let view2Element = try XCTUnwrap(view2.asViewElement())
+        XCTAssertEqual(view2Element.displayName, "someID")
+
+        let view3 = UIView()
+        view3.tag = 226
+        let view3Element = try XCTUnwrap(view3.asViewElement())
+        XCTAssertEqual(view3Element.displayName, "UIView (tag 226)")
+
+        let view4 = UIButton()
+        view4.accessibilityLabel = "My Button"
+        let view4Element = try XCTUnwrap(view4.asViewElement())
+        XCTAssertEqual(view4Element.displayName, "UIButton (My Button)")
+
+        let view5 = UIView()
+        let view5Element = try XCTUnwrap(view5.asViewElement())
+        XCTAssertNil(view5Element.displayName)
+    }
 }
 
 extension UIView {
