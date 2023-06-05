@@ -81,6 +81,20 @@ internal class UIKitElementSelector: AppcuesElementSelector {
             try container.encode(tag, forKey: .tag)
         }
     }
+
+    func displayName(with type: String) -> String? {
+        if let appcuesID = appcuesID {
+            return appcuesID
+        } else if let accessibilityIdentifier = accessibilityIdentifier {
+            return accessibilityIdentifier
+        } else if let tag = tag {
+            return "\(type) (tag \(tag))"
+        } else if let accessibilityLabel = accessibilityLabel {
+            return "\(type) (\(accessibilityLabel))"
+        }
+
+        return nil
+    }
 }
 
 // UIKit implementation of element targeting that captures the UIView hierarchy for the current UIWindow,
@@ -131,14 +145,18 @@ internal extension UIView {
             return $0.asViewElement(in: bounds)
         }
 
+        let selector = appcuesSelector
+        let type = "\(type(of: self))"
+
         return AppcuesViewElement(
             x: absolutePosition.origin.x,
             y: absolutePosition.origin.y,
             width: absolutePosition.width,
             height: absolutePosition.height,
-            type: "\(type(of: self))",
-            selector: appcuesSelector,
-            children: children.isEmpty ? nil : children
+            type: type,
+            selector: selector,
+            children: children.isEmpty ? nil : children,
+            displayName: selector?.displayName(with: type)
         )
     }
 }
