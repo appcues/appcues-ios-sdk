@@ -43,6 +43,9 @@ public class AppcuesViewElement: NSObject, Encodable {
     /// The sub-views contained within this view, if any.
     let children: [AppcuesViewElement]?
 
+    /// A user-readable textual representation of the view.
+    let displayName: String?
+
     /// Creates an instance of an AppcuesViewElement.
     /// - Parameters:
     ///   - x: The x-coordinate for view position, with origin in the upper-left corner, in screen coordinates.
@@ -61,7 +64,8 @@ public class AppcuesViewElement: NSObject, Encodable {
         height: CGFloat,
         type: String,
         selector: AppcuesElementSelector?,
-        children: [AppcuesViewElement]?
+        children: [AppcuesViewElement]?,
+        displayName: String? = nil
     ) {
         self.x = x
         self.y = y
@@ -70,6 +74,7 @@ public class AppcuesViewElement: NSObject, Encodable {
         self.type = type
         self.selector = selector
         self.children = children
+        self.displayName = displayName
     }
 }
 
