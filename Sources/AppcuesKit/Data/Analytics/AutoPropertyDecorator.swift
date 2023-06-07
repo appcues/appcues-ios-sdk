@@ -15,6 +15,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     private var previousScreen: String?
     private var sessionPageviews = 0
     private var sessionRandomizer: Int?
+    private var sessionLatestUserProperties: [String: Any] = [:]
 
     private weak var appcues: Appcues?
     private let storage: DataStoring
@@ -50,6 +51,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
         case .event(SessionEvents.sessionStarted.rawValue, _):
             sessionPageviews = 0
             sessionRandomizer = Int.random(in: 1...100)
+            sessionLatestUserProperties = [:]
             currentScreen = nil
             previousScreen = nil
         case .group:
@@ -80,12 +82,16 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
 
         // Note: additional (custom) go first, as they may be overwritten by merged system items
         let merged = config.additionalAutoProperties
+            .merging(sessionLatestUserProperties)
             .merging(applicationProperties)
             .merging(sessionProperties.compactMapValues { $0 })
 
         if case .profile = tracking.type {
             // profile updates have auto props merged in at root level
             decorated.properties = (tracking.properties ?? [:]).merging(merged)
+
+            // any profile properties are saved to be added to attributes._identity on all subsequent events
+            sessionLatestUserProperties = tracking.properties?.compactMapValues { $0 } ?? [:]
         } else {
             // all other events have auto props within attributes._identity
             decorated.eventAutoProperties = merged
