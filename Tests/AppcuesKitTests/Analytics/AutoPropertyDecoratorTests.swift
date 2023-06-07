@@ -108,4 +108,23 @@ class AutoPropertyDecoratorTests: XCTestCase {
         // cannot overwrite this core prop
         XCTAssertNotEqual("test-name", (try XCTUnwrap(decorated.eventAutoProperties?["_sdkName"])) as? String)
     }
+
+    func testProfilePropertiesOnSubsequentEvent() throws {
+        // Arrange
+        let profileUpdate = TrackingUpdate(type: .profile(interactive: true), properties: ["PROFILE_PROPERTY": "value"], isInternal: false)
+        _ = decorator.decorate(profileUpdate)
+
+        let update = TrackingUpdate(type: .event(name: "appcues:v2:step_seen", interactive: true), isInternal: false)
+
+        // Act
+        let decorated = decorator.decorate(update)
+
+        // Assert
+        let expectedContextKeys = ["app_id", "app_version"]
+        XCTAssertEqual([], Set(try XCTUnwrap(decorated.context).keys).symmetricDifference(expectedContextKeys))
+        let expectedPropertyKeys = ["_identity"]
+        XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
+        let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_userAgent", "_appName", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionId", "PROFILE_PROPERTY"]
+        XCTAssertEqual([], Set(try XCTUnwrap(decorated.eventAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
+    }
 }
