@@ -12,10 +12,10 @@ import UIKit
 internal protocol ExperienceRendering: AnyObject {
     func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?)
     func show(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?)
-    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
-    func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?)
-    func getCurrentExperienceData() -> ExperienceData?
-    func getCurrentStepIndex() -> Experience.StepIndex?
+    func show(step stepRef: StepReference, experienceID: InstanceID?, completion: (() -> Void)?)
+    func dismiss(experienceID: InstanceID?, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?)
+    func experienceData(experienceID: InstanceID?) -> ExperienceData?
+    func stepIndex(experienceID: InstanceID?) -> Experience.StepIndex?
 }
 
 internal enum ExperienceRendererError: Error {
@@ -25,25 +25,114 @@ internal enum ExperienceRendererError: Error {
 @available(iOS 13.0, *)
 internal class ExperienceRenderer: ExperienceRendering {
 
-    private let stateMachine: ExperienceStateMachine
+    private weak var container: DIContainer?
+
+    // Shared machine, used for modal experiences - only supports one experience running at a time.
+    private let sharedStateMachine: ExperienceStateMachine
+
+    // Mapping of ``Experience.instanceID`` -> state machine.
+    // Used for non-modal experiences that can have more than one running in parallel.
+    private var experienceStateMachines: [InstanceID: ExperienceStateMachine] = [:]
+
     private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
     private weak var appcues: Appcues?
     private let config: Appcues.Config
 
     init(container: DIContainer) {
+        self.container = container
         self.appcues = container.owner
         self.config = container.resolve(Appcues.Config.self)
 
         // two items below are not registered/resolved directly from container as they
         // are considered private implementation details of the ExperienceRenderer - helpers.
-        self.stateMachine = ExperienceStateMachine(container: container)
+        self.sharedStateMachine = ExperienceStateMachine(container: container)
         self.analyticsObserver = ExperienceStateMachine.AnalyticsObserver(container: container)
     }
 
     func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
+        guard let container = container else { return }
+
+        let stateMachine: ExperienceStateMachine
+
+        if experience.isNonModal {
+            // if the experience is non-modal, get or create the state machine for rendering
+            if let experienceStateMachine = experienceStateMachines[experience.instanceID] {
+                stateMachine = experienceStateMachine
+            } else {
+                stateMachine = ExperienceStateMachine(container: container)
+                stateMachine.addObserver(
+                    StateMachineCleanupObserver(experienceRenderer: self, experienceID: experience.instanceID)
+                )
+                experienceStateMachines[experience.instanceID] = stateMachine
+            }
+        } else {
+            // if it is modal, use the shared state machine
+            stateMachine = sharedStateMachine
+        }
+
+        show(experience: experience, in: stateMachine, completion: completion)
+    }
+
+    func show(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?) {
+        let (nonModal, modal) = qualifiedExperiences.separate { $0.isNonModal }
+
+        // for the overall success/failure completion - we have potentially multiple experiences being rendered from the
+        // response. If any fail, we'll return a failure with the first known failure error. Otherwise, return success.
+        var failureResult: Result<Void, Error>?
+        showNonModal(qualifiedExperiences: nonModal) { result in
+            if case .failure = result, failureResult == nil {
+                failureResult = result
+            }
+        }
+        showModal(qualifiedExperiences: modal) { result in
+            if case .failure = result, failureResult == nil {
+                failureResult = result
+            }
+        }
+
+        if let failureResult = failureResult {
+            completion?(failureResult)
+        } else {
+            completion?(.success(()))
+        }
+    }
+
+    func show(step stepRef: StepReference, experienceID: InstanceID?, completion: (() -> Void)?) {
+        let stateMachine = stateMachine(experienceID: experienceID)
+        show(step: stepRef, in: stateMachine, completion: completion)
+    }
+
+    func dismiss(experienceID: InstanceID?, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+        let stateMachine = stateMachine(experienceID: experienceID)
+        endExperience(in: stateMachine, markComplete: markComplete, completion: completion)
+    }
+
+    func experienceData(experienceID: InstanceID?) -> ExperienceData? {
+        stateMachine(experienceID: experienceID).state.currentExperienceData
+    }
+
+    func stepIndex(experienceID: InstanceID?) -> Experience.StepIndex? {
+        stateMachine(experienceID: experienceID).state.currentStepIndex
+    }
+
+    func completeExperience(experienceID: InstanceID) {
+        experienceStateMachines.removeValue(forKey: experienceID)
+    }
+
+    private func stateMachine(experienceID: InstanceID?) -> ExperienceStateMachine {
+        if let experienceID = experienceID, let experienceStateMachine = experienceStateMachines[experienceID] {
+            // if the given experienceID represents a non-modal experience running its own state machine, use it.
+            return experienceStateMachine
+        } else {
+            // otherwise we'll use the shared state machine
+            return sharedStateMachine
+        }
+    }
+
+    private func show(experience: ExperienceData, in stateMachine: ExperienceStateMachine, completion: ((Result<Void, Error>) -> Void)?) {
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
-                self.show(experience: experience, completion: completion)
+                self.show(experience: experience, in: stateMachine, completion: completion)
             }
             return
         }
@@ -58,10 +147,10 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
 
         if experience.priority == .normal && stateMachine.state != .idling {
-            dismissCurrentExperience(markComplete: false) { result in
+            endExperience(in: stateMachine, markComplete: false) { result in
                 switch result {
                 case .success:
-                    self.show(experience: experience, completion: completion)
+                    self.show(experience: experience, in: stateMachine, completion: completion)
                 case .failure(let error):
                     completion?(.failure(error))
                 }
@@ -76,7 +165,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         // only track analytics on published experiences (not previews)
         // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
         if experience.published && stateMachine.state == .idling {
-            self.stateMachine.addObserver(analyticsObserver)
+            stateMachine.addObserver(analyticsObserver)
         }
         stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
         stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
@@ -94,9 +183,9 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func show(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?) {
+    private func showModal(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?) {
         guard let experience = qualifiedExperiences.first else {
-            // If given an empty list of qualified experiences, complete with a success because this function has completed without error.
+            // If given an empty list of qualified modal experiences, return because this function has completed.
             // This function only recurses on a non-empty case, so this block only applies to the initial external call.
             completion?(.success(()))
             return
@@ -117,10 +206,29 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
+    private func showNonModal(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?) {
+        // for the overall success/failure completion - we have potentially multiple experiences being rendered from the
+        // response.  If any fail, we'll return a failure with the first known failure error.  Otherwise, return success.
+        var failureResult: Result<Void, Error>?
+        qualifiedExperiences.forEach {
+            self.show(experience: $0) { result in
+                if case .failure = result, failureResult == nil {
+                    failureResult = result
+                }
+            }
+        }
+
+        if let failureResult = failureResult {
+            completion?(failureResult)
+        } else {
+            completion?(.success(()))
+        }
+    }
+
+    private func show(step stepRef: StepReference, in stateMachine: ExperienceStateMachine, completion: (() -> Void)?) {
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
-                self.show(stepInCurrentExperience: stepRef, completion: completion)
+                self.show(step: stepRef, in: stateMachine, completion: completion)
             }
             return
         }
@@ -149,10 +257,10 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+    private func endExperience(in stateMachine: ExperienceStateMachine, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
-                self.dismissCurrentExperience(markComplete: markComplete, completion: completion)
+                self.endExperience(in: stateMachine, markComplete: markComplete, completion: completion)
             }
             return
         }
@@ -166,7 +274,7 @@ internal class ExperienceRenderer: ExperienceRendering {
             // These two cases handle dismissing an experience that's in the process of presenting a step group.
             case .success(.renderingStep):
                 DispatchQueue.main.async { [weak self] in
-                    self?.dismissCurrentExperience(markComplete: markComplete, completion: completion)
+                    self?.endExperience(in: stateMachine, markComplete: markComplete, completion: completion)
                 }
                 return true
             case .failure(.noTransition(currentState: .beginningExperience)),
@@ -185,13 +293,30 @@ internal class ExperienceRenderer: ExperienceRendering {
             }
         }
     }
+}
 
-    func getCurrentExperienceData() -> ExperienceData? {
-        stateMachine.state.currentExperienceData
-    }
+@available(iOS 13.0, *)
+private extension ExperienceRenderer {
 
-    func getCurrentStepIndex() -> Experience.StepIndex? {
-        stateMachine.state.currentStepIndex
+    // helper observer used to clean up the mapping of experience state machines when
+    // an experience is completed
+    class StateMachineCleanupObserver: ExperienceStateObserver {
+
+        private let experienceID: InstanceID
+        private let experienceRenderer: ExperienceRenderer
+
+        init(experienceRenderer: ExperienceRenderer, experienceID: InstanceID) {
+            self.experienceRenderer = experienceRenderer
+            self.experienceID = experienceID
+        }
+
+        func evaluateIfSatisfied(result: StateResult) -> Bool {
+            if case .success(.idling) = result {
+                experienceRenderer.completeExperience(experienceID: experienceID)
+                return true
+            }
+            return false
+        }
     }
 
     private func track(experiment: Experiment?) {
@@ -211,5 +336,13 @@ internal class ExperienceRenderer: ExperienceRendering {
             ],
             isInternal: true
         ))
+    }
+}
+
+@available(iOS 13.0, *)
+extension Experience {
+    var isNonModal: Bool {
+        // TODO: detect non-modal experiences
+        return false
     }
 }

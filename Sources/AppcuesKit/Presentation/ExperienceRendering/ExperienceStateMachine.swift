@@ -48,7 +48,7 @@ internal class ExperienceStateMachine {
     ///   - newState: `ExperienceState` to attempt a transition to.
     ///   - observer: Block that's called on each state change, or if no state change occurs (represented by a `nil` value).
     ///   Must return `true` iff the observer is complete and should be removed.
-    func transitionAndObserve(_ action: Action, filter: UUID? = nil, observer: @escaping (ExperienceStateObserver.StateResult) -> Bool) {
+    func transitionAndObserve(_ action: Action, filter: InstanceID? = nil, observer: @escaping (ExperienceStateObserver.StateResult) -> Bool) {
         let observer = StateObserver(filter: filter, observer)
         addObserver(observer)
 
@@ -223,7 +223,7 @@ extension ExperienceStateMachine {
             case .continuation(let action):
                 try machine.transition(action)
             case let .presentContainer(experience, stepIndex, package, actions):
-                machine.actionRegistry.enqueue(actionModels: actions, level: .group) {
+                machine.actionRegistry.enqueue(actionModels: actions, level: .group, experienceID: experience.instanceID) {
                     executePresentContainer(
                         machine: machine,
                         experience: experience,

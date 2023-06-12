@@ -17,21 +17,24 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
     static let type = "@appcues/launch-experience"
 
     private weak var appcues: Appcues?
+    private let currentExperienceID: InstanceID?
 
-    let experienceID: String
+    let launchExperienceID: String
     private let trigger: ExperienceTrigger?
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         self.appcues = configuration.appcues
 
         guard let config = configuration.decode(Config.self) else { return nil }
-        self.experienceID = config.experienceID
+        self.currentExperienceID = configuration.experienceID
+        self.launchExperienceID = config.experienceID
         self.trigger = nil
     }
 
-    init(appcues: Appcues?, experienceID: String, trigger: ExperienceTrigger) {
+    init(appcues: Appcues?, currentExperienceID: InstanceID?, experienceID: String, trigger: ExperienceTrigger) {
         self.appcues = appcues
-        self.experienceID = experienceID
+        self.currentExperienceID = currentExperienceID
+        self.launchExperienceID = experienceID
 
         // This is used when a flow is triggered as a post flow action from another flow.
         // The trigger value is set during the StateMachine processing of the post-flow actions.
@@ -50,14 +53,15 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
         // that launches another flow from a button, for example.
         let trigger = self.trigger ?? launchExperienceTrigger(appcues)
 
-        experienceLoading.load(experienceID: experienceID, published: true, trigger: trigger) { _  in
+        experienceLoading.load(experienceID: launchExperienceID, published: true, trigger: trigger) { _  in
             completion()
         }
     }
 
     private func launchExperienceTrigger(_ appcues: Appcues) -> ExperienceTrigger {
         let experienceRendering = appcues.container.resolve(ExperienceRendering.self)
-        let currentExperienceId = experienceRendering.getCurrentExperienceData()?.id
-        return .launchExperienceAction(fromExperienceID: currentExperienceId)
+        // Self.currentExperienceID is the instance ID, but we want Experience.id
+        let experienceID = experienceRendering.experienceData(experienceID: currentExperienceID)?.id
+        return .launchExperienceAction(fromExperienceID: experienceID)
     }
 }
