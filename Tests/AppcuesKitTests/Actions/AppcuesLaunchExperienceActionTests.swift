@@ -27,7 +27,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(AppcuesLaunchExperienceAction.type, "@appcues/launch-experience")
         XCTAssertNotNil(action)
-        XCTAssertEqual(action?.experienceID, "123")
+        XCTAssertEqual(action?.launchExperienceID, "123")
         XCTAssertNil(failedAction)
     }
 
