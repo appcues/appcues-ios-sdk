@@ -222,7 +222,7 @@ class ExperienceRendererTests: XCTestCase {
         let targetID = try XCTUnwrap(UUID(uuidString: "03652bd5-f0cb-44f0-9274-e95b4441d857"))
 
         // Act
-        experienceRenderer.show(stepInCurrentExperience: .stepID(targetID)) {
+        experienceRenderer.show(step: .stepID(targetID), experienceID: experience.instanceID) {
             completionExpectation.fulfill()
         }
 
@@ -243,7 +243,7 @@ class ExperienceRendererTests: XCTestCase {
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
-        experienceRenderer.dismissCurrentExperience(markComplete: false) { _ in
+        experienceRenderer.dismiss(experienceID: experience.instanceID, markComplete: false) { _ in
             completionExpectation.fulfill()
         }
 
@@ -266,7 +266,7 @@ class ExperienceRendererTests: XCTestCase {
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
-        experienceRenderer.dismissCurrentExperience(markComplete: false) { _ in
+        experienceRenderer.dismiss(experienceID: experience.instanceID, markComplete: false) { _ in
             completionExpectation.fulfill()
         }
 
@@ -329,7 +329,7 @@ class ExperienceRendererTests: XCTestCase {
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
-        experienceRenderer.show(stepInCurrentExperience: .offset(1)) {
+        experienceRenderer.show(step: .offset(1), experienceID: experience.instanceID) {
             completionExpectation.fulfill()
         }
 
