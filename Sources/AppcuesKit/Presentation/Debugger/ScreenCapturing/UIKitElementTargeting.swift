@@ -16,21 +16,30 @@ internal class UIKitElementSelector: AppcuesElementSelector {
         case accessibilityIdentifier
         case accessibilityLabel
         case tag
+        case tab
     }
 
     let accessibilityIdentifier: String?
     let tag: String?
     let appcuesID: String?
+    let tab: String?
 
-    init?(appcuesID: String?, accessibilityIdentifier: String?, accessibilityLabel: String?, tag: String?) {
+    init?(
+        appcuesID: String?,
+        accessibilityIdentifier: String?,
+        accessibilityLabel: String?,
+        tag: String?,
+        tab: String? = nil
+    ) {
         // must have at least one identifiable property to be a valid selector
-        if appcuesID == nil && accessibilityIdentifier == nil && accessibilityLabel == nil && tag == nil {
+        if appcuesID == nil && accessibilityIdentifier == nil && accessibilityLabel == nil && tag == nil && tab == nil {
             return nil
         }
 
         self.appcuesID = appcuesID
         self.accessibilityIdentifier = accessibilityIdentifier
         self.tag = tag
+        self.tab = tab
 
         super.init()
 
@@ -53,6 +62,10 @@ internal class UIKitElementSelector: AppcuesElementSelector {
 
         if accessibilityIdentifier != nil && accessibilityIdentifier == other.accessibilityIdentifier {
             weight += 10_000
+        }
+
+        if tab != nil && tab == other.tab {
+            weight += 5_000
         }
 
         if tag != nil && tag == other.tag {
@@ -80,6 +93,9 @@ internal class UIKitElementSelector: AppcuesElementSelector {
         if let tag = tag, !tag.isEmpty {
             try container.encode(tag, forKey: .tag)
         }
+        if let tab = tab, !tab.isEmpty {
+            try container.encode(tab, forKey: .tab)
+        }
     }
 
     func displayName(with type: String) -> String? {
@@ -87,6 +103,8 @@ internal class UIKitElementSelector: AppcuesElementSelector {
             return appcuesID
         } else if let accessibilityIdentifier = accessibilityIdentifier {
             return accessibilityIdentifier
+        } else if let tab = tab {
+            return tab
         } else if let tag = tag {
             return "\(type) (tag \(tag))"
         } else if let accessibilityLabel = accessibilityLabel {
@@ -114,49 +132,61 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
             appcuesID: properties["appcuesID"],
             accessibilityIdentifier: properties["accessibilityIdentifier"],
             accessibilityLabel: properties["accessibilityLabel"],
-            tag: properties["tag"]
+            tag: properties["tag"],
+            tab: properties["tab"]
         )
     }
 }
 
 internal extension UIView {
-    var appcuesSelector: UIKitElementSelector? {
+    private var displayType: String {
+        return "\(type(of: self))"
+    }
+
+    private func getAppcuesSelector(tabIndex: Int? = nil) -> UIKitElementSelector? {
         return UIKitElementSelector(
             appcuesID: (self as? AppcuesTargetView)?.appcuesID,
             accessibilityIdentifier: accessibilityIdentifier,
             accessibilityLabel: accessibilityLabel,
-            tag: tag != 0 ? "\(self.tag)" : nil
+            tag: tag != 0 ? "\(self.tag)" : nil,
+            tab: tabIndex.flatMap { "tab[\($0)]" }
         )
     }
 
     func asViewElement() -> AppcuesViewElement? {
-        return self.asViewElement(in: self.bounds)
+        return self.asViewElement(in: self.bounds, tabIndex: nil)
     }
 
-    private func asViewElement(in bounds: CGRect) -> AppcuesViewElement? {
+    private func asViewElement(in bounds: CGRect, tabIndex: Int?) -> AppcuesViewElement? {
         let absolutePosition = self.convert(self.bounds, to: nil)
 
         // discard views that are not visible in the screenshot image
         guard absolutePosition.intersects(bounds) else { return nil }
 
-        let children: [AppcuesViewElement] = self.subviews.compactMap {
+        var tabCount = 0
+
+        let children: [AppcuesViewElement] = self.subviews.compactMap { subview -> AppcuesViewElement? in
             // discard hidden views and subviews within
-            guard !$0.isHidden else { return nil }
-            return $0.asViewElement(in: bounds)
+            guard !subview.isHidden else { return nil }
+            var childTabIndex: Int?
+            if subview.displayType == "UITabBarButton" {
+                tabCount += 1
+                childTabIndex = tabCount - 1
+            }
+            return subview.asViewElement(in: bounds, tabIndex: childTabIndex)
         }
 
-        let selector = appcuesSelector
-        let type = "\(type(of: self))"
+        let selector = getAppcuesSelector(tabIndex: tabIndex)
 
         return AppcuesViewElement(
             x: absolutePosition.origin.x,
             y: absolutePosition.origin.y,
             width: absolutePosition.width,
             height: absolutePosition.height,
-            type: type,
+            type: displayType,
             selector: selector,
             children: children.isEmpty ? nil : children,
-            displayName: selector?.displayName(with: type)
+            displayName: selector?.displayName(with: displayType)
         )
     }
 }
