@@ -125,36 +125,46 @@ class MockExperienceLoader: ExperienceLoading {
 
 @available(iOS 13.0, *) // due to reference to ExperienceData
 class MockExperienceRenderer: ExperienceRendering {
+    var onStart: ((StateMachineOwning, RenderContext) -> Void)?
+    func start(owner: StateMachineOwning, forContext context: RenderContext) {
+        onStart?(owner, context)
+    }
+
+    var onProcessAndShow: (([ExperienceData]) -> Void)?
+    func processAndShow(qualifiedExperiences: [ExperienceData]) {
+        onProcessAndShow?(qualifiedExperiences)
+    }
 
     var onShowExperience: ((ExperienceData, ((Result<Void, Error>) -> Void)?) -> Void)?
     func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
         onShowExperience?(experience, completion)
     }
 
-    var onShowStep: ((StepReference, (() -> Void)?) -> Void)?
-    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
-        onShowStep?(stepRef, completion)
+    var onShowStep: ((StepReference, RenderContext, (() -> Void)?) -> Void)?
+    func show(step stepRef: StepReference, inContext context: RenderContext, completion: (() -> Void)?) {
+        onShowStep?(stepRef, context, completion)
     }
 
-    var onShowQualifiedExperiences: (([ExperienceData], ((Result<Void, Error>) -> Void)?) -> Void)?
-    func show(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?) {
-        onShowQualifiedExperiences?(qualifiedExperiences, completion)
+    var onDismiss: ((RenderContext, Bool, ((Result<Void, Error>) -> Void)?) -> Void)?
+    func dismiss(inContext context: RenderContext, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+        onDismiss?(context, markComplete, completion)
     }
 
-    var onDismissCurrentExperience: ((Bool, ((Result<Void, Error>) -> Void)?) -> Void)?
-    func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-        onDismissCurrentExperience?(markComplete, completion)
+    var onExperienceData: ((RenderContext) -> ExperienceData)?
+    func experienceData(forContext context: RenderContext) -> ExperienceData? {
+        onExperienceData?(context)
     }
 
-    var onGetCurrentExperienceData: (() -> ExperienceData)?
-    func getCurrentExperienceData() -> ExperienceData? {
-        onGetCurrentExperienceData?()
+    var onStepIndex: ((RenderContext) -> Experience.StepIndex)?
+    func stepIndex(forContext context: RenderContext) -> Experience.StepIndex? {
+        onStepIndex?(context)
     }
 
-    var onGetCurrentStepIndex: (() -> Experience.StepIndex)?
-    func getCurrentStepIndex() -> AppcuesKit.Experience.StepIndex? {
-        onGetCurrentStepIndex?()
+    var onOwner: ((RenderContext) -> StateMachineOwning)?
+    func owner(forContext context: RenderContext) -> StateMachineOwning? {
+        onOwner?(context)
     }
+
 }
 
 class MockSessionMonitor: SessionMonitoring {
