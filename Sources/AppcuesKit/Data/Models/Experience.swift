@@ -48,7 +48,8 @@ internal struct FailedExperience: Decodable {
             traits: [],
             steps: [],
             redirectURL: nil,
-            nextContentID: nil
+            nextContentID: nil,
+            renderContext: .modal
         )
     }
 }
@@ -146,6 +147,8 @@ internal struct Experience {
 
     /// Unique ID to disambiguate the same experience flowing through the system from different origins.
     let instanceID = UUID()
+
+    let renderContext: RenderContext
 }
 
 extension Experience: Decodable {
@@ -170,6 +173,8 @@ extension Experience: Decodable {
         steps = try container.decode([Step].self, forKey: .steps)
         redirectURL = try? container.decode(URL.self, forKey: .redirectURL)
         nextContentID = try? container.decode(String.self, forKey: .nextContentID)
+
+        renderContext = .modal
     }
 }
 
@@ -187,6 +192,7 @@ extension Experience {
             if let nextContentID = nextContentID {
                 actions.append(AppcuesLaunchExperienceAction(
                     appcues: appcues,
+                    renderContext: self.renderContext,
                     experienceID: nextContentID,
                     trigger: .experienceCompletionAction(fromExperienceID: self.id)
                 ))

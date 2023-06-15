@@ -130,7 +130,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                     error: error
                 )
             }
-            experienceRenderer.show(qualifiedExperiences: qualifiedExperienceData, completion: nil)
+            experienceRenderer.processAndShow(qualifiedExperiences: qualifiedExperienceData)
         }
     }
 }

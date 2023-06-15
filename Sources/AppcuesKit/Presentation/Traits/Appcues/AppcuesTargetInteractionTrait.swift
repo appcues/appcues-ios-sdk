@@ -24,6 +24,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     private weak var appcues: Appcues?
+    private let renderContext: RenderContext
 
     private let tapActions: [Experience.Action]
     private let longPressActions: [Experience.Action]
@@ -37,6 +38,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         self.appcues = configuration.appcues
+        self.renderContext = configuration.renderContext
 
         let config = configuration.decode(Config.self)
         let actions = config?.actions ?? []
@@ -95,6 +97,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
         actionRegistry.enqueue(
             actionModels: tapActions,
             level: .step,
+            renderContext: renderContext,
             interactionType: "Target Tapped",
             viewDescription: "Target Rectangle"
         )
@@ -109,6 +112,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
         actionRegistry.enqueue(
             actionModels: longPressActions,
             level: .step,
+            renderContext: renderContext,
             interactionType: "Target Long Pressed",
             viewDescription: "Target Rectangle"
         )

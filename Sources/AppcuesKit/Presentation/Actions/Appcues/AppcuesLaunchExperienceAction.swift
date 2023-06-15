@@ -17,20 +17,23 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
     static let type = "@appcues/launch-experience"
 
     private weak var appcues: Appcues?
+    private let renderContext: RenderContext
 
     let experienceID: String
     private let trigger: ExperienceTrigger?
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         self.appcues = configuration.appcues
+        self.renderContext = configuration.renderContext
 
         guard let config = configuration.decode(Config.self) else { return nil }
         self.experienceID = config.experienceID
         self.trigger = nil
     }
 
-    init(appcues: Appcues?, experienceID: String, trigger: ExperienceTrigger) {
+    init(appcues: Appcues?, renderContext: RenderContext, experienceID: String, trigger: ExperienceTrigger) {
         self.appcues = appcues
+        self.renderContext = renderContext
         self.experienceID = experienceID
 
         // This is used when a flow is triggered as a post flow action from another flow.
@@ -57,7 +60,7 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
 
     private func launchExperienceTrigger(_ appcues: Appcues) -> ExperienceTrigger {
         let experienceRendering = appcues.container.resolve(ExperienceRendering.self)
-        let currentExperienceId = experienceRendering.getCurrentExperienceData()?.id
+        let currentExperienceId = experienceRendering.experienceData(forContext: renderContext)?.id
         return .launchExperienceAction(fromExperienceID: currentExperienceId)
     }
 }
