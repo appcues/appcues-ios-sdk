@@ -234,6 +234,63 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let view5Element = try XCTUnwrap(view5.asViewElement())
         XCTAssertNil(view5Element.displayName)
     }
+
+    func testTabBarDisplayName() throws {
+        let tabBarView = UITabBar()
+        let tabBarButton1 = UITabBarButton()
+        let tabBarButton2 = UITabBarButton()
+        let tabBarButton3 = UITabBarButton()
+        tabBarView.addSubview(tabBarButton1)
+        tabBarView.addSubview(tabBarButton2)
+        tabBarView.addSubview(UIView()) //should be ignored
+        tabBarView.addSubview(UIView()) //should be ignored
+        tabBarView.addSubview(tabBarButton3)
+
+        let tabBarViewElement = try XCTUnwrap(tabBarView.asViewElement())
+        XCTAssertNil(tabBarViewElement.displayName)
+
+        let tabBarChildren = try XCTUnwrap(tabBarViewElement.children)
+        XCTAssertEqual(tabBarChildren[0].displayName, "tab[0]")
+        XCTAssertEqual(tabBarChildren[1].displayName, "tab[1]")
+        XCTAssertNil(tabBarChildren[2].displayName)
+        XCTAssertNil(tabBarChildren[3].displayName)
+        XCTAssertEqual(tabBarChildren[4].displayName, "tab[2]")
+    }
+
+    func testTabBarDecorate() throws {
+        // Arrange
+        try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
+
+        let tabBarView = UITabBar()
+        let tabBarButton1 = UITabBarButton()
+        let tabBarButton2 = UITabBarButton()
+        let tabBarButton3 = UITabBarButton(frame: CGRect(x: 10, y: 100, width: 40, height: 40))
+        tabBarView.addSubview(tabBarButton1)
+        tabBarView.addSubview(tabBarButton2)
+        tabBarView.addSubview(UIView()) //should be ignored
+        tabBarView.addSubview(UIView()) //should be ignored
+        tabBarView.addSubview(tabBarButton3)
+
+        rootViewController.view.addSubview(tabBarView)
+
+        let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["tab":"tab[2]"]))
+        trait.metadataDelegate = metadataDelegate
+
+        // Act
+        try trait.decorate(backdropView: backdropView)
+        metadataDelegate.publish()
+
+        // Assert
+        XCTAssertEqual(metadataUpdates.count, 1)
+        let latestMetadata = try XCTUnwrap(metadataUpdates.last)
+
+        XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 10, y: 100, width: 40, height: 40))
+    }
+}
+
+// mimicking the internal UITabBarButton used inside of UITabBar subviews for testing
+class UITabBarButton: UIView {
+
 }
 
 extension UIView {
