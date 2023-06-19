@@ -14,8 +14,7 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperC
     struct Config: Decodable {
         let frameID: String
         let style: ExperienceComponent.Style?
-        // swiftlint:disable:next discouraged_optional_boolean
-        let animated: Bool?
+        let animation: AnimationOption?
     }
 
     static let type = "@appcues/embedded"
@@ -25,9 +24,9 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperC
     private weak var appcues: Appcues?
 
     // the title of the embed container
-    let frameID: String
+    private let frameID: String
     private let style: ExperienceComponent.Style?
-    private let animated: Bool
+    private let animation: AnimationOption
 
     // the view embedded somewhere in the customer application
     weak var embedView: AppcuesFrame?
@@ -37,7 +36,7 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperC
 
         guard let config = configuration.decode(Config.self) else { return nil }
         self.frameID = config.frameID
-        self.animated = config.animated ?? false
+        self.animation = config.animation ?? .none
         self.style = config.style
     }
 
@@ -70,11 +69,6 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperC
             throw AppcuesTraitError(description: "No embed view with ID \(frameID) found")
         }
 
-        // TODO: replace the old content if the experience is different?
-        guard embedView.subviews.isEmpty else {
-            throw AppcuesTraitError(description: "Embed view \(frameID) already in use")
-        }
-
         let margins = NSDirectionalEdgeInsets(
             top: style?.marginTop ?? 0,
             leading: style?.marginLeading ?? 0,
@@ -82,11 +76,11 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperC
             trailing: style?.marginTrailing ?? 0
         )
 
-        embedView.embed(viewController, margins: margins, animated: animated, completion: completion)
+        embedView.embed(viewController, margins: margins, animated: animation == .fade, completion: completion)
     }
 
     func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        embedView?.unembed(viewController, animated: animated, completion: completion)
+        embedView?.unembed(viewController, animated: animation == .fade, completion: completion)
     }
 
     private func applyStyle(_ style: ExperienceComponent.Style?, to container: UIViewController) {
@@ -104,4 +98,12 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperC
         }
     }
 
+}
+
+@available(iOS 13.0, *)
+extension AppcuesEmbeddedTrait {
+    enum AnimationOption: String, Decodable {
+        case none
+        case fade
+    }
 }

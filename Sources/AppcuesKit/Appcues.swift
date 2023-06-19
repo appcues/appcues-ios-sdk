@@ -241,7 +241,7 @@ public class Appcues: NSObject {
         actionRegistry.register(action: action)
     }
 
-    /// Registers the given embed view to be available for targeting embedded Appcues experience content.
+    /// Registers the specified frame to be available to host qualified embedded Appcues experience content.
     /// - Parameters:
     ///   - frameID: The unique identifier for the embedded ``AppcuesFrame``.
     ///   - view: The AppcuesView to register for hosting embedded content.
