@@ -48,10 +48,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         var completionCount = 0
         var updates: [TrackingUpdate] = []
 
-        appcues.experienceRenderer.onExperienceData = { _ in
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
             ExperienceData.mockWithForm(defaultValue: "default value")
         }
-        appcues.experienceRenderer.onStepIndex = { _ in
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
             .initial
         }
         appcues.analyticsPublisher.onPublish = { trackingUpdate in
@@ -96,10 +96,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         var completionCount = 0
         var updates: [TrackingUpdate] = []
 
-        appcues.experienceRenderer.onExperienceData = { _ in
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
             ExperienceData.mockWithForm(defaultValue: nil)
         }
-        appcues.experienceRenderer.onStepIndex = { _ in
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
             // Invalid step index causes failure and early return
             Experience.StepIndex(group: 2, item: 2)
         }
@@ -132,10 +132,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
     func testTransformQueueEarlyReturn() throws {
         // Arrange
-        appcues.experienceRenderer.onExperienceData = { _ in
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
             ExperienceData.mockWithForm(defaultValue: nil)
         }
-        appcues.experienceRenderer.onStepIndex = { _ in
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
             // Invalid step index causes failure and early return
             Experience.StepIndex(group: 2, item: 2)
         }
@@ -155,10 +155,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
     func testTransformQueueValidForm() throws {
         // Arrange
-        appcues.experienceRenderer.onExperienceData = { _ in
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
             ExperienceData.mockWithForm(defaultValue: "123")
         }
-        appcues.experienceRenderer.onStepIndex = { _ in
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
             .initial
         }
 
@@ -177,10 +177,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
     func testTransformQueueInvalidForm() throws {
         // Arrange
-        appcues.experienceRenderer.onExperienceData = { _ in
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
             ExperienceData.mockWithForm(defaultValue: nil)
         }
-        appcues.experienceRenderer.onStepIndex = { _ in
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
             .initial
         }
 
@@ -200,10 +200,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
     func testTransformQueueInvalidFormSkipValidation() throws {
         // Arrange
-        appcues.experienceRenderer.onExperienceData = { _ in
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
             ExperienceData.mockWithForm(defaultValue: nil)
         }
-        appcues.experienceRenderer.onStepIndex = { _ in
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
             .initial
         }
 
@@ -228,10 +228,10 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         // Arrange
         var updates: [TrackingUpdate] = []
 
-        appcues.experienceRenderer.onExperienceData = { _ in
+        appcues.experienceRenderer.onGetCurrentExperienceData = {
             ExperienceData.mockWithForm(defaultValue: "default value", attributeName: "myAttribute")
         }
-        appcues.experienceRenderer.onStepIndex = { _ in
+        appcues.experienceRenderer.onGetCurrentStepIndex = {
             .initial
         }
         appcues.analyticsPublisher.onPublish = { trackingUpdate in

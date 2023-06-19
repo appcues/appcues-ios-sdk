@@ -46,7 +46,7 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
 
         let action = try XCTUnwrap(JSONDecoder().decode(Experience.Action.self, from: modelData))
         let instance = try XCTUnwrap(AppcuesUpdateProfileAction(
-            configuration: AppcuesExperiencePluginConfiguration(action.configDecoder, level: .step, experienceID: nil, appcues: appcues)
+            configuration: AppcuesExperiencePluginConfiguration(action.configDecoder, level: .step, appcues: appcues)
         ))
 
         XCTAssertEqual(instance.properties.count, 4)
