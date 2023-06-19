@@ -69,7 +69,8 @@ extension Experience {
                 )
             ],
             redirectURL: nil,
-            nextContentID: "abc")
+            nextContentID: "abc",
+            renderContext: .modal)
     }
 
     static var singleStepMock: Experience {
@@ -88,7 +89,8 @@ extension Experience {
                 )
             ],
             redirectURL: nil,
-            nextContentID: nil)
+            nextContentID: nil,
+            renderContext: .modal)
     }
 
     static func mockWithForm(defaultValue: String?, attributeName: String?) -> Experience {
@@ -107,7 +109,8 @@ extension Experience {
                 )
             ],
             redirectURL: nil,
-            nextContentID: "abc")
+            nextContentID: "abc",
+            renderContext: .modal)
     }
 
     static func mockWithStepActions(actions: [Experience.Action]) -> Experience {
@@ -134,7 +137,8 @@ extension Experience {
                 )
             ],
             redirectURL: nil,
-            nextContentID: nil)
+            nextContentID: nil,
+            renderContext: .modal)
     }
 }
 

@@ -170,9 +170,8 @@ class ExperienceRendererTests: XCTestCase {
 
     func testShowQualifiedExperiences() throws {
         // Arrange
-        let completionExpectation = expectation(description: "Completion called")
-
         let presentExpectation = expectation(description: "Experience presented")
+
         let brokenExperience = ExperienceData.mock
         let validExperience = ExperienceData.mock
         let preconditionPackage: ExperiencePackage = validExperience.package(presentExpectation: presentExpectation)
@@ -190,14 +189,10 @@ class ExperienceRendererTests: XCTestCase {
         appcues.analyticsPublisher.onPublish = { _ in eventExpectation.fulfill() }
 
         // Act
-        experienceRenderer.show(qualifiedExperiences: [
-            ExperienceData(brokenExperience.model, trigger: .qualification(reason: nil), priority: .low),
-            ExperienceData(validExperience.model, trigger: .qualification(reason: nil), priority: .low)]) { result in
-            print(result)
-            if case .success = result {
-                completionExpectation.fulfill()
-            }
-        }
+        experienceRenderer.processAndShow(qualifiedExperiences: [
+            ExperienceData(brokenExperience.model, trigger: .qualification(reason: .screenView), priority: .low),
+            ExperienceData(validExperience.model, trigger: .qualification(reason: .screenView), priority: .low)
+        ], reason: .qualification(reason: .screenView))
 
         // Assert
         waitForExpectations(timeout: 1)
@@ -222,7 +217,7 @@ class ExperienceRendererTests: XCTestCase {
         let targetID = try XCTUnwrap(UUID(uuidString: "03652bd5-f0cb-44f0-9274-e95b4441d857"))
 
         // Act
-        experienceRenderer.show(stepInCurrentExperience: .stepID(targetID)) {
+        experienceRenderer.show(step: .stepID(targetID), inContext: .modal) {
             completionExpectation.fulfill()
         }
 
@@ -243,7 +238,7 @@ class ExperienceRendererTests: XCTestCase {
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
-        experienceRenderer.dismissCurrentExperience(markComplete: false) { _ in
+        experienceRenderer.dismiss(inContext: .modal, markComplete: false) { _ in
             completionExpectation.fulfill()
         }
 
@@ -266,7 +261,7 @@ class ExperienceRendererTests: XCTestCase {
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
-        experienceRenderer.dismissCurrentExperience(markComplete: false) { _ in
+        experienceRenderer.dismiss(inContext: .modal, markComplete: false) { _ in
             completionExpectation.fulfill()
         }
 
@@ -329,7 +324,7 @@ class ExperienceRendererTests: XCTestCase {
         wait(for: [preconditionPresentExpectation], timeout: 1)
 
         // Act
-        experienceRenderer.show(stepInCurrentExperience: .offset(1)) {
+        experienceRenderer.show(step: .offset(1), inContext: .modal) {
             completionExpectation.fulfill()
         }
 

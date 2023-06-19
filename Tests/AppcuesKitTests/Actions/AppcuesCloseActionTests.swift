@@ -31,7 +31,7 @@ class AppcuesCloseActionTests: XCTestCase {
         // Arrange
         var completionCount = 0
         var dismissCount = 0
-        appcues.experienceRenderer.onDismissCurrentExperience = { markComplete, completion in
+        appcues.experienceRenderer.onDismiss = { _, markComplete, completion in
             XCTAssertFalse(markComplete)
             dismissCount += 1
             completion?(.success(()))
@@ -50,7 +50,7 @@ class AppcuesCloseActionTests: XCTestCase {
         // Arrange
         var completionCount = 0
         var dismissCount = 0
-        appcues.experienceRenderer.onDismissCurrentExperience = { markComplete, completion in
+        appcues.experienceRenderer.onDismiss = { _, markComplete, completion in
             XCTAssertTrue(markComplete)
             dismissCount += 1
             completion?(.success(()))

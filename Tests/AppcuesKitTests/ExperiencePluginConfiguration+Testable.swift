@@ -11,8 +11,8 @@ import XCTest
 @testable import AppcuesKit
 
 extension AppcuesExperiencePluginConfiguration {
-    convenience init(_ config: Any?, level: Level = .step, appcues: Appcues? = nil) {
-        self.init(FakePluginDecoder(config), level: level, appcues: appcues)
+    convenience init(_ config: Any?, level: Level = .step, context: RenderContext = .modal, appcues: Appcues? = nil) {
+        self.init(FakePluginDecoder(config), level: level, renderContext: context, appcues: appcues)
     }
 }
 
