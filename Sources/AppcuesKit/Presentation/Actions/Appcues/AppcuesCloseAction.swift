@@ -18,13 +18,11 @@ internal class AppcuesCloseAction: AppcuesExperienceAction {
     static let type = "@appcues/close"
 
     private weak var appcues: Appcues?
-    private let experienceID: InstanceID?
 
     private let markComplete: Bool
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         appcues = configuration.appcues
-        experienceID = configuration.experienceID
 
         let config = configuration.decode(Config.self)
         markComplete = config?.markComplete ?? false
@@ -34,6 +32,6 @@ internal class AppcuesCloseAction: AppcuesExperienceAction {
         guard let appcues = appcues else { return completion() }
 
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.dismiss(experienceID: experienceID, markComplete: markComplete) { _ in completion() }
+        experienceRenderer.dismissCurrentExperience(markComplete: markComplete) { _ in completion() }
     }
 }
