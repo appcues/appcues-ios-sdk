@@ -131,9 +131,9 @@ class MockExperienceRenderer: ExperienceRendering {
         onShowExperience?(experience, completion)
     }
 
-    var onShowStep: ((StepReference, InstanceID?, (() -> Void)?) -> Void)?
-    func show(step stepRef: StepReference, experienceID: InstanceID?, completion: (() -> Void)?) {
-        onShowStep?(stepRef, experienceID, completion)
+    var onShowStep: ((StepReference, (() -> Void)?) -> Void)?
+    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
+        onShowStep?(stepRef, completion)
     }
 
     var onShowQualifiedExperiences: (([ExperienceData], ((Result<Void, Error>) -> Void)?) -> Void)?
@@ -141,19 +141,19 @@ class MockExperienceRenderer: ExperienceRendering {
         onShowQualifiedExperiences?(qualifiedExperiences, completion)
     }
 
-    var onDismiss: ((InstanceID?, Bool, ((Result<Void, Error>) -> Void)?) -> Void)?
-    func dismiss(experienceID: InstanceID?, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-        onDismiss?(experienceID, markComplete, completion)
+    var onDismissCurrentExperience: ((Bool, ((Result<Void, Error>) -> Void)?) -> Void)?
+    func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+        onDismissCurrentExperience?(markComplete, completion)
     }
 
-    var onExperienceData: ((InstanceID?) -> ExperienceData)?
-    func experienceData(experienceID: InstanceID?) -> ExperienceData? {
-        onExperienceData?(experienceID)
+    var onGetCurrentExperienceData: (() -> ExperienceData)?
+    func getCurrentExperienceData() -> ExperienceData? {
+        onGetCurrentExperienceData?()
     }
 
-    var onStepIndex: ((InstanceID?) -> Experience.StepIndex)?
-    func stepIndex(experienceID: InstanceID?) -> Experience.StepIndex? {
-        onStepIndex?(experienceID)
+    var onGetCurrentStepIndex: (() -> Experience.StepIndex)?
+    func getCurrentStepIndex() -> AppcuesKit.Experience.StepIndex? {
+        onGetCurrentStepIndex?()
     }
 }
 
