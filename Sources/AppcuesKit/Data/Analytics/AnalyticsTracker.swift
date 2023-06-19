@@ -96,13 +96,25 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             case .success(let qualifyResponse):
                 if !qualifyResponse.experiences.isEmpty {
                     if #available(iOS 13.0, *) {
-                        self?.process(qualifyResponse: qualifyResponse, activity: activity)
+                        let experienceRenderer = self?.container?.resolve(ExperienceRendering.self)
+                        experienceRenderer?.processAndShow(
+                            qualifiedExperiences: self?.process(qualifyResponse: qualifyResponse, activity: activity) ?? [],
+                            reason: .qualification(reason: qualifyResponse.qualificationReason)
+                        )
                     } else {
                         self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
                         // nothing will render, we can remove tracking
                         SdkMetrics.remove(activity.requestID)
                     }
                 } else {
+                    if #available(iOS 13.0, *) {
+                        let experienceRenderer = self?.container?.resolve(ExperienceRendering.self)
+                        experienceRenderer?.processAndShow(
+                            qualifiedExperiences: [],
+                            reason: .qualification(reason: qualifyResponse.qualificationReason)
+                        )
+                    }
+
                     // common case, nothing qualified - we know there was nothing to render, so just remove tracking
                     SdkMetrics.remove(activity.requestID)
                 }
@@ -114,23 +126,20 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     }
 
     @available(iOS 13.0, *)
-    private func process(qualifyResponse: QualifyResponse, activity: Activity) {
-        if let experienceRenderer = container?.resolve(ExperienceRendering.self) {
-            let experiments = qualifyResponse.experiments ?? []
-            let qualifiedExperienceData: [ExperienceData] = qualifyResponse.experiences.map { item in
-                let (experience, error) = item.parsed
-                let experiment = experiments.first { $0.experienceID == experience.id }
-                return ExperienceData(
-                    experience,
-                    trigger: .qualification(reason: qualifyResponse.qualificationReason),
-                    priority: qualifyResponse.renderPriority,
-                    published: true,
-                    experiment: experiment,
-                    requestID: activity.requestID,
-                    error: error
-                )
-            }
-            experienceRenderer.show(qualifiedExperiences: qualifiedExperienceData, completion: nil)
+    private func process(qualifyResponse: QualifyResponse, activity: Activity) -> [ExperienceData] {
+        let experiments = qualifyResponse.experiments ?? []
+        return qualifyResponse.experiences.map { item in
+            let (experience, error) = item.parsed
+            let experiment = experiments.first { $0.experienceID == experience.id }
+            return ExperienceData(
+                experience,
+                trigger: .qualification(reason: qualifyResponse.qualificationReason),
+                priority: qualifyResponse.renderPriority,
+                published: true,
+                experiment: experiment,
+                requestID: activity.requestID,
+                error: error
+            )
         }
     }
 }

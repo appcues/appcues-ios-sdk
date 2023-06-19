@@ -15,6 +15,7 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
     static let type = "@appcues/step_interaction"
 
     private weak var appcues: Appcues?
+    private let renderContext: RenderContext
 
     let interactionType: String
     let viewDescription: String
@@ -26,8 +27,9 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
         return nil
     }
 
-    init(appcues: Appcues?, interactionType: String, viewDescription: String, category: String, destination: String) {
+    init(appcues: Appcues?, renderContext: RenderContext, interactionType: String, viewDescription: String, category: String, destination: String) {
         self.appcues = appcues
+        self.renderContext = renderContext
         self.interactionType = interactionType
         self.viewDescription = viewDescription
         self.category = category
@@ -49,8 +51,8 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
             ]
         ]
 
-        if let experienceData = experienceRenderer.getCurrentExperienceData(),
-           let stepIndex = experienceRenderer.getCurrentStepIndex() {
+        if let experienceData = experienceRenderer.experienceData(forContext: renderContext),
+           let stepIndex = experienceRenderer.stepIndex(forContext: renderContext) {
             interactionProperties = LifecycleEvent.properties(experienceData, stepIndex).merging(interactionProperties)
         }
 

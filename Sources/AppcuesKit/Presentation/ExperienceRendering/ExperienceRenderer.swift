@@ -10,22 +10,33 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal protocol ExperienceRendering: AnyObject {
+    func start(owner: StateMachineOwning, forContext context: RenderContext)
+    func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger)
     func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?)
-    func show(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?)
-    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?)
-    func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?)
-    func getCurrentExperienceData() -> ExperienceData?
-    func getCurrentStepIndex() -> Experience.StepIndex?
+    func show(step stepRef: StepReference, inContext context: RenderContext, completion: (() -> Void)?)
+    func dismiss(inContext context: RenderContext, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?)
+    func experienceData(forContext context: RenderContext) -> ExperienceData?
+    func stepIndex(forContext context: RenderContext) -> Experience.StepIndex?
+    func owner(forContext context: RenderContext) -> StateMachineOwning?
+}
+
+internal enum RenderContext: Hashable {
+    case modal
 }
 
 internal enum ExperienceRendererError: Error {
+    case noStateMachine
     case experimentControl
 }
 
 @available(iOS 13.0, *)
-internal class ExperienceRenderer: ExperienceRendering {
+internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
-    private let stateMachine: ExperienceStateMachine
+    /// State machine for `RenderContext.modal`
+    var stateMachine: ExperienceStateMachine?
+
+    private var stateMachines = StateMachineDirectory()
+    private var potentiallyRenderableExperiences: [RenderContext: [ExperienceData]] = [:]
     private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
     private weak var appcues: Appcues?
     private let config: Appcues.Config
@@ -38,6 +49,38 @@ internal class ExperienceRenderer: ExperienceRendering {
         // are considered private implementation details of the ExperienceRenderer - helpers.
         self.stateMachine = ExperienceStateMachine(container: container)
         self.analyticsObserver = ExperienceStateMachine.AnalyticsObserver(container: container)
+
+        stateMachines[ownerFor: .modal] = self
+    }
+
+    func start(owner: StateMachineOwning, forContext context: RenderContext) {
+        guard let container = appcues?.container else { return }
+
+        owner.stateMachine = ExperienceStateMachine(container: container)
+        stateMachines[ownerFor: context] = owner
+        if let pendingExperiences = potentiallyRenderableExperiences[context] {
+            show(qualifiedExperiences: pendingExperiences, completion: nil)
+        }
+    }
+
+    func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger) {
+        let shouldClearCache = reason == .qualification(reason: .screenView)
+        if shouldClearCache {
+            // TODO: error events for embeds that didn't show because there was no Frame
+            potentiallyRenderableExperiences = [:]
+            stateMachines.cleanup()
+        }
+
+        // Add new experiences, replacing any existing ones
+        let grouped = Dictionary(grouping: qualifiedExperiences) { $0.renderContext }
+        potentiallyRenderableExperiences = potentiallyRenderableExperiences.merging(grouped)
+
+        potentiallyRenderableExperiences.forEach { _, qualifiedExperiences in
+            show(qualifiedExperiences: qualifiedExperiences, completion: nil)
+        }
+
+        // No caching required for modals since they can't be lazy-loaded.
+        potentiallyRenderableExperiences.removeValue(forKey: .modal)
     }
 
     func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
@@ -45,6 +88,12 @@ internal class ExperienceRenderer: ExperienceRendering {
             DispatchQueue.main.async {
                 self.show(experience: experience, completion: completion)
             }
+            return
+        }
+
+        guard let stateMachine = stateMachines[experience.renderContext] else {
+            potentiallyRenderableExperiences[experience.renderContext] = [experience]
+            completion?(.failure(ExperienceRendererError.noStateMachine))
             return
         }
 
@@ -58,7 +107,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
 
         if experience.priority == .normal && stateMachine.state != .idling {
-            dismissCurrentExperience(markComplete: false) { result in
+            dismiss(inContext: experience.renderContext, markComplete: false) { result in
                 switch result {
                 case .success:
                     self.show(experience: experience, completion: completion)
@@ -76,7 +125,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         // only track analytics on published experiences (not previews)
         // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
         if experience.published && stateMachine.state == .idling {
-            self.stateMachine.addObserver(analyticsObserver)
+            stateMachine.addObserver(analyticsObserver)
         }
         stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
         stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
@@ -94,7 +143,7 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func show(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?) {
+    private func show(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?) {
         guard let experience = qualifiedExperiences.first else {
             // If given an empty list of qualified experiences, complete with a success because this function has completed without error.
             // This function only recurses on a non-empty case, so this block only applies to the initial external call.
@@ -117,11 +166,16 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func show(stepInCurrentExperience stepRef: StepReference, completion: (() -> Void)?) {
+    func show(step stepRef: StepReference, inContext context: RenderContext, completion: (() -> Void)?) {
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
-                self.show(stepInCurrentExperience: stepRef, completion: completion)
+                self.show(step: stepRef, inContext: context, completion: completion)
             }
+            return
+        }
+
+        guard let stateMachine = stateMachines[context] else {
+            completion?()
             return
         }
 
@@ -149,11 +203,16 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func dismissCurrentExperience(markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
+    func dismiss(inContext context: RenderContext, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
-                self.dismissCurrentExperience(markComplete: markComplete, completion: completion)
+                self.dismiss(inContext: context, markComplete: markComplete, completion: completion)
             }
+            return
+        }
+
+        guard let stateMachine = stateMachines[context] else {
+            completion?(.failure(ExperienceRendererError.noStateMachine))
             return
         }
 
@@ -166,7 +225,7 @@ internal class ExperienceRenderer: ExperienceRendering {
             // These two cases handle dismissing an experience that's in the process of presenting a step group.
             case .success(.renderingStep):
                 DispatchQueue.main.async { [weak self] in
-                    self?.dismissCurrentExperience(markComplete: markComplete, completion: completion)
+                    self?.dismiss(inContext: context, markComplete: markComplete, completion: completion)
                 }
                 return true
             case .failure(.noTransition(currentState: .beginningExperience)),
@@ -186,12 +245,16 @@ internal class ExperienceRenderer: ExperienceRendering {
         }
     }
 
-    func getCurrentExperienceData() -> ExperienceData? {
-        stateMachine.state.currentExperienceData
+    func experienceData(forContext context: RenderContext) -> ExperienceData? {
+        stateMachines[context]?.state.currentExperienceData
     }
 
-    func getCurrentStepIndex() -> Experience.StepIndex? {
-        stateMachine.state.currentStepIndex
+    func stepIndex(forContext context: RenderContext) -> Experience.StepIndex? {
+        stateMachines[context]?.state.currentStepIndex
+    }
+
+    func owner(forContext context: RenderContext) -> StateMachineOwning? {
+        stateMachines[ownerFor: context]
     }
 
     private func track(experiment: Experiment?) {

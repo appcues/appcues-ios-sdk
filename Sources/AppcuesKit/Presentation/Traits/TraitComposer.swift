@@ -38,25 +38,41 @@ internal class TraitComposer: TraitComposing {
         }
 
         // Start with experience-level traits
-        let decomposedTraits = DecomposedTraits(traits: traitRegistry.instances(for: experience.traits, level: .experience))
+        let decomposedTraits = DecomposedTraits(traits: traitRegistry.instances(
+            for: experience.traits,
+            level: .experience,
+            renderContext: experience.renderContext
+        ))
         var allTraitInstances = decomposedTraits.allTraitInstances
 
         // Add step-group-level traits and top-level-step traits
         switch experience.steps[stepIndex.group] {
         case .group(let stepGroup):
-            let decomposedGroupTraits = DecomposedTraits(traits: traitRegistry.instances(for: stepGroup.traits, level: .group))
+            let decomposedGroupTraits = DecomposedTraits(traits: traitRegistry.instances(
+                for: stepGroup.traits,
+                level: .group,
+                renderContext: experience.renderContext
+            ))
             decomposedTraits.append(contentsOf: decomposedGroupTraits)
             allTraitInstances.append(contentsOf: decomposedGroupTraits.allTraitInstances)
         case .child(let childStep):
             // Decorator traits and allTraitInstances for a single step are handled below with the stepModels.
             decomposedTraits.append(
-                contentsOf: DecomposedTraits(traits: traitRegistry.instances(for: childStep.traits, level: .step)),
+                contentsOf: DecomposedTraits(traits: traitRegistry.instances(
+                    for: childStep.traits,
+                    level: .step,
+                    renderContext: experience.renderContext
+                )),
                 ignoringDecorators: true
             )
         }
 
         let stepModelsWithTraits: [(step: Experience.Step.Child, decomposedTraits: DecomposedTraits)] = stepModels.map { stepModel in
-            let decomposedStepTraits = DecomposedTraits(traits: traitRegistry.instances(for: stepModel.traits, level: .step))
+            let decomposedStepTraits = DecomposedTraits(traits: traitRegistry.instances(
+                for: stepModel.traits,
+                level: .step,
+                renderContext: experience.renderContext
+            ))
             decomposedStepTraits.propagateDecorators(from: decomposedTraits)
             allTraitInstances.append(contentsOf: decomposedStepTraits.allTraitInstances)
             return (stepModel, decomposedStepTraits)
@@ -67,7 +83,7 @@ internal class TraitComposer: TraitComposing {
         allTraitInstances.forEach { $0.metadataDelegate = metadataDelegate }
 
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithTraits.map {
-            let viewModel = ExperienceStepViewModel(step: $0.step, actionRegistry: actionRegistry)
+            let viewModel = ExperienceStepViewModel(step: $0.step, actionRegistry: actionRegistry, renderContext: experience.renderContext)
             let stepViewController = ExperienceStepViewController(
                 viewModel: viewModel,
                 stepState: experience.state(for: $0.step.id),
