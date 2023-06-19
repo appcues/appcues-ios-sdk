@@ -18,7 +18,7 @@ internal protocol ExperienceStateObserver: AnyObject {
 extension Result where Success == ExperienceStateMachine.State, Failure == ExperienceStateMachine.ExperienceError {
 
     /// Check if the result pertains to a specific experience ID.
-    func matches(instanceID: InstanceID?) -> Bool {
+    func matches(instanceID: UUID?) -> Bool {
         guard let instanceID = instanceID else { return true }
 
         switch self {
@@ -42,10 +42,10 @@ extension ExperienceStateMachine {
     typealias Callback = (ExperienceStateObserver.StateResult) -> Bool
 
     class StateObserver: ExperienceStateObserver {
-        private let instanceID: InstanceID?
+        private let instanceID: UUID?
         private let callback: Callback
 
-        init(filter: InstanceID?, _ evaluateIfSatisfied: @escaping Callback) {
+        init(filter: UUID?, _ evaluateIfSatisfied: @escaping Callback) {
             self.instanceID = filter
             self.callback = evaluateIfSatisfied
         }

@@ -95,10 +95,6 @@ internal protocol PluginDecoder {
     func decode<T: Decodable>(_ type: T.Type) -> T?
 }
 
-internal struct InstanceID: Identifiable, Hashable {
-    let id = UUID()
-}
-
 internal struct Experience {
 
     @dynamicMemberLookup
@@ -149,7 +145,7 @@ internal struct Experience {
     let nextContentID: String?
 
     /// Unique ID to disambiguate the same experience flowing through the system from different origins.
-    let instanceID = InstanceID()
+    let instanceID = UUID()
 }
 
 extension Experience: Decodable {
@@ -191,7 +187,6 @@ extension Experience {
             if let nextContentID = nextContentID {
                 actions.append(AppcuesLaunchExperienceAction(
                     appcues: appcues,
-                    currentExperienceID: instanceID,
                     experienceID: nextContentID,
                     trigger: .experienceCompletionAction(fromExperienceID: self.id)
                 ))

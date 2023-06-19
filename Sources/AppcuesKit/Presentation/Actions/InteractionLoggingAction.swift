@@ -25,7 +25,7 @@ extension AppcuesLinkAction: InteractionLoggingAction {
 @available(iOS 13.0, *)
 extension AppcuesLaunchExperienceAction: InteractionLoggingAction {
     var category: String { "internal" }
-    var destination: String { launchExperienceID }
+    var destination: String { experienceID }
 }
 
 @available(iOS 13.0, *)

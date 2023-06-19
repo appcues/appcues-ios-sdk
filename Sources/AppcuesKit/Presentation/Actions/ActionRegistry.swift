@@ -65,9 +65,9 @@ internal class ActionRegistry {
 
     /// Enqueue an array of experience action data models to be executed. This version is for non-interactive action execution,
     /// such as actions that execute as part of the navigation to a step.
-    func enqueue(actionModels: [Experience.Action], level: AppcuesExperiencePluginConfiguration.Level, experienceID: InstanceID?, completion: @escaping () -> Void) {
+    func enqueue(actionModels: [Experience.Action], level: AppcuesExperiencePluginConfiguration.Level, completion: @escaping () -> Void) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, experienceID: experienceID, appcues: appcues))
+            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, appcues: appcues))
         }
         execute(transformQueue(actionInstances), completion: completion)
     }
@@ -84,12 +84,11 @@ internal class ActionRegistry {
     func enqueue(
         actionModels: [Experience.Action],
         level: AppcuesExperiencePluginConfiguration.Level,
-        experienceID: InstanceID?,
         interactionType: String,
         viewDescription: String?
     ) {
         let actionInstances = actionModels.compactMap {
-            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, experienceID: experienceID, appcues: appcues))
+            actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration($0.configDecoder, level: level, appcues: appcues))
         }
 
         // As a heuristic, take the last action that's `InteractionLoggingAction`, since that's most likely
@@ -97,7 +96,6 @@ internal class ActionRegistry {
         let primaryAction = actionInstances.reversed().compactMapFirst { $0 as? InteractionLoggingAction }
         let interactionAction = AppcuesStepInteractionAction(
             appcues: appcues,
-            experienceID: experienceID,
             interactionType: interactionType,
             viewDescription: viewDescription ?? "",
             category: primaryAction?.category ?? "",
