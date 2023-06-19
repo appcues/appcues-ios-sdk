@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal enum ExperienceTrigger {
+internal enum ExperienceTrigger: Equatable {
     case qualification(reason: QualifyResponse.QualificationReason?)
     case experienceCompletionAction(fromExperienceID: UUID?)
     case launchExperienceAction(fromExperienceID: UUID?)

@@ -31,9 +31,12 @@ public class AppcuesExperiencePluginConfiguration: NSObject {
     /// The instance of the Appcues SDK where the plugin is being applied.
     public weak var appcues: Appcues?
 
-    init(_ decoder: PluginDecoder, level: Level, appcues: Appcues?) {
+    internal let renderContext: RenderContext
+
+    init(_ decoder: PluginDecoder, level: Level, renderContext: RenderContext, appcues: Appcues?) {
         self.decoder = decoder
         self.level = level
+        self.renderContext = renderContext
         self.appcues = appcues
     }
 

@@ -151,8 +151,8 @@ extension UIDebugger: DebugViewDelegate {
     }
 
     private func captureScreen(authorization: Authorization) {
-        guard experienceRenderer.getCurrentExperienceData() == nil else {
-            experienceRenderer.dismissCurrentExperience(markComplete: false) { _ in
+        guard experienceRenderer.experienceData(forContext: .modal) == nil else {
+            experienceRenderer.dismiss(inContext: .modal, markComplete: false) { _ in
                 self.captureScreen(authorization: authorization)
             }
             return
