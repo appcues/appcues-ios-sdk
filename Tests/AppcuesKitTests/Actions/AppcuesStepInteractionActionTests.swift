@@ -32,10 +32,10 @@ class AppcuesStepInteractionActionTests: XCTestCase {
         // Arrange
         var mostRecentUpdate: TrackingUpdate?
 
-        appcues.experienceRenderer.onGetCurrentExperienceData = {
+        appcues.experienceRenderer.onExperienceData = { _ in
             ExperienceData.mock
         }
-        appcues.experienceRenderer.onGetCurrentStepIndex = {
+        appcues.experienceRenderer.onStepIndex = { _ in
             .initial
         }
 
@@ -54,6 +54,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                     config: AppcuesTrackAction.Config(eventName: "Some event"))
             ],
             level: .step,
+            renderContext: .modal,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -96,6 +97,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                     config: AppcuesTrackAction.Config(eventName: "Some event"))
             ],
             level: .step,
+            renderContext: .modal,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -130,6 +132,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                     config: AppcuesLinkAction.Config(url: URL(string: "https://appcues.com")!, openExternally: nil))
             ],
             level: .step,
+            renderContext: .modal,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -164,6 +167,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                     config: AppcuesLaunchExperienceAction.Config(experienceID: "c1d5336f-6416-4805-9e82-4073c9b8cdb8"))
             ],
             level: .step,
+            renderContext: .modal,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -194,6 +198,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                     config: AppcuesCloseAction.Config(markComplete: true))
             ],
             level: .step,
+            renderContext: .modal,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -224,6 +229,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                     config: AppcuesContinueAction.Config(index: nil, offset: nil, stepID: UUID(uuidString: "c1ba5af5-df15-4e38-834b-c7c33ee91e44")))
             ],
             level: .step,
+            renderContext: .modal,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
 
@@ -243,7 +249,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
     func testExecuteCompletesWithoutAppcuesInstance() throws {
         // Arrange
         var completionCount = 0
-        let action = try XCTUnwrap(AppcuesStepInteractionAction(appcues: nil, interactionType: "String", viewDescription: "String", category: "String", destination: "String"))
+        let action = try XCTUnwrap(AppcuesStepInteractionAction(appcues: nil, renderContext: .modal, interactionType: "String", viewDescription: "String", category: "String", destination: "String"))
 
         // Act
         action.execute(completion: { completionCount += 1 })

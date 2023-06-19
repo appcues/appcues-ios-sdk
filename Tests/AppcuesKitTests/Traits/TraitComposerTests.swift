@@ -55,7 +55,8 @@ class TraitComposerTests: XCTestCase {
                 .child(Experience.Step.Child(traits: []))
             ],
             redirectURL: nil,
-            nextContentID: nil)
+            nextContentID: nil,
+            renderContext: .modal)
         let stepIndex = Experience.StepIndex(group: 0, item: 0)
         let package = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: stepIndex)
 
@@ -213,7 +214,8 @@ class TraitComposerTests: XCTestCase {
                 ))
             ],
             redirectURL: nil,
-            nextContentID: nil)
+            nextContentID: nil,
+            renderContext: .modal)
 
         let stepIndex = Experience.StepIndex(group: 0, item: 0)
         let package = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: stepIndex)
@@ -266,7 +268,8 @@ class TraitComposerTests: XCTestCase {
                 .child(Experience.Step.Child(traits: []))
             ],
             redirectURL: nil,
-            nextContentID: nil)
+            nextContentID: nil,
+            renderContext: .modal)
 
 
         // Act
@@ -304,7 +307,8 @@ class TraitComposerTests: XCTestCase {
                 ))
             ],
             redirectURL: nil,
-            nextContentID: nil)
+            nextContentID: nil,
+            renderContext: .modal)
         let experienceData = ExperienceData(experience, trigger: .showCall)
 
         // Act
@@ -447,7 +451,8 @@ class TraitComposerTests: XCTestCase {
                 ]))
             ],
             redirectURL: nil,
-            nextContentID: nil)
+            nextContentID: nil,
+            renderContext: .modal)
     }
 }
 
