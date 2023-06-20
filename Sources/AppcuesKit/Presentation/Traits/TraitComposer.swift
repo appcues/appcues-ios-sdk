@@ -18,12 +18,14 @@ internal class TraitComposer: TraitComposing {
 
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
+    private let config: Appcues.Config
     private let notificationCenter: NotificationCenter
 
     init(container: DIContainer) {
         traitRegistry = container.resolve(TraitRegistry.self)
         actionRegistry = container.resolve(ActionRegistry.self)
         notificationCenter = container.resolve(NotificationCenter.self)
+        config = container.resolve(Appcues.Config.self)
     }
 
     // swiftlint:disable:next function_body_length
@@ -83,7 +85,12 @@ internal class TraitComposer: TraitComposing {
         allTraitInstances.forEach { $0.metadataDelegate = metadataDelegate }
 
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithTraits.map {
-            let viewModel = ExperienceStepViewModel(step: $0.step, actionRegistry: actionRegistry, renderContext: experience.renderContext)
+            let viewModel = ExperienceStepViewModel(
+                step: $0.step,
+                actionRegistry: actionRegistry,
+                renderContext: experience.renderContext,
+                config: config
+            )
             let stepViewController = ExperienceStepViewController(
                 viewModel: viewModel,
                 stepState: experience.state(for: $0.step.id),
