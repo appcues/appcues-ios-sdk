@@ -13,8 +13,12 @@ extension Font {
     /// Init `Font` from an experience JSON model values.
     init?(name: String?, size: Double?) {
         guard let size = CGFloat(size) else { return nil }
+
+        // scaling the size here to support dynamic type
+        let scaledSize = UIFontMetrics.default.scaledValue(for: size)
+
         guard let name = name else {
-            self = .system(size: size)
+            self = .system(size: scaledSize)
             return
         }
 
@@ -24,15 +28,19 @@ extension Font {
             let parts = name.split(separator: " ")
             if parts.count == 3 {
                 self = .system(
-                    size: size,
+                    size: scaledSize,
                     weight: Font.Weight(string: String(parts[2])) ?? .regular,
                     design: Font.Design(string: String(parts[1])) ?? .default
                 )
             } else {
-                self = .system(size: size)
+                self = .system(size: scaledSize)
             }
         } else {
-            self = .custom(name, size: size)
+            if #available(iOS 14.0, *) {
+                self = .custom(name, fixedSize: scaledSize)
+            } else {
+                self = .custom(name, size: size)
+            }
         }
     }
 }
