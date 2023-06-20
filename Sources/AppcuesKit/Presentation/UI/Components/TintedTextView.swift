@@ -15,6 +15,10 @@ internal struct TintedTextView: View {
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
+    // this is to support dynamic type
+    // https://stackoverflow.com/a/70800548
+    @Environment(\.sizeCategory) var sizeCategory
+
     var body: some View {
         let style = AppcuesStyle(from: model.style)
 
