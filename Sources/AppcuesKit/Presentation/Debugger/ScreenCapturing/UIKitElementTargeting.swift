@@ -16,30 +16,30 @@ internal class UIKitElementSelector: AppcuesElementSelector {
         case accessibilityIdentifier
         case accessibilityLabel
         case tag
-        case tab
+        case autoTag
     }
 
     let accessibilityIdentifier: String?
     let tag: String?
     let appcuesID: String?
-    let tab: String?
+    let autoTag: String?
 
     init?(
         appcuesID: String?,
         accessibilityIdentifier: String?,
         accessibilityLabel: String?,
         tag: String?,
-        tab: String? = nil
+        autoTag: String? = nil
     ) {
         // must have at least one identifiable property to be a valid selector
-        if appcuesID == nil && accessibilityIdentifier == nil && accessibilityLabel == nil && tag == nil && tab == nil {
+        if appcuesID == nil && accessibilityIdentifier == nil && accessibilityLabel == nil && tag == nil && autoTag == nil {
             return nil
         }
 
         self.appcuesID = appcuesID
         self.accessibilityIdentifier = accessibilityIdentifier
         self.tag = tag
-        self.tab = tab
+        self.autoTag = autoTag
 
         super.init()
 
@@ -64,7 +64,7 @@ internal class UIKitElementSelector: AppcuesElementSelector {
             weight += 10_000
         }
 
-        if tab != nil && tab == other.tab {
+        if autoTag != nil && autoTag == other.autoTag {
             weight += 5_000
         }
 
@@ -93,8 +93,8 @@ internal class UIKitElementSelector: AppcuesElementSelector {
         if let tag = tag, !tag.isEmpty {
             try container.encode(tag, forKey: .tag)
         }
-        if let tab = tab, !tab.isEmpty {
-            try container.encode(tab, forKey: .tab)
+        if let autoTag = autoTag, !autoTag.isEmpty {
+            try container.encode(autoTag, forKey: .autoTag)
         }
     }
 
@@ -103,8 +103,8 @@ internal class UIKitElementSelector: AppcuesElementSelector {
             return appcuesID
         } else if let accessibilityIdentifier = accessibilityIdentifier {
             return accessibilityIdentifier
-        } else if let tab = tab {
-            return tab
+        } else if let autoTag = autoTag {
+            return autoTag
         } else if let tag = tag {
             return "\(type) (tag \(tag))"
         } else if let accessibilityLabel = accessibilityLabel {
@@ -133,7 +133,7 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
             accessibilityIdentifier: properties["accessibilityIdentifier"],
             accessibilityLabel: properties["accessibilityLabel"],
             tag: properties["tag"],
-            tab: properties["tab"]
+            autoTag: properties["autoTag"]
         )
     }
 }
@@ -143,21 +143,21 @@ internal extension UIView {
         return "\(type(of: self))"
     }
 
-    private func getAppcuesSelector(tabIndex: Int? = nil) -> UIKitElementSelector? {
+    private func getAppcuesSelector(autoTag: String? = nil) -> UIKitElementSelector? {
         return UIKitElementSelector(
             appcuesID: (self as? AppcuesTargetView)?.appcuesID,
             accessibilityIdentifier: accessibilityIdentifier,
             accessibilityLabel: accessibilityLabel,
             tag: tag != 0 ? "\(self.tag)" : nil,
-            tab: tabIndex.flatMap { "tab[\($0)]" }
+            autoTag: autoTag
         )
     }
 
     func asViewElement() -> AppcuesViewElement? {
-        return self.asViewElement(in: self.bounds, tabIndex: nil)
+        return self.asViewElement(in: self.bounds, autoTag: nil)
     }
 
-    private func asViewElement(in bounds: CGRect, tabIndex: Int?) -> AppcuesViewElement? {
+    private func asViewElement(in bounds: CGRect, autoTag: String?) -> AppcuesViewElement? {
         let absolutePosition = self.convert(self.bounds, to: nil)
 
         // discard views that are not visible in the screenshot image
@@ -173,10 +173,11 @@ internal extension UIView {
                 tabCount += 1
                 childTabIndex = tabCount - 1
             }
-            return subview.asViewElement(in: bounds, tabIndex: childTabIndex)
+            let childAutoTag = getAutoTag(tabIndex: childTabIndex)
+            return subview.asViewElement(in: bounds, autoTag: childAutoTag)
         }
 
-        let selector = getAppcuesSelector(tabIndex: tabIndex)
+        let selector = getAppcuesSelector(autoTag: autoTag)
 
         return AppcuesViewElement(
             x: absolutePosition.origin.x,
@@ -188,5 +189,11 @@ internal extension UIView {
             children: children.isEmpty ? nil : children,
             displayName: selector?.displayName(with: displayType)
         )
+    }
+
+    // if/when any other auto tag capabilities are developed, can add logic here
+    // to generate the selector string representation
+    private func getAutoTag(tabIndex: Int?) -> String? {
+        return tabIndex.flatMap { "tab[\($0)]" }
     }
 }

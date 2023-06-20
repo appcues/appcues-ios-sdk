@@ -273,7 +273,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
 
         rootViewController.view.addSubview(tabBarView)
 
-        let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["tab":"tab[2]"]))
+        let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["autoTag":"tab[2]"]))
         trait.metadataDelegate = metadataDelegate
 
         // Act
