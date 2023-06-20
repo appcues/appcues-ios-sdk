@@ -32,12 +32,7 @@ internal class AppcuesPagingDotsTrait: AppcuesContainerDecoratingTrait {
 
         let pageWrapView = UIView()
         pageWrapView.translatesAutoresizingMaskIntoConstraints = false
-        pageWrapView.directionalLayoutMargins = NSDirectionalEdgeInsets(
-            top: style?.marginTop ?? 0,
-            leading: style?.marginLeading ?? 0,
-            bottom: style?.marginBottom ?? 0,
-            trailing: style?.marginTrailing ?? 0
-        )
+        pageWrapView.directionalLayoutMargins = NSDirectionalEdgeInsets(marginFrom: style)
 
         let pageControl = UIPageControl()
         pageControl.currentPageIndicatorTintColor = UIColor(dynamicColor: style?.foregroundColor) ?? .secondaryLabel

@@ -31,12 +31,7 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
     func decorate(stepController: UIViewController) throws {
         // Need to cast for access to the padding property.
         guard let stepController = stepController as? ExperienceStepViewController else { return }
-        stepController.padding = NSDirectionalEdgeInsets(
-            top: modalStyle?.paddingTop ?? 0,
-            leading: modalStyle?.paddingLeading ?? 0,
-            bottom: modalStyle?.paddingBottom ?? 0,
-            trailing: modalStyle?.paddingTrailing ?? 0
-        )
+        stepController.padding = NSDirectionalEdgeInsets(paddingFrom: modalStyle)
     }
 
     func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {

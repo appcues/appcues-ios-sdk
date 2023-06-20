@@ -39,12 +39,7 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
     func decorate(stepController: UIViewController) throws {
         // Need to cast for access to the padding property.
         guard let stepController = stepController as? ExperienceStepViewController else { return }
-        stepController.padding = NSDirectionalEdgeInsets(
-            top: tooltipStyle?.paddingTop ?? 0,
-            leading: tooltipStyle?.paddingLeading ?? 0,
-            bottom: tooltipStyle?.paddingBottom ?? 0,
-            trailing: tooltipStyle?.paddingTrailing ?? 0
-        )
+        stepController.padding = NSDirectionalEdgeInsets(paddingFrom: tooltipStyle)
     }
 
     func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
