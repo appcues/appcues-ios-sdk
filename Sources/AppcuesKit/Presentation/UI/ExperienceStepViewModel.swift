@@ -16,12 +16,17 @@ internal class ExperienceStepViewModel: ObservableObject {
         case longPress
     }
 
+    var enableTextScaling: Bool {
+        return config?.enableTextScaling ?? false
+    }
+
     let step: Experience.Step.Child
     private let actions: [UUID: [Experience.Action]]
     private let actionRegistry: ActionRegistry?
     private let renderContext: RenderContext
+    private let config: Appcues.Config?
 
-    init(step: Experience.Step.Child, actionRegistry: ActionRegistry, renderContext: RenderContext) {
+    init(step: Experience.Step.Child, actionRegistry: ActionRegistry, renderContext: RenderContext, config: Appcues.Config?) {
         self.step = step
         // Update the action list to be keyed by the UUID.
         self.actions = step.actions.reduce(into: [:]) { dict, item in
@@ -30,6 +35,7 @@ internal class ExperienceStepViewModel: ObservableObject {
         }
         self.actionRegistry = actionRegistry
         self.renderContext = renderContext
+        self.config = config
     }
 
     // Create an empty view model for contexts that require an `ExperienceStepViewModel` but aren't in a step context.
@@ -48,6 +54,7 @@ internal class ExperienceStepViewModel: ObservableObject {
         self.actions = [:]
         self.actionRegistry = nil
         self.renderContext = renderContext
+        self.config = nil
     }
 
     func enqueueActions(_ actions: [Experience.Action], type: String, viewDescription: String?) {

@@ -11,14 +11,14 @@ import SwiftUI
 extension Font {
 
     /// Init `Font` from an experience JSON model values.
-    init?(name: String?, size: Double?) {
-        guard let size = CGFloat(size) else { return nil }
+    init?(name: String?, size: Double?, scaled: Bool = false) {
+        guard let modelSize = CGFloat(size) else { return nil }
 
         // scaling the size here to support dynamic type
-        let scaledSize = UIFontMetrics.default.scaledValue(for: size)
+        let size = scaled ? UIFontMetrics.metricFor(size: modelSize).scaledValue(for: modelSize) : modelSize
 
         guard let name = name else {
-            self = .system(size: scaledSize)
+            self = .system(size: size)
             return
         }
 
@@ -28,19 +28,35 @@ extension Font {
             let parts = name.split(separator: " ")
             if parts.count == 3 {
                 self = .system(
-                    size: scaledSize,
+                    size: size,
                     weight: Font.Weight(string: String(parts[2])) ?? .regular,
                     design: Font.Design(string: String(parts[1])) ?? .default
                 )
             } else {
-                self = .system(size: scaledSize)
+                self = .system(size: size)
             }
         } else {
             if #available(iOS 14.0, *) {
-                self = .custom(name, fixedSize: scaledSize)
+                self = .custom(name, fixedSize: size)
             } else {
-                self = .custom(name, size: size)
+                // this version < 14 will end up allowing dynamic type on custom
+                // fonts that support it, so we stick with the original modelSize
+                self = .custom(name, size: modelSize)
             }
+        }
+    }
+}
+
+extension UIFontMetrics {
+    static func metricFor(size: CGFloat) -> UIFontMetrics {
+        // using a simple mapping here to try to provide reasonable font scaling
+        // behavior based on the original text size in the design
+        if size <= 15 {
+            return UIFontMetrics(forTextStyle: .caption1)
+        } else if size >= 20 {
+            return UIFontMetrics(forTextStyle: .title1)
+        } else {
+            return UIFontMetrics(forTextStyle: .body)
         }
     }
 }

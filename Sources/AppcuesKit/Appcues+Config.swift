@@ -43,6 +43,8 @@ public extension Appcues {
 
         var enableUniversalLinks = true
 
+        var enableTextScaling = false
+
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
         /// - Parameter applicationID: Appcues Application ID - a string containing a UUID,
@@ -171,6 +173,22 @@ public extension Appcues {
         @objc
         public func enableUniversalLinks(_ enabled: Bool) -> Self {
             self.enableUniversalLinks = enabled
+            return self
+        }
+
+        /// Set the text scaling preference for the configuration.
+        ///
+        /// When this option is enabled, Appcues content rendered by the SDK will support Dynamic Type, and adjust
+        /// to the user's preferred reading size, set in system settings.
+        ///
+        /// The default value for this configuration is `false`.
+        ///
+        /// - Parameter enabled: Whether text scaling is enabled.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        @objc
+        public func enableTextScaling(_ enabled: Bool) -> Self {
+            self.enableTextScaling = enabled
             return self
         }
     }
