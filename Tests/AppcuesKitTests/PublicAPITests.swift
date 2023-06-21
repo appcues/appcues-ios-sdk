@@ -30,6 +30,7 @@ class PublicAPITests: XCTestCase {
             .anonymousIDFactory({ UUID().uuidString })
             .additionalAutoProperties(["test": "value"])
             .enableUniversalLinks(true)
+            .enableTextScaling(true)
 
         let appcuesInstance = Appcues(config: config)
 
