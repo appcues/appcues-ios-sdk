@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		111D1F044CE5C429A13E377B /* Mulish-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D140F36AD3D06536C395A074 /* Mulish-VariableFont_wght.ttf */; };
-		1A3AD957297755BA0058533F /* HomeTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AD956297755BA0058533F /* HomeTabBarController.swift */; };
 		62B165983718917D2D41BA5C /* Mulish-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 17D5A01020B551B33B447DC1 /* Mulish-Italic-VariableFont_wght.ttf */; };
 		64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7C790690C785694C7F24F8 /* EventsViewController.swift */; };
 		7013CDD44A5E7E6056595498 /* Lato-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */; };
@@ -29,7 +28,6 @@
 /* Begin PBXFileReference section */
 		05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Black.ttf"; sourceTree = "<group>"; };
 		17D5A01020B551B33B447DC1 /* Mulish-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
-		1A3AD956297755BA0058533F /* HomeTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeTabBarController.swift; sourceTree = "<group>"; };
 		288554133C93206378D963AB /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		476767533B954304A7121A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6901798B6E99F34ACF2F707B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -112,7 +110,6 @@
 				723869D8744D77D8EC9B55F1 /* ProfileViewController.swift */,
 				6901798B6E99F34ACF2F707B /* SceneDelegate.swift */,
 				288554133C93206378D963AB /* SignInViewController.swift */,
-				1A3AD956297755BA0058533F /* HomeTabBarController.swift */,
 			);
 			path = SPMExample;
 			sourceTree = "<group>";
@@ -214,7 +211,6 @@
 				B8DB7327A11245904C6B908F /* DeepLinkNavigator.swift in Sources */,
 				64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */,
 				EE6124C9BB7FB8ACF18B1503 /* GroupViewController.swift in Sources */,
-				1A3AD957297755BA0058533F /* HomeTabBarController.swift in Sources */,
 				F897157F45696443B145C383 /* ProfileViewController.swift in Sources */,
 				BF24A197BFEAF23D84AC3462 /* SceneDelegate.swift in Sources */,
 				DD6A303F8B4B0A8075C32454 /* SignInViewController.swift in Sources */,
