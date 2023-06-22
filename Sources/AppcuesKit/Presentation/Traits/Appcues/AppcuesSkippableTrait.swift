@@ -100,7 +100,7 @@ private extension UIViewController {
         let dismissWrapView = UIView()
         dismissWrapView.translatesAutoresizingMaskIntoConstraints = false
         // 8px default margins for backwards compatibility
-        dismissWrapView.directionalLayoutMargins = NSDirectionalEdgeInsets(marginFrom: style)
+        dismissWrapView.directionalLayoutMargins = NSDirectionalEdgeInsets(marginFrom: style, fallback: 8)
 
         let dismissButton = CloseButton(style: style, isMinimal: appearance == .minimal)
         dismissButton.translatesAutoresizingMaskIntoConstraints = false

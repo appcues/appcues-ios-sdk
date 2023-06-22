@@ -10,22 +10,22 @@ import UIKit
 
 extension NSDirectionalEdgeInsets {
     @available(iOS 13.0, *)
-    init(paddingFrom style: ExperienceComponent.Style?) {
+    init(paddingFrom style: ExperienceComponent.Style?, fallback: CGFloat = 0) {
         self.init(
-            top: style?.paddingTop ?? 0,
-            leading: style?.paddingLeading ?? 0,
-            bottom: style?.paddingBottom ?? 0,
-            trailing: style?.paddingTrailing ?? 0
+            top: style?.paddingTop ?? fallback,
+            leading: style?.paddingLeading ?? fallback,
+            bottom: style?.paddingBottom ?? fallback,
+            trailing: style?.paddingTrailing ?? fallback
         )
     }
 
     @available(iOS 13.0, *)
-    init(marginFrom style: ExperienceComponent.Style?) {
+    init(marginFrom style: ExperienceComponent.Style?, fallback: CGFloat = 0) {
         self.init(
-            top: style?.marginTop ?? 0,
-            leading: style?.marginLeading ?? 0,
-            bottom: style?.marginBottom ?? 0,
-            trailing: style?.marginTrailing ?? 0
+            top: style?.marginTop ?? fallback,
+            leading: style?.marginLeading ?? fallback,
+            bottom: style?.marginBottom ?? fallback,
+            trailing: style?.marginTrailing ?? fallback
         )
     }
 
