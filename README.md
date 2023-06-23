@@ -25,6 +25,7 @@ The SDK is a Swift library for sending user properties and events to the Appcues
       - [Supporting Debugging and Experience Previewing](#supporting-debugging-and-experience-previewing)
     - [Identifying Users](#identifying-users)
     - [Tracking Screens and Events](#tracking-screens-and-events)
+    - [Anchored Tooltips](#anchored-tooltips)
   - [🛠 Customization](#-customization)
   - [📝 Documentation](#-documentation)
   - [🎬 Examples](#-examples)
