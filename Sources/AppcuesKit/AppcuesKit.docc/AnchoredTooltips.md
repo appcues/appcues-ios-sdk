@@ -37,7 +37,7 @@ The following example shows how this would be added to a SwiftUI `Button` View:
 Button("Save Profile") {
     onSaveProfile()
 }
-.appcuesView("btnSaveProfile")
+.appcuesView(identifier: "btnSaveProfile")
 ```
 
 ## Other Considerations
