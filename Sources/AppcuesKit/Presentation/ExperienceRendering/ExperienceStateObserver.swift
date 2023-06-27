@@ -113,5 +113,22 @@ extension ExperienceStateMachine {
                 isInternal: true
             ))
         }
+
+        func trackRecoverableError(experience: ExperienceData, message: String) {
+            guard experience.published else { return }
+
+            let errorID = UUID.create()
+            experience.recoverableErrorID = errorID
+            let errorProperties = LifecycleEvent.properties(experience, error: LifecycleEvent.ErrorBody(message: message, id: errorID))
+            trackLifecycleEvent(.experienceError, errorProperties)
+        }
+
+        func trackErrorRecovery(ifErrorOn experience: ExperienceData) {
+            guard experience.published, let errorID = experience.recoverableErrorID else { return }
+
+            let errorProperties = LifecycleEvent.properties(experience, error: LifecycleEvent.ErrorBody(message: nil, id: errorID))
+            trackLifecycleEvent(.experienceRecovered, errorProperties)
+            experience.recoverableErrorID = nil
+        }
     }
 }

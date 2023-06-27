@@ -66,7 +66,6 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
     func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger) {
         let shouldClearCache = reason == .qualification(reason: .screenView)
         if shouldClearCache {
-            // TODO: error events for embeds that didn't show because there was no Frame
             potentiallyRenderableExperiences = [:]
             stateMachines.cleanup()
         }
@@ -98,6 +97,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         }
 
         guard let stateMachine = stateMachines[experience.renderContext] else {
+            analyticsObserver.trackRecoverableError(experience: experience, message: "no render context \(experience.renderContext)")
             completion?(.failure(ExperienceRendererError.noStateMachine))
             return
         }
@@ -132,6 +132,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         if experience.published && stateMachine.state == .idling {
             stateMachine.addObserver(analyticsObserver)
         }
+        analyticsObserver.trackErrorRecovery(ifErrorOn: experience)
         stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
         stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
             switch result {

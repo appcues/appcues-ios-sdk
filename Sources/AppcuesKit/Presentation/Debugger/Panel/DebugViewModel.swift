@@ -155,7 +155,7 @@ internal class DebugViewModel: ObservableObject {
                 // Convert from zero-based to be human readable
                 subtitle = "Group \(stepIndex.group + 1) step \(stepIndex.item + 1)"
             }
-        case .stepInteraction, .stepCompleted, .stepRecovered, .experienceStarted:
+        case .stepInteraction, .stepCompleted, .stepRecovered, .experienceStarted, .experienceRecovered:
             status = .verified
             title = "Showing \(properties.experienceName)"
         case .experienceCompleted, .experienceDismissed:
