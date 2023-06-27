@@ -335,4 +335,54 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(updates.count, 0)
     }
+
+    func testExperienceErrorAndRecovery() throws {
+        // Arrange
+        UUID.generator = { UUID(uuidString: "2e044aa2-130f-4260-80c2-a36092a88aff")! }
+
+        let experienceData = ExperienceData.mock
+
+        // Act
+        observer.trackRecoverableError(experience: experienceData, message: "oh no")
+        observer.trackErrorRecovery(ifErrorOn: experienceData)
+
+        // Assert
+        XCTAssertEqual(updates.count, 2)
+        let errorUpdate = try XCTUnwrap(updates.first)
+        let recoveryUpdate = try XCTUnwrap(updates.last)
+
+        XCTAssertEqual(errorUpdate.type, .event(name: "appcues:v2:experience_error", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "errorId": "2e044aa2-130f-4260-80c2-a36092a88aff",
+            "message": "oh no"
+        ].verifyPropertiesMatch(errorUpdate.properties)
+
+        XCTAssertEqual(recoveryUpdate.type, .event(name: "appcues:v2:experience_recovered", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "errorId": "2e044aa2-130f-4260-80c2-a36092a88aff"
+        ].verifyPropertiesMatch(recoveryUpdate.properties)
+    }
+
+    func testUnpublishedExperienceErrorAndRecovery() throws {
+        // Arrange
+        UUID.generator = { UUID(uuidString: "2e044aa2-130f-4260-80c2-a36092a88aff")! }
+
+        let experienceData = ExperienceData(.mock, trigger: .showCall, published: false)
+
+        // Act
+        observer.trackRecoverableError(experience: experienceData, message: "oh no")
+        observer.trackErrorRecovery(ifErrorOn: experienceData)
+
+        // Assert
+        XCTAssertEqual(updates.count, 0)
+    }
+
 }
