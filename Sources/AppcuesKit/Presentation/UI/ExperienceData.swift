@@ -20,6 +20,8 @@ internal class ExperienceData {
     let trigger: ExperienceTrigger
     private let formState: FormState
 
+    var recoverableErrorID: UUID?
+
     internal init(
         _ experience: Experience,
         trigger: ExperienceTrigger,

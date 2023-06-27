@@ -18,6 +18,7 @@ internal enum LifecycleEvent: String, CaseIterable {
     case experienceCompleted = "appcues:v2:experience_completed"
     case experienceDismissed = "appcues:v2:experience_dismissed"
     case experienceError = "appcues:v2:experience_error"
+    case experienceRecovered = "appcues:v2:experience_recovered"
 
     private init?(trackingType: TrackingUpdate.TrackingType) {
         if case .event(let name, _) = trackingType, let val = Self(rawValue: name) {
@@ -71,10 +72,10 @@ internal enum LifecycleEvent: String, CaseIterable {
 extension LifecycleEvent {
 
     struct ErrorBody: ExpressibleByStringInterpolation {
-        let message: String
+        let message: String?
         let id: UUID
 
-        init(message: String, id: UUID = UUID.create()) {
+        init(message: String?, id: UUID = UUID.create()) {
             self.message = message
             self.id = id
         }
