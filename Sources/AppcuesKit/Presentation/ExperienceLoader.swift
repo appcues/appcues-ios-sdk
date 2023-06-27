@@ -47,7 +47,7 @@ internal class ExperienceLoader: ExperienceLoading {
         ) { [weak self] (result: Result<Experience, Error>) in
             switch result {
             case .success(let experience):
-                self?.experienceRenderer.show(
+                self?.experienceRenderer.processAndShow(
                     experience: ExperienceData(experience, trigger: trigger, priority: .normal, published: published),
                     completion: completion
                 )
