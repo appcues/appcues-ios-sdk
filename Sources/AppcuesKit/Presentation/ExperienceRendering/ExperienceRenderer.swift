@@ -12,7 +12,7 @@ import UIKit
 internal protocol ExperienceRendering: AnyObject {
     func start(owner: StateMachineOwning, forContext context: RenderContext)
     func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger)
-    func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?)
+    func processAndShow(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?)
     func show(step stepRef: StepReference, inContext context: RenderContext, completion: (() -> Void)?)
     func dismiss(inContext context: RenderContext, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?)
     func experienceData(forContext context: RenderContext) -> ExperienceData?
@@ -83,7 +83,13 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         potentiallyRenderableExperiences.removeValue(forKey: .modal)
     }
 
-    func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
+    func processAndShow(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
+        potentiallyRenderableExperiences[experience.renderContext] = [experience]
+
+        show(experience: experience, completion: completion)
+    }
+
+    private func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
                 self.show(experience: experience, completion: completion)
@@ -92,7 +98,6 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         }
 
         guard let stateMachine = stateMachines[experience.renderContext] else {
-            potentiallyRenderableExperiences[experience.renderContext] = [experience]
             completion?(.failure(ExperienceRendererError.noStateMachine))
             return
         }
@@ -155,6 +160,9 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
             switch result {
             case .success:
                 completion?(result)
+            case .failure(ExperienceRendererError.noStateMachine):
+                // If there's no state machine available, there's no point in trying the remaining experiences for the same context
+                completion?(result)
             case .failure:
                 let remainingExperiences = qualifiedExperiences.dropFirst()
                 if remainingExperiences.isEmpty {
@@ -216,9 +224,10 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
             return
         }
 
-        stateMachine.transitionAndObserve(.endExperience(markComplete: markComplete)) { result in
+        stateMachine.transitionAndObserve(.endExperience(markComplete: markComplete)) { [weak self] result in
             switch result {
             case .success(.idling):
+                 self?.potentiallyRenderableExperiences.removeValue(forKey: context)
                 DispatchQueue.main.async { completion?(.success(())) }
                 return true
 
