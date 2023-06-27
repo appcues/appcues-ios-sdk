@@ -135,9 +135,9 @@ class MockExperienceRenderer: ExperienceRendering {
         onProcessAndShow?(qualifiedExperiences, reason)
     }
 
-    var onShowExperience: ((ExperienceData, ((Result<Void, Error>) -> Void)?) -> Void)?
-    func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
-        onShowExperience?(experience, completion)
+    var onProcessAndShowExperience: ((ExperienceData, ((Result<Void, Error>) -> Void)?) -> Void)?
+    func processAndShow(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
+        onProcessAndShowExperience?(experience, completion)
     }
 
     var onShowStep: ((StepReference, RenderContext, (() -> Void)?) -> Void)?
