@@ -126,16 +126,23 @@ extension ExperienceComponent {
         let id: UUID
 
         let text: String
-        let spans: [TextSpan]
+        private let defaultSpans: [TextSpan]
+        private let conditionalSpans: [Conditional<[TextSpan]>]
 
         let style: Style?
 
         var textDescription: String? { text }
 
+        @available(iOS 13.0, *)
+        func resolvedSpans(using resolver: ConditionResolving?) -> [TextSpan] {
+            resolver?.resolve(conditionals: conditionalSpans) ?? defaultSpans
+        }
+
         enum CodingKeys: CodingKey {
             case id
             case text
             case spans
+            case conditionalSpans
             case style
         }
 
@@ -147,10 +154,10 @@ extension ExperienceComponent {
 
             // Require one of `spans` or `text`, preferring `spans`.
             if let spans = try container.decodeIfPresent([ExperienceComponent.TextSpan].self, forKey: .spans) {
-                self.spans = spans
+                self.defaultSpans = spans
                 self.text = spans.reduce(into: "") { $0 += $1.text }
             } else if let text = try container.decodeIfPresent(String.self, forKey: .text) {
-                self.spans = [TextSpan(text: text, style: nil)]
+                self.defaultSpans = [TextSpan(text: text, style: nil)]
                 self.text = text
             } else {
                 throw DecodingError.valueNotFound(
@@ -158,12 +165,15 @@ extension ExperienceComponent {
                     .init(codingPath: container.codingPath + [CodingKeys.text], debugDescription: "no text or spans defined")
                 )
             }
+
+            self.conditionalSpans = try container.decodeIfPresent([Conditional<[TextSpan]>].self, forKey: .conditionalSpans) ?? []
         }
 
         init(id: UUID, text: String, style: ExperienceComponent.Style? = nil) {
             self.id = id
             self.text = text
-            self.spans = [TextSpan(text: text, style: nil)]
+            self.defaultSpans = [TextSpan(text: text, style: nil)]
+            self.conditionalSpans = []
             self.style = style
         }
     }

@@ -22,7 +22,12 @@ internal struct TintedTextView: View {
     var body: some View {
         let style = AppcuesStyle(from: model.style)
 
-        Text(textModel: model, skipColor: tintColor != nil, scaled: viewModel.enableTextScaling)
+        Text(
+            spans: model.resolvedSpans(using: viewModel.conditionResolver),
+            style: model.style,
+            skipColor: tintColor != nil,
+            scaled: viewModel.enableTextScaling
+        )
             .applyTextStyle(style, model: model)
             .setupActions(on: viewModel, for: model)
             .ifLet(tintColor) { view, val in

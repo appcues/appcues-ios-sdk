@@ -302,6 +302,12 @@ public class Appcues: NSObject {
             container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
             container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
             container.registerLazy(TraitComposing.self, initializer: TraitComposer.init)
+            container.registerLazy(ConditionResolving.self, initializer: ConditionResolver.init)
+
+            // register core analytics tracking to receive tracking updates
+            if let conditionResolver = container.resolve(ConditionResolving.self) as? AnalyticsSubscribing {
+                analyticsPublisher.register(subscriber: conditionResolver)
+            }
         }
 
         // anything that should happen at startup automatically is handled here

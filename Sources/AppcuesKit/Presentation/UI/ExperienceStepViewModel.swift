@@ -20,9 +20,16 @@ internal class ExperienceStepViewModel: ObservableObject {
     let enableTextScaling: Bool
     private let actions: [UUID: [Experience.Action]]
     private let actionRegistry: ActionRegistry?
+    let conditionResolver: ConditionResolving?
     private let renderContext: RenderContext
 
-    init(step: Experience.Step.Child, actionRegistry: ActionRegistry, renderContext: RenderContext, config: Appcues.Config?) {
+    init(
+        step: Experience.Step.Child,
+        actionRegistry: ActionRegistry,
+        conditionResolver: ConditionResolving,
+        renderContext: RenderContext,
+        config: Appcues.Config?
+    ) {
         self.step = step
         // Update the action list to be keyed by the UUID.
         self.actions = step.actions.reduce(into: [:]) { dict, item in
@@ -30,6 +37,7 @@ internal class ExperienceStepViewModel: ObservableObject {
             dict[uuidKey] = item.value
         }
         self.actionRegistry = actionRegistry
+        self.conditionResolver = conditionResolver
         self.renderContext = renderContext
         self.enableTextScaling = config?.enableTextScaling ?? false
     }
@@ -49,6 +57,7 @@ internal class ExperienceStepViewModel: ObservableObject {
         )
         self.actions = [:]
         self.actionRegistry = nil
+        self.conditionResolver = nil
         self.renderContext = renderContext
         self.enableTextScaling = false
     }

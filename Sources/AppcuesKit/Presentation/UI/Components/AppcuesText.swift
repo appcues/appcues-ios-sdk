@@ -21,7 +21,7 @@ internal struct AppcuesText: View {
     var body: some View {
         let style = AppcuesStyle(from: model.style)
 
-        Text(textModel: model, scaled: viewModel.enableTextScaling)
+        Text(spans: model.resolvedSpans(using: viewModel.conditionResolver), style: model.style, scaled: viewModel.enableTextScaling)
             .applyTextStyle(style, model: model)
             .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
@@ -31,17 +31,17 @@ internal struct AppcuesText: View {
 
 @available(iOS 13.0, *)
 extension Text {
-    init(textModel: ExperienceComponent.TextModel, skipColor: Bool = false, scaled: Bool = false) {
+    init(spans: [ExperienceComponent.TextSpan], style: ExperienceComponent.Style?, skipColor: Bool = false, scaled: Bool = false) {
         self.init("")
 
         // Note: a ViewBuilder approach here doesn't work because the requirement that we operate strictly on `Text`
         // and not `some View` for concatenation to work. Therefore we work with the struct directly.
-        textModel.spans.forEach { span in
+        spans.forEach { span in
             var text = Text(span.text)
 
             if let font = Font(
-                name: span.style?.fontName ?? textModel.style?.fontName,
-                size: span.style?.fontSize ?? textModel.style?.fontSize ?? UIFont.labelFontSize,
+                name: span.style?.fontName ?? style?.fontName,
+                size: span.style?.fontSize ?? style?.fontSize ?? UIFont.labelFontSize,
                 scaled: scaled
             ) {
                 text = text.font(font)

@@ -63,7 +63,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
 
         var decorated = tracking
 
-        var sessionProperties: [String: Any?] = [
+        let sessionProperties: [String: Any?] = [
             "userId": storage.userID,
             "_isAnonymous": storage.isAnonymous,
             "_localId": storage.deviceID,
@@ -73,12 +73,9 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_lastScreenTitle": previousScreen,
             "_updatedAt": Date(),
             "_lastContentShownAt": storage.lastContentShownAt,
-            "_sessionId": appcues?.sessionID?.appcuesFormatted
+            "_sessionId": appcues?.sessionID?.appcuesFormatted,
+            "_lastBrowserLanguage": Locale.current.languageCode
         ]
-
-        if !Locale.preferredLanguages.isEmpty {
-            sessionProperties["_lastBrowserLanguage"] = Locale.preferredLanguages[0]
-        }
 
         // Note: additional (custom) go first, as they may be overwritten by merged system items
         let merged = config.additionalAutoProperties
