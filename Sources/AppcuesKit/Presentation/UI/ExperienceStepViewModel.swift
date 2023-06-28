@@ -99,6 +99,10 @@ extension ExperienceComponent {
             components[model.id] = .init(model: model)
         case .optionSelect(let model):
             components[model.id] = .init(model: model)
+        case .conditional(let model):
+            model.conditions.forEach {
+                components.merge($0.data.formComponents, uniquingKeysWith: { first, _ in first })
+            }
         }
 
         return components

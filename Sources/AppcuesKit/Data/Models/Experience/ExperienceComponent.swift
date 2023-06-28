@@ -27,6 +27,7 @@ internal indirect enum ExperienceComponent {
     case embed(EmbedModel)
     case optionSelect(OptionSelectModel)
     case textInput(TextInputModel)
+    case conditional(ConditionalModel)
 
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
@@ -39,6 +40,7 @@ internal indirect enum ExperienceComponent {
         case .embed(let model): return model[keyPath: keyPath]
         case .optionSelect(let model): return model[keyPath: keyPath]
         case .textInput(let model): return model[keyPath: keyPath]
+        case .conditional(let model): return model[keyPath: keyPath]
         }
     }
 }
@@ -80,6 +82,8 @@ extension ExperienceComponent: Decodable {
             self = .optionSelect(try modelContainer.decode(OptionSelectModel.self))
         case "textInput":
             self = .textInput(try modelContainer.decode(TextInputModel.self))
+        case "condition":
+            self = .conditional(try modelContainer.decode(ConditionalModel.self))
         default:
             let context = DecodingError.Context(codingPath: container.codingPath, debugDescription: "unknown type '\(type)'")
             throw DecodingError.valueNotFound(Self.self, context)
@@ -287,6 +291,21 @@ extension ExperienceComponent {
         let style: Style?
 
         var textDescription: String? { label.textDescription }
+    }
+
+    struct ConditionalModel: ComponentModel, Decodable {
+
+        let id: UUID
+
+        let conditions: [Conditional<ExperienceComponent>]
+
+        let style: Style? = nil
+        let textDescription: String? = nil
+
+        @available(iOS 13.0, *)
+        func resolvedContent(using resolver: ConditionResolving?, with stepState: ExperienceData.StepState) -> ExperienceComponent? {
+            resolver?.resolve(conditionals: conditions, stepState: stepState)
+        }
     }
 
     struct SpacerModel: ComponentModel, Decodable {

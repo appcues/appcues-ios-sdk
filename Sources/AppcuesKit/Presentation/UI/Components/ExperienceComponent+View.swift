@@ -30,6 +30,8 @@ extension ExperienceComponent {
             AnyView(AppcuesTextInput(model: model))
         case .optionSelect(let model):
             AnyView(AppcuesOptionSelect(model: model))
+        case .conditional(let model):
+            AnyView(AppcuesConditional(model: model))
         case .spacer(let model):
             AnyView(Spacer(minLength: CGFloat(model.spacing)))
         }
@@ -39,5 +41,21 @@ extension ExperienceComponent {
 extension ExperienceComponent.IntrinsicSize {
     var aspectRatio: CGFloat {
         width / height
+    }
+}
+
+@available(iOS 13.0, *)
+internal struct AppcuesConditional: View {
+    let model: ExperienceComponent.ConditionalModel
+
+    @EnvironmentObject var viewModel: ExperienceStepViewModel
+    @EnvironmentObject var stepState: ExperienceData.StepState
+
+    var body: some View {
+        if let content = model.resolvedContent(using: viewModel.conditionResolver, with: stepState) {
+            content.view
+        } else {
+            Color.clear
+        }
     }
 }

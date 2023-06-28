@@ -54,12 +54,16 @@ internal indirect enum Condition {
 extension Condition {
     enum Clause {
         case properties(property: String, Operator, value: String)
+        case form(key: UUID, Operator, value: String)
 
         func evaluate(state: State) -> Bool {
             switch self {
             case let .properties(property, `operator`, value):
                 guard let propertyValue = state[property: property] else { return false }
                 return `operator`.evaluate(propertyValue, value)
+            case let .form(key, `operator`, value):
+                guard let formValue = state[formValue: key] else { return false }
+                return `operator`.evaluate(formValue, value)
             }
         }
     }
@@ -131,9 +135,14 @@ extension Condition {
 
     struct State {
         let properties: [String: Any]
+        let formValues: [UUID: String]?
 
         subscript (property key: String) -> String? {
             return properties[key] as? String
+        }
+
+        subscript (formValue key: UUID) -> String? {
+            return formValues?[key]
         }
     }
 }
@@ -180,11 +189,12 @@ extension Condition: Decodable {
 extension Condition.Clause: Decodable {
     private enum CodingKeys: CodingKey {
         case properties
+        case form
         // .app, .screen, etc
     }
 
     private enum ExpressionCodingKeys: CodingKey {
-        case property
+        case property, key
         case `operator`
         case value
     }
@@ -207,6 +217,14 @@ extension Condition.Clause: Decodable {
 
             self = .properties(
                 property: try nestedContainer.decode(String.self, forKey: .property),
+                try nestedContainer.decode(Condition.Operator.self, forKey: .operator),
+                value: try nestedContainer.decode(String.self, forKey: .value)
+            )
+        case .form:
+            let nestedContainer = try container.nestedContainer(keyedBy: ExpressionCodingKeys.self, forKey: .form)
+
+            self = .form(
+                key: try nestedContainer.decode(UUID.self, forKey: .key),
                 try nestedContainer.decode(Condition.Operator.self, forKey: .operator),
                 value: try nestedContainer.decode(String.self, forKey: .value)
             )
@@ -236,6 +254,8 @@ extension Condition.Clause: CustomStringConvertible {
         switch self {
         case let .properties(property, `operator`, value):
             return "\(property) \(`operator`.description) \(value)"
+        case let .form(key, `operator`, value):
+            return "formKey(\(key)) \(`operator`.description) \(value)"
         }
     }
 }
