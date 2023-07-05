@@ -115,7 +115,7 @@ extension ExperienceStateMachine {
         }
 
         func trackRecoverableError(experience: ExperienceData, message: String) {
-            guard experience.published else { return }
+            guard experience.published, experience.recoverableErrorID == nil else { return }
 
             let errorID = UUID.create()
             experience.recoverableErrorID = errorID
