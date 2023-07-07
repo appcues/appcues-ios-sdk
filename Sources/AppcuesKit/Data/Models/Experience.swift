@@ -173,7 +173,15 @@ extension Experience: Decodable {
         steps = try container.decode([Step].self, forKey: .steps)
         redirectURL = try? container.decode(URL.self, forKey: .redirectURL)
         nextContentID = try? container.decode(String.self, forKey: .nextContentID)
-        renderContext = .modal
+
+        // Check for an experience-level embed trait
+        if #available(iOS 13.0, *),
+           let embedTrait = self.traits.first(where: { $0.type == AppcuesEmbeddedTrait.type }),
+           let config = embedTrait.configDecoder.decode(AppcuesEmbeddedTrait.Config.self) {
+            renderContext = .embed(frameID: config.frameID)
+        } else {
+            renderContext = .modal
+        }
     }
 }
 
