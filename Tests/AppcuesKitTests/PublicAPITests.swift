@@ -79,6 +79,13 @@ class PublicAPITests: XCTestCase {
         if #available(iOS 13.0, *) {
             _ = appcuesInstance.filterAndHandle(Set())
         }
+
+        let frameView = AppcuesFrameView(frame: .zero)
+        appcuesInstance.register(frameID: "frame1", for: frameView, on: UIViewController())
+
+        if #available(iOS 13.0, *) {
+            let frame = AppcuesFrame(appcues: appcuesInstance, frameID: "frame1")
+        }
     }
 }
 
