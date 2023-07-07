@@ -22,6 +22,7 @@ internal protocol ExperienceRendering: AnyObject {
 
 internal enum RenderContext: Hashable {
     case modal
+    case embed(frameID: String)
 }
 
 internal enum ExperienceRendererError: Error {

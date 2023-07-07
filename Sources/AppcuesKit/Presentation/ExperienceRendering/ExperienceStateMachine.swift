@@ -110,7 +110,8 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
         switch state {
         case .endingExperience:
             experienceWillDisappear()
-        case let .renderingStep(_, _, package, _) where package.wrapperController.isBeingDismissed:
+        case let .renderingStep(_, _, package, _)
+            where package.wrapperController.isBeingDismissed || package.wrapperController.isMovingFromParent:
             experienceWillDisappear()
         default:
             break
@@ -121,7 +122,8 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
         switch state {
         case .endingExperience:
             experienceDidDisappear()
-        case let .renderingStep(_, _, package, _) where package.wrapperController.isBeingDismissed:
+        case let .renderingStep(_, _, package, _)
+            where package.wrapperController.isBeingDismissed || package.wrapperController.isMovingFromParent:
             experienceDidDisappear()
             // Update state in response to UI changes that have happened already (a call to UIViewController.dismiss).
             try? transition(.endExperience(markComplete: false))

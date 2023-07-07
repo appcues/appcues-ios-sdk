@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 /// An object that manages Appcues tracking and rendering of experience content, for your app.
 @objc(Appcues)
@@ -238,6 +239,24 @@ public class Appcues: NSObject {
         guard #available(iOS 13.0, *) else { return }
 
         actionRegistry.register(action: action)
+    }
+
+    /// Registers the specified frame to be available to host qualified embedded Appcues experience content.
+    /// - Parameters:
+    ///   - frameID: The unique identifier for the embedded ``AppcuesFrameView``.
+    ///   - view: The ``AppcuesFrameView`` to register for hosting embedded content.
+    ///   - viewController: The `UIViewController` that owns the provided ``AppcuesFrameView`` instance.
+    @objc
+    public func register(frameID: String, for view: AppcuesFrameView, on parentViewController: UIViewController) {
+        guard #available(iOS 13.0, *) else {
+            config.logger.error("iOS 13 or above is required to render embedded experiences")
+            return
+        }
+
+        view.configure(parentViewController: parentViewController)
+
+        let experienceRenderer = container.resolve(ExperienceRendering.self)
+        experienceRenderer.start(owner: view, forContext: .embed(frameID: frameID))
     }
 
     /// Launches the Appcues debugger over your app's UI.
