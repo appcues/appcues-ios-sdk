@@ -3,16 +3,18 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0B83F9E94137632FE3005F50 /* EmbedTestHarnessViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7668CA3A542361436CA5C3B7 /* EmbedTestHarnessViewController.swift */; };
 		111D1F044CE5C429A13E377B /* Mulish-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D140F36AD3D06536C395A074 /* Mulish-VariableFont_wght.ttf */; };
 		62B165983718917D2D41BA5C /* Mulish-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 17D5A01020B551B33B447DC1 /* Mulish-Italic-VariableFont_wght.ttf */; };
 		64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7C790690C785694C7F24F8 /* EventsViewController.swift */; };
 		7013CDD44A5E7E6056595498 /* Lato-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */; };
 		702B963B624B5F8BB19F2468 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8757BA449145145EAF8FE061 /* Main.storyboard */; };
 		7A219B6092786F843A1A004A /* Lato-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 7A2AD399FBBF5EB8AEBE70BF /* Lato-Bold.ttf */; };
+		9EF6EF267BBE750196BB8852 /* EmbedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC01F919D7C1743A7217373 /* EmbedViewController.swift */; };
 		A0C767D67BF836D241C38AB0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7203E757C2C6EA5D37C5E443 /* Assets.xcassets */; };
 		A23B377CAA8FFC989E6A9A73 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A540BC606C8E2160FB2B489 /* AppDelegate.swift */; };
 		AB4DA4AF52B5BC21308C439B /* AppcuesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 781D0ABDB3436955E4EA34B9 /* AppcuesKit */; };
@@ -34,6 +36,7 @@
 		6FF4A6230C0803185A864738 /* AppcuesSPMExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AppcuesSPMExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7203E757C2C6EA5D37C5E443 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		723869D8744D77D8EC9B55F1 /* ProfileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		7668CA3A542361436CA5C3B7 /* EmbedTestHarnessViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedTestHarnessViewController.swift; sourceTree = "<group>"; };
 		7A2AD399FBBF5EB8AEBE70BF /* Lato-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Bold.ttf"; sourceTree = "<group>"; };
 		7A540BC606C8E2160FB2B489 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7A931564B0DEB1FE780CD0A2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -44,6 +47,7 @@
 		C77616FC1B7BAE52C91F4FBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D140F36AD3D06536C395A074 /* Mulish-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		F46FEDAF7B878A4794848F30 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
+		FFC01F919D7C1743A7217373 /* EmbedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -102,6 +106,8 @@
 				7A540BC606C8E2160FB2B489 /* AppDelegate.swift */,
 				7203E757C2C6EA5D37C5E443 /* Assets.xcassets */,
 				91C043606EC23556B49010D3 /* DeepLinkNavigator.swift */,
+				7668CA3A542361436CA5C3B7 /* EmbedTestHarnessViewController.swift */,
+				FFC01F919D7C1743A7217373 /* EmbedViewController.swift */,
 				AF7C790690C785694C7F24F8 /* EventsViewController.swift */,
 				87C55D469D39EFF3296C5387 /* GroupViewController.swift */,
 				476767533B954304A7121A53 /* Info.plist */,
@@ -145,6 +151,8 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1200;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 3307568C9084A060E694F2E4 /* Build configuration list for PBXProject "AppcuesSPMExample" */;
 			compatibilityVersion = "Xcode 11.0";
@@ -209,6 +217,8 @@
 			files = (
 				A23B377CAA8FFC989E6A9A73 /* AppDelegate.swift in Sources */,
 				B8DB7327A11245904C6B908F /* DeepLinkNavigator.swift in Sources */,
+				0B83F9E94137632FE3005F50 /* EmbedTestHarnessViewController.swift in Sources */,
+				9EF6EF267BBE750196BB8852 /* EmbedViewController.swift in Sources */,
 				64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */,
 				EE6124C9BB7FB8ACF18B1503 /* GroupViewController.swift in Sources */,
 				F897157F45696443B145C383 /* ProfileViewController.swift in Sources */,

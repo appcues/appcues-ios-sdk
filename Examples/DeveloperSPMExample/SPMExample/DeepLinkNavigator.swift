@@ -20,6 +20,7 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
             case events
             case profile
             case group
+            case embed
 
             init?(path: String?) {
                 switch path?.lowercased() {
@@ -27,6 +28,7 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
                 case "events": self = .events
                 case "profile": self = .profile
                 case "group": self = .group
+                case "embed": self = .embed
                 default: return nil
                 }
             }
@@ -38,6 +40,7 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
                 case .events: return 0
                 case .profile: return 1
                 case .group: return 2
+                case .embed: return 3
                 }
             }
         }
@@ -71,6 +74,7 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
         case events(EventsViewController)
         case profile(ProfileViewController)
         case group(GroupViewController)
+        case embed(EmbedViewController)
 
         var controller: UIViewController {
             switch self {
@@ -78,6 +82,7 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
             case .events(let controller): return controller
             case .profile(let controller): return controller
             case .group(let controller): return controller
+            case .embed(let controller): return controller
             }
         }
 
@@ -96,6 +101,8 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
                     screen = .profile(profileController)
                 } else if let groupController = rootController as? GroupViewController {
                     screen = .group(groupController)
+                } else if let embedController = rootController as? EmbedViewController {
+                    screen = .embed(embedController)
                 }
             }
 
@@ -173,7 +180,7 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
     private func navigate(from origin: AppScreen, to target: DeepLink, in window: UIWindow, completion: ((Bool) -> Void)?) {
 
         switch (origin, target.destination) {
-        case (.signIn, .signIn), (.events, .events), (.profile, .profile), (.group, .group):
+        case (.signIn, .signIn), (.events, .events), (.profile, .profile), (.group, .group), (.embed, .embed):
             // Linking to current screen, no changes needed
             break
         case (_, .signIn):
