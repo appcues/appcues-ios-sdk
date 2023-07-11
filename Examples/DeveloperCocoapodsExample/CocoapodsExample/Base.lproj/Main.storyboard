@@ -115,11 +115,29 @@
                         <segue destination="5i6-8x-7nf" kind="relationship" relationship="viewControllers" id="haS-vB-LEW"/>
                         <segue destination="FK3-TP-f03" kind="relationship" relationship="viewControllers" id="hwS-Sk-N0w"/>
                         <segue destination="XJ3-u7-yjq" kind="relationship" relationship="viewControllers" id="8zI-7k-vlH"/>
+                        <segue destination="zVG-YT-CE4" kind="relationship" relationship="viewControllers" id="toZ-yu-dsR"/>
                     </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="VfC-g5-VX7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-314" y="175"/>
+        </scene>
+        <!--Embed-->
+        <scene sceneID="W5m-WR-dL0">
+            <objects>
+                <navigationController id="zVG-YT-CE4" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Embed" image="rectangle.portrait.topthird.inset.filled" catalog="system" id="Yd9-oc-M3j"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="tDD-bN-mNi">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="2UE-rA-lV6" kind="relationship" relationship="rootViewController" id="Bu4-Ki-Yaj"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="luJ-JQ-KbQ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2009" y="1034"/>
         </scene>
         <!--Sign In-->
         <scene sceneID="tne-QT-ifu">
@@ -285,6 +303,159 @@
             </objects>
             <point key="canvasLocation" x="877" y="1732"/>
         </scene>
+        <!--Embed Experiences-->
+        <scene sceneID="4CY-rf-DwC">
+            <objects>
+                <viewController id="2UE-rA-lV6" customClass="EmbedViewController" customModule="AppcuesCocoapodsExample" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="RL9-5P-AOb">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NJ2-fh-Wo3">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="lLF-bg-0LD">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="1997"/>
+                                        <subviews>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="phL-Ap-Txv" customClass="AppcuesFrameView" customModule="AppcuesKit">
+                                                <rect key="frame" x="0.0" y="0.0" width="414" height="100"/>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="100" placeholder="YES" id="O4S-bx-s56"/>
+                                                </constraints>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="AeE-4e-n5n">
+                                                <rect key="frame" x="0.0" y="120" width="414" height="237.5"/>
+                                                <subviews>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SHW-5O-z91">
+                                                        <rect key="frame" x="20" y="0.0" width="374" height="34.5"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Show Test Harness Screen"/>
+                                                        <connections>
+                                                            <action selector="showTestHarness:" destination="2UE-rA-lV6" eventType="touchUpInside" id="PFv-Di-prJ"/>
+                                                        </connections>
+                                                    </button>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RP0-Wt-Ymd">
+                                                        <rect key="frame" x="20" y="54.5" width="374" height="183"/>
+                                                        <string key="text">Embedded Experiences, or Embeds for short, are experiences that are injected inline with the customer application views, rather than overlaid on top. Embeds can contain a variety of content. Any type of experience content you could show in a modal step could also be embedded into a non-modal view in the application. This pattern is commonly used for less obtrusive promotions or supplemental content, inline banners or help tips.</string>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="bottom" secondItem="RP0-Wt-Ymd" secondAttribute="bottom" id="8X0-Hb-VTb"/>
+                                                    <constraint firstItem="RP0-Wt-Ymd" firstAttribute="leading" secondItem="AeE-4e-n5n" secondAttribute="leading" constant="20" id="AZn-Ou-H8G"/>
+                                                    <constraint firstAttribute="trailing" secondItem="RP0-Wt-Ymd" secondAttribute="trailing" constant="20" id="POC-EE-mi2"/>
+                                                    <constraint firstItem="RP0-Wt-Ymd" firstAttribute="top" secondItem="SHW-5O-z91" secondAttribute="bottom" constant="20" id="QIe-4u-pPi"/>
+                                                    <constraint firstAttribute="trailing" secondItem="SHW-5O-z91" secondAttribute="trailing" constant="20" id="Z6I-aT-yLT"/>
+                                                    <constraint firstItem="SHW-5O-z91" firstAttribute="leading" secondItem="AeE-4e-n5n" secondAttribute="leading" constant="20" id="Zfs-t3-KX7"/>
+                                                    <constraint firstItem="SHW-5O-z91" firstAttribute="top" secondItem="AeE-4e-n5n" secondAttribute="top" id="mTF-F1-7kP"/>
+                                                </constraints>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xUE-z3-DdK" customClass="AppcuesFrameView" customModule="AppcuesKit">
+                                                <rect key="frame" x="0.0" y="377.5" width="414" height="100"/>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="100" placeholder="YES" id="Blb-Ul-lDy"/>
+                                                </constraints>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xov-5D-P80">
+                                                <rect key="frame" x="0.0" y="497.5" width="414" height="345"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DZM-Va-fhz">
+                                                        <rect key="frame" x="20" y="0.0" width="374" height="345"/>
+                                                        <mutableString key="text">Embeds are a low-code pattern, requiring customer application development work to be done to create and expose injectable view areas where Appcues content can reside. This involves creating and registering a special AppcuesFrame view types with the iOS and Android SDKs, and including those views in the customer app layouts. This concept of view embedding is analogous to products like the Google Ads SDKs for mobile display ads. The details of how the embed views are registered with the native SDKs are outside of the scope of this document, which focuses on the data model updates. SDK documentation will cover those other integration topics.</mutableString>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                </subviews>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstItem="DZM-Va-fhz" firstAttribute="leading" secondItem="xov-5D-P80" secondAttribute="leading" constant="20" id="7U8-gq-9ej"/>
+                                                    <constraint firstAttribute="trailing" secondItem="DZM-Va-fhz" secondAttribute="trailing" constant="20" id="9x9-Cr-mMo"/>
+                                                    <constraint firstAttribute="bottom" secondItem="DZM-Va-fhz" secondAttribute="bottom" id="tMO-Wf-5aZ"/>
+                                                    <constraint firstItem="DZM-Va-fhz" firstAttribute="top" secondItem="xov-5D-P80" secondAttribute="top" id="zS0-OR-7yA"/>
+                                                </constraints>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZrP-hS-qJ7" customClass="AppcuesFrameView" customModule="AppcuesKit">
+                                                <rect key="frame" x="0.0" y="862.5" width="414" height="100"/>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="100" placeholder="YES" id="mr6-ad-KqD"/>
+                                                </constraints>
+                                            </view>
+                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Oi6-j5-7jx">
+                                                <rect key="frame" x="0.0" y="982.5" width="414" height="1014.5"/>
+                                                <subviews>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="rzm-Me-TGj">
+                                                        <rect key="frame" x="20" y="0.0" width="374" height="1014.5"/>
+                                                        <subviews>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kqd-0G-DF3">
+                                                                <rect key="frame" x="0.0" y="0.0" width="254" height="1014.5"/>
+                                                                <mutableString key="text">Before mobile embeds were supported, the Appcues mobile SDKs could render a single mobile flow at a time, modally as an overlay. These experiences could have had modal or tooltip steps, but the response from the server qualification would return a prioritized list of mobile flows and the SDK would render the highest priority item possible.
+
+With embeds, this paradigm changes, and a qualification response may contain zero or more mobile embeds that can be rendered simultaneously, as well as zero or more mobile flows, which are handled just like before, rendering a single highest priority item. Mobile embeds and mobile flow pattern types are entirely mutually exclusive, meaning you cannot have tooltip mobile flow steps within an embed experience, for example. However, you can launch a mobile flow from a mobile embed with a button action.</mutableString>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                                <nil key="textColor"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="amZ-r8-fhe" customClass="AppcuesFrameView" customModule="AppcuesKit">
+                                                                <rect key="frame" x="274" y="0.0" width="100" height="1014.5"/>
+                                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="width" constant="100" id="4mR-3w-bvX"/>
+                                                                </constraints>
+                                                            </view>
+                                                        </subviews>
+                                                    </stackView>
+                                                </subviews>
+                                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="bottom" secondItem="rzm-Me-TGj" secondAttribute="bottom" id="JP5-xu-R9F"/>
+                                                    <constraint firstAttribute="trailing" secondItem="rzm-Me-TGj" secondAttribute="trailing" constant="20" id="h01-pq-Y3j"/>
+                                                    <constraint firstItem="rzm-Me-TGj" firstAttribute="top" secondItem="Oi6-j5-7jx" secondAttribute="top" id="nVB-kj-MxY"/>
+                                                    <constraint firstItem="rzm-Me-TGj" firstAttribute="leading" secondItem="Oi6-j5-7jx" secondAttribute="leading" constant="20" id="q0U-fC-4dF"/>
+                                                </constraints>
+                                            </view>
+                                        </subviews>
+                                    </stackView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="lLF-bg-0LD" firstAttribute="leading" secondItem="NJ2-fh-Wo3" secondAttribute="leading" id="1Ja-Mv-cvS"/>
+                                    <constraint firstItem="lLF-bg-0LD" firstAttribute="centerX" secondItem="NJ2-fh-Wo3" secondAttribute="centerX" id="EuZ-Ly-gql"/>
+                                    <constraint firstItem="lLF-bg-0LD" firstAttribute="width" secondItem="NJ2-fh-Wo3" secondAttribute="width" id="LPO-Bk-Nrx"/>
+                                    <constraint firstAttribute="bottom" secondItem="lLF-bg-0LD" secondAttribute="bottom" id="Swb-BK-xIw"/>
+                                    <constraint firstItem="lLF-bg-0LD" firstAttribute="top" secondItem="NJ2-fh-Wo3" secondAttribute="top" id="Zej-CC-tuT"/>
+                                    <constraint firstAttribute="trailing" secondItem="lLF-bg-0LD" secondAttribute="trailing" id="dle-8M-yz0"/>
+                                </constraints>
+                                <viewLayoutGuide key="contentLayoutGuide" id="E4f-mL-fv2"/>
+                                <viewLayoutGuide key="frameLayoutGuide" id="9UQ-jo-QRs"/>
+                            </scrollView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="DeF-Jy-Iew"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="NJ2-fh-Wo3" secondAttribute="bottom" id="9B2-de-i2M"/>
+                            <constraint firstAttribute="trailing" secondItem="NJ2-fh-Wo3" secondAttribute="trailing" id="KQ7-H0-5up"/>
+                            <constraint firstItem="NJ2-fh-Wo3" firstAttribute="top" secondItem="RL9-5P-AOb" secondAttribute="top" id="kcQ-aL-gQP"/>
+                            <constraint firstItem="NJ2-fh-Wo3" firstAttribute="leading" secondItem="RL9-5P-AOb" secondAttribute="leading" id="qmG-NV-Nzi"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Embed Experiences" id="t09-9b-ts7"/>
+                    <connections>
+                        <outlet property="appcuesFrame1" destination="phL-Ap-Txv" id="Lcx-4f-2SV"/>
+                        <outlet property="appcuesFrame2" destination="xUE-z3-DdK" id="M88-2g-6iX"/>
+                        <outlet property="appcuesFrame3" destination="ZrP-hS-qJ7" id="bEr-RW-21w"/>
+                        <outlet property="appcuesFrame4" destination="amZ-r8-fhe" id="MxW-ge-agg"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ani-2E-lor" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2008.6956521739132" y="1733.7053571428571"/>
+        </scene>
         <!--Trigger Events-->
         <scene sceneID="EYp-iv-EJ2">
             <objects>
@@ -325,8 +496,8 @@
                             <constraint firstItem="ftz-h7-czn" firstAttribute="leading" secondItem="aEO-X7-xEa" secondAttribute="leading" constant="20" id="tql-yd-qRq"/>
                         </constraints>
                     </view>
-                    <navigationItem key="navigationItem" title="Trigger Events" id="1Wg-Nt-6AG">
-                        <barButtonItem key="rightBarButtonItem" tag="1001" title="Debug" id="2EG-CO-a7g">
+                    <navigationItem key="navigationItem" title="Trigger Events" customizationIdentifier="eventsNavTitle" id="1Wg-Nt-6AG">
+                        <barButtonItem key="rightBarButtonItem" tag="1001" title="Debug" largeContentSizeImage="Debug" id="2EG-CO-a7g">
                             <connections>
                                 <action selector="debugTapped:" destination="IV4-7k-Qev" id="dwJ-yS-z6H"/>
                             </connections>
@@ -341,7 +512,7 @@
         <scene sceneID="wzk-0K-XBg">
             <objects>
                 <navigationController id="5i6-8x-7nf" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Events" image="recordingtape" catalog="system" id="uki-uJ-rK0">
+                    <tabBarItem key="tabBarItem" tag="1004" title="Events" image="recordingtape" catalog="system" id="uki-uJ-rK0">
                         <userDefinedRuntimeAttributes>
                             <userDefinedRuntimeAttribute type="string" keyPath="accessibilityIdentifier" value="tabEvents"/>
                         </userDefinedRuntimeAttributes>
@@ -360,12 +531,14 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="qoH-MI-PZN"/>
+        <segue reference="Jyl-aa-X5t"/>
     </inferredMetricsTieBreakers>
     <resources>
+        <image name="Debug" width="128" height="128"/>
         <image name="person" catalog="system" width="128" height="121"/>
         <image name="person.3" catalog="system" width="128" height="62"/>
         <image name="recordingtape" catalog="system" width="128" height="60"/>
+        <image name="rectangle.portrait.topthird.inset.filled" catalog="system" width="115" height="128"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
