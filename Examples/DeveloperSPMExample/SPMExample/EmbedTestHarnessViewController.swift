@@ -102,11 +102,11 @@ class EmbedTestHarnessViewController: UIViewController {
                 UIAction(title: "Track Event", image: UIImage(systemName: "hand.tap")) { _ in
                     Appcues.shared.track(name: "event3")
                 },
-                UIAction(title: "Toggle Frame 1", image: UIImage(systemName: "photo.artframe")) { [weak self] _ in
+                UIAction(title: "Toggle 'frame1'", image: UIImage(systemName: "photo.artframe")) { [weak self] _ in
                     guard let self = self else { return }
                     self.testHarnessView.toggleFrame(id: "frame1", viewController: self)
                 },
-                UIAction(title: "Toggle Frame 2", image: UIImage(systemName: "photo.artframe")) { [weak self] _ in
+                UIAction(title: "Toggle 'frame2'", image: UIImage(systemName: "photo.artframe")) { [weak self] _ in
                     guard let self = self else { return }
                     self.testHarnessView.toggleFrame(id: "frame2", viewController: self)
                 }
