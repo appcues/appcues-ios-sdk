@@ -213,8 +213,8 @@ extension AppcuesBackdropKeyholeTrait {
             case "circle":
                 self = .circle(blurRadius: blurRadius ?? 0)
             default:
-                // fallback to a tiny value instead of 0 so the path can animate nicely to other values
-                self = .rectangle(cornerRadius: cornerRadius ?? .leastNonzeroMagnitude)
+                // use a tiny value instead of 0 so the path can animate nicely to other values
+                self = .rectangle(cornerRadius: max(cornerRadius ?? 0.0, .leastNonzeroMagnitude))
             }
         }
 
