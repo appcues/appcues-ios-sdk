@@ -187,10 +187,14 @@ class SessionMonitorTests: XCTestCase {
         sessionMonitor = SessionMonitor(container: appcues.container)
         appcues.storage.userID = "user123"
         sessionMonitor.start()
+        let initialSessionId = appcues.sessionID
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: self, userInfo: nil)
         let onTrackExpectation = expectation(description: "session analytics tracked")
         appcues.analyticsPublisher.onPublish = { trackingUpdate in
             if case .event(SessionEvents.sessionResumed.rawValue, _) = trackingUpdate.type {
+                let updatedSessionId = self.appcues.sessionID
+                XCTAssertNotNil(initialSessionId)
+                XCTAssertEqual(initialSessionId, updatedSessionId)
                 onTrackExpectation.fulfill()
             }
         }
@@ -208,10 +212,15 @@ class SessionMonitorTests: XCTestCase {
         sessionMonitor = SessionMonitor(container: appcues.container)
         appcues.storage.userID = "user123"
         sessionMonitor.start()
+        let initialSessionId = appcues.sessionID
         NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: self, userInfo: nil)
         let onTrackExpectation = expectation(description: "session analytics tracked")
         appcues.analyticsPublisher.onPublish = { trackingUpdate in
             if case .event(SessionEvents.sessionStarted.rawValue, _) = trackingUpdate.type {
+                let updatedSessionId = self.appcues.sessionID
+                XCTAssertNotNil(initialSessionId)
+                XCTAssertNotNil(updatedSessionId)
+                XCTAssertNotEqual(initialSessionId, updatedSessionId)
                 onTrackExpectation.fulfill()
             }
         }

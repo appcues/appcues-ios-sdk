@@ -80,6 +80,7 @@ internal class SessionMonitor: SessionMonitoring {
         self.applicationBackgrounded = nil
 
         if elapsed >= sessionTimeout {
+            appcues?.sessionID = UUID()
             publisher.track(SessionEvents.sessionStarted, properties: nil, interactive: true)
         } else {
             publisher.track(SessionEvents.sessionResumed, properties: nil, interactive: false)
