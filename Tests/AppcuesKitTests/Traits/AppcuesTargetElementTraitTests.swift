@@ -238,11 +238,14 @@ class AppcuesTargetElementTraitTests: XCTestCase {
     func testEmptySelectorValues() throws {
         // empty string values for selector properties
         // should be stripped out and made nil, resulting in no selector
-        let view1 = AppcuesTargetView(identifier: "")
-        view1.accessibilityIdentifier = ""
-        view1.accessibilityLabel = ""
-        let view1Element = try XCTUnwrap(view1.asViewElement())
-        XCTAssertNil(view1Element.selector)
+        let selector = UIKitElementSelector(
+            appcuesID: "",
+            accessibilityIdentifier: "",
+            accessibilityLabel: "",
+            tag: "",
+            autoTag: ""
+        )
+        XCTAssertNil(selector)
     }
 
     func testTabBarDisplayName() throws {
