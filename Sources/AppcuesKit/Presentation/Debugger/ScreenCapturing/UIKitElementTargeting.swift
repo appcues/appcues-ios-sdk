@@ -31,6 +31,14 @@ internal class UIKitElementSelector: AppcuesElementSelector {
         tag: String?,
         autoTag: String? = nil
     ) {
+        // redefine selector prop values, coercing and empty strings to nil first
+        // an empty string is not valid for a selector property
+        let appcuesID = appcuesID.emptyToNil()
+        let accessibilityIdentifier = accessibilityIdentifier.emptyToNil()
+        let accessibilityLabel = accessibilityLabel.emptyToNil()
+        let tag = tag.emptyToNil()
+        let autoTag = autoTag.emptyToNil()
+
         // must have at least one identifiable property to be a valid selector
         if appcuesID == nil && accessibilityIdentifier == nil && accessibilityLabel == nil && tag == nil && autoTag == nil {
             return nil
@@ -145,11 +153,11 @@ internal extension UIView {
 
     private func getAppcuesSelector(autoTag: String? = nil) -> UIKitElementSelector? {
         return UIKitElementSelector(
-            appcuesID: (self as? AppcuesTargetView)?.appcuesID.emptyToNil(),
-            accessibilityIdentifier: accessibilityIdentifier.emptyToNil(),
-            accessibilityLabel: accessibilityLabel.emptyToNil(),
+            appcuesID: (self as? AppcuesTargetView)?.appcuesID,
+            accessibilityIdentifier: accessibilityIdentifier,
+            accessibilityLabel: accessibilityLabel,
             tag: tag != 0 ? "\(self.tag)" : nil,
-            autoTag: autoTag.emptyToNil()
+            autoTag: autoTag
         )
     }
 
