@@ -145,11 +145,11 @@ internal extension UIView {
 
     private func getAppcuesSelector(autoTag: String? = nil) -> UIKitElementSelector? {
         return UIKitElementSelector(
-            appcuesID: (self as? AppcuesTargetView)?.appcuesID,
-            accessibilityIdentifier: accessibilityIdentifier,
-            accessibilityLabel: accessibilityLabel,
+            appcuesID: (self as? AppcuesTargetView)?.appcuesID.emptyToNil(),
+            accessibilityIdentifier: accessibilityIdentifier.emptyToNil(),
+            accessibilityLabel: accessibilityLabel.emptyToNil(),
             tag: tag != 0 ? "\(self.tag)" : nil,
-            autoTag: autoTag
+            autoTag: autoTag.emptyToNil()
         )
     }
 
@@ -195,5 +195,11 @@ internal extension UIView {
     // to generate the selector string representation
     private func getAutoTag(tabIndex: Int?) -> String? {
         return tabIndex.flatMap { "tab[\($0)]" }
+    }
+}
+
+private extension Optional where Wrapped == String {
+    func emptyToNil() -> String? {
+        self.flatMap { $0.isEmpty ? nil : $0 }
     }
 }
