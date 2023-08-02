@@ -22,7 +22,7 @@ The SDK is a Swift library for sending user properties and events to the Appcues
       - [XCFramework](#xcframework)
     - [One Time Setup](#one-time-setup)
       - [Initializing the SDK](#initializing-the-sdk)
-      - [Supporting Debugging and Experience Previewing](#supporting-debugging-and-experience-previewing)
+      - [Supporting Builder Preview and Screen Capture](#supporting-builder-preview-and-screen-capture)
     - [Identifying Users](#identifying-users)
     - [Tracking Screens and Events](#tracking-screens-and-events)
     - [Anchored Tooltips](#anchored-tooltips)
@@ -101,9 +101,9 @@ func application(_ application: UIApplication, didFinishLaunchingWithOptions lau
 
 Initializing the SDK requires you to provide two values, an Appcues account ID, and an Appcues mobile application ID. These values can be obtained from your [Appcues settings](https://studio.appcues.com/settings/account). Refer to the help documentation on [Registering your mobile app in Studio](https://docs.appcues.com/article/848-registering-your-mobile-app-in-studio) for more information.
 
-#### Supporting Debugging and Experience Previewing
+#### Supporting Builder Preview and Screen Capture
 
-During installation, follow the steps outlined in [Configuring the Appcues URL Scheme](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/urlschemeconfiguring). This is necessary for the optimal Appcues builder experience, to support debugging and experience preview. Refer to the [Debug Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/debugging) for details about using the Appcues debugger.
+During installation, follow the steps outlined in [Configuring the Appcues URL Scheme](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/urlschemeconfiguring). This is necessary for the complete Appcues builder experience, supporting experience preview, screen capture and debugging. Refer to the [Debug Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/debugging) for details about using the Appcues debugger.
 
 ### Identifying Users
 
