@@ -14,6 +14,7 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
         let contentPreferredPosition: ContentPosition?
         let contentDistanceFromTarget: Double?
         let selector: [String: String]
+        let retryIntervals: [Int]?
     }
 
     static let type: String = "@appcues/target-element"
@@ -21,12 +22,24 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     private let config: Config
+    private var retryIntervals: [Int]
+
+    // For some selector matching errors - support an optional retry of trait application,
+    // which may find matching views a bit later after animations or loading completes.
+    private var retryMilliseconds: Int? {
+        return !retryIntervals.isEmpty ? retryIntervals.removeFirst() : nil
+    }
 
     private lazy var frameObserverView = FrameObserverView()
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.config = config
+
+        // By default, target-element lookup will retry up to four times,
+        // at the given millisecond intervals below. The trait config can override this.
+        // Result would be a try at 300ms, 900ms, 1800ms, 3000ms - error would be thrown after 3s failure
+        self.retryIntervals = config.retryIntervals ?? [ 300, 600, 900, 1_200 ]
     }
 
     func decorate(backdropView: UIView) throws {
@@ -83,14 +96,20 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
         }
 
         guard let weightedViews = strategy.findMatches(for: selector) else {
-            throw AppcuesTraitError(description: "Could not read application layout information")
+            throw AppcuesTraitError(
+                description: "Could not read application layout information",
+                retryMilliseconds: retryMilliseconds
+            )
         }
 
         // views contains an array of tuples, each item being the view and its integer
         // match value
 
         guard !weightedViews.isEmpty else {
-            throw AppcuesTraitError(description: "No view matching selector \(config.selector)")
+            throw AppcuesTraitError(
+                description: "No view matching selector \(config.selector)",
+                retryMilliseconds: retryMilliseconds
+            )
         }
 
         // if only a single match of anything, use it
@@ -118,7 +137,10 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
 
         guard maxWeightViews.count == 1 else {
             // this selector was not able to find a distinct match in this view
-            throw AppcuesTraitError(description: "multiple non-distinct views (\(weightedViews.count)) matched selector \(config.selector)")
+            throw AppcuesTraitError(
+                description: "multiple non-distinct views (\(weightedViews.count)) matched selector \(config.selector)",
+                retryMilliseconds: retryMilliseconds
+            )
         }
 
         // if this has produced a single most distinct result, use it
