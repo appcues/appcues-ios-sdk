@@ -16,9 +16,16 @@ internal struct AppcuesTraitError: Error, CustomStringConvertible {
     /// This value will be logged to Appcues Studio.
     internal var description: String
 
+    /// When set, this value can indicate a number of milliseconds after which re-application
+    /// of traits can be attempted, to try to auto-recover from this error.
+    internal var retryMilliseconds: Int?
+
     /// Creates an instance of an error.
-    /// - Parameter description: A description of the nature of the error.
-    internal init(description: String) {
+    /// - Parameters:
+    ///   - description: A description of the nature of the error.
+    ///   - retryMilliseconds: The number of milliseconds to wait before attempting to re-apply traits after this error.
+    internal init(description: String, retryMilliseconds: Int? = nil) {
         self.description = description
+        self.retryMilliseconds = retryMilliseconds.flatMap { max(0, $0) } // coerce zero or positive value
     }
 }

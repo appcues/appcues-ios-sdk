@@ -284,13 +284,28 @@ extension ExperienceStateMachine {
             // be looking for target elements on the view that need to be fully loaded first, and this container
             // may be presenting after a pre-step navigation action that is finalizing the loading of the new view.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) {
-                do {
-                    try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
-                    SdkMetrics.renderStart(experience.requestID)
-                    try package.presenter {
-                        try? machine.transition(.renderStep)
+
+                func presentStep(onError: @escaping (Error) -> Void) {
+                    do {
+                        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
+                        SdkMetrics.renderStart(experience.requestID)
+                        try package.presenter {
+                            try? machine.transition(.renderStep)
+                        }
+                    } catch {
+                        if let error = error as? AppcuesTraitError,
+                           let retryMilliseconds = error.retryMilliseconds {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(retryMilliseconds)) {
+                                presentStep(onError: onError)
+                            }
+                        } else {
+                            onError(error)
+                        }
                     }
-                } catch {
+                }
+
+                presentStep { error in
+                    // on failure, report a fatal error and dismiss the experience
                     try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)"), fatal: true))
                 }
             }

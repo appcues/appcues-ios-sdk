@@ -323,12 +323,14 @@ extension AppcuesTargetElementTrait {
         appcues: Appcues?,
         selector: [String: String],
         contentPreferredPosition: ContentPosition? = nil,
-        contentDistanceFromTarget: Double? = nil
+        contentDistanceFromTarget: Double? = nil,
+        retryIntervals: [Int]? = nil
     ) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesTargetElementTrait.Config(
             contentPreferredPosition: contentPreferredPosition,
             contentDistanceFromTarget: contentDistanceFromTarget,
-            selector: selector
+            selector: selector,
+            retryIntervals: retryIntervals
         ), appcues: appcues))
     }
 }
