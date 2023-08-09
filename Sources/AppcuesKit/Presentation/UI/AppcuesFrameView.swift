@@ -24,6 +24,7 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
     }
 
     private weak var parentViewController: UIViewController?
+    private weak var experienceViewController: UIViewController?
 
     // when the view content is empty, we use this zero height constraint
     private lazy var emptyHeightConstraint: NSLayoutConstraint = {
@@ -94,6 +95,7 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
         configureConstraints(isEmpty: false)
 
         viewController.embedChildViewController(experienceController, inSuperview: self, margins: margins)
+        experienceViewController = experienceController
 
         switch transition {
         case .none:
@@ -133,5 +135,13 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
                 }
             )
         }
+    }
+
+    /// Set the Frame back to an unregistered state.
+    internal func reset() {
+        if let experienceViewController = experienceViewController {
+            unembed(experienceViewController, transition: .none, completion: nil)
+        }
+        _stateMachine = nil
     }
 }

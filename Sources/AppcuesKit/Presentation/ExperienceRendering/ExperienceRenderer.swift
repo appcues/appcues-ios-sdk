@@ -57,6 +57,11 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
     func start(owner: StateMachineOwning, forContext context: RenderContext) {
         guard let container = appcues?.container else { return }
 
+        // If there's already a frame for the context, reset it back to its unregistered state.
+        if let existingFrameView = stateMachines[ownerFor: context] as? AppcuesFrameView {
+            existingFrameView.reset()
+        }
+
         owner.stateMachine = ExperienceStateMachine(container: container)
         stateMachines[ownerFor: context] = owner
         if let pendingExperiences = potentiallyRenderableExperiences[context] {
