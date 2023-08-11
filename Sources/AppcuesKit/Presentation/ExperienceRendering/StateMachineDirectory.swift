@@ -9,6 +9,7 @@
 import Foundation
 
 internal protocol StateMachineOwning: AnyObject {
+    var renderContext: RenderContext? { get set }
     @available(iOS 13.0, *)
     var stateMachine: ExperienceStateMachine? { get set }
 }
@@ -37,7 +38,15 @@ internal class StateMachineDirectory {
             stateMachines[key]?.value
         }
         set(newValue) {
+            // Enforce uniqueness (a StateMachineOwning may only be registered for a single RenderContext).
+            if let oldRenderContext = newValue?.renderContext, oldRenderContext != key {
+                stateMachines.removeValue(forKey: oldRenderContext)
+            }
+
             stateMachines[key] = WeakStateMachineOwning(newValue)
+
+            // Save the current renderContext so it can be easily removed in the above uniqueness check.
+            newValue?.renderContext = key
         }
     }
 
