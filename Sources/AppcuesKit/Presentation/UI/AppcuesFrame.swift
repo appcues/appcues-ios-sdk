@@ -45,10 +45,8 @@ extension AppcuesFrame {
         override func viewWillLayoutSubviews() {
             super.viewWillLayoutSubviews()
 
-            // When the view is hidden, we want to collapse it down from whatever previous size it had,
-            // but keep it >0 so new content can properly begin to layout.
             if view.isHidden {
-                preferredContentSize = CGSize(width: 0, height: 1)
+                preferredContentSize = .zero
             }
         }
 
