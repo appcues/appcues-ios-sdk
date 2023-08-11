@@ -16,6 +16,9 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
         case fade
     }
 
+    // Managed by the StateMachineDirectory
+    internal var renderContext: RenderContext?
+
     private var _stateMachine: Any?
     @available(iOS 13.0, *)
     internal var stateMachine: ExperienceStateMachine? {

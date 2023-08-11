@@ -33,8 +33,10 @@ internal enum ExperienceRendererError: Error {
 @available(iOS 13.0, *)
 internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
+    // Conformance to `StateMachineOwning`.
     /// State machine for `RenderContext.modal`
     var stateMachine: ExperienceStateMachine?
+    var renderContext: RenderContext?
 
     private var stateMachines = StateMachineDirectory()
     private var potentiallyRenderableExperiences: [RenderContext: [ExperienceData]] = [:]
@@ -60,6 +62,12 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         // If there's already a frame for the context, reset it back to its unregistered state.
         if let existingFrameView = stateMachines[ownerFor: context] as? AppcuesFrameView {
             existingFrameView.reset()
+        }
+
+        // If the machine being started is already registered for a different context,
+        // reset it back to its unregistered state before potentially showing new content.
+        if owner.stateMachine != nil, let frameView = owner as? AppcuesFrameView {
+            frameView.reset()
         }
 
         owner.stateMachine = ExperienceStateMachine(container: container)
