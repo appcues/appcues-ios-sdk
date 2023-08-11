@@ -288,7 +288,6 @@ extension ExperienceStateMachine {
                 func presentStep(onError: @escaping (Error) -> Void) {
                     do {
                         try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
-                        SdkMetrics.renderStart(experience.requestID)
                         try package.presenter {
                             try? machine.transition(.renderStep)
                         }
@@ -303,6 +302,10 @@ extension ExperienceStateMachine {
                         }
                     }
                 }
+
+                // Rendering metrics start now, and will include any time spent in error/retry of trait application
+                // inside of the presentStep local helper function.
+                SdkMetrics.renderStart(experience.requestID)
 
                 presentStep { error in
                     // on failure, report a fatal error and dismiss the experience
