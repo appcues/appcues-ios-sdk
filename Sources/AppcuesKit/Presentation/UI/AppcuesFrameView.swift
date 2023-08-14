@@ -37,27 +37,9 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
         return constraint
     }()
 
-    // when the view content is non-empty, we use a >= 1 height constraint to allow for dynamic
-    // sizing based on the content
-    private lazy var nonEmptyHeightConstraint: NSLayoutConstraint = {
-        var constraint = heightAnchor.constraint(greaterThanOrEqualToConstant: 1)
-        constraint.priority = .defaultLow
-        constraint.isActive = false
-        return constraint
-    }()
-
     // when the view content is empty, we use this zero width constraint
     private lazy var emptyWidthConstraint: NSLayoutConstraint = {
         var constraint = widthAnchor.constraint(equalToConstant: 0)
-        constraint.priority = .defaultLow
-        constraint.isActive = false
-        return constraint
-    }()
-
-    // when the view content is non-empty, we use a >= 1 width constraint to allow for dynamic
-    // sizing based on the content
-    private lazy var nonEmptyWidthConstraint: NSLayoutConstraint = {
-        var constraint = widthAnchor.constraint(greaterThanOrEqualToConstant: 1)
         constraint.priority = .defaultLow
         constraint.isActive = false
         return constraint
@@ -77,9 +59,7 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
 
     private func configureConstraints(isEmpty: Bool) {
         emptyHeightConstraint.isActive = isEmpty
-        nonEmptyHeightConstraint.isActive = !isEmpty
         emptyWidthConstraint.isActive = isEmpty
-        nonEmptyWidthConstraint.isActive = !isEmpty
     }
 
     // this will only get called on iOS 13+ from the Appcues class during registration

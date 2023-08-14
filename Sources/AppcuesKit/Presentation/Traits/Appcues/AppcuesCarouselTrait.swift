@@ -245,11 +245,18 @@ extension AppcuesCarouselTrait {
             super.init(frame: .zero)
 
             addSubview(collectionView)
+
+            let bottomConstraint = collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            bottomConstraint.priority = .init(999)
+
             NSLayoutConstraint.activate([
                 collectionView.topAnchor.constraint(equalTo: topAnchor),
                 collectionView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
                 collectionView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
-                collectionView.bottomAnchor.constraint(equalTo: bottomAnchor)
+                // this is required so the dialogView has an initial non-zero height, after which it can start sizing to the content.
+                collectionView.layoutMarginsGuide.bottomAnchor.constraint(greaterThanOrEqualTo: collectionView.layoutMarginsGuide.topAnchor, constant: 1),
+                // this has a non-required priority so the previous height constraint can take effect
+                bottomConstraint
             ])
         }
 
