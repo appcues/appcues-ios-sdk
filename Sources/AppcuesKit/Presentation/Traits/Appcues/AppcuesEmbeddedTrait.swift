@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCreatingTrait, AppcuesPresentingTrait {
+internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesContainerDecoratingTrait, AppcuesPresentingTrait {
 
     struct Config: Decodable {
         let frameID: String
@@ -45,9 +45,12 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesWrapperC
         stepController.padding = NSDirectionalEdgeInsets(paddingFrom: style)
     }
 
-    func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
+    func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         applyStyle(style, to: containerController)
-        return containerController
+    }
+
+    func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
+        applyStyle(nil, to: containerController)
     }
 
     func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
