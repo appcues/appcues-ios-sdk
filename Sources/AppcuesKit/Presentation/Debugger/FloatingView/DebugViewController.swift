@@ -99,34 +99,35 @@ internal class DebugViewController: UIViewController {
     }
 
     func showCaptureSuccess(screen: Capture) {
-        debugView.toastView.configureSuccess(screen)
-        showToast(seconds: 3.0)
+        let toast = DebugToast(message: .screenCaptureSuccess(displayName: screen.displayName), style: .success)
+        showToast(toast)
     }
 
     func showCaptureFailure() {
-        debugView.toastView.configureCaptureFailure()
-        showToast(seconds: 3.0)
+        let toast = DebugToast(message: .screenCaptureFailure, style: .failure)
+        showToast(toast)
     }
 
     func showSaveFailure(onRetry: @escaping () -> Void) {
-        debugView.toastView.configureSaveFailure { [weak self] in
+        let toast = DebugToast(message: .screenUploadFailure, style: .failure, duration: 6.0) { [weak self] in
             // handling retry tap
             // hide the toast, then execute the provided retry callback
             self?.debugView.setToastView(visible: false, animated: false) {
                 onRetry()
             }
         }
-        showToast(seconds: 6.0)
+        showToast(toast)
     }
 
-    private func showToast(seconds: Double) {
+    private func showToast(_ toast: DebugToast) {
         // stop any pending dismiss when we are starting a new toast presentation
         // it will get reset to the desired timeout after the new toast is set visible
         toastDismissTimer?.invalidate()
 
+        debugView.toastView.configureAppearance(for: toast)
         debugView.setToastView(visible: true, animated: true) {
             // using a timer here so we can cancel and extend the toast on each subsequent retry attempt
-            self.toastDismissTimer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: false) { [weak self] _ in
+            self.toastDismissTimer = Timer.scheduledTimer(withTimeInterval: toast.duration, repeats: false) { [weak self] _ in
                 guard let self = self else { return }
                 self.debugView.setToastView(visible: false, animated: true, completion: nil)
             }

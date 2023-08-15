@@ -68,39 +68,17 @@ internal class CaptureToastView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configureSuccess(_ capture: Capture) {
-        backgroundColor = .appcuesToastSuccess
-        retryButton.isHidden = true
-        let message = NSMutableAttributedString(string: "\"\(capture.displayName)\"", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .bold),
-            .foregroundColor: UIColor.white
-        ])
-        message.append(NSAttributedString(string: " is now available for preview and targeting.", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .regular),
-            .foregroundColor: UIColor.white
-        ]))
-        messageLabel.attributedText = message
-        onRetry = nil
-    }
+    func configureAppearance(for toast: DebugToast) {
+        switch toast.style {
+        case .success:
+            backgroundColor = .appcuesToastSuccess
+        case .failure:
+            backgroundColor = .appcuesToastFailure
+        }
+        retryButton.isHidden = toast.retryAction == nil
+        onRetry = toast.retryAction
 
-    func configureSaveFailure(onRetry: @escaping () -> Void) {
-        backgroundColor = .appcuesToastFailure
-        retryButton.isHidden = false
-        messageLabel.attributedText = NSAttributedString(string: "Upload failed", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .bold),
-            .foregroundColor: UIColor.white
-        ])
-        self.onRetry = onRetry
-    }
-
-    func configureCaptureFailure() {
-        backgroundColor = .appcuesToastFailure
-        retryButton.isHidden = true
-        messageLabel.attributedText = NSAttributedString(string: "Screen capture failed", attributes: [
-            .font: UIFont.systemFont(ofSize: 14, weight: .bold),
-            .foregroundColor: UIColor.white
-        ])
-        self.onRetry = nil
+        messageLabel.attributedText = toast.message.attributedText
     }
 
     @objc
@@ -112,4 +90,36 @@ internal class CaptureToastView: UIView {
 private extension UIColor {
     static let appcuesToastSuccess = UIColor(red: 0.0, green: 0.447, blue: 0.839, alpha: 1.0)
     static let appcuesToastFailure = UIColor(red: 0.867, green: 0.133, blue: 0.439, alpha: 1.0)
+}
+
+extension DebugToast.Message {
+    var attributedText: NSAttributedString {
+        switch self {
+        case .screenCaptureSuccess(let displayName):
+            let message = NSMutableAttributedString(string: "\"\(displayName)\"", attributes: [
+                .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+                .foregroundColor: UIColor.white
+            ])
+            message.append(NSAttributedString(string: " is now available for preview and targeting.", attributes: [
+                .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+                .foregroundColor: UIColor.white
+            ]))
+            return message
+        case .screenCaptureFailure:
+            return NSAttributedString(string: "Screen capture failed", attributes: [
+                .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+                .foregroundColor: UIColor.white
+            ])
+        case .screenUploadFailure:
+            return NSAttributedString(string: "Upload failed", attributes: [
+                .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+                .foregroundColor: UIColor.white
+            ])
+        case .custom(let text):
+            return NSAttributedString(string: text, attributes: [
+                .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+                .foregroundColor: UIColor.white
+            ])
+        }
+    }
 }
