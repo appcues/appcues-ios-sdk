@@ -10,11 +10,11 @@ import UIKit
 
 /// Stores values to be shared across ``AppcuesExperienceTrait`` instances. The instances may be the same trait applied to different steps,
 /// or different traits that coordinate to create a more complex user interface.
-public class AppcuesTraitMetadata: NSObject {
+internal class AppcuesTraitMetadata: NSObject {
     private let newData: [String: Any?]
     private let previousData: [String: Any?]
 
-    internal init(newData: [String: Any?], previousData: [String: Any?]) {
+    init(newData: [String: Any?], previousData: [String: Any?]) {
         self.newData = newData
         self.previousData = previousData
     }
@@ -43,14 +43,14 @@ public class AppcuesTraitMetadata: NSObject {
     }
 
     /// Accesses the value associated with the given key for reading.
-    public subscript<T>(_ key: String) -> T? {
+    internal subscript<T>(_ key: String) -> T? {
         newData[key] as? T
     }
 
     /// Accesses the previous value associated with the given key for reading.
     ///
     /// This may be useful for coordinating transitions.
-    public subscript<T>(previous key: String) -> T? {
+    internal subscript<T>(previous key: String) -> T? {
         previousData[key] as? T
     }
 }

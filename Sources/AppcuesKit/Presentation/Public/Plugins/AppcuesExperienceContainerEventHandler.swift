@@ -10,7 +10,7 @@ import UIKit
 
 /// A protocol that defines the methods to adopt to respond to changes in an ``AppcuesExperienceContainerViewController``.
 @objc
-public protocol AppcuesExperienceContainerEventHandler: AnyObject {
+internal protocol AppcuesExperienceContainerEventHandler: AnyObject {
 
     /// Tells the delegate that the container will appear.
     ///

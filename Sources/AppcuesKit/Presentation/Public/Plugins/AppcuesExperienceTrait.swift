@@ -12,7 +12,7 @@ import UIKit
 
 /// A type that describes a trait of an `Experience`.
 @objc
-public protocol AppcuesExperienceTrait {
+internal protocol AppcuesExperienceTrait {
 
     /// The name of the trait.
     ///
@@ -30,7 +30,7 @@ public protocol AppcuesExperienceTrait {
 
 /// A trait that modifies the `UIViewController` that encapsulates the contents of a specific step in the experience.
 @objc
-public protocol AppcuesStepDecoratingTrait: AppcuesExperienceTrait {
+internal protocol AppcuesStepDecoratingTrait: AppcuesExperienceTrait {
 
     /// Modify the view controller for a step.
     /// - Parameter stepController: The `UIViewController` to modify.
@@ -44,7 +44,7 @@ public protocol AppcuesStepDecoratingTrait: AppcuesExperienceTrait {
 /// experience step(s) being presented. The returned controller must call the ``AppcuesExperienceContainerEventHandler``
 /// methods at the appropriate times.
 @objc
-public protocol AppcuesContainerCreatingTrait: AppcuesExperienceTrait {
+internal protocol AppcuesContainerCreatingTrait: AppcuesExperienceTrait {
 
     /// Create the container controller for experience step(s).
     /// - Parameter stepControllers: Array of controllers being presented.
@@ -63,7 +63,7 @@ public protocol AppcuesContainerCreatingTrait: AppcuesExperienceTrait {
 
 /// A trait that modifies the container view controller created by an ``AppcuesContainerCreatingTrait``.
 @objc
-public protocol AppcuesContainerDecoratingTrait: AppcuesExperienceTrait {
+internal protocol AppcuesContainerDecoratingTrait: AppcuesExperienceTrait {
 
     /// Modify a container view controller.
     /// - Parameter containerController: The `AppcuesExperienceContainerViewController` to modify.
@@ -86,7 +86,7 @@ public protocol AppcuesContainerDecoratingTrait: AppcuesExperienceTrait {
 
 /// A trait that modifies the backdrop `UIView` that may be included in the presented experience.
 @objc
-public protocol AppcuesBackdropDecoratingTrait: AppcuesExperienceTrait {
+internal protocol AppcuesBackdropDecoratingTrait: AppcuesExperienceTrait {
 
     /// Modify the backdrop view.
     /// - Parameter backdropView: The `UIView` to modify.
@@ -112,7 +112,7 @@ public protocol AppcuesBackdropDecoratingTrait: AppcuesExperienceTrait {
 
 /// A trait that creates a `UIViewController` that wraps the ``AppcuesExperienceContainerViewController``.
 @objc
-public protocol AppcuesWrapperCreatingTrait: AppcuesExperienceTrait {
+internal protocol AppcuesWrapperCreatingTrait: AppcuesExperienceTrait {
 
     /// Create a wrapper controller around a container controller.
     /// - Parameter containerController: The container controller.
@@ -130,7 +130,7 @@ public protocol AppcuesWrapperCreatingTrait: AppcuesExperienceTrait {
 
 /// A trait responsible for providing the ability to show and hide the experience.
 @objc
-public protocol AppcuesPresentingTrait: AppcuesExperienceTrait {
+internal protocol AppcuesPresentingTrait: AppcuesExperienceTrait {
 
     /// Shows the view controller for an experience.
     /// - Parameter viewController: The view controller to present.

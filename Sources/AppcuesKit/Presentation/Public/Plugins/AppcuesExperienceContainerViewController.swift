@@ -10,7 +10,7 @@ import UIKit
 
 /// A `UIViewController` which contains step view controllers to display an `Experience`.
 @objc
-public protocol AppcuesExperienceContainer {
+internal protocol AppcuesExperienceContainer {
 
     /// The delegate object for the experience step container.
     var eventHandler: AppcuesExperienceContainerEventHandler? { get set }
@@ -28,4 +28,4 @@ public protocol AppcuesExperienceContainer {
 }
 
 /// A convenience typealias for a `UIViewController` that is also an ``AppcuesExperienceContainer``.
-public typealias AppcuesExperienceContainerViewController = AppcuesExperienceContainer & UIViewController
+internal typealias AppcuesExperienceContainerViewController = AppcuesExperienceContainer & UIViewController
