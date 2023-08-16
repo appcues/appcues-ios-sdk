@@ -39,16 +39,6 @@ A Swift library for sending user properties and events to the Appcues API and re
 - ``AppcuesAnalyticsDelegate``
 - ``AppcuesAnalytic``
 
-### Extending Experiences
-
-- <doc:Extending>
-- ``AppcuesExperienceAction``
-- ``AppcuesExperienceTrait``
-- ``AppcuesExperiencePluginConfiguration``
-- ``AppcuesTraitMetadata``
-- ``AppcuesTraitMetadataDelegate``
-- <doc:Traits>
-
 ### Element Targeting
 - ``AppcuesElementTargeting``
 - ``AppcuesElementSelector``
