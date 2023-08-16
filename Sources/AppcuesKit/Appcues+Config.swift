@@ -33,7 +33,7 @@ public extension Appcues {
             UIDevice.identifier
         }
 
-        var sessionTimeout: UInt = 1_800 // 30 minutes by default
+        var sessionTimeout: UInt = 300 // 5 minutes by default
 
         var activityStorageMaxSize: UInt = 25
 
@@ -80,7 +80,7 @@ public extension Appcues {
         }
 
         /// Set the session timeout for the configuration. This timeout value is used to determine if a new session is started
-        /// upon the application returning to the foreground. The default value is 1800 seconds (30 minutes).
+        /// after a period of inactivity, in either foreground or background. The default value is 300 seconds (5 minutes).
         /// - Parameter sessionTimeout: The timeout length, in seconds.
         /// - Returns: The `Configuration` object.
         @discardableResult

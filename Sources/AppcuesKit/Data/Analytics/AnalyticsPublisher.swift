@@ -22,11 +22,14 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
 
     private weak var appcues: Appcues?
 
+    private let sessionMonitor: SessionMonitoring
+
     private var subscribers: [WeakAnalyticsSubscribing] = []
     private var decorators: [WeakAnalyticsDecorating] = []
 
     init(container: DIContainer) {
         self.appcues = container.owner
+        self.sessionMonitor = container.resolve(SessionMonitoring.self)
     }
 
     func register(subscriber: AnalyticsSubscribing) {
@@ -46,8 +49,32 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
     }
 
     func publish(_ update: TrackingUpdate) {
-        guard appcues?.isActive ?? false else { return }
+        let isSessionActive = appcues?.isActive ?? false
 
+        if !isSessionActive || sessionMonitor.isSessionExpired {
+            if sessionMonitor.start() {
+                // immediately track session started before any subsequent analytics
+                decorateAndPublish(
+                    TrackingUpdate(
+                        type: .event(name: SessionEvents.sessionStarted.rawValue, interactive: true),
+                        properties: nil,
+                        isInternal: true
+                    )
+                )
+            } else {
+                // no session could be started (no user) and we cannot
+                // track anything
+                return
+            }
+        } else {
+            // we have a valid session, update its last activity timestamp to push out the timeout
+            sessionMonitor.updateLastActivity()
+        }
+
+        decorateAndPublish(update)
+    }
+
+    private func decorateAndPublish(_ update: TrackingUpdate) {
         var update = update
 
         // Apply decorations, removing any decorators that have been released from memory.
@@ -79,17 +106,6 @@ private extension AnalyticsPublisher {
 }
 
 extension AnalyticsPublishing {
-    // helper used for internal SDK events to allow for enum cases to be passed for the event name
-    func track<T>(_ item: T, properties: [String: Any]?, interactive: Bool) where T: RawRepresentable, T.RawValue == String {
-        publish(
-            TrackingUpdate(
-                type: .event(name: item.rawValue, interactive: interactive),
-                properties: properties,
-                isInternal: true
-            )
-        )
-    }
-
     func screen(title: String) {
         publish(TrackingUpdate(type: .screen(title), isInternal: true))
     }

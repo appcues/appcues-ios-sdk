@@ -162,7 +162,6 @@ public class Appcues: NSObject {
     /// Clears out the current user in this session. Can be used when the user logs out of your application.
     @objc
     public func reset() {
-        // call this first to close final analytics on the session
         sessionMonitor.reset()
 
         storage.userID = ""
@@ -337,9 +336,6 @@ public class Appcues: NSObject {
         // register the auto property decorator
         let autoPropDecorator = container.resolve(AutoPropertyDecorator.self)
         analyticsPublisher.register(decorator: autoPropDecorator)
-
-        // start session monitoring
-        sessionMonitor.start()
     }
 
     private func identify(isAnonymous: Bool, userID: String, properties: [String: Any]? = nil) {
@@ -355,7 +351,7 @@ public class Appcues: NSObject {
         storage.userSignature = properties?.removeValue(forKey: "appcues:user_id_signature") as? String
         if userChanged {
             // when the identified user changes from last known value, we must start a new session
-            sessionMonitor.start()
+            sessionMonitor.reset()
 
             // and clear any stored group information - will have to be reset as needed
             storage.groupID = nil
