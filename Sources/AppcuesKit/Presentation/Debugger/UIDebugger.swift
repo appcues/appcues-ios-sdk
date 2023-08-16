@@ -132,6 +132,8 @@ internal class UIDebugger: UIDebugging {
     @objc
     private func appcuesReset(notification: Notification) {
         self.viewModel.reset()
+        self.viewModel.currentUserID = self.storage.userID
+        self.viewModel.isAnonymous = self.storage.isAnonymous
     }
 }
 

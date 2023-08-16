@@ -68,7 +68,11 @@ internal class DeepLinkHandler: DeepLinkHandling {
 
     func didHandleURL(_ url: URL) -> Bool {
         guard let applicationID = config?.applicationID,
-              let action = Action(url: url, isSessionActive: container?.owner?.isActive ?? false, applicationID: applicationID) else {
+              let action = Action(
+                url: url,
+                isSessionActive: container?.owner?.isActive ?? false,
+                applicationID: applicationID
+              ) else {
             return false
         }
 
