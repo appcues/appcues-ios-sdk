@@ -10,17 +10,17 @@ import Foundation
 
 /// Maintains page state metadata for an ``AppcuesExperienceContainerViewController``.
 @objc
-public class AppcuesExperiencePageMonitor: NSObject {
+internal class AppcuesExperiencePageMonitor: NSObject {
 
     // Using closures as observers is ok from a memory management perspective because the lifecycle of any Trait
     // observing the experience controller and the experience controller itself should be the same.
     private var observers: [(Int, Int) -> Void] = []
 
     /// The number of pages in the ``AppcuesExperienceContainerViewController``.
-    @objc public let numberOfPages: Int
+    @objc internal let numberOfPages: Int
 
     /// The current page in the ``AppcuesExperienceContainerViewController``.
-    @objc public private(set) var currentPage: Int
+    @objc internal private(set) var currentPage: Int
 
     /// Creates an instance of a page monitor.
     /// - Parameters:
@@ -35,7 +35,7 @@ public class AppcuesExperiencePageMonitor: NSObject {
     /// Adds the specified closure to the list of closures to invoke when the ``currentPage`` value changes.
     /// - Parameter closure: The closure to invoke.
     @objc
-    public func addObserver(closure: @escaping (_ currentIndex: Int, _ oldIndex: Int) -> Void) {
+    internal func addObserver(closure: @escaping (_ currentIndex: Int, _ oldIndex: Int) -> Void) {
         observers.append(closure)
     }
 
@@ -44,7 +44,7 @@ public class AppcuesExperiencePageMonitor: NSObject {
     ///
     /// Setting a value equal to the current state will not notify observers.
     @objc
-    public func set(currentPage: Int) {
+    internal func set(currentPage: Int) {
         let previousPage = self.currentPage
         guard currentPage != previousPage else { return }
         self.currentPage = currentPage

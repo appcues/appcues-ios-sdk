@@ -10,11 +10,11 @@ import Foundation
 
 /// An object that decodes instances of a plugin configuration from an Experience JSON model.
 @objc
-public class AppcuesExperiencePluginConfiguration: NSObject {
+internal class AppcuesExperiencePluginConfiguration: NSObject {
 
     /// Context in which a plugin can be applied.
     @objc
-    public enum Level: Int {
+    internal enum Level: Int {
         /// A plugin defined on an entire experience.
         case experience
         /// A plugin defined on a group of steps in an experience.
@@ -26,12 +26,12 @@ public class AppcuesExperiencePluginConfiguration: NSObject {
     private var decoder: PluginDecoder
 
     /// The context where the plugin was defined.
-    public let level: Level
+    internal let level: Level
 
     /// The instance of the Appcues SDK where the plugin is being applied.
-    public weak var appcues: Appcues?
+    internal weak var appcues: Appcues?
 
-    internal let renderContext: RenderContext
+    let renderContext: RenderContext
 
     init(_ decoder: PluginDecoder, level: Level, renderContext: RenderContext, appcues: Appcues?) {
         self.decoder = decoder
@@ -43,7 +43,7 @@ public class AppcuesExperiencePluginConfiguration: NSObject {
     /// Returns a value of the type you specify, decoded from a JSON object.
     /// - Parameter type: The type of the value to decode from the supplied plugin decoder.
     /// - Returns: A value of the specified type, if the decoder can parse the data.
-    public func decode<T: Decodable>(_ type: T.Type) -> T? {
+    internal func decode<T: Decodable>(_ type: T.Type) -> T? {
         return decoder.decode(type)
     }
 }

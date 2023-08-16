@@ -226,7 +226,7 @@ public class Appcues: NSObject {
     /// Register a trait that modifies an `Experience`.
     /// - Parameter trait: Trait to register.
     @objc
-    public func register(trait: AppcuesExperienceTrait.Type) {
+    internal func register(trait: AppcuesExperienceTrait.Type) {
         guard #available(iOS 13.0, *) else { return }
 
         traitRegistry.register(trait: trait)
@@ -235,7 +235,7 @@ public class Appcues: NSObject {
     /// Register an action that can be activated in an `Experience`.
     /// - Parameter action: Action to register.
     @objc
-    public func register(action: AppcuesExperienceAction.Type) {
+    internal func register(action: AppcuesExperienceAction.Type) {
         guard #available(iOS 13.0, *) else { return }
 
         actionRegistry.register(action: action)
