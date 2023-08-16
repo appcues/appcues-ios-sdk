@@ -25,6 +25,7 @@ A Swift library for sending user properties and events to the Appcues API and re
 - ``AppcuesNavigationDelegate``
 
 ### Embeds
+- <doc:AppcuesFrameViewConfiguring>
 - ``AppcuesFrameView``
 - ``AppcuesFrame``
 
