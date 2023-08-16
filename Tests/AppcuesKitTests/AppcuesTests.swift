@@ -31,9 +31,12 @@ class AppcuesTests: XCTestCase {
         realPublisher.register(subscriber: subscriber)
         
         appcues.sessionID = nil //start out with Appcues disabled - no user
+        appcues.storage.userID = ""
 
         appcues.sessionMonitor.onStart = {
+            guard !self.appcues.storage.userID.isEmpty else { return false }
             self.appcues.sessionID = UUID()
+            return true
         }
 
         appcues.sessionMonitor.onReset = {
@@ -42,15 +45,15 @@ class AppcuesTests: XCTestCase {
 
         // Act
         appcues.screen(title: "My test page") // not tracked
-        appcues.anonymous()                   // tracked - user
-        appcues.screen(title: "My test page") // tracked - screen
+        appcues.anonymous()                   // tracked 2 - session start + user
+        appcues.screen(title: "My test page") // tracked 1 - screen
         appcues.reset()                       // stop tracking
         appcues.screen(title: "My test page") // not tracked
-        appcues.identify(userID: "a-user-id") // tracked - user
-        appcues.screen(title: "My test page") // tracked - screen
+        appcues.identify(userID: "a-user-id") // tracked 2 - session start + user
+        appcues.screen(title: "My test page") // tracked 1 - screen
 
         // Assert
-        XCTAssertEqual(4, subscriber.trackedUpdates)
+        XCTAssertEqual(6, subscriber.trackedUpdates)
     }
 
     func testAnonymousUserIdPrefix() throws {

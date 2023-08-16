@@ -168,16 +168,24 @@ class MockExperienceRenderer: ExperienceRendering {
 }
 
 class MockSessionMonitor: SessionMonitoring {
-    var onStart: (() -> Void)?
+    var isSessionExpired: Bool = false
+
+    var onStart: (() -> Bool)?
+    var onUpdateLastActivity: (() -> Void)?
     var onReset: (() -> Void)?
 
-    func start() {
-        onStart?()
+    func start() -> Bool {
+        return onStart?() ?? true
     }
 
     func reset() {
         onReset?()
     }
+
+    func updateLastActivity() {
+        onUpdateLastActivity?()
+    }
+
 }
 
 class MockActivityProcessor: ActivityProcessing {
