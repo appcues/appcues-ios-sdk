@@ -135,7 +135,7 @@ func decorate(containerController: ExperienceContainerViewController) throws {
 
 Trait capabilities are applied in a defined sequence, and a trait with multiple capabilities will have its capabilities applied piecewise.
 
-![Begin Step X -> Create Step View -> Step Decorating -> Container Creating -> Container Decorating -> Wrapper Creating -> Backdrop Decorating -> Presenting](trait-flow.png)
+![Begin Step X -> Create Step View -> Step Decorating -> Container Creating -> Wrapper Creating -> Container Decorating -> Backdrop Decorating -> Presenting](trait-flow.png)
 
 > A trait with multiple capabilities may, in certain circumstances, not have all its capabilities applied. An ``AppcuesBackdropDecoratingTrait`` will not be applied if no ``AppcuesWrapperCreatingTrait`` is present. Additionally, single trait capabilities (i.e. ``AppcuesContainerCreatingTrait``, ``AppcuesWrapperCreatingTrait``, and ``AppcuesPresentingTrait``) will ignore all but the first trait model in the most specific context that provides the capability. Additionally, ``AppcuesContainerCreatingTrait``, ``AppcuesWrapperCreatingTrait``, and ``AppcuesPresentingTrait`` capabilities provided at the step level within a group are ignored.
 
