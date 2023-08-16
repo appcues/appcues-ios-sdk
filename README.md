@@ -122,6 +122,10 @@ Events are the “actions” your users take in your application, which can be a
 
 Anchored tooltips use element targeting to point directly at specific views in your application. For more information about how to configure your application's views for element targeting, refer to the [Anchored Tooltips Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/anchoredtooltips).
 
+### Embedded Experiences
+
+Add `AppcuesFrameView` instances in your application layouts to support embedded experience content, with a non-modal presentation. For more information about how to configure your application layouts to use frame views, refer to the guide on [Configuring AppcuesFrameViews](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/appcuesframeviewconfiguring).
+
 Refer to the full [Getting Started Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/gettingstarted) for more details.
 
 ## 🛠 Customization
