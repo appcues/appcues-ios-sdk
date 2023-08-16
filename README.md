@@ -125,7 +125,7 @@ Anchored tooltips use element targeting to point directly at specific views in y
 
 ### Embedded Experiences
 
-Add `AppcuesFrameView` instances in your application layouts to support embedded experience content, with a non-modal presentation. For more information about how to configure your application layouts to use frame views, refer to the guide on [Configuring an AppcuesFrameView](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/appcuesframeviewconfiguring).
+Add `AppcuesFrameView` instances in your application layouts to support embedded experience content, with a non-modal presentation. For more information about how to configure your application layouts to use frame views, refer to the guide on [Configuring an Appcues Frame](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/frameconfiguring).
 
 Refer to the full [Getting Started Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/gettingstarted) for more details.
 
