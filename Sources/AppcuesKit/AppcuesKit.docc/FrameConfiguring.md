@@ -1,6 +1,12 @@
-# Configuring an AppcuesFrameView
+# Configuring an Appcues Frame
 
-Using `AppcuesFrameView` instances in your layouts will allow you to embed inline Appcues experience content in your app. This style of pattern is non-modal in the user's experience, differing from modals and tooltips used in mobile flows. Any number of desired embedded experiences can be rendered in the application at any given time.
+Embed Appcues content inline in your app.
+
+## Overview 
+
+Integrating ``AppcuesFrameView`` (UIKit) and ``AppcuesFrame`` (SwiftUI) in your layouts will allow you to embed Appcues experience content inline in your app.
+
+This style of pattern is non-modal in the user's experience, differing from modals and tooltips used in mobile flows. Any number of desired embedded experiences can be rendered in the application at any given time.
 
 ## Using an AppcuesFrameView with UIKit
 
