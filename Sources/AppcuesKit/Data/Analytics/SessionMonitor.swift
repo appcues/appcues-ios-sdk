@@ -53,7 +53,8 @@ internal class SessionMonitor: SessionMonitoring {
         )
     }
 
-    // called on (A) sdk init (B) user identity change
+    // called by AnalyticsPublisher on-demand, when it recognizes no session
+    // exists, or the existing session has expired
     func start() -> Bool {
         // if there is no user identified, we do not have a valid session
         guard !storage.userID.isEmpty else { return false }
