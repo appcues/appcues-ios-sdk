@@ -121,7 +121,7 @@ class ExperienceLoaderTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    func testNoOpWhenNotificationOnPublishedExperiencec() throws {
+    func testNoOpWhenNotificationOnPublishedExperience() throws {
         // Arrange
         let reloadExpectation = expectation(description: "Data loaded called")
         reloadExpectation.isInverted = true

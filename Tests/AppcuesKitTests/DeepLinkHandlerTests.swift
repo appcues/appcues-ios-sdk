@@ -39,6 +39,35 @@ class DeepLinkHandlerTests: XCTestCase {
         XCTAssertNotNil(DeepLinkHandler.Action(url: URL(string: "appcues-democues://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true, applicationID: "abc"))
     }
 
+    func testHandlePreviewFailToast() throws {
+        // Arrange
+        deepLinkHandler.topControllerGetting = MockTopControllerGetting()
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/experience_preview/invalid-id"))
+
+        var loaderCalled = false
+        appcues.experienceLoader.onLoad = { id, published, trigger, completion in
+            XCTAssertEqual(id, "invalid-id")
+            XCTAssertFalse(published)
+            guard case .preview = trigger else { return XCTFail() }
+            loaderCalled = true
+            completion?(.failure(NetworkingError.nonSuccessfulStatusCode(404)))
+        }
+
+        var toastShown = false
+        appcues.debugger.onShowToast = { toast in
+            XCTAssertEqual(toast.style, .failure)
+            toastShown = true
+        }
+
+        // Act
+        let handled = deepLinkHandler.didHandleURL(url)
+
+        // Assert
+        XCTAssertTrue(handled)
+        XCTAssertTrue(loaderCalled)
+        XCTAssertTrue(toastShown)
+    }
+
     func testHandlePreviewURLWithActiveScene() throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
