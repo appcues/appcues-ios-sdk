@@ -19,34 +19,46 @@ internal protocol StateMachineOwning: AnyObject {
 @available(iOS 13.0, *)
 internal class StateMachineDirectory {
     private var stateMachines: [RenderContext: WeakStateMachineOwning] = [:]
+    private let syncQueue = DispatchQueue(label: "appcues-state-directory")
 
     func cleanup() {
-        stateMachines = stateMachines.filter { _, weakRef in weakRef.value != nil }
+        // This can safely happen whenever
+        syncQueue.async {
+            self.stateMachines = self.stateMachines.filter { _, weakRef in weakRef.value != nil }
+        }
     }
 
     func owner(forContext context: RenderContext) -> StateMachineOwning? {
-        stateMachines[context]?.value
+        syncQueue.sync {
+            return stateMachines[context]?.value
+        }
     }
 
     /// Get the `ExperienceStateMachine` associated with the specified key.
     subscript (_ key: RenderContext) -> ExperienceStateMachine? {
-        stateMachines[key]?.value?.stateMachine
+        syncQueue.sync {
+            return stateMachines[key]?.value?.stateMachine
+        }
     }
 
     subscript (ownerFor key: RenderContext) -> StateMachineOwning? {
         get {
-            stateMachines[key]?.value
+            syncQueue.sync {
+                return stateMachines[key]?.value
+            }
         }
         set(newValue) {
-            // Enforce uniqueness (a StateMachineOwning may only be registered for a single RenderContext).
-            if let oldRenderContext = newValue?.renderContext, oldRenderContext != key {
-                stateMachines.removeValue(forKey: oldRenderContext)
+            syncQueue.sync {
+                // Enforce uniqueness (a StateMachineOwning may only be registered for a single RenderContext).
+                if let oldRenderContext = newValue?.renderContext, oldRenderContext != key {
+                    stateMachines.removeValue(forKey: oldRenderContext)
+                }
+
+                stateMachines[key] = WeakStateMachineOwning(newValue)
+
+                // Save the current renderContext so it can be easily removed in the above uniqueness check.
+                newValue?.renderContext = key
             }
-
-            stateMachines[key] = WeakStateMachineOwning(newValue)
-
-            // Save the current renderContext so it can be easily removed in the above uniqueness check.
-            newValue?.renderContext = key
         }
     }
 
