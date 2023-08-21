@@ -23,7 +23,6 @@ internal class DebugView: UIView {
 
     private let floatingViewPanRecognizer = UIPanGestureRecognizer()
     private let backgroundTapRecognizer = UITapGestureRecognizer()
-    private let toastTapRecognizer = UITapGestureRecognizer()
 
     private var initialTouchOffsetFromCenter: CGPoint = .zero
 
@@ -71,14 +70,6 @@ internal class DebugView: UIView {
         view.layer.shadowOpacity = 0.4
         view.layer.shadowOffset = CGSize(width: 0, height: 4)
         view.layer.shadowRadius = 8
-
-        return view
-    }()
-
-    var toastView: CaptureToastView = {
-        let view = CaptureToastView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.alpha = 0
 
         return view
     }()
@@ -143,7 +134,6 @@ internal class DebugView: UIView {
         addSubview(panelWrapperView)
         addSubview(dismissView)
         addSubview(floatingView)
-        addSubview(toastView)
 
         backgroundView.pin(to: self)
         NSLayoutConstraint.activate([
@@ -154,13 +144,7 @@ internal class DebugView: UIView {
 
             dismissView.leadingAnchor.constraint(equalTo: leadingAnchor),
             dismissView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            dismissView.bottomAnchor.constraint(equalTo: bottomAnchor),
-
-            toastView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor, constant: 25),
-            toastView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor, constant: -25),
-            toastView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -25),
-            toastView.heightAnchor.constraint(equalToConstant: 64)
-
+            dismissView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
 
         floatingViewPanRecognizer.addTarget(self, action: #selector(floatingViewPanned))
@@ -168,9 +152,6 @@ internal class DebugView: UIView {
 
         backgroundTapRecognizer.addTarget(self, action: #selector(backgroundTapped))
         backgroundView.addGestureRecognizer(backgroundTapRecognizer)
-
-        toastTapRecognizer.addTarget(self, action: #selector(toastTapped))
-        toastView.addGestureRecognizer(toastTapRecognizer)
 
         // Set initial position and then animate in
         setFloatingView(visible: false, animated: false, programmatically: true)
@@ -201,10 +182,6 @@ internal class DebugView: UIView {
     }
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-
-        var hitView: UIView?
-        var didTapToast = false
-
         for view in subviews.reversed() {
             // Convert to the subview's local coordinate system
             let convertedPoint = convert(point, to: view)
@@ -215,19 +192,11 @@ internal class DebugView: UIView {
 
             // If the subview can find a hit target, return that
             if let target = view.hitTest(convertedPoint, with: event) {
-                hitView = target
-                didTapToast = view == toastView
-                break
+                return target
             }
         }
 
-        // any tap outside the toast when it is visible should hide toast
-        // taps inside the toast are handled within the toast
-        if toastView.alpha > 0 && !didTapToast {
-            animateToast(visible: false, animated: true, completion: nil)
-        }
-
-        return hitView
+        return nil
     }
 
     // MARK: API
@@ -247,10 +216,6 @@ internal class DebugView: UIView {
         delegate?.debugView(did: isOpen ? .open : .close)
 
         fleetingLogView.isLocked = isOpen
-    }
-
-    func setToastView(visible isVisible: Bool, animated: Bool, completion: (() -> Void)?) {
-        animateToast(visible: isVisible, animated: animated, completion: completion)
     }
 
     // MARK: Gesture Recognizers
@@ -278,11 +243,6 @@ internal class DebugView: UIView {
     @objc
     private func backgroundTapped(recognizer: UITapGestureRecognizer) {
         setPanelInterface(open: false, animated: true, programmatically: true)
-    }
-
-    @objc
-    private func toastTapped(recognizer: UITapGestureRecognizer) {
-        setToastView(visible: false, animated: true, completion: nil)
     }
 
     // MARK: Pan Gesture
@@ -487,24 +447,6 @@ internal class DebugView: UIView {
             completion(true)
         }
     }
-
-    private func animateToast(visible isVisible: Bool, animated: Bool, completion: (() -> Void)?) {
-
-        let animations: () -> Void = {
-            self.toastView.alpha = isVisible ? 1 : 0
-        }
-
-        if animated {
-            UIView.animate(
-                withDuration: 0.6,
-                animations: animations
-            ) { _ in completion?() }
-        } else {
-            animations()
-            completion?()
-        }
-    }
-
 }
 
 @available(iOS 13.0, *)

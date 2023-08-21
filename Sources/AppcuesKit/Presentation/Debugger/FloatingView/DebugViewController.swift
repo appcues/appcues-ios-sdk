@@ -22,10 +22,6 @@ internal class DebugViewController: UIViewController {
     let mode: DebugMode
     private let viewModel: DebugViewModel
 
-    // used to schedule toast dismissal, and invalidate in cases where retry and new toast
-    // are necessary
-    private var toastDismissTimer: Timer?
-
     init(viewModel: DebugViewModel, mode: DebugMode) {
         self.viewModel = viewModel
         self.mode = mode
@@ -96,42 +92,6 @@ internal class DebugViewController: UIViewController {
 
         let confirmationViewController = DebugModalViewController(rootView: confirmationView)
         present(confirmationViewController, animated: true)
-    }
-
-    func showCaptureSuccess(screen: Capture) {
-        let toast = DebugToast(message: .screenCaptureSuccess(displayName: screen.displayName), style: .success)
-        showToast(toast)
-    }
-
-    func showCaptureFailure() {
-        let toast = DebugToast(message: .screenCaptureFailure, style: .failure)
-        showToast(toast)
-    }
-
-    func showSaveFailure(onRetry: @escaping () -> Void) {
-        let toast = DebugToast(message: .screenUploadFailure, style: .failure, duration: 6.0) { [weak self] in
-            // handling retry tap
-            // hide the toast, then execute the provided retry callback
-            self?.debugView.setToastView(visible: false, animated: false) {
-                onRetry()
-            }
-        }
-        showToast(toast)
-    }
-
-    private func showToast(_ toast: DebugToast) {
-        // stop any pending dismiss when we are starting a new toast presentation
-        // it will get reset to the desired timeout after the new toast is set visible
-        toastDismissTimer?.invalidate()
-
-        debugView.toastView.configureAppearance(for: toast)
-        debugView.setToastView(visible: true, animated: true) {
-            // using a timer here so we can cancel and extend the toast on each subsequent retry attempt
-            self.toastDismissTimer = Timer.scheduledTimer(withTimeInterval: toast.duration, repeats: false) { [weak self] _ in
-                guard let self = self else { return }
-                self.debugView.setToastView(visible: false, animated: true, completion: nil)
-            }
-        }
     }
 }
 
