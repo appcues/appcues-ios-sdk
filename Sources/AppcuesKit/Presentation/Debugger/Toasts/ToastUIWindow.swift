@@ -82,7 +82,8 @@ internal class ToastUIWindow: UIWindow {
             toastView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor, constant: 25),
             toastView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor, constant: -25),
             toastView.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor, constant: -25),
-            toastView.heightAnchor.constraint(equalToConstant: 64)
+            toastView.heightAnchor.constraint(greaterThanOrEqualToConstant: 64),
+            toastView.heightAnchor.constraint(lessThanOrEqualToConstant: 128)
         ])
 
         toastTapRecognizer.addTarget(self, action: #selector(toastTapped))
