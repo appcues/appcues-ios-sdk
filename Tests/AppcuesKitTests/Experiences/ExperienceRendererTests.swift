@@ -436,6 +436,32 @@ class ExperienceRendererTests: XCTestCase {
         waitForExpectations(timeout: 1)
         properties.verifyPropertiesMatch(experimentUpdate?.properties)
     }
+
+    func testDirectoryThreadSafety() throws {
+        // Arrange
+        let dispatchGroup = DispatchGroup()
+        let completeExpectation = expectation(description: "multi thread")
+        completeExpectation.expectedFulfillmentCount = 100
+
+        let directory = StateMachineDirectory()
+
+        // Safely init UIKit objects on main thread
+        let views = Array(repeating: AppcuesFrameView(), count: 100)
+
+        // Act
+        // Use the directory on 100 threads
+        for i in 0..<100 {
+            dispatchGroup.enter()
+            DispatchQueue.global().async {
+                directory[ownerFor: .embed(frameID: "frame\(i)")] = views[i]
+                completeExpectation.fulfill()
+                dispatchGroup.leave()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
 }
 
 @available(iOS 13.0, *)
