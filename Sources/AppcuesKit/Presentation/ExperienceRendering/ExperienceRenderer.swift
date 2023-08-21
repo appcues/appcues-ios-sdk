@@ -39,6 +39,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
     var renderContext: RenderContext?
 
     private var stateMachines = StateMachineDirectory()
+    private var pendingPreviewExperiences: [RenderContext: [ExperienceData]] = [:]
     private var potentiallyRenderableExperiences: [RenderContext: [ExperienceData]] = [:]
     private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
     private weak var appcues: Appcues?
@@ -72,7 +73,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
         owner.stateMachine = ExperienceStateMachine(container: container)
         stateMachines[ownerFor: context] = owner
-        if let pendingExperiences = potentiallyRenderableExperiences[context] {
+        if let pendingExperiences = pendingPreviewExperiences[context] ?? potentiallyRenderableExperiences[context] {
             show(qualifiedExperiences: pendingExperiences, completion: nil)
         }
     }
@@ -97,7 +98,13 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
     }
 
     func processAndShow(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
-        potentiallyRenderableExperiences[experience.renderContext] = [experience]
+        let reason = experience.trigger
+
+        if reason == .preview {
+            pendingPreviewExperiences[experience.renderContext] = [experience]
+        } else {
+            potentiallyRenderableExperiences[experience.renderContext] = [experience]
+        }
 
         show(experience: experience, completion: completion)
     }
@@ -242,7 +249,8 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         stateMachine.transitionAndObserve(.endExperience(markComplete: markComplete)) { [weak self] result in
             switch result {
             case .success(.idling):
-                 self?.potentiallyRenderableExperiences.removeValue(forKey: context)
+                self?.pendingPreviewExperiences.removeValue(forKey: context)
+                self?.potentiallyRenderableExperiences.removeValue(forKey: context)
                 DispatchQueue.main.async { completion?(.success(())) }
                 return true
 
