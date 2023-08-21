@@ -208,6 +208,11 @@ class MockDebugger: UIDebugging {
     func show(mode: DebugMode) {
         onShow?(mode)
     }
+
+    var onShowToast: ((DebugToast) -> Void)?
+    func showToast(_ toast: DebugToast) {
+        onShowToast?(toast)
+    }
 }
 
 class MockDeepLinkHandler: DeepLinkHandling {
