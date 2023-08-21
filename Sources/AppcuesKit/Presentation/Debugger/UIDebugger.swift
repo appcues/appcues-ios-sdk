@@ -14,6 +14,7 @@ import Combine
 internal protocol UIDebugging: AnyObject {
     func verifyInstall(token: String)
     func show(mode: DebugMode)
+    func showToast(_ toast: DebugToast)
 }
 
 /// Navigation destinations within the debugger
@@ -37,7 +38,8 @@ internal enum DebugMode {
 
 @available(iOS 13.0, *)
 internal class UIDebugger: UIDebugging {
-    private var debugWindow: UIWindow?
+    private var debugWindow: DebugUIWindow?
+    private var toastWindow: ToastUIWindow?
 
     private var viewModel: DebugViewModel
     private var cancellable: AnyCancellable?
@@ -129,6 +131,22 @@ internal class UIDebugger: UIDebugging {
         viewModel.reset()
     }
 
+    func showToast(_ toast: DebugToast) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async {
+                self.showToast(toast)
+            }
+            return
+        }
+
+        // One-time on-demand set up of the toast window
+        if toastWindow == nil, let windowScene = UIApplication.shared.activeWindowScenes.first {
+            toastWindow = ToastUIWindow(windowScene: windowScene)
+        }
+
+        toastWindow?.showToast(toast)
+    }
+
     @objc
     private func appcuesReset(notification: Notification) {
         self.viewModel.reset()
@@ -164,7 +182,8 @@ extension UIDebugger: DebugViewDelegate {
               let window = UIApplication.shared.windows.first(where: { !$0.isAppcuesWindow }),
               let screenshot = window.screenshot(),
               let layout = Appcues.elementTargeting.captureLayout() else {
-            debugViewController?.showCaptureFailure()
+            let toast = DebugToast(message: .screenCaptureFailure, style: .failure)
+            showToast(toast)
             return
         }
 
@@ -198,14 +217,16 @@ extension UIDebugger: DebugViewDelegate {
             switch result {
             case .success:
                 DispatchQueue.main.async {
-                    debugViewController.showCaptureSuccess(screen: capture)
+                    let toast = DebugToast(message: .screenCaptureSuccess(displayName: capture.displayName), style: .success)
+                    self.showToast(toast)
                 }
             case .failure:
                 DispatchQueue.main.async {
-                    debugViewController.showSaveFailure {
+                    let toast = DebugToast(message: .screenUploadFailure, style: .failure, duration: 6.0) {
                         // onRetry - recursively call save to try again
                         self.saveScreen(debugViewController: debugViewController, capture: capture, authorization: authorization)
                     }
+                    self.showToast(toast)
                 }
             }
         }

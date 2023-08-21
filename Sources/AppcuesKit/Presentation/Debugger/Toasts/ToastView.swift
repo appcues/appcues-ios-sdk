@@ -1,5 +1,5 @@
 //
-//  CaptureToastView.swift
+//  ToastView.swift
 //  AppcuesKit
 //
 //  Created by James Ellis on 3/8/23.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-internal class CaptureToastView: UIView {
+internal class ToastView: UIView {
 
     var onRetry: (() -> Void)?
 
@@ -31,8 +31,9 @@ internal class CaptureToastView: UIView {
     }()
 
     private var retryButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .system)
         button.setTitle("Try again", for: .normal)
+        button.setTitleColor(.white, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 14)
         button.layer.borderWidth = 1.0
         button.layer.borderColor = UIColor.white.cgColor
@@ -68,7 +69,7 @@ internal class CaptureToastView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func configureAppearance(for toast: DebugToast) {
+    func configure(content toast: DebugToast) {
         switch toast.style {
         case .success:
             backgroundColor = .appcuesToastSuccess
@@ -82,8 +83,27 @@ internal class CaptureToastView: UIView {
     }
 
     @objc
-    func retryButtonTapped() {
-        onRetry?()
+    private func retryButtonTapped() {
+        // hide the toast, then execute the provided retry callback
+        set(visibility: false, animated: false) { [weak self] in
+            self?.onRetry?()
+        }
+    }
+
+    func set(visibility isVisible: Bool, animated: Bool, completion: (() -> Void)?) {
+        let animations: () -> Void = {
+            self.alpha = isVisible ? 1 : 0
+        }
+
+        if animated {
+            UIView.animate(
+                withDuration: 0.6,
+                animations: animations
+            ) { _ in completion?() }
+        } else {
+            animations()
+            completion?()
+        }
     }
 }
 
