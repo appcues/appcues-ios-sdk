@@ -113,7 +113,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
                 experienceID: experienceID,
                 published: false,
                 trigger: .preview,
-                completion: nil
+                completion: previewCompletion
             )
         case .show(let experienceID):
             container?.resolve(ExperienceLoading.self).load(
@@ -129,6 +129,27 @@ internal class DeepLinkHandler: DeepLinkHandling {
         case .captureScreen(let token):
             container?.resolve(UIDebugging.self).show(mode: .screenCapture(.bearer(token)))
         }
+    }
+
+    private func previewCompletion(_ result: Result<Void, Error>) {
+        guard case let .failure(error) = result else {
+            return
+        }
+
+        let message: String
+        switch error {
+        case let ExperienceRendererError.renderDeferred(context, experience):
+            message = "Please navigate to the screen with \(context.description) to preview \(experience.name)."
+        case NetworkingError.nonSuccessfulStatusCode(404):
+            message = "Experience not found."
+        case is NetworkingError:
+            message = "Error loading mobile flow preview."
+        default:
+            message = "Mobile flow preview failed."
+        }
+
+        let toast = DebugToast(message: .custom(text: message), style: .failure)
+        container?.resolve(UIDebugging.self).showToast(toast)
     }
 
     @objc

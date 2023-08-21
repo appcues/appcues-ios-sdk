@@ -20,12 +20,22 @@ internal protocol ExperienceRendering: AnyObject {
     func owner(forContext context: RenderContext) -> StateMachineOwning?
 }
 
-internal enum RenderContext: Hashable {
+internal enum RenderContext: Hashable, CustomStringConvertible {
     case modal
     case embed(frameID: String)
+
+    var description: String {
+        switch self {
+        case .modal:
+            return "modal"
+        case .embed(let frameID):
+            return "frame \(frameID)"
+        }
+    }
 }
 
 internal enum ExperienceRendererError: Error {
+    case renderDeferred(RenderContext, Experience)
     case noStateMachine
     case experimentControl
 }
@@ -119,7 +129,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
         guard let stateMachine = stateMachines[experience.renderContext] else {
             analyticsObserver.trackRecoverableError(experience: experience, message: "no render context \(experience.renderContext)")
-            completion?(.failure(ExperienceRendererError.noStateMachine))
+            completion?(.failure(ExperienceRendererError.renderDeferred(experience.renderContext, experience.model)))
             return
         }
 
