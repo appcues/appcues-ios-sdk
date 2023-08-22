@@ -49,7 +49,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
     var renderContext: RenderContext?
 
     private var stateMachines = StateMachineDirectory()
-    private var pendingPreviewExperiences: [RenderContext: [ExperienceData]] = [:]
+    private var pendingPreviewExperiences: [RenderContext: ExperienceData] = [:]
     private var potentiallyRenderableExperiences: [RenderContext: [ExperienceData]] = [:]
     private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
     private weak var appcues: Appcues?
@@ -83,7 +83,10 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
         owner.stateMachine = ExperienceStateMachine(container: container)
         stateMachines[ownerFor: context] = owner
-        if let pendingExperiences = pendingPreviewExperiences[context] ?? potentiallyRenderableExperiences[context] {
+        // A preview experience takes priority over qualified experiences.
+        if let pendingPreviewExperience = pendingPreviewExperiences[context] {
+            show(experience: pendingPreviewExperience, completion: nil)
+        } else if let pendingExperiences = potentiallyRenderableExperiences[context] {
             show(qualifiedExperiences: pendingExperiences, completion: nil)
         }
     }
@@ -111,7 +114,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         let reason = experience.trigger
 
         if reason == .preview {
-            pendingPreviewExperiences[experience.renderContext] = [experience]
+            pendingPreviewExperiences[experience.renderContext] = experience
         } else {
             potentiallyRenderableExperiences[experience.renderContext] = [experience]
         }
