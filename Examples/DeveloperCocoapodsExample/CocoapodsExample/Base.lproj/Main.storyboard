@@ -485,6 +485,16 @@ With embeds, this paradigm changes, and a qualification response may contain zer
                                             <action selector="buttonTwoTapped:" destination="IV4-7k-Qev" eventType="touchUpInside" id="qQw-g3-9OR"/>
                                         </connections>
                                     </button>
+                                    <button hidden="YES" opaque="NO" tag="1004" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fEh-Ri-az9">
+                                        <rect key="frame" x="0.0" y="81" width="374" height="0.0"/>
+                                        <accessibility key="accessibilityConfiguration" identifier="btnEvent3" label="Event 3"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="tinted" title="Trigger Event 3"/>
+                                        <connections>
+                                            <action selector="buttonThreeTapped:" destination="IV4-7k-Qev" eventType="touchUpInside" id="0IW-1w-n08"/>
+                                            <action selector="buttonTwoTapped:" destination="IV4-7k-Qev" eventType="touchUpInside" id="wca-R0-W5q"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                             </stackView>
                         </subviews>
@@ -503,6 +513,9 @@ With embeds, this paradigm changes, and a qualification response may contain zer
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <connections>
+                        <outlet property="btnEvent3" destination="fEh-Ri-az9" id="bha-Kf-ufP"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="efB-wE-siV" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
