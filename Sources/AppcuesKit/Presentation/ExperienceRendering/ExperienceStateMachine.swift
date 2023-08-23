@@ -80,6 +80,10 @@ internal class ExperienceStateMachine {
     func addObserver(_ observer: ExperienceStateObserver) {
         stateObservers.append(observer)
     }
+
+    func removeObserver(_ observer: ExperienceStateObserver) {
+        stateObservers = stateObservers.filter { $0 !== observer }
+    }
 }
 
 // MARK: - AppcuesExperienceContainerEventHandler

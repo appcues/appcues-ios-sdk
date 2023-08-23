@@ -18,6 +18,7 @@ internal protocol ExperienceRendering: AnyObject {
     func experienceData(forContext context: RenderContext) -> ExperienceData?
     func stepIndex(forContext context: RenderContext) -> Experience.StepIndex?
     func owner(forContext context: RenderContext) -> StateMachineOwning?
+    func resetAll()
 }
 
 internal enum RenderContext: Hashable, CustomStringConvertible {
@@ -300,6 +301,21 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
     func owner(forContext context: RenderContext) -> StateMachineOwning? {
         stateMachines[ownerFor: context]
+    }
+
+    func resetAll() {
+        pendingPreviewExperiences.removeAll()
+        potentiallyRenderableExperiences.removeAll()
+
+        stateMachines.forEach { _, stateMachineOwning in
+            stateMachineOwning.reset()
+        }
+    }
+
+    /// Reset only the owned `Self.stateMachine` instance in conformance to `StateMachineOwning`.
+    func reset() {
+        stateMachine?.removeObserver(analyticsObserver)
+        dismiss(inContext: .modal, markComplete: false, completion: nil)
     }
 
     private func track(experiment: Experiment?) {

@@ -168,6 +168,12 @@ public class Appcues: NSObject {
         storage.userSignature = nil
         storage.isAnonymous = true
         storage.groupID = nil
+
+        if #available(iOS 13.0, *) {
+            let experienceRenderer = container.resolve(ExperienceRendering.self)
+            experienceRenderer.resetAll()
+        }
+
         notificationCenter.post(name: .appcuesReset, object: self, userInfo: nil)
     }
 
@@ -345,17 +351,15 @@ public class Appcues: NSObject {
         }
 
         var properties = properties
+
         let userChanged = userID != storage.userID
+        if userChanged {
+            reset()
+        }
+
         storage.userID = userID
         storage.isAnonymous = isAnonymous
         storage.userSignature = properties?.removeValue(forKey: "appcues:user_id_signature") as? String
-        if userChanged {
-            // when the identified user changes from last known value, we must start a new session
-            sessionMonitor.reset()
-
-            // and clear any stored group information - will have to be reset as needed
-            storage.groupID = nil
-        }
         analyticsPublisher.publish(TrackingUpdate(type: .profile(interactive: true), properties: properties, isInternal: false))
     }
 }
