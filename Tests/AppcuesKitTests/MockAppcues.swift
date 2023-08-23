@@ -165,6 +165,10 @@ class MockExperienceRenderer: ExperienceRendering {
         onOwner?(context)
     }
 
+    var onResetAll: (() -> Void)?
+    func resetAll() {
+        onResetAll?()
+    }
 }
 
 class MockSessionMonitor: SessionMonitoring {

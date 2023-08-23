@@ -437,6 +437,26 @@ class ExperienceRendererTests: XCTestCase {
         properties.verifyPropertiesMatch(experimentUpdate?.properties)
     }
 
+    func testReset() throws {
+        let preconditionPresentExpectation = expectation(description: "Experience presented")
+        let dismissExpectation = expectation(description: "Experience dismissed")
+        let experience = ExperienceData.mock
+        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: preconditionPresentExpectation, dismissExpectation: dismissExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+        experienceRenderer.processAndShow(experience: ExperienceData(experience.model, trigger: .showCall, priority: .low, published: true), completion: nil)
+        wait(for: [preconditionPresentExpectation], timeout: 1)
+
+        appcues.analyticsPublisher.onPublish = { update in
+            XCTFail("no analytics expected")
+        }
+
+        // Act
+        experienceRenderer.resetAll()
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
     func testDirectoryThreadSafety() throws {
         // Arrange
         let dispatchGroup = DispatchGroup()
