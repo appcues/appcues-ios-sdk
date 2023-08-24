@@ -85,10 +85,12 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
             isHidden = false
             completion?()
         case .fade:
+            self.isHidden = false
+            self.alpha = 0
             UIView.animate(
                 withDuration: 0.3,
                 animations: {
-                    self.isHidden = false
+                    self.alpha = 1
                 },
                 completion: { _ in
                     completion?()
@@ -108,10 +110,10 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
             UIView.animate(
                 withDuration: 0.3,
                 animations: {
-                    // possibly have a delegate for these embeds that would allow the host app to have more control over this?
-                    self.isHidden = true
+                    self.alpha = 0
                 },
                 completion: { _ in
+                    self.isHidden = true
                     self.parentViewController?.unembedChildViewController(experienceController)
                     self.configureConstraints(isEmpty: true)
                     completion?()
