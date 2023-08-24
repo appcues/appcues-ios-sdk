@@ -314,7 +314,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
     /// Reset only the owned `Self.stateMachine` instance in conformance to `StateMachineOwning`.
     func reset() {
-        stateMachine?.removeObserver(analyticsObserver)
+        stateMachine?.removeAnalyticsObserver()
         dismiss(inContext: .modal, markComplete: false, completion: nil)
     }
 

@@ -81,8 +81,8 @@ internal class ExperienceStateMachine {
         stateObservers.append(observer)
     }
 
-    func removeObserver(_ observer: ExperienceStateObserver) {
-        stateObservers = stateObservers.filter { $0 !== observer }
+    func removeAnalyticsObserver() {
+        stateObservers = stateObservers.filter { !($0 is AnalyticsObserver) }
     }
 }
 
