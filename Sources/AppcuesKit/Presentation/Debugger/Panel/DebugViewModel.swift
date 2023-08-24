@@ -152,8 +152,11 @@ internal class DebugViewModel: ObservableObject {
             status = .verified
             title = "Showing \(properties.experienceName)"
             if let stepIndex = properties.stepIndex {
+                // Include leading whitespace when needed in this appended string
+                let context: String = properties.frameID.flatMap { return " (\($0))" } ?? ""
+
                 // Convert from zero-based to be human readable
-                subtitle = "Group \(stepIndex.group + 1) step \(stepIndex.item + 1)"
+                subtitle = "Group \(stepIndex.group + 1) step \(stepIndex.item + 1)\(context)"
             }
         case .stepInteraction, .stepCompleted, .stepRecovered, .experienceStarted, .experienceRecovered:
             status = .verified

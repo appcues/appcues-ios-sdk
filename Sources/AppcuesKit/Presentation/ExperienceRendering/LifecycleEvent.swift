@@ -44,6 +44,11 @@ internal enum LifecycleEvent: String, CaseIterable {
 //            "localeId": ""
         ]
 
+        // frameID is added primarily for use by the debugger
+        if case let .embed(frameID) = experience.renderContext {
+            properties["frameID"] = frameID
+        }
+
         if let version = experience.publishedAt {
             properties["version"] = version
         }
@@ -91,6 +96,7 @@ extension LifecycleEvent {
         let type: LifecycleEvent
         let experienceID: UUID
         let experienceName: String
+        let frameID: String?
         let stepID: UUID?
         let stepIndex: Experience.StepIndex?
 
@@ -108,6 +114,7 @@ extension LifecycleEvent {
             self.type = type
             self.experienceID = experienceID
             self.experienceName = experienceName
+            self.frameID = update.properties?["frameID"] as? String
 
             self.stepID = UUID(uuidString: update.properties?["stepId"] as? String ?? "")
             self.stepIndex = Experience.StepIndex(description: update.properties?["stepIndex"] as? String ?? "")
@@ -120,6 +127,7 @@ extension LifecycleEvent {
             type: LifecycleEvent,
             experienceID: UUID,
             experienceName: String,
+            frameID: String? = nil,
             stepID: UUID? = nil,
             stepIndex: Experience.StepIndex? = nil,
             errorID: UUID? = nil,
@@ -128,6 +136,7 @@ extension LifecycleEvent {
             self.type = type
             self.experienceID = experienceID
             self.experienceName = experienceName
+            self.frameID = frameID
             self.stepID = stepID
             self.stepIndex = stepIndex
             self.errorID = errorID

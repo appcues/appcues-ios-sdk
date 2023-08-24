@@ -132,7 +132,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         }
 
         guard let stateMachine = stateMachines[experience.renderContext] else {
-            analyticsObserver.trackRecoverableError(experience: experience, message: "no render context \(experience.renderContext)")
+            analyticsObserver.trackRecoverableError(experience: experience, message: "no render context for \(experience.renderContext.description)")
             completion?(.failure(ExperienceRendererError.renderDeferred(experience.renderContext, experience.model)))
             return
         }
