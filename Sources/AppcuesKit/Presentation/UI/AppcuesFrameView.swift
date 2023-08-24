@@ -122,9 +122,9 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
 
     /// Set the Frame back to an unregistered state.
     internal func reset() {
-        if let experienceViewController = experienceViewController {
-            unembed(experienceViewController, transition: .none, completion: nil)
+        if #available(iOS 13.0, *) {
+            stateMachine?.removeAnalyticsObserver()
+            try? stateMachine?.transition(.endExperience(markComplete: false))
         }
-        _stateMachine = nil
     }
 }
