@@ -13,7 +13,7 @@ parameters:
 # -------------------------
 orbs:
   slack: circleci/slack@4.4.4
-  codecov: codecov/codecov@3.2.4
+  codecov: codecov/codecov@3.2.5
 
 # -------------------------
 #        EXECUTORS
@@ -233,6 +233,7 @@ jobs:
             curl -L "$cobertura_artifact_url?circle-token=$CIRCLE_API_TOKEN" --output cobertura.xml
       - codecov/upload:
           file: "cobertura.xml"
+          token: CODECOV_TOKEN_APPCUES_IOS_SDK
       - slack/notify:
           event: fail
           template: basic_fail_1
