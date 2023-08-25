@@ -145,7 +145,11 @@ class EmbedExperienceRendererTests: XCTestCase {
         }
 
         presentExpectation.expectedFulfillmentCount = 2
-        eventExpectation.expectedFulfillmentCount = 2
+        // `eventExpectation.expectedFulfillmentCount` is 1 instead of 2 (which would match the `presentExpectation`)
+        // because the second `.start(owner:forContext:)` calls `AppcuesFrameView.reset()` which removes the analytics
+        // listener for the first state machine instance before it gets to the point of triggering the
+        // `appcues:v2:experience_started` event.
+        eventExpectation.expectedFulfillmentCount = 1
 
         let frame = AppcuesFrameView()
         // Simulate the relevant part of Appcues.register(frameID:)
