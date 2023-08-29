@@ -56,7 +56,7 @@ Alternatively, if your project has a `Package.swift` file, you can add Appcues i
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/appcues/appcues-ios-sdk", from: "2.0.0"),
+    .package(url: "https://github.com/appcues/appcues-ios-sdk", from: "3.0.0"),
 ]
 ```
 
