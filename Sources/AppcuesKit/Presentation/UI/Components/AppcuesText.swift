@@ -32,7 +32,7 @@ internal struct AppcuesText: View {
 @available(iOS 13.0, *)
 extension Text {
     init(textModel: ExperienceComponent.TextModel, skipColor: Bool = false, scaled: Bool = false) {
-        self.init("")
+        self.init(verbatim: "")
 
         // Note: a ViewBuilder approach here doesn't work because the requirement that we operate strictly on `Text`
         // and not `some View` for concatenation to work. Therefore we work with the struct directly.
