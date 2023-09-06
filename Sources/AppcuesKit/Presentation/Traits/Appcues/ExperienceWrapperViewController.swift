@@ -9,7 +9,7 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>: UIViewController {
+internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>: UIViewController, UIViewControllerTransitioningDelegate {
 
     lazy var bodyView = BodyView()
 
@@ -18,12 +18,11 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
     // Only set for bottom-aligned modals. Need access to the constant value for keyboard avoidance.
     var bottomConstraint: NSLayoutConstraint?
 
+    private var slideAnimationController: ExperienceWrapperSlideAnimator?
+
     init(wrapping containerViewController: UIViewController) {
         self.experienceContainerViewController = containerViewController
         super.init(nibName: nil, bundle: nil)
-
-        modalTransitionStyle = .crossDissolve
-        modalPresentationStyle = .overFullScreen
     }
 
     @available(*, unavailable)
@@ -54,7 +53,7 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
      }
 
     @discardableResult
-    func configureStyle(_ style: ExperienceComponent.Style?) -> Self {
+    func configureStyle(_ style: ExperienceComponent.Style?, transition: AppcuesModalTrait.Transition = .fade) -> Self {
         bodyView.contentWrapperView.backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
 
         bodyView.applyCornerRadius(CGFloat(style?.cornerRadius))
@@ -70,15 +69,47 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
 
         bodyView.setNeedsLayout()
 
+        let contentView = bodyView.contentWrapperView
+
         switch style?.verticalAlignment {
         case "top":
-            bodyView.contentWrapperView.topAnchor.constraint(equalTo: bodyView.safeAreaLayoutGuide.topAnchor).isActive = true
+            contentView.topAnchor.constraint(equalTo: bodyView.safeAreaLayoutGuide.topAnchor).isActive = true
         case "bottom":
-            let constraint = bodyView.contentWrapperView.bottomAnchor.constraint(equalTo: bodyView.safeAreaLayoutGuide.bottomAnchor)
+            let constraint = contentView.bottomAnchor.constraint(equalTo: bodyView.safeAreaLayoutGuide.bottomAnchor)
             constraint.isActive = true
             bottomConstraint = constraint
         default:
-            bodyView.contentWrapperView.centerYAnchor.constraint(equalTo: bodyView.centerYAnchor).isActive = true
+            contentView.centerYAnchor.constraint(equalTo: bodyView.centerYAnchor).isActive = true
+        }
+
+        switch style?.horizontalAlignment {
+        case "leading":
+            contentView.leadingAnchor.constraint(equalTo: bodyView.layoutMarginsGuide.leadingAnchor).isActive = true
+        case "trailing":
+            contentView.trailingAnchor.constraint(equalTo: bodyView.layoutMarginsGuide.trailingAnchor).isActive = true
+        default:
+            contentView.centerXAnchor.constraint(equalTo: bodyView.centerXAnchor).isActive = true
+        }
+
+        if let width = style?.width, width > 0 {
+            let widthConstraint = contentView.widthAnchor.constraint(equalToConstant: width)
+            // lower priority here so that the constraint on width being >= the readableContentGuide width
+            // set in the ExperienceWrapperView by default takes priority, if width is too large
+            widthConstraint.priority = .init(999)
+            widthConstraint.isActive = true
+        } else {
+            // if no explicit width set, defaults to the readable content guide width
+            contentView.widthAnchor.constraint(equalTo: bodyView.readableContentGuide.widthAnchor).isActive = true
+        }
+
+        switch transition {
+        case .fade:
+            modalTransitionStyle = .crossDissolve
+            modalPresentationStyle = .overFullScreen
+        case let .slide(edgeIn, edgeOut):
+            modalPresentationStyle = .custom
+            transitioningDelegate = self
+            slideAnimationController = ExperienceWrapperSlideAnimator(view: bodyView, edgeIn: edgeIn, edgeOut: edgeOut)
         }
 
         return self
@@ -130,5 +161,21 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
                 }
             }
         }
+    }
+
+    func animationController(
+        forDismissed dismissed: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+        slideAnimationController?.transitionType = .dismissal
+        return slideAnimationController
+    }
+
+    func animationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController,
+        source: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
+        slideAnimationController?.transitionType = .presentation
+        return slideAnimationController
     }
 }
