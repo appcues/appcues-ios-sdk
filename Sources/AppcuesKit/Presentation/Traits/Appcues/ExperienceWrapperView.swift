@@ -45,8 +45,9 @@ internal class ExperienceWrapperView: UIView {
         contentWrapperView.pin(to: shadowWrappingView)
 
         NSLayoutConstraint.activate([
-            contentWrapperView.leadingAnchor.constraint(equalTo: readableContentGuide.leadingAnchor),
-            contentWrapperView.trailingAnchor.constraint(equalTo: readableContentGuide.trailingAnchor),
+            contentWrapperView.leadingAnchor.constraint(greaterThanOrEqualTo: layoutMarginsGuide.leadingAnchor),
+            contentWrapperView.trailingAnchor.constraint(lessThanOrEqualTo: layoutMarginsGuide.trailingAnchor),
+            contentWrapperView.widthAnchor.constraint(lessThanOrEqualTo: readableContentGuide.widthAnchor),
 
             // ensure the dialog can't exceed the container height (it should scroll instead).
             contentWrapperView.topAnchor.constraint(greaterThanOrEqualTo: safeAreaLayoutGuide.topAnchor),
