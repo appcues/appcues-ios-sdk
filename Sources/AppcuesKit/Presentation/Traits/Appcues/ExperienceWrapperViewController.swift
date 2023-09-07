@@ -69,13 +69,35 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
 
         bodyView.setNeedsLayout()
 
+        configureConstraints(style)
+
+        switch transition {
+        case .fade:
+            modalTransitionStyle = .crossDissolve
+            modalPresentationStyle = .overFullScreen
+        case let .slide(edgeIn, edgeOut):
+            modalPresentationStyle = .custom
+            transitioningDelegate = self
+            slideAnimationController = ExperienceWrapperSlideAnimator(view: bodyView, edgeIn: edgeIn, edgeOut: edgeOut)
+        }
+
+        return self
+    }
+
+    private func configureConstraints(_ style: ExperienceComponent.Style?) {
         let contentView = bodyView.contentWrapperView
 
         switch style?.verticalAlignment {
         case "top":
-            contentView.topAnchor.constraint(equalTo: bodyView.safeAreaLayoutGuide.topAnchor).isActive = true
+            contentView.topAnchor.constraint(
+                equalTo: bodyView.safeAreaLayoutGuide.topAnchor,
+                constant: style?.marginTop ?? 0
+            ).isActive = true
         case "bottom":
-            let constraint = contentView.bottomAnchor.constraint(equalTo: bodyView.safeAreaLayoutGuide.bottomAnchor)
+            let constraint = contentView.bottomAnchor.constraint(
+                equalTo: bodyView.safeAreaLayoutGuide.bottomAnchor,
+                constant: -1 * (style?.marginBottom ?? 0)
+            )
             constraint.isActive = true
             bottomConstraint = constraint
         default:
@@ -84,9 +106,15 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
 
         switch style?.horizontalAlignment {
         case "leading":
-            contentView.leadingAnchor.constraint(equalTo: bodyView.layoutMarginsGuide.leadingAnchor).isActive = true
+            contentView.leadingAnchor.constraint(
+                equalTo: bodyView.layoutMarginsGuide.leadingAnchor,
+                constant: style?.marginLeading ?? 0
+            ).isActive = true
         case "trailing":
-            contentView.trailingAnchor.constraint(equalTo: bodyView.layoutMarginsGuide.trailingAnchor).isActive = true
+            contentView.trailingAnchor.constraint(
+                equalTo: bodyView.layoutMarginsGuide.trailingAnchor,
+                constant: -1 * (style?.marginTrailing ?? 0)
+            ).isActive = true
         default:
             contentView.centerXAnchor.constraint(equalTo: bodyView.centerXAnchor).isActive = true
         }
@@ -101,18 +129,6 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
             // if no explicit width set, defaults to the readable content guide width
             contentView.widthAnchor.constraint(equalTo: bodyView.readableContentGuide.widthAnchor).isActive = true
         }
-
-        switch transition {
-        case .fade:
-            modalTransitionStyle = .crossDissolve
-            modalPresentationStyle = .overFullScreen
-        case let .slide(edgeIn, edgeOut):
-            modalPresentationStyle = .custom
-            transitioningDelegate = self
-            slideAnimationController = ExperienceWrapperSlideAnimator(view: bodyView, edgeIn: edgeIn, edgeOut: edgeOut)
-        }
-
-        return self
     }
 
     override func preferredContentSizeDidChange(forChildContentContainer container: UIContentContainer) {
