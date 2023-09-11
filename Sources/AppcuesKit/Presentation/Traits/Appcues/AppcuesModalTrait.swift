@@ -80,6 +80,7 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
         if let dialogController = wrapperController as? ExperienceWrapperViewController {
             dialogController.view.insertSubview(backdropView, at: 0)
             backdropView.pin(to: dialogController.view)
+            dialogController.backdropView = backdropView
         }
     }
 
