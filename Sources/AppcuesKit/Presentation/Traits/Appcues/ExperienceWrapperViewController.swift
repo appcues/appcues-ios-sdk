@@ -18,6 +18,12 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
     // Only set for bottom-aligned modals. Need access to the constant value for keyboard avoidance.
     var bottomConstraint: NSLayoutConstraint?
 
+    var backdropView: UIView? {
+        didSet {
+            slideAnimationController?.backdropView = backdropView
+        }
+    }
+
     private var slideAnimationController: ExperienceWrapperSlideAnimator?
 
     init(wrapping containerViewController: UIViewController) {
@@ -78,7 +84,9 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
         case let .slide(edgeIn, edgeOut):
             modalPresentationStyle = .custom
             transitioningDelegate = self
-            slideAnimationController = ExperienceWrapperSlideAnimator(view: bodyView, edgeIn: edgeIn, edgeOut: edgeOut)
+            let animator = ExperienceWrapperSlideAnimator(view: bodyView, edgeIn: edgeIn, edgeOut: edgeOut)
+            animator.backdropView = backdropView
+            slideAnimationController = animator
         }
 
         return self
