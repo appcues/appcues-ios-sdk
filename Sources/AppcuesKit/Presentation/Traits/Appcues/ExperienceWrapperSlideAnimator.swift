@@ -78,37 +78,43 @@ internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimate
     }
 
     private func beginTransition(_ transitionContext: UIViewControllerContextTransitioning) {
-        var offsetX: CGFloat
-        var offsetY: CGFloat
-
         view.backdropView.alpha = 0.0
-
-        switch edge {
-        case .top:
-            offsetX = 0
-            offsetY = -1 * view.shadowWrappingView.frame.maxY
-        case .leading:
-            offsetX = -1 * view.shadowWrappingView.frame.maxX
-            offsetY = 0
-        case .bottom:
-            offsetX = 0
-            offsetY = transitionContext.containerView.bounds.height - view.shadowWrappingView.frame.minY
-        case .trailing:
-            offsetX = transitionContext.containerView.bounds.width - view.shadowWrappingView.frame.minX
-            offsetY = 0
-        case .center:
-            // center+center special case - will be similar to bottom, but not start fully offscreen
-            offsetX = 0
-            offsetY = view.shadowWrappingView.frame.height / 2.0
-            view.contentWrapperView.alpha = 0.0
-        }
-
-        view.contentWrapperView.transform = CGAffineTransform.identity.translatedBy(x: offsetX, y: offsetY)
+        view.contentWrapperView.alpha = edge == .center ? 0.0 : 1.0
+        view.slideTransform(edge: edge, containerBounds: transitionContext.containerView.bounds)
     }
 
     private func endTransition() {
         view.contentWrapperView.transform = CGAffineTransform.identity
         view.contentWrapperView.alpha = 1.0
         view.backdropView.alpha = 1.0
+    }
+}
+
+@available(iOS 13.0, *)
+extension ExperienceWrapperView {
+    func slideTransform(edge: AppcuesModalTrait.TransitionEdge, containerBounds: CGRect) {
+        var offsetX: CGFloat
+        var offsetY: CGFloat
+
+        switch edge {
+        case .top:
+            offsetX = 0
+            offsetY = -1 * shadowWrappingView.frame.maxY
+        case .leading:
+            offsetX = -1 * shadowWrappingView.frame.maxX
+            offsetY = 0
+        case .bottom:
+            offsetX = 0
+            offsetY = containerBounds.height - shadowWrappingView.frame.minY
+        case .trailing:
+            offsetX = containerBounds.width - shadowWrappingView.frame.minX
+            offsetY = 0
+        case .center:
+            // center+center special case - will be similar to bottom, but not start fully offscreen
+            offsetX = 0
+            offsetY = shadowWrappingView.frame.height / 2.0
+        }
+
+        contentWrapperView.transform = CGAffineTransform.identity.translatedBy(x: offsetX, y: offsetY)
     }
 }

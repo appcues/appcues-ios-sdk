@@ -11,12 +11,12 @@ import UIKit
 @available(iOS 13.0, *)
 internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCreatingTrait, AppcuesPresentingTrait {
 
-    enum Transition {
+    enum Transition: Equatable {
         case fade
         case slide(edge: TransitionEdge)
     }
 
-    enum TransitionEdge: String {
+    enum TransitionEdge: String, Equatable {
         case leading
         case trailing
         case top
