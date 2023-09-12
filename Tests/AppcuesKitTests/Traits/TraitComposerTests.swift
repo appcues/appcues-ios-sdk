@@ -558,8 +558,8 @@ extension TraitComposerTests {
             return containerController
         }
 
-        func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
-            // nothing
+        func getBackdrop(for wrapperController: UIViewController) -> UIView? {
+            return UIView()
         }
 
         // AppcuesBackdropDecoratingTrait

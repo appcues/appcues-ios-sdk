@@ -74,12 +74,8 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
         return containerController
     }
 
-    func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
-        if let dialogController = wrapperController as? ExperienceWrapperViewController {
-            dialogController.view.insertSubview(backdropView, at: 0)
-            backdropView.pin(to: dialogController.view)
-            dialogController.backdropView = backdropView
-        }
+    func getBackdrop(for wrapperController: UIViewController) -> UIView? {
+        return (wrapperController as? ExperienceWrapperViewController)?.bodyView.backdropView
     }
 
     func present(viewController: UIViewController, completion: (() -> Void)?) throws {
