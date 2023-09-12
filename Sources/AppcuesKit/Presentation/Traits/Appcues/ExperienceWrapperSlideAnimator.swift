@@ -21,8 +21,6 @@ internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimate
     private let view: ExperienceWrapperView
     private let edge: AppcuesModalTrait.TransitionEdge
 
-    var backdropView: UIView?
-
     private var transitionDuration: TimeInterval {
         switch transitionType {
         case .presentation:
@@ -83,7 +81,7 @@ internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimate
         var offsetX: CGFloat
         var offsetY: CGFloat
 
-        backdropView?.alpha = 0.0
+        view.backdropView.alpha = 0.0
 
         switch edge {
         case .top:
@@ -111,6 +109,6 @@ internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimate
     private func endTransition() {
         view.contentWrapperView.transform = CGAffineTransform.identity
         view.contentWrapperView.alpha = 1.0
-        backdropView?.alpha = 1.0
+        view.backdropView.alpha = 1.0
     }
 }

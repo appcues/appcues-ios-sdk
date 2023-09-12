@@ -53,10 +53,6 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesContaine
         applyStyle(nil, to: containerController)
     }
 
-    func addBackdrop(backdropView: UIView, to wrapperController: UIViewController) {
-        // no backdrop on embeds
-    }
-
     func present(viewController: UIViewController, completion: (() -> Void)?) throws {
         let experienceRenderer = appcues?.container.resolve(ExperienceRendering.self)
 

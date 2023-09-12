@@ -122,10 +122,10 @@ internal protocol AppcuesWrapperCreatingTrait: AppcuesExperienceTrait {
     /// ending the attempt to display the experience.
     func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController
 
-    /// Add the decorated backdrop view to the wrapper.
-    /// - Parameter backdropView: The backdrop.
+    /// Return the backdrop view used by the given wrapper, if any.
     /// - Parameter wrapperController: The wrapper view controller.
-    func addBackdrop(backdropView: UIView, to wrapperController: UIViewController)
+    /// - Returns: The `UIView` being used for the backdrop, or `nil` if no backdrop is used for this wrapper.
+    func getBackdrop(for wrapperController: UIViewController) -> UIView?
 }
 
 /// A trait responsible for providing the ability to show and hide the experience.

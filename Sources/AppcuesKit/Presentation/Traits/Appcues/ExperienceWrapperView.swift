@@ -13,6 +13,8 @@ internal class ExperienceWrapperView: UIView {
 
     var preferredContentSize: CGSize?
 
+    let backdropView = UIView()
+
     let contentWrapperView: UIView = {
         // contentWrapperView can take a tooltip shape mask, so ignore hits outside that shape when it's set.
         let view = HitTestingOverrideUIView(overrideApproach: .applyMask)
@@ -28,6 +30,9 @@ internal class ExperienceWrapperView: UIView {
         super.init(frame: .zero)
 
         backgroundColor = .clear
+
+        addSubview(backdropView)
+        backdropView.pin(to: self)
 
         addSubview(shadowWrappingView)
         shadowWrappingView.addSubview(contentWrapperView)
