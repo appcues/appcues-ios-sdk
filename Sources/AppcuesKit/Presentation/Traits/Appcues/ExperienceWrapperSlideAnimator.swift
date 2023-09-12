@@ -19,8 +19,7 @@ internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimate
     var transitionType: ModalTransitionType = .presentation
 
     private let view: ExperienceWrapperView
-    private let edgeIn: AppcuesModalTrait.TransitionEdge
-    private let edgeOut: AppcuesModalTrait.TransitionEdge
+    private let edge: AppcuesModalTrait.TransitionEdge
 
     var backdropView: UIView?
 
@@ -33,10 +32,9 @@ internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimate
         }
     }
 
-    init(view: ExperienceWrapperView, edgeIn: AppcuesModalTrait.TransitionEdge, edgeOut: AppcuesModalTrait.TransitionEdge) {
+    init(view: ExperienceWrapperView, edge: AppcuesModalTrait.TransitionEdge) {
         self.view = view
-        self.edgeIn = edgeIn
-        self.edgeOut = edgeOut
+        self.edge = edge
     }
 
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
@@ -84,8 +82,6 @@ internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimate
     private func beginTransition(_ transitionContext: UIViewControllerContextTransitioning) {
         var offsetX: CGFloat
         var offsetY: CGFloat
-
-        let edge = transitionType == .presentation ? edgeIn : edgeOut
 
         backdropView?.alpha = 0.0
 

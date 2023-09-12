@@ -13,7 +13,7 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
 
     enum Transition {
         case fade
-        case slide(edgeIn: TransitionEdge, edgeOut: TransitionEdge)
+        case slide(edge: TransitionEdge)
     }
 
     enum TransitionEdge: String {
@@ -28,8 +28,6 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
         let presentationStyle: PresentationStyle
         let style: ExperienceComponent.Style?
         let transition: String?
-        let slideInEdge: String? // only used if transition is "slide"
-        let slideOutEdge: String? // only used if transition is "slide"
     }
 
     static let type = "@appcues/modal"
@@ -126,40 +124,30 @@ extension AppcuesModalTrait.Config {
 
         switch self.transition {
         case "slide":
-            // will default to any explicitly specified edge from the config, but
-            // fall back to the expected default based on the horizontal and vertical
+            // determine the slide edge based on the horizontal and vertical
             // position of the modal
-            var edgeIn: AppcuesModalTrait.TransitionEdge
-            var edgeOut: AppcuesModalTrait.TransitionEdge
-
-            let configEdgeIn = self.slideInEdge.flatMap { AppcuesModalTrait.TransitionEdge(rawValue: $0) }
-            let configEdgeOut = self.slideOutEdge.flatMap { AppcuesModalTrait.TransitionEdge(rawValue: $0) }
+            var edge: AppcuesModalTrait.TransitionEdge
 
             let horizontalAlign = style?.horizontalAlignment ?? "center"
             let verticalAlign = style?.verticalAlignment ?? "center"
 
             switch horizontalAlign {
             case "leading":
-                edgeIn = configEdgeIn ?? .leading
-                edgeOut = configEdgeOut ?? edgeIn
+                edge = .leading
             case "trailing":
-                edgeIn = configEdgeIn ?? .trailing
-                edgeOut = configEdgeOut ?? edgeIn
+                edge = .trailing
             default:
                 switch verticalAlign {
                 case "top":
-                    edgeIn = configEdgeIn ?? .top
-                    edgeOut = configEdgeOut ?? edgeIn
+                    edge = .top
                 case "bottom":
-                    edgeIn = configEdgeIn ?? .bottom
-                    edgeOut = configEdgeOut ?? edgeIn
+                    edge = .bottom
                 default:
-                    edgeIn = configEdgeIn ?? .center
-                    edgeOut = configEdgeOut ?? edgeIn
+                    edge = .center
                 }
             }
 
-            return .slide(edgeIn: edgeIn, edgeOut: edgeOut)
+            return .slide(edge: edge)
 
         default:
             return .fade
