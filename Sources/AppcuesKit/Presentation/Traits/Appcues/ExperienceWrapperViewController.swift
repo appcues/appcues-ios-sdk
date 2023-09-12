@@ -81,10 +81,10 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
         case .fade:
             modalTransitionStyle = .crossDissolve
             modalPresentationStyle = .overFullScreen
-        case let .slide(edgeIn, edgeOut):
+        case let .slide(edge):
             modalPresentationStyle = .custom
             transitioningDelegate = self
-            let animator = ExperienceWrapperSlideAnimator(view: bodyView, edgeIn: edgeIn, edgeOut: edgeOut)
+            let animator = ExperienceWrapperSlideAnimator(view: bodyView, edge: edge)
             animator.backdropView = backdropView
             slideAnimationController = animator
         }
