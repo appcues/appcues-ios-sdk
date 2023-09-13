@@ -48,8 +48,9 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         var completionCount = 0
         var updates: [TrackingUpdate] = []
 
+        let experience = ExperienceData.mockWithForm(defaultValue: "default value")
         appcues.experienceRenderer.onExperienceData = { _ in
-            ExperienceData.mockWithForm(defaultValue: "default value")
+            experience
         }
         appcues.experienceRenderer.onStepIndex = { _ in
             .initial
@@ -77,6 +78,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Single step with form",
             "experienceId": "ded7b50f-bc24-42de-a0fa-b1f10fc10d00",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
             "stepType": "modal",

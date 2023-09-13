@@ -63,7 +63,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertNil(appcues.storage.lastContentShownAt)
 
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), isFirst: true)))
+        let experience = ExperienceData.mock
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, experience.package(), isFirst: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -73,6 +74,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
             "stepType": "modal",
@@ -87,6 +89,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 type: .stepSeen,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
+                experienceInstanceID: experience.instanceID,
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0)
             ),
@@ -96,7 +99,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateRenderingStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), isFirst: false)))
+        let experience = ExperienceData.mock
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, experience.package(), isFirst: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -106,6 +110,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
             "stepType": "modal",
@@ -119,6 +124,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 type: .stepSeen,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
+                experienceInstanceID: experience.instanceID,
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0)
             ),
@@ -128,7 +134,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), markComplete: true)))
+        let experience = ExperienceData.mock
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(experience, .initial, experience.package(), markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -139,6 +146,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
             "stepType": "modal",
@@ -152,6 +160,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 type: .stepCompleted,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
+                experienceInstanceID: experience.instanceID,
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0)
             ),
@@ -170,7 +179,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingExperienceState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(ExperienceData.mock, .initial, markComplete: false)))
+        let experience = ExperienceData.mock
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(experience, .initial, markComplete: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -180,6 +190,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
             "stepType": "modal",
@@ -193,6 +204,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 type: .experienceDismissed,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
+                experienceInstanceID: experience.instanceID,
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0)
             ),
@@ -202,7 +214,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingExperienceStateMarkComplete() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(ExperienceData.mock, .initial, markComplete: true)))
+        let experience = ExperienceData.mock
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(experience, .initial, markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -212,6 +225,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile"
         ].verifyPropertiesMatch(lastUpdate.properties)
@@ -221,7 +235,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             LifecycleEvent.EventProperties(
                 type: .experienceCompleted,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
-                experienceName: "Mock Experience: Group with 3 steps, Single step"
+                experienceName: "Mock Experience: Group with 3 steps, Single step",
+                experienceInstanceID: experience.instanceID
             ),
             "can succesfully remap the property dict"
         )
@@ -229,7 +244,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingExperienceLastStepState() throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(ExperienceData.mock, Experience.StepIndex(group: 1, item: 0), markComplete: true)))
+        let experience = ExperienceData.mock
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(experience, Experience.StepIndex(group: 1, item: 0), markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -239,6 +255,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile"
         ].verifyPropertiesMatch(lastUpdate.properties)
@@ -248,7 +265,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             LifecycleEvent.EventProperties(
                 type: .experienceCompleted,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
-                experienceName: "Mock Experience: Group with 3 steps, Single step"
+                experienceName: "Mock Experience: Group with 3 steps, Single step",
+                experienceInstanceID: experience.instanceID
             ),
             "can succesfully remap the property dict"
         )
@@ -256,10 +274,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateExperienceError() throws {
         // Arrange
+        let experience = ExperienceData.mock
         UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.experience(ExperienceData.mock, "error")))
+        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.experience(experience, "error")))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -269,6 +288,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
             "message": "error",
@@ -281,6 +301,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 type: .experienceError,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
+                experienceInstanceID: experience.instanceID,
                 errorID: UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181"),
                 message: "error"
             ),
@@ -290,10 +311,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateStepError() throws {
         // Arrange
+        let experience = ExperienceData.mock
         UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.step(ExperienceData.mock, .initial, "error")))
+        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.step(experience, .initial, "error")))
 
         // Assert
         XCTAssertFalse(isCompleted)
@@ -303,6 +325,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
             "stepType": "modal",
@@ -318,6 +341,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 type: .stepError,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
+                experienceInstanceID: experience.instanceID,
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0),
                 errorID: UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181"),
@@ -355,6 +379,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experienceData.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
             "errorId": "2e044aa2-130f-4260-80c2-a36092a88aff",
@@ -365,6 +390,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experienceData.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
             "errorId": "2e044aa2-130f-4260-80c2-a36092a88aff"

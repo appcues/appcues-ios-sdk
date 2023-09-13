@@ -31,9 +31,10 @@ class AppcuesStepInteractionActionTests: XCTestCase {
     func testNextStep() throws {
         // Arrange
         var mostRecentUpdate: TrackingUpdate?
+        let experience = ExperienceData.mock
 
         appcues.experienceRenderer.onExperienceData = { _ in
-            ExperienceData.mock
+            experience
         }
         appcues.experienceRenderer.onStepIndex = { _ in
             .initial
@@ -69,13 +70,14 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                 "text": "My Button"
             ],
             // Event properties
-            "experienceId": Experience.mock.id.appcuesFormatted,
-            "experienceName": Experience.mock.name,
-            "experienceType": Experience.mock.type,
-            "stepId": Experience.mock.steps[0].items[0].id.appcuesFormatted,
-            "stepType": Experience.mock.steps[0].items[0].type,
+            "experienceId": experience.id.appcuesFormatted,
+            "experienceName": experience.name,
+            "experienceType": experience.type,
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
+            "stepId": experience.steps[0].items[0].id.appcuesFormatted,
+            "stepType": experience.steps[0].items[0].type,
             "stepIndex": "0,0",
-            "version": try XCTUnwrap(Experience.mock.publishedAt)
+            "version": try XCTUnwrap(experience.publishedAt)
         ].verifyPropertiesMatch(lastUpdate.properties)
     }
 
