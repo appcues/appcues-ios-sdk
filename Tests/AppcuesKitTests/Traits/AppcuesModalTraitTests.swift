@@ -12,6 +12,33 @@ import XCTest
 @available(iOS 13.0, *)
 class AppcuesModalTraitTests: XCTestCase {
 
+    func testBackdrop() throws {
+        // Arrange
+        let containerController = DefaultContainerViewController(
+            stepControllers: [],
+            pageMonitor: AppcuesExperiencePageMonitor(numberOfPages: 0, currentPage: 0)
+        )
+        let dialogTrait = try XCTUnwrap(AppcuesModalTrait(presentationStyle: .dialog))
+        let dialogWrapper = try dialogTrait.createWrapper(around: containerController)
+        let fullTrait = try XCTUnwrap(AppcuesModalTrait(presentationStyle: .full))
+        let fullWrapper = try fullTrait.createWrapper(around: containerController)
+        let halfSheetTrait = try XCTUnwrap(AppcuesModalTrait(presentationStyle: .halfSheet))
+        let halfSheetWrapper = try halfSheetTrait.createWrapper(around: containerController)
+        let sheetTrait = try XCTUnwrap(AppcuesModalTrait(presentationStyle: .sheet))
+        let sheetWrapper = try sheetTrait.createWrapper(around: containerController)
+
+        // Act
+        let dialogBackdrop = dialogTrait.getBackdrop(for: dialogWrapper)
+        let fullBackdrop = fullTrait.getBackdrop(for: fullWrapper)
+        let halfSheetBackdrop = halfSheetTrait.getBackdrop(for: halfSheetWrapper)
+        let sheetBackdrop = sheetTrait.getBackdrop(for: sheetWrapper)
+
+        // Assert
+        XCTAssertNotNil(dialogBackdrop) // only one that should hav a backdrop
+        XCTAssertNil(fullBackdrop)
+        XCTAssertNil(halfSheetBackdrop)
+        XCTAssertNil(sheetBackdrop)
+    }
 
     func testTransitionConfig() throws {
         // Assert
@@ -87,6 +114,17 @@ class AppcuesModalTraitTests: XCTestCase {
 }
 
 @available(iOS 13.0, *)
+extension AppcuesModalTrait {
+    convenience init?(presentationStyle: PresentationStyle) {
+        self.init(
+            configuration: AppcuesExperiencePluginConfiguration(
+                AppcuesModalTrait.Config(presentationStyle: presentationStyle, style: nil, transition: nil)
+            )
+        )
+    }
+}
+
+@available(iOS 13.0, *)
 extension AppcuesModalTrait.Config {
     init(
         transition: String,
@@ -125,6 +163,4 @@ extension AppcuesModalTrait.Config {
             transition: transition
         )
     }
-
-
 }
