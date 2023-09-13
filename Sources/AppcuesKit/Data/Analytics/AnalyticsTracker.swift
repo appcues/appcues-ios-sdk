@@ -16,6 +16,8 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
     private static let flushAfterSeconds: Double = 10
 
+    private weak var appcues: Appcues?
+
     private let storage: DataStoring
     private let config: Appcues.Config
     private let activityProcessor: ActivityProcessing
@@ -32,6 +34,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     private var flushWorkItem: DispatchWorkItem?
 
     init(container: DIContainer) {
+        self.appcues = container.owner
         self.storage = container.resolve(DataStoring.self)
         self.config = container.resolve(Appcues.Config.self)
         self.activityProcessor = container.resolve(ActivityProcessing.self)
@@ -39,7 +42,12 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     }
 
     func track(update: TrackingUpdate) {
-        let activity = Activity(from: update, config: config, storage: storage)
+        // session_id is required for activity tracked to API, and it should always be non-nil by
+        // this point, as the AnalyticsPublisher will not even invoke it's subscribers unless a
+        // valid session exists - see decorateAndPublish in AnalyticsPublisher
+        guard let sessionID = appcues?.sessionID else { return }
+
+        let activity = Activity(from: update, config: config, storage: storage, sessionID: sessionID)
 
         switch update.policy {
         case .queueThenFlush:
@@ -137,11 +145,12 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 }
 
 extension Activity {
-    init(from update: TrackingUpdate, config: Appcues.Config, storage: DataStoring) {
+    init(from update: TrackingUpdate, config: Appcues.Config, storage: DataStoring, sessionID: UUID) {
         switch update.type {
         case let .event(name, _):
             self.init(
                 accountID: config.accountID,
+                sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: [Event(name: name, attributes: update.properties, context: update.context)],
                 profileUpdate: update.eventAutoProperties,
@@ -151,6 +160,7 @@ extension Activity {
         case let .screen(title):
             self.init(
                 accountID: config.accountID,
+                sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: [Event(screen: title, attributes: update.properties, context: update.context)],
                 profileUpdate: update.eventAutoProperties,
@@ -160,6 +170,7 @@ extension Activity {
         case .profile:
             self.init(
                 accountID: config.accountID,
+                sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: nil,
                 profileUpdate: update.properties,
@@ -169,6 +180,7 @@ extension Activity {
         case .group:
             self.init(
                 accountID: config.accountID,
+                sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: nil,
                 groupID: storage.groupID,

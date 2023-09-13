@@ -19,6 +19,7 @@ class AnalyticsTrackerTests: XCTestCase {
             .anonymousIDFactory({ "my-anonymous-id" })
 
         appcues = MockAppcues(config: config)
+        appcues.sessionID = UUID()
         tracker = AnalyticsTracker(container: appcues.container)
 
         // To test the AnalyticsTracker, we verify that the given tracking update is translated into the expected
