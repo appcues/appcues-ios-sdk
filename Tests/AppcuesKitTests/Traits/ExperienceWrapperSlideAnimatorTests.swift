@@ -9,9 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-import XCTest
-@testable import AppcuesKit
-
 @available(iOS 13.0, *)
 class ExperienceWrapperSlideAnimatorTests: XCTestCase {
 
