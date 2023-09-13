@@ -122,7 +122,7 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
 
         if let width = style?.width, width > 0 {
             let widthConstraint = contentView.widthAnchor.constraint(equalToConstant: width)
-            // lower priority here so that the constraint on width being >= the readableContentGuide width
+            // lower priority here so that the constraint on width being <= the readableContentGuide width
             // set in the ExperienceWrapperView by default takes priority, if width is too large
             widthConstraint.priority = .init(999)
             widthConstraint.isActive = true

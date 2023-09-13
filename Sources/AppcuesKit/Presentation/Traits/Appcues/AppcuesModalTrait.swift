@@ -127,20 +127,17 @@ extension AppcuesModalTrait.Config {
             let horizontalAlign = style?.horizontalAlignment ?? "center"
             let verticalAlign = style?.verticalAlignment ?? "center"
 
-            switch horizontalAlign {
-            case "leading":
+            switch (horizontalAlign, verticalAlign) {
+            case ("leading", _):
                 edge = .leading
-            case "trailing":
+            case ("trailing", _):
                 edge = .trailing
+            case (_, "top"):
+                edge = .top
+            case (_, "bottom"):
+                edge = .bottom
             default:
-                switch verticalAlign {
-                case "top":
-                    edge = .top
-                case "bottom":
-                    edge = .bottom
-                default:
-                    edge = .center
-                }
+                edge = .center
             }
 
             return .slide(edge: edge)
