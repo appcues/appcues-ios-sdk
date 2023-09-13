@@ -76,7 +76,7 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
     }
 
     func getBackdrop(for wrapperController: UIViewController) -> UIView? {
-        return (wrapperController as? ExperienceWrapperViewController)?.bodyView.backdropView
+        return (wrapperController as? ExperienceWrapperViewController<TooltipWrapperView>)?.bodyView.backdropView
     }
 
     func present(viewController: UIViewController, completion: (() -> Void)?) throws {
