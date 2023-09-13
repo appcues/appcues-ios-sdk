@@ -38,7 +38,8 @@ internal enum LifecycleEvent: String, CaseIterable {
         var properties: [String: Any] = [
             "experienceId": experience.id.appcuesFormatted,
             "experienceName": experience.name,
-            "experienceType": experience.type
+            "experienceType": experience.type,
+            "experienceInstanceId": experience.instanceID.appcuesFormatted
             // TODO: Add locale values to analytics for localized experiences
 //            "localeName": "",
 //            "localeId": ""
@@ -96,6 +97,7 @@ extension LifecycleEvent {
         let type: LifecycleEvent
         let experienceID: UUID
         let experienceName: String
+        let experienceInstanceID: UUID
         let frameID: String?
         let stepID: UUID?
         let stepIndex: Experience.StepIndex?
@@ -107,13 +109,15 @@ extension LifecycleEvent {
             guard let type = LifecycleEvent(trackingType: update.type) else { return nil }
 
             guard let experienceID = UUID(uuidString: update.properties?["experienceId"] as? String ?? ""),
-                  let experienceName = update.properties?["experienceName"] as? String else {
+                  let experienceName = update.properties?["experienceName"] as? String,
+                  let experienceInstanceID = UUID(uuidString: update.properties?["experienceInstanceId"] as? String ?? "") else {
                 return nil
             }
 
             self.type = type
             self.experienceID = experienceID
             self.experienceName = experienceName
+            self.experienceInstanceID = experienceInstanceID
             self.frameID = update.properties?["frameID"] as? String
 
             self.stepID = UUID(uuidString: update.properties?["stepId"] as? String ?? "")
@@ -127,6 +131,7 @@ extension LifecycleEvent {
             type: LifecycleEvent,
             experienceID: UUID,
             experienceName: String,
+            experienceInstanceID: UUID,
             frameID: String? = nil,
             stepID: UUID? = nil,
             stepIndex: Experience.StepIndex? = nil,
@@ -136,6 +141,7 @@ extension LifecycleEvent {
             self.type = type
             self.experienceID = experienceID
             self.experienceName = experienceName
+            self.experienceInstanceID = experienceInstanceID
             self.frameID = frameID
             self.stepID = stepID
             self.stepIndex = stepIndex
