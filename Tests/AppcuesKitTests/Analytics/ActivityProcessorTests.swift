@@ -363,7 +363,16 @@ class ActivityProcessorTests: XCTestCase {
     }
 
     private func generateMockActivity(userID: String, event: Event, userSignature: String? = nil) -> Activity {
-        return Activity(accountID: "00000", userID: userID, events: [event], profileUpdate: nil, groupID: nil, groupUpdate: nil, userSignature: userSignature)
+        return Activity(
+            accountID: "00000",
+            sessionID: UUID().appcuesFormatted,
+            userID: userID,
+            events: [event],
+            profileUpdate: nil,
+            groupID: nil,
+            groupUpdate: nil,
+            userSignature: userSignature
+        )
     }
 
     private let mockExperience = Experience(id: UUID(), name: "test_experience", type: "mobile", publishedAt: 1632142800000, traits: [], steps: [], redirectURL: nil, nextContentID: nil, renderContext: .modal)

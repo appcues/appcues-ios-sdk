@@ -18,9 +18,11 @@ internal struct Activity {
     let groupID: String?
     let groupUpdate: [String: Any]?
     let userSignature: String?
+    let sessionID: String
 
     internal init(
         accountID: String,
+        sessionID: String,
         userID: String,
         events: [Event]?,
         profileUpdate: [String: Any]? = nil,
@@ -29,6 +31,7 @@ internal struct Activity {
         userSignature: String? = nil
     ) {
         self.accountID = accountID
+        self.sessionID = sessionID
         self.userID = userID
         self.events = events
         self.profileUpdate = profileUpdate
@@ -45,6 +48,7 @@ extension Activity: Encodable {
         case profileUpdate = "profile_update"
         case userID = "user_id"
         case accountID = "account_id"
+        case sessionID = "session_id"
         case groupID = "group_id"
         case groupUpdate = "group_update"
         // note: userSignature is not serialized - used on request Authentication header when present
@@ -53,6 +57,7 @@ extension Activity: Encodable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(accountID, forKey: .accountID)
+        try container.encode(sessionID, forKey: .sessionID)
         try container.encode(userID, forKey: .userID)
         try container.encode(groupID, forKey: .groupID)
         try container.encode(requestID.appcuesFormatted, forKey: .requestID)
