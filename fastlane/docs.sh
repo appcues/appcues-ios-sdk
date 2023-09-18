@@ -32,6 +32,8 @@ xcodebuild docbuild \
 
 zip -r docs.zip docs
 git checkout gh-pages
+# removing existing docs to ensure no old files linger
+rm -rf ./docs
 unzip -o docs.zip
 rm docs.zip
 
