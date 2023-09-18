@@ -37,6 +37,15 @@ Events are the “actions” your users take in your application, which can be a
 
 For more detail about tracking screens and events, refer to <doc:Tracking>.
 
+## Anchored Tooltips
+
+Anchored tooltips use element targeting to point directly at specific views in your application. For more information about how to configure your application's views for element targeting, refer to <doc:AnchoredTooltips>.
+
+## Embedded Experiences
+
+Add ``AppcuesFrameView`` instances in your application layouts to support embedded experience content, with a non-modal presentation. For more information about how to configure your application layouts to use frame views, refer to <doc:FrameConfiguring>.
+
 ## Debugging
 
 See <doc:URLSchemeConfiguring> for setup instructions and then refer to <doc:Debugging> for usage details.
+
