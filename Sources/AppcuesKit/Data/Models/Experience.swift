@@ -34,6 +34,7 @@ internal struct FailedExperience: Decodable {
     let name: String?
     let type: String?
     let publishedAt: Int?
+    let context: Experience.Context?
     var error: String?
 
     // This is a synthetically generated Experience from the known values of the FailedExperience that
@@ -45,7 +46,7 @@ internal struct FailedExperience: Decodable {
             name: name ?? "",
             type: type ?? "",
             publishedAt: publishedAt,
-            context: nil,
+            context: context,
             traits: [],
             steps: [],
             redirectURL: nil,
