@@ -22,7 +22,7 @@ class ExperienceStateMachineTests: XCTestCase {
     }
 
     func testInitialState() throws {
-        // Arrage
+        // Arrange
         let stateMachine = ExperienceStateMachine(container: appcues.container)
 
         // Assert

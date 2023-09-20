@@ -95,7 +95,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0)
             ),
-            "can succesfully remap the property dict"
+            "can successfully remap the property dict"
         )
     }
 
@@ -132,7 +132,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0)
             ),
-            "can succesfully remap the property dict"
+            "can successfully remap the property dict"
         )
     }
 
@@ -170,7 +170,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0)
             ),
-            "can succesfully remap the property dict"
+            "can successfully remap the property dict"
         )
     }
 
@@ -216,7 +216,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0)
             ),
-            "can succesfully remap the property dict"
+            "can successfully remap the property dict"
         )
     }
 
@@ -248,7 +248,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
                 experienceInstanceID: experience.instanceID
             ),
-            "can succesfully remap the property dict"
+            "can successfully remap the property dict"
         )
     }
 
@@ -280,7 +280,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
                 experienceInstanceID: experience.instanceID
             ),
-            "can succesfully remap the property dict"
+            "can successfully remap the property dict"
         )
     }
 
@@ -319,7 +319,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 errorID: UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181"),
                 message: "error"
             ),
-            "can succesfully remap the property dict"
+            "can successfully remap the property dict"
         )
     }
 

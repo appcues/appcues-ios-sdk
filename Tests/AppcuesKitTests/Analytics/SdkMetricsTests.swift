@@ -31,7 +31,7 @@ class SdkMetricsTests: XCTestCase {
                 case 1: SdkMetrics.requested(ids[idIndex])
                 case 2: SdkMetrics.responded(ids[idIndex])
                 case 3: SdkMetrics.renderStart(ids[idIndex])
-                // Note that technically the write to results isnt thread safe, but if the test crashes here, that's ok
+                // Note that technically the write to results isn't thread safe, but if the test crashes here, that's ok
                 case 4: results.append(SdkMetrics.trackRender(ids[idIndex]))
                 default: XCTFail()
                 }
