@@ -41,8 +41,8 @@ internal class DebugView: UIView {
     private lazy var fleetingConstraints = (
         top: fleetingLogView.topAnchor.constraint(equalTo: floatingView.bottomAnchor),
         bottom: fleetingLogView.bottomAnchor.constraint(equalTo: floatingView.topAnchor),
-        leading: fleetingLogView.leadingAnchor.constraint(equalTo: floatingView.leadingAnchor),
-        trailing: fleetingLogView.trailingAnchor.constraint(equalTo: floatingView.trailingAnchor)
+        left: fleetingLogView.leftAnchor.constraint(equalTo: floatingView.leftAnchor),
+        right: fleetingLogView.rightAnchor.constraint(equalTo: floatingView.rightAnchor)
     )
 
     var floatingView = FloatingView(frame: CGRect(origin: .zero, size: CGSize(width: 64, height: 64)))
@@ -402,13 +402,13 @@ internal class DebugView: UIView {
 
     private func updateFleetingLogViewOrientation() {
         if floatingView.center.x < center.x {
-            fleetingLogView.orientation.x = .leading
-            fleetingConstraints.leading.isActive = true
-            fleetingConstraints.trailing.isActive = false
+            fleetingLogView.orientation.x = .left
+            fleetingConstraints.left.isActive = true
+            fleetingConstraints.right.isActive = false
         } else {
-            fleetingLogView.orientation.x = .trailing
-            fleetingConstraints.leading.isActive = false
-            fleetingConstraints.trailing.isActive = true
+            fleetingLogView.orientation.x = .right
+            fleetingConstraints.left.isActive = false
+            fleetingConstraints.right.isActive = true
         }
 
         if floatingView.center.y < center.y {

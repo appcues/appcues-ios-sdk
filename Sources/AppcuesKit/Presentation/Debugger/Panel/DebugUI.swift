@@ -50,6 +50,7 @@ internal enum DebugUI {
                 .navigationBarHidden(true)
             }
             .navigationViewStyle(StackNavigationViewStyle())
+            .environment(\.layoutDirection, .leftToRight)
         }
     }
 

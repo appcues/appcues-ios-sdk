@@ -13,7 +13,7 @@ internal class FleetingLogView: UIView {
     typealias Orientation = (x: XOrientation, y: YOrientation)
 
     enum XOrientation {
-        case leading, trailing
+        case left, right
     }
 
     enum YOrientation {
@@ -25,7 +25,7 @@ internal class FleetingLogView: UIView {
 
     var maxItems: Int = 5
 
-    var orientation: Orientation = (.trailing, .bottom) {
+    var orientation: Orientation = (.right, .bottom) {
         didSet { layoutOrientation(oldValue: oldValue) }
     }
 
@@ -37,6 +37,7 @@ internal class FleetingLogView: UIView {
         stack.spacing = 4
         stack.layoutMargins = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
         stack.isLayoutMarginsRelativeArrangement = true
+        stack.semanticContentAttribute = .forceLeftToRight
         return stack
     }()
 
@@ -73,7 +74,7 @@ internal class FleetingLogView: UIView {
         guard !isLocked else { return }
 
         var translationX = stackView.frame.width
-        if orientation.x == .leading {
+        if orientation.x == .left {
             translationX *= -1
         }
 
@@ -106,7 +107,7 @@ internal class FleetingLogView: UIView {
 
     private func removeMessage(view: UIView) {
         var translationX = stackView.frame.width
-        if orientation.x == .leading {
+        if orientation.x == .left {
             translationX *= -1
         }
 
@@ -130,9 +131,9 @@ internal class FleetingLogView: UIView {
         maskLayer.colors = [UIColor.clear.cgColor, UIColor.white.cgColor]
 
         switch orientation.x {
-        case .leading:
+        case .left:
             stackView.alignment = .leading
-        case .trailing:
+        case .right:
             stackView.alignment = .trailing
         }
 
