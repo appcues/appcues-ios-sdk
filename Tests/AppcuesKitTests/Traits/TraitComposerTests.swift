@@ -148,11 +148,11 @@ class TraitComposerTests: XCTestCase {
 
         // Some experience level expectations from @test/trait-2 should be applied when multiple traits with the same capability are allowed
         let experienceLevel2StepDecoratingExpectation = expectation(description: "Experience level 2 step decorate called")
-        // ContainerCreating should be superceded by the more specific groupLevelContainerCreatingExpectation
+        // ContainerCreating should be superseded by the more specific groupLevelContainerCreatingExpectation
         let experienceLevel2ContainerCreatingExpectation = expectation(description: "Experience level 2 create container called")
         experienceLevel2ContainerCreatingExpectation.isInverted = true
         let experienceLevel2ContainerDecoratingExpectation = expectation(description: "Experience level 2 container decorate called")
-        // WrapperCreating should be superceded by the more specific groupLevelWrapperCreatingExpectation
+        // WrapperCreating should be superseded by the more specific groupLevelWrapperCreatingExpectation
         let experienceLevel2WrapperCreatingExpectation = expectation(description: "Experience level 2 create wrapper called")
         experienceLevel2WrapperCreatingExpectation.isInverted = true
         let experienceLevel2BackdropDecoratingExpectation = expectation(description: "Experience level 2 backdrop decorate called")
