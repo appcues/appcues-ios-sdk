@@ -45,6 +45,7 @@ internal struct FailedExperience: Decodable {
             name: name ?? "",
             type: type ?? "",
             publishedAt: publishedAt,
+            context: nil,
             traits: [],
             steps: [],
             redirectURL: nil,
@@ -131,11 +132,17 @@ internal struct Experience {
         let configDecoder: PluginDecoder
     }
 
+    struct Context: Decodable {
+        let localeId: String?
+        let localeName: String?
+    }
+
     let id: UUID
     let name: String
     let type: String
     // a millisecond timestamp
     let publishedAt: Int?
+    let context: Context?
     // tags, theme, actions
     // TODO: Handle experience-level actions
     let traits: [Trait]
@@ -157,6 +164,7 @@ extension Experience: Decodable {
         case name
         case type
         case publishedAt
+        case context
         case traits
         case steps
         case redirectURL = "redirectUrl"
@@ -169,6 +177,7 @@ extension Experience: Decodable {
         name = try container.decode(String.self, forKey: .name)
         type = try container.decode(String.self, forKey: .type)
         publishedAt = try? container.decode(Int.self, forKey: .publishedAt)
+        context = try? container.decodeIfPresent(Context.self, forKey: .context)
         traits = try container.decode(TraitCollection.self, forKey: .traits).traits
         steps = try container.decode([Step].self, forKey: .steps)
         redirectURL = try? container.decode(URL.self, forKey: .redirectURL)
