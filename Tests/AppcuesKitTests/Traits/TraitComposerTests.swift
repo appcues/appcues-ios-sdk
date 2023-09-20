@@ -38,6 +38,7 @@ class TraitComposerTests: XCTestCase {
             name: "test",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: nil,
             traits: [
                 Experience.Trait(
                     type: "@test/presenting",
@@ -169,6 +170,7 @@ class TraitComposerTests: XCTestCase {
             name: "test",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: nil,
             traits: [
                 Experience.Trait(
                     type: "@test/presenting",
@@ -256,6 +258,7 @@ class TraitComposerTests: XCTestCase {
             name: "test",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: nil,
             traits: [
                 Experience.Trait(
                     type: "@test/presenting",
@@ -296,6 +299,7 @@ class TraitComposerTests: XCTestCase {
             name: "test",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: nil,
             traits: [],
             steps: [
                 .group(Experience.Step.Group(
@@ -402,6 +406,7 @@ class TraitComposerTests: XCTestCase {
             name: "test",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: nil,
             traits: [],
             steps: [
                 .group(Experience.Step.Group(

@@ -223,6 +223,7 @@ extension Experience {
             name: "Mock embedded experience",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: nil,
             traits: [],
             steps: [
                 Experience.Step(
