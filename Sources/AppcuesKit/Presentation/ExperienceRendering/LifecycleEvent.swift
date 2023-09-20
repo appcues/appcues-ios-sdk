@@ -40,10 +40,15 @@ internal enum LifecycleEvent: String, CaseIterable {
             "experienceName": experience.name,
             "experienceType": experience.type,
             "experienceInstanceId": experience.instanceID.appcuesFormatted
-            // TODO: Add locale values to analytics for localized experiences
-//            "localeName": "",
-//            "localeId": ""
         ]
+
+        if let localeName = experience.context?.localeName {
+            properties["localeName"] = localeName
+        }
+
+        if let localeId = experience.context?.localeId {
+            properties["localeId"] = localeId
+        }
 
         // frameID is added primarily for use by the debugger
         if case let .embed(frameID) = experience.renderContext {
