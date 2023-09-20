@@ -432,7 +432,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
     func test_stateIsIdling_whenStartFailedExperience_noTransition() throws {
         // Arrange
-        let failedExperience = FailedExperience(id: UUID(), name: "Invalid experience", type: "mobile", publishedAt: 1632142800000, error: "could not decode")
+        let failedExperience = FailedExperience(id: UUID(), name: "Invalid experience", type: "mobile", publishedAt: 1632142800000, context: nil, error: "could not decode")
         let initialState: State = .idling
         let experienceData = ExperienceData(failedExperience.skeletonExperience, trigger: .showCall, error: failedExperience.error)
         let action: Action = .startExperience(experienceData)
