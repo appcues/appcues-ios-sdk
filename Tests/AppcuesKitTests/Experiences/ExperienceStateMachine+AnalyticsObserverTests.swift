@@ -77,6 +77,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
             "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0"
@@ -113,6 +115,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
             "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0"
@@ -149,6 +153,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
             "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0"
@@ -193,6 +199,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
             "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0"
@@ -227,7 +235,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
             "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
-            "experienceType": "mobile"
+            "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en"
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
@@ -257,7 +267,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
             "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
-            "experienceType": "mobile"
+            "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en"
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
@@ -291,6 +303,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
             "message": "error",
             "errorId": "a6d6e248-faff-4789-a03c-bd7f520c1181"
         ].verifyPropertiesMatch(lastUpdate.properties)
@@ -328,6 +342,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceInstanceId": experience.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
             "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0",
@@ -347,7 +363,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 errorID: UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181"),
                 message: "error"
             ),
-            "can succesfully remap the property dict"
+            "can successfully remap the property dict"
         )
     }
 
@@ -382,6 +398,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceInstanceId": experienceData.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
             "errorId": "2e044aa2-130f-4260-80c2-a36092a88aff",
             "message": "oh no"
         ].verifyPropertiesMatch(errorUpdate.properties)
@@ -393,6 +411,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "experienceInstanceId": experienceData.instanceID.appcuesFormatted,
             "version": 1632142800000,
             "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
             "errorId": "2e044aa2-130f-4260-80c2-a36092a88aff"
         ].verifyPropertiesMatch(recoveryUpdate.properties)
     }

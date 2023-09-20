@@ -54,6 +54,10 @@ extension Experience {
             name: "Mock Experience: Group with 3 steps, Single step",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: Context(
+                localeId: "en",
+                localeName: "English"
+            ),
             traits: [],
             steps: [
                 Experience.Step(
@@ -79,6 +83,7 @@ extension Experience {
             name: "Single step experience",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: nil,
             traits: [],
             steps: [
                 Experience.Step(
@@ -99,6 +104,7 @@ extension Experience {
             name: "Mock Experience: Single step with form",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: nil,
             traits: [],
             steps: [
                 Experience.Step(
@@ -119,6 +125,7 @@ extension Experience {
             name: "Mock Experience: actions on second group",
             type: "mobile",
             publishedAt: 1632142800000,
+            context: nil,
             traits: [],
             steps: [
                 Experience.Step(

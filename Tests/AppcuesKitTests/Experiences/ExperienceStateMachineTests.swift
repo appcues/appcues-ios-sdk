@@ -418,7 +418,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
     func test_stateIsIdling_whenStartExperienceWithNoSteps_noTransition() throws {
         // Arrange
-        let experience = Experience(id: UUID(), name: "Empty experience", type: "mobile", publishedAt: 1632142800000, traits: [], steps: [], redirectURL: nil, nextContentID: nil, renderContext: .modal)
+        let experience = Experience(id: UUID(), name: "Empty experience", type: "mobile", publishedAt: 1632142800000, context: nil, traits: [], steps: [], redirectURL: nil, nextContentID: nil, renderContext: .modal)
         let initialState: State = .idling
         let action: Action = .startExperience(ExperienceData(experience, trigger: .showCall))
         let stateMachine = givenState(is: initialState)
