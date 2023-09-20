@@ -81,10 +81,10 @@ internal class FleetingItemView: UIView {
 
     func setOrientation(_ orientation: FleetingLogView.Orientation) {
         switch orientation.x {
-        case .leading:
+        case .left:
             messageLabel.textAlignment = .left
             stackView.semanticContentAttribute = .forceLeftToRight
-        case .trailing:
+        case .right:
             messageLabel.textAlignment = .right
             stackView.semanticContentAttribute = .forceRightToLeft
         }
