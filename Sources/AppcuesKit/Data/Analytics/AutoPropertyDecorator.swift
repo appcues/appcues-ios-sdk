@@ -76,8 +76,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_sessionId": appcues?.sessionID?.appcuesFormatted
         ]
 
-        if !Locale.preferredLanguages.isEmpty {
-            sessionProperties["_lastBrowserLanguage"] = Locale.preferredLanguages[0]
+        if let bundleLanguageID = Bundle.main.preferredLocalizations.first {
+            sessionProperties["_lastBrowserLanguage"] = bundleLanguageID
         }
 
         // Note: additional (custom) go first, as they may be overwritten by merged system items
