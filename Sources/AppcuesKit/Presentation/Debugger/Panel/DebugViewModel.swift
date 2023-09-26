@@ -12,6 +12,7 @@ import SwiftUI
 @available(iOS 13.0, *)
 internal class DebugViewModel: ObservableObject {
     private let networking: Networking
+    private let bundleFontsPath: String?
 
     // MARK: Navigation
     @Published var navigationDestination: DebugDestination?
@@ -86,16 +87,56 @@ internal class DebugViewModel: ObservableObject {
         return currentUserID
     }
 
-    init(networking: Networking, accountID: String, applicationID: String, currentUserID: String, isAnonymous: Bool) {
+    init(
+        networking: Networking,
+        accountID: String,
+        applicationID: String,
+        currentUserID: String,
+        isAnonymous: Bool,
+        bundleFontsPath: String?
+    ) {
         self.networking = networking
         self.accountID = accountID
         self.applicationID = applicationID
         self.currentUserID = currentUserID
         self.isAnonymous = isAnonymous
         self.userIdentified = !currentUserID.isEmpty
+        self.bundleFontsPath = bundleFontsPath
 
         connectedStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.ping() }
         deepLinkStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.verifyDeepLink() }
+    }
+
+    func fonts() -> [(title: String, names: [String])] {
+        let uiAppFontPaths = (Bundle.main.infoDictionary?["UIAppFonts"] as? [String] ?? []).compactMap { Bundle.main.url(forResource: $0, withExtension: nil) }
+        let customBundleFontPaths = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: bundleFontsPath) ?? []
+
+        let familyNames: [String] = (uiAppFontPaths + customBundleFontPaths)
+            .compactMap { resourceURL in
+                if let fontData = try? Data(contentsOf: resourceURL),
+                   let fontDataProvider = CGDataProvider(data: fontData as CFData),
+                   let font = CGFont(fontDataProvider),
+                   let name = font.postScriptName {
+                    let ctfont = CTFontCreateWithName(name, 17, nil)
+                    return CTFontCopyFamilyName(ctfont) as String
+                } else {
+                    return nil
+                }
+            }
+
+        let appFonts = Set(familyNames).sorted().flatMap { UIFont.fontNames(forFamilyName: $0) }
+        let systemFonts = Font.Design.allCases.flatMap { design in
+            Font.Weight.allCases.map { weight in
+                "System \(design.description) \(weight.description)"
+            }
+        }
+        let allFonts = UIFont.familyNames.flatMap { UIFont.fontNames(forFamilyName: $0) }
+
+        return [
+            ("App-Specific Fonts", appFonts),
+            ("System Fonts", systemFonts),
+            ("All Fonts", allFonts)
+        ]
     }
 
     func reset() {

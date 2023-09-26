@@ -68,7 +68,8 @@ internal class UIDebugger: UIDebugging {
             accountID: config.accountID,
             applicationID: config.applicationID,
             currentUserID: storage.userID,
-            isAnonymous: storage.isAnonymous
+            isAnonymous: storage.isAnonymous,
+            bundleFontsPath: config.bundleFontsPath
         )
 
         notificationCenter.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
