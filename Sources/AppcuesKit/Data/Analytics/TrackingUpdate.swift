@@ -56,9 +56,3 @@ internal struct TrackingUpdate {
         }
     }
 }
-
-extension TrackingUpdate: CustomStringConvertible {
-    var description: String {
-        return "TODO: translate for logging / debugger"
-    }
-}
