@@ -192,6 +192,95 @@ class AnalyticsTrackerTests: XCTestCase {
         // Assert
         waitForExpectations(timeout: 1)
     }
+
+    func testQueuedEvents() throws {
+        // Arrange
+        appcues.config.flushAfterDuration = 2
+
+        let minTimeExpectation = expectation(description: "Valid request")
+        let onRequestExpectation = expectation(description: "Waited the flush duration")
+        let expectedEvents = [
+            Event(name: "appcues:v2:step_interaction", attributes: ["my_key": "my_value", "another_key": 33]),
+            Event(name: "appcues:v2:step_interaction", attributes: ["another_key": 100])
+        ]
+
+        appcues.activityProcessor.onProcess = { activity, completion in
+            expectedEvents.verifyMatchingEvents(activity.events)
+            onRequestExpectation.fulfill()
+        }
+
+        let update1 = TrackingUpdate(type: .event(name: "appcues:v2:step_interaction", interactive: false), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
+        let update2 = TrackingUpdate(type: .event(name: "appcues:v2:step_interaction", interactive: false), properties: ["another_key": 100], isInternal: false)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + appcues.config.flushAfterDuration) {
+            // Fulfill this expectation after the flush duration. This, combined with `enforceOrder` below, verifies
+            // that the AnalyticsTracker is waiting and not triggering the event right away.
+            minTimeExpectation.fulfill()
+        }
+
+        // Act
+        tracker.track(update: update1)
+        tracker.track(update: update2)
+
+        // Assert
+        wait(for: [minTimeExpectation, onRequestExpectation], timeout: appcues.config.flushAfterDuration + 1, enforceOrder: true)
+    }
+
+    @available(iOS 13.0, *)
+    func testProcessEmptyResponse() throws {
+        let onRenderExpectation = expectation(description: "Experience renderer successfully called")
+        let successResponse = QualifyResponse(
+            experiences: [],
+            performedQualification: true,
+            qualificationReason: .screenView,
+            experiments: nil
+        )
+
+        appcues.activityProcessor.onProcess = { activity, completion in
+            completion(.success(successResponse))
+        }
+
+        appcues.experienceRenderer.onProcessAndShow = { data, trigger in
+            XCTAssertEqual(data.count, 0)
+            XCTAssertEqual(trigger, .qualification(reason: .screenView))
+            onRenderExpectation.fulfill()
+        }
+
+        let update = TrackingUpdate(type: .screen("My test page"), isInternal: false)
+
+        // Act
+        tracker.track(update: update)
+
+        waitForExpectations(timeout: 1)
+    }
+
+    @available(iOS 13.0, *)
+    func testProcessExperienceResponse() throws {
+        let onRenderExpectation = expectation(description: "Experience renderer successfully called")
+        let successResponse = QualifyResponse(
+            experiences: [.decoded(Experience.mock)],
+            performedQualification: true,
+            qualificationReason: .screenView,
+            experiments: nil
+        )
+
+        appcues.activityProcessor.onProcess = { activity, completion in
+            completion(.success(successResponse))
+        }
+
+        appcues.experienceRenderer.onProcessAndShow = { data, trigger in
+            XCTAssertEqual(data.count, 1)
+            XCTAssertEqual(trigger, .qualification(reason: .screenView))
+            onRenderExpectation.fulfill()
+        }
+
+        let update = TrackingUpdate(type: .screen("My test page"), isInternal: false)
+
+        // Act
+        tracker.track(update: update)
+
+        waitForExpectations(timeout: 1)
+    }
 }
 
 // Helpers to test an Activity request body is as expected
