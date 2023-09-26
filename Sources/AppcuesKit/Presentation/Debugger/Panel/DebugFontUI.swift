@@ -11,75 +11,29 @@ import SwiftUI
 /// Namespaced Views used in the debug panel.
 @available(iOS 13.0, *)
 internal enum DebugFontUI {
-    enum FontInfo {
-        static func allFonts() -> [String] {
-            UIFont.familyNames.flatMap {
-                UIFont.fontNames(forFamilyName: $0)
-            }
-        }
-
-        static func systemFonts() -> [String] {
-            Font.Design.allCases.flatMap { design in
-                Font.Weight.allCases.map { weight in
-                    "System \(design.description) \(weight.description)"
-                }
-            }
-        }
-
-        static func appFonts() -> [String] {
-            let familyNames: [String] = (Bundle.main.infoDictionary?["UIAppFonts"] as? [String] ?? [])
-                .compactMap { resourceName in
-                    if let url = Bundle.main.url(forResource: resourceName, withExtension: nil),
-                       let fontData = try? Data(contentsOf: url),
-                       let fontDataProvider = CGDataProvider(data: fontData as CFData),
-                       let font = CGFont(fontDataProvider),
-                       let name = font.postScriptName {
-                        let ctfont = CTFontCreateWithName(name, 17, nil)
-                        return CTFontCopyFamilyName(ctfont) as String
-                    } else {
-                        return nil
-                    }
-                }
-
-            return Set(familyNames)
-                .sorted()
-                .flatMap {
-                    UIFont.fontNames(forFamilyName: $0)
-                }
-        }
-    }
-
     struct FontListView: View {
-        private let appFonts = FontInfo.appFonts()
-        private let systemFonts = FontInfo.systemFonts()
-        private let allFonts = FontInfo.allFonts()
+        let sections: [(title: String, names: [String])]
 
-        var sections: [(title: String, names: [String])] {
-            var nonEmptySections: [(String, [String])] = []
+        private var filteredSections: [(title: String, names: [String])] {
+            let query = searchText.lowercased()
 
-            let appFonts = filtered(\.appFonts)
-            if !appFonts.isEmpty {
-                nonEmptySections.append(("App-Specific Fonts", appFonts))
+            guard !query.isEmpty else { return sections }
+
+            return sections.compactMap { title, names in
+                let filteredNames = names.filter { $0.lowercased().contains(query) }
+                if !filteredNames.isEmpty {
+                    return (title, filteredNames)
+                } else {
+                    return nil
+                }
             }
-
-            let systemFonts = filtered(\.systemFonts)
-            if !systemFonts.isEmpty {
-                nonEmptySections.append(("System Fonts", systemFonts))
-            }
-
-            let allFonts = filtered(\.allFonts)
-            if !allFonts.isEmpty {
-                nonEmptySections.append(("All Fonts", allFonts))
-            }
-
-            return nonEmptySections
         }
 
         @State private var searchText = ""
 
         var body: some View {
             List {
-                ForEach(sections, id: \.title) { title, fonts in
+                ForEach(filteredSections, id: \.title) { title, fonts in
                     Section(header: Text(title)) {
                         ForEach(fonts, id: \.self) {
                             FontItem(name: $0)
@@ -89,14 +43,6 @@ internal enum DebugFontUI {
             }
             .searchableCompatible(text: $searchText)
             .navigationBarTitle("", displayMode: .inline)
-        }
-
-        private func filtered(_ key: KeyPath<Self, [String]>) -> [String] {
-            let query = searchText.lowercased()
-            if query.isEmpty {
-                return self[keyPath: key]
-            }
-            return self[keyPath: key].filter { $0.lowercased().contains(query) }
         }
     }
 

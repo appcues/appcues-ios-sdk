@@ -29,7 +29,7 @@ internal enum DebugUI {
                     }
 
                     Section(header: Text("Info")) {
-                        NavigationLink(destination: DebugFontUI.FontListView(), isActive: $viewModel.navigationDestinationIsFonts) {
+                        NavigationLink(destination: DebugFontUI.FontListView(sections: viewModel.fonts()), isActive: $viewModel.navigationDestinationIsFonts) {
                             Text("Available Fonts")
                         }
                     }
