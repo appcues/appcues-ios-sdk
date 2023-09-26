@@ -14,8 +14,6 @@ internal protocol AnalyticsTracking: AnyObject {
 
 internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
-    private static let flushAfterSeconds: Double = 10
-
     private weak var appcues: Appcues?
 
     private let storage: DataStoring
@@ -74,7 +72,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                         }
                     }
                     flushWorkItem = workItem
-                    DispatchQueue.main.asyncAfter(deadline: .now() + AnalyticsTracker.flushAfterSeconds, execute: workItem)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + config.flushAfterDuration, execute: workItem)
                 }
             }
         }

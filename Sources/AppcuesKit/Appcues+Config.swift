@@ -39,6 +39,9 @@ public extension Appcues {
 
         var activityStorageMaxAge: UInt?
 
+        // Note: this property doesn't have a public setter
+        var flushAfterDuration: TimeInterval = 10
+
         var additionalAutoProperties: [String: Any] = [:]
 
         var enableUniversalLinks = true
