@@ -225,8 +225,8 @@ class QualifyResponseDecodeTests: XCTestCase {
         XCTAssertEqual("c9c11671-f418-451e-9b4a-33d54ed5299f", item7.id.appcuesFormatted)
 
 
-        XCTAssertEqual(item0.error, "Error parsing Experience JSON data: Expected key \'type\' not found at codingPath: 0.steps.0.children.0.content")
-        XCTAssertEqual(item5.error, "Error parsing Experience JSON data: Expected String value but found null instead. codingPath: 5.steps.0.children.0.type")
-        XCTAssertEqual(item7.error, "Error parsing Experience JSON data: Expected to decode String but found a number instead. codingPath: 7.steps.0.type")
+        XCTAssertEqual(item0.error, "Error parsing Experience JSON data: Expected key \'type\' not found at codingPath: experiences.0.steps.0.children.0.content")
+        XCTAssertEqual(item5.error, "Error parsing Experience JSON data: Cannot get unkeyed decoding container -- found null value instead codingPath: experiences.5.steps.0.children.0.type")
+        XCTAssertEqual(item7.error, "Error parsing Experience JSON data: Expected to decode String but found number instead. codingPath: experiences.7.steps.0.type")
     }
 }
