@@ -12,30 +12,49 @@ import SwiftUI
 @available(iOS 13.0, *)
 internal enum DebugUI {
     struct MainPanelView: View {
+        let apiVerifier: APIVerifier
+        let deepLinkVerifier: DeepLinkVerifier
 
         @ObservedObject var viewModel: DebugViewModel
 
-        var filteredEvents: [DebugViewModel.LoggedEvent] {
-            viewModel.events.filter { viewModel.filter == nil || $0.type == viewModel.filter }
+        @ViewBuilder var statusSection: some View {
+            Section(header: Text("Status")) {
+                DeviceRow()
+                InstalledRow(accountID: viewModel.accountID, applicationID: viewModel.applicationID)
+                ConnectedRow(apiVerifier: apiVerifier)
+                DeepLinkRow(deepLinkVerifier: deepLinkVerifier)
+                ScreensRow(isTrackingScreens: viewModel.trackingPages)
+                UserRow(currentUserID: viewModel.currentUserID, isAnonymous: viewModel.isAnonymous)
+
+                ForEach(viewModel.experienceStatuses) { experienceItem in
+                    ListItemRowView(item: experienceItem) {
+                        // Add a dismiss button to remove error rows.
+                        if experienceItem.status == .unverified {
+                            Button {
+                                viewModel.removeExperienceStatus(id: experienceItem.id)
+                            } label: {
+                                Image(systemName: "xmark").imageScale(.small)
+                            }
+                            .foregroundColor(.secondary)
+                        }
+                    }
+                }
+            }
         }
 
         var body: some View {
             NavigationView {
                 List {
-                    Section(header: Text("Status")) {
-                        ForEach(viewModel.statusItems) { item in
-                            ListItemRowView(item: item)
-                        }
-                    }
+                    statusSection
 
                     Section(header: Text("Info")) {
-                        NavigationLink(destination: DebugFontUI.FontListView(sections: viewModel.fonts()), isActive: $viewModel.navigationDestinationIsFonts) {
+                        NavigationLink(destination: DebugFontUI.FontListView(), isActive: $viewModel.navigationDestinationIsFonts) {
                             Text("Available Fonts")
                         }
                     }
 
                     Section(header: EventsSectionHeader(selection: $viewModel.filter)) {
-                        ForEach(filteredEvents.suffix(20).reversed()) { event in
+                        ForEach(viewModel.filteredEvents.suffix(20).reversed()) { event in
                             NavigationLink(destination: EventDetailView(event: event)) {
                                 HStack {
                                     Image(systemName: event.type.symbolName)
@@ -54,10 +73,111 @@ internal enum DebugUI {
         }
     }
 
-    private struct EventsSectionHeader: View {
-        @Binding var selection: DebugViewModel.LoggedEvent.EventType?
+    struct DeviceRow: View {
+        let statusItem = StatusItem(
+            status: .info,
+            title: "\(UIDevice.current.modelName) iOS \(UIDevice.current.systemVersion)"
+        )
 
-        let options: [DebugViewModel.LoggedEvent.EventType?] = [nil] + DebugViewModel.LoggedEvent.EventType.allCases
+        var body: some View {
+            ListItemRowView(item: statusItem)
+        }
+    }
+
+    struct InstalledRow: View {
+        let statusItem: StatusItem
+
+        init(accountID: String, applicationID: String) {
+            statusItem = StatusItem(
+                status: .verified,
+                title: "Installed SDK \(Appcues.version())",
+                subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)"
+            )
+        }
+
+        var body: some View {
+            ListItemRowView(item: statusItem)
+        }
+    }
+
+    struct ConnectedRow: View {
+        let apiVerifier: APIVerifier
+
+        @State var statusItem = StatusItem(status: .pending, title: "Connected to Appcues")
+
+        var body: some View {
+            ListItemRowView(item: statusItem) {
+                Button {
+                    apiVerifier.verifyAPI()
+                } label: {
+                    Image(systemName: "arrow.triangle.2.circlepath").imageScale(.small)
+                }
+                .foregroundColor(.secondary)
+            }
+            .onReceive(apiVerifier.subject) {
+                statusItem = $0
+            }
+        }
+    }
+
+    struct DeepLinkRow: View {
+        let deepLinkVerifier: DeepLinkVerifier
+
+        @State private var statusItem = StatusItem(status: .pending, title: "Appcues Deep Link", subtitle: "Tap to check configuration")
+
+        var body: some View {
+            ListItemRowView(item: statusItem) {
+                Button {
+                    deepLinkVerifier.verifyDeepLink()
+                } label: {
+                    Image(systemName: "arrow.triangle.2.circlepath").imageScale(.small)
+                }
+                .foregroundColor(.secondary)
+            }
+            .onReceive(deepLinkVerifier.subject) {
+                statusItem = $0
+            }
+        }
+    }
+
+    struct ScreensRow: View {
+        let isTrackingScreens: Bool
+
+        var statusItem: StatusItem {
+            return StatusItem(
+                status: isTrackingScreens ? .verified : .pending,
+                title: "Tracking Screens",
+                subtitle: isTrackingScreens ? nil : "Navigate to another screen to test"
+            )
+        }
+
+        var body: some View {
+            ListItemRowView(item: statusItem)
+        }
+    }
+
+    struct UserRow: View {
+        let currentUserID: String
+        let isAnonymous: Bool
+
+        var statusItem: StatusItem {
+            return StatusItem(
+                status: currentUserID.isEmpty ? .unverified : .verified,
+                title: "User Identified",
+                subtitle: !currentUserID.isEmpty && isAnonymous ? "Anonymous User" : currentUserID,
+                detailText: currentUserID
+            )
+        }
+
+        var body: some View {
+            ListItemRowView(item: statusItem)
+        }
+    }
+
+    private struct EventsSectionHeader: View {
+        @Binding var selection: LoggedEvent.EventType?
+
+        let options: [LoggedEvent.EventType?] = [nil] + LoggedEvent.EventType.allCases
 
         private var title: String {
             if let description = selection?.description {
@@ -91,7 +211,7 @@ internal enum DebugUI {
     }
 
     private struct EventDetailView: View {
-        let event: DebugViewModel.LoggedEvent
+        let event: LoggedEvent
 
         var body: some View {
             List {
@@ -115,8 +235,15 @@ internal enum DebugUI {
         }
     }
 
-    private struct ListItemRowView: View {
-        let item: DebugViewModel.StatusItem
+    struct ListItemRowView<Action: View>: View {
+        let item: StatusItem
+
+        var action: () -> Action
+
+        init(item: StatusItem, @ViewBuilder action: @escaping () -> Action) {
+            self.item = item
+            self.action = action
+        }
 
         var body: some View {
              HStack {
@@ -129,16 +256,8 @@ internal enum DebugUI {
                          Text(subtitle).font(.caption)
                      }
                  }
-                 if let action = item.action {
-                     Spacer()
-                     Button {
-                         action.block()
-                     } label: {
-                         Image(systemName: action.symbolName)
-                             .imageScale(.small)
-                     }
-                     .foregroundColor(.secondary)
-                 }
+                 Spacer()
+                 action()
              }
              .ifLet(item.detailText) { view, detail in
                  view.contextMenu {
@@ -173,4 +292,11 @@ internal enum DebugUI {
         }
     }
 
+}
+
+@available(iOS 13.0, *)
+extension DebugUI.ListItemRowView where Action == EmptyView {
+    init(item: StatusItem) {
+        self.init(item: item) { EmptyView() }
+    }
 }
