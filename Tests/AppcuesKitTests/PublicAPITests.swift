@@ -31,7 +31,6 @@ class PublicAPITests: XCTestCase {
             .additionalAutoProperties(["test": "value"])
             .enableUniversalLinks(true)
             .enableTextScaling(true)
-            .bundleFontsPath("assets/fonts")
 
         let appcuesInstance = Appcues(config: config)
 

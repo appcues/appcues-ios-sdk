@@ -12,7 +12,6 @@ import SwiftUI
 @available(iOS 13.0, *)
 internal class DebugViewModel: ObservableObject {
     private let networking: Networking
-    private let bundleFontsPath: String?
 
     // MARK: Navigation
     @Published var navigationDestination: DebugDestination?
@@ -87,33 +86,23 @@ internal class DebugViewModel: ObservableObject {
         return currentUserID
     }
 
-    init(
-        networking: Networking,
-        accountID: String,
-        applicationID: String,
-        currentUserID: String,
-        isAnonymous: Bool,
-        bundleFontsPath: String?
-    ) {
+    init(networking: Networking, accountID: String, applicationID: String, currentUserID: String, isAnonymous: Bool) {
         self.networking = networking
         self.accountID = accountID
         self.applicationID = applicationID
         self.currentUserID = currentUserID
         self.isAnonymous = isAnonymous
         self.userIdentified = !currentUserID.isEmpty
-        self.bundleFontsPath = bundleFontsPath
 
         connectedStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.ping() }
         deepLinkStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.verifyDeepLink() }
     }
 
     func fonts() -> [(title: String, names: [String])] {
-        let uiAppFontPaths = (Bundle.main.infoDictionary?["UIAppFonts"] as? [String] ?? []).compactMap { Bundle.main.url(forResource: $0, withExtension: nil) }
-        let customBundleFontPaths = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: bundleFontsPath) ?? []
-
-        let familyNames: [String] = (uiAppFontPaths + customBundleFontPaths)
-            .compactMap { resourceURL in
-                if let fontData = try? Data(contentsOf: resourceURL),
+        let familyNames: [String] = (Bundle.main.infoDictionary?["UIAppFonts"] as? [String] ?? [])
+            .compactMap { resourceName in
+                if let url = Bundle.main.url(forResource: resourceName, withExtension: nil),
+                   let fontData = try? Data(contentsOf: url),
                    let fontDataProvider = CGDataProvider(data: fontData as CFData),
                    let font = CGFont(fontDataProvider),
                    let name = font.postScriptName {

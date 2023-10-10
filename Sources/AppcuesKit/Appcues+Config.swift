@@ -48,8 +48,6 @@ public extension Appcues {
 
         var enableTextScaling = false
 
-        var bundleFontsPath: String?
-
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
         /// - Parameter applicationID: Appcues Application ID - a string containing a UUID,
@@ -194,51 +192,6 @@ public extension Appcues {
         @objc
         public func enableTextScaling(_ enabled: Bool) -> Self {
             self.enableTextScaling = enabled
-            return self
-        }
-
-        /// Set a custom path to font assets in the app bundle.
-        ///
-        /// Any `.ttf` files in the specified subdirectory will be registered for usage across your application.
-        ///
-        /// Usage of this configuration option is unnecessary if your custom fonts are registered in your Info.plist `UIAppFonts` as
-        /// [recommended by Apple](https://developer.apple.com/documentation/uikit/text_display_and_fonts/adding_a_custom_font_to_your_app).
-        ///
-        /// - Parameter path: Path to font files. Leading and trailing slashes are optional.
-        /// - Returns: The `Configuration` object.
-        @discardableResult
-        @objc
-        public func bundleFontsPath(_ path: String?) -> Self {
-            self.bundleFontsPath = path
-
-            if let path = path {
-                let fontResources = Bundle.main.urls(forResourcesWithExtension: "ttf", subdirectory: path) ?? []
-
-                if fontResources.isEmpty {
-                    logger.info(
-                        "No fonts found in main bundle in subdirectory %{public}s",
-                        path
-                    )
-                }
-
-                fontResources.forEach { fontURL in
-                    var error: Unmanaged<CFError>?
-
-                    if !CTFontManagerRegisterFontsForURL(fontURL as CFURL, .process, &error) {
-                        logger.info(
-                            "Error registering font %{public}s %{public}s",
-                            fontURL.lastPathComponent,
-                            error?.takeUnretainedValue().localizedDescription ?? ""
-                        )
-                    } else {
-                        logger.info(
-                            "Successfully registered font at %{public}s",
-                            fontURL.lastPathComponent
-                        )
-                    }
-                }
-            }
-
             return self
         }
     }
