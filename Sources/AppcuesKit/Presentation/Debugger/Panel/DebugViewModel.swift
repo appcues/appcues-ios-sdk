@@ -8,10 +8,11 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 @available(iOS 13.0, *)
 internal class DebugViewModel: ObservableObject {
-    private let networking: Networking
+    private let storage: DataStoring
 
     // MARK: Navigation
     @Published var navigationDestination: DebugDestination?
@@ -20,138 +21,42 @@ internal class DebugViewModel: ObservableObject {
         set { navigationDestination = newValue ? .fonts : nil }
     }
 
-    // MARK: Recent Events
-    @Published private(set) var events: [LoggedEvent] = []
-    @Published private(set) var latestEvent: LoggedEvent?
+    private var events: [LoggedEvent] = []
+    let subject = PassthroughSubject<LoggedEvent, Never>()
 
     // MARK: Status Overview
     let accountID: String
     let applicationID: String
-    @Published var currentUserID: String {
-        didSet {
-            userIdentified = !currentUserID.isEmpty
-        }
+    @Published var currentUserID: String = ""
+
+    @Published var filter: LoggedEvent.EventType?
+    var filteredEvents: [LoggedEvent] {
+        guard let filter = filter else { return events }
+        return events.filter { $0.type == filter }
     }
-    @Published var filter: DebugViewModel.LoggedEvent.EventType?
-    @Published private(set) var connectedStatus = StatusItem(
-        status: .pending,
-        title: "Connected to Appcues"
-    )
-    @Published private(set) var deepLinkStatus = StatusItem(
-        status: .pending,
-        title: "Appcues Deep Link",
-        subtitle: "Tap to check configuration"
-    )
-    @Published private(set) var trackingPages = false
-    @Published private(set) var userIdentified = false
+
+    @Published var trackingPages = false
     @Published var isAnonymous = false
 
     @Published var experienceStatuses: [StatusItem] = []
     private let syncQueue = DispatchQueue(label: "appcues-status-listing")
 
-    /// Unique value to pass through a deep link to verify handling.
-    private var deepLinkVerificationToken: String?
-
-    var statusItems: [StatusItem] {
-        return [
-            StatusItem(
-                status: .info,
-                title: "\(UIDevice.current.modelName) iOS \(UIDevice.current.systemVersion)"
-            ),
-            StatusItem(
-                status: .verified,
-                title: "Installed SDK \(Appcues.version())",
-                subtitle: "Account ID: \(accountID)\nApplication ID: \(applicationID)"
-            ),
-            connectedStatus,
-            deepLinkStatus,
-            StatusItem(
-                status: trackingPages ? .verified : .pending,
-                title: "Tracking Screens",
-                subtitle: trackingPages ? nil : "Navigate to another screen to test"
-            ),
-            StatusItem(
-                status: userIdentified ? .verified : .unverified,
-                title: "User Identified",
-                subtitle: userDescription,
-                detailText: currentUserID
-            )
-        ] + experienceStatuses
-    }
-
-    private var userDescription: String {
-        if userIdentified, isAnonymous {
-            return "Anonymous User"
-        }
-        return currentUserID
-    }
-
-    init(networking: Networking, accountID: String, applicationID: String, currentUserID: String, isAnonymous: Bool) {
-        self.networking = networking
+    init(storage: DataStoring, accountID: String, applicationID: String) {
+        self.storage = storage
         self.accountID = accountID
         self.applicationID = applicationID
-        self.currentUserID = currentUserID
-        self.isAnonymous = isAnonymous
-        self.userIdentified = !currentUserID.isEmpty
-
-        connectedStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.ping() }
-        deepLinkStatus.action = Action(symbolName: "arrow.triangle.2.circlepath") { [weak self] in self?.verifyDeepLink() }
-    }
-
-    func fonts() -> [(title: String, names: [String])] {
-        let familyNames: [String] = (Bundle.main.infoDictionary?["UIAppFonts"] as? [String] ?? [])
-            .compactMap { resourceName in
-                if let url = Bundle.main.url(forResource: resourceName, withExtension: nil),
-                   let fontData = try? Data(contentsOf: url),
-                   let fontDataProvider = CGDataProvider(data: fontData as CFData),
-                   let font = CGFont(fontDataProvider),
-                   let name = font.postScriptName {
-                    let ctfont = CTFontCreateWithName(name, 17, nil)
-                    return CTFontCopyFamilyName(ctfont) as String
-                } else {
-                    return nil
-                }
-            }
-
-        let appFonts = Set(familyNames).sorted().flatMap { UIFont.fontNames(forFamilyName: $0) }
-        let systemFonts = Font.Design.allCases.flatMap { design in
-            Font.Weight.allCases.map { weight in
-                "System \(design.description) \(weight.description)"
-            }
-        }
-        let allFonts = UIFont.familyNames.flatMap { UIFont.fontNames(forFamilyName: $0) }
-
-        return [
-            ("App-Specific Fonts", appFonts),
-            ("System Fonts", systemFonts),
-            ("All Fonts", allFonts)
-        ]
     }
 
     func reset() {
         filter = nil
         events.removeAll()
-        latestEvent = nil
         trackingPages = false
+        currentUserID = storage.userID
+        isAnonymous = storage.isAnonymous
     }
 
-    // MARK: Event Handling
-
-    func addUpdate(_ update: TrackingUpdate) {
-        let event = LoggedEvent(from: update)
-
-        trackingPages = trackingPages || event.type == .screen
-
-        latestEvent = event
-
-        if event.type == .experience, let properties = LifecycleEvent.restructure(update: update) {
-            // Perform updates sequentially to be safe because the order of the array can change.
-            syncQueue.async { [weak self] in
-                self?.handleExperienceEvent(properties: properties)
-            }
-        }
-
-        events.append(event)
+    func removeExperienceStatus(id: UUID) {
+        self.experienceStatuses = self.experienceStatuses.filter { $0.id != id }
     }
 
     // Expects to be called on a background thread.
@@ -159,25 +64,15 @@ internal class DebugViewModel: ObservableObject {
         var experienceStatuses = experienceStatuses
         let existingIndex = experienceStatuses.firstIndex { $0.id == properties.experienceID }
 
-        let status: Status
+        let status: StatusItem.Status
         let title: String
         var subtitle: String?
-        var action: Action?
 
         switch properties.type {
         case .experienceError, .stepError:
             status = .unverified
             title = "Content Omitted: \(properties.experienceName)"
-            if let message = properties.message {
-                subtitle = message
-            }
-            // Add a dismiss button to remove the row. Non-error rows are automatically removed when the experience completes.
-            action = Action(symbolName: "xmark") { [weak self] in
-                guard let self = self else { return }
-                DispatchQueue.main.async {
-                    self.experienceStatuses = self.experienceStatuses.filter { $0.id != properties.experienceID }
-                }
-            }
+            subtitle = properties.message
         case .stepSeen:
             status = .verified
             title = "Showing \(properties.experienceName)"
@@ -200,7 +95,7 @@ internal class DebugViewModel: ObservableObject {
             return
         }
 
-        let updatedStatus = StatusItem(status: status, title: title, subtitle: subtitle, id: properties.experienceID, action: action)
+        let updatedStatus = StatusItem(status: status, title: title, subtitle: subtitle, id: properties.experienceID)
 
         if let existingIndex = existingIndex {
             experienceStatuses[existingIndex] = updatedStatus
@@ -213,298 +108,29 @@ internal class DebugViewModel: ObservableObject {
             self.experienceStatuses = experienceStatuses.sorted { $0.status == .verified && $1.status == .unverified }
         }
     }
+}
 
-    // MARK: API Connection Status
+@available(iOS 13.0, *)
+extension DebugViewModel: AnalyticsSubscribing {
+    func track(update: TrackingUpdate) {
+        // Publishing changes must from the main thread.
+        DispatchQueue.main.async { [unowned self] in
+            self.currentUserID = self.storage.userID
+            self.isAnonymous = self.storage.isAnonymous
 
-    func ping() {
-        connectedStatus.status = .pending
-        connectedStatus.subtitle = nil
-        connectedStatus.detailText = nil
+            let event = LoggedEvent(from: update)
+            self.trackingPages = self.trackingPages || event.type == .screen
 
-        networking.get(from: APIEndpoint.health, authorization: nil) { [weak self] (result: Result<ActivityResponse, Error>) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    self?.connectedStatus.status = .verified
-                case .failure(let error):
-                    self?.connectedStatus.status = .unverified
-                    self?.connectedStatus.subtitle = error.localizedDescription
-                    self?.connectedStatus.detailText = "\(error)"
+            if event.type == .experience, let properties = LifecycleEvent.restructure(update: update) {
+                // Perform updates sequentially to be safe because the order of the array can change.
+                syncQueue.async { [weak self] in
+                    self?.handleExperienceEvent(properties: properties)
                 }
             }
-        }
-    }
 
-    // MARK: Deep Link Status
+            events.append(event)
 
-    func verifyDeepLink() {
-        deepLinkStatus.status = .pending
-        deepLinkStatus.subtitle = nil
-
-        if !infoPlistContainsScheme() {
-            deepLinkStatus.status = .unverified
-            deepLinkStatus.subtitle = "Error 1: CFBundleURLSchemes value missing"
-            return
-        }
-
-        verifyDeepLinkHandling(token: UUID().uuidString)
-    }
-
-    private func infoPlistContainsScheme() -> Bool {
-        guard let urlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] else { return false }
-
-        return urlTypes
-            .flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] }
-            .contains { $0 == "appcues-\(applicationID)" }
-    }
-
-    private func verifyDeepLinkHandling(token: String) {
-        guard let url = URL(string: "appcues-\(applicationID)://sdk/verify/\(token)") else {
-            deepLinkStatus.status = .unverified
-            deepLinkStatus.subtitle = "Error 0: Failed to set up verification"
-            return
-        }
-
-        deepLinkVerificationToken = token
-
-        UIApplication.shared.open(url, options: [:])
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            if self.deepLinkVerificationToken != nil {
-                self.deepLinkStatus.status = .unverified
-                self.deepLinkStatus.subtitle = "Error 2: Appcues SDK not receiving links"
-                self.deepLinkVerificationToken = nil
-            }
-        }
-    }
-
-    func receivedVerification(token: String) {
-        if token == deepLinkVerificationToken {
-            deepLinkStatus.status = .verified
-            deepLinkStatus.subtitle = nil
-        } else {
-            deepLinkStatus.status = .unverified
-            deepLinkStatus.subtitle = "Error 3: Unexpected result"
-        }
-
-        deepLinkVerificationToken = nil
-    }
-}
-
-@available(iOS 13.0, *)
-extension DebugViewModel {
-    enum Status {
-        case verified
-        case pending
-        case unverified
-        case info
-
-        var symbolName: String {
-            switch self {
-            case .verified: return "checkmark"
-            case .pending: return "ellipsis"
-            case .unverified: return "xmark"
-            case .info: return "info.circle"
-            }
-        }
-
-        var tintColor: Color {
-            switch self {
-            case .verified: return .green
-            case .pending: return .gray
-            case .unverified: return .red
-            case .info: return .blue
-            }
-        }
-    }
-
-    struct Action {
-        let symbolName: String
-        let block: () -> Void
-    }
-
-    struct StatusItem: Identifiable {
-        let id: UUID
-        var status: Status
-        let title: String
-        var subtitle: String?
-        var detailText: String?
-        var action: Action?
-
-        init(
-            status: DebugViewModel.Status,
-            title: String,
-            subtitle: String? = nil,
-            detailText: String? = nil,
-            id: UUID = UUID(),
-            action: DebugViewModel.Action? = nil
-        ) {
-            self.id = id
-            self.status = status
-            self.title = title
-            self.subtitle = subtitle
-            self.detailText = detailText
-            self.action = action
-        }
-    }
-
-    struct LoggedEvent: Identifiable {
-        typealias Pair = (title: String, value: String?)
-
-        let id = UUID()
-        let timestamp: Date
-        let type: EventType
-        let name: String
-        let properties: [String: Any]?
-
-        var eventDetailItems: [Pair] {
-            [
-                ("Type", type.description),
-                ("Name", name),
-                ("Timestamp", "\(timestamp)")
-            ]
-        }
-
-        var eventProperties: [(title: String, items: [Pair])]? {
-            guard var properties = properties else { return nil }
-
-            var groups: [(title: String, items: [Pair])] = []
-
-            // flatten the nested `_identity` auto-properties into individual top level items.
-            let autoProps = (properties["_identity"] as? [String: Any] ?? [:])
-                .sortedWithAutoProperties()
-                .map { ($0.key, String(describing: $0.value)) }
-            properties["_identity"] = nil
-
-            // flatten the nested `_sdkMetrics` properties into individual top level items.
-            let metricProps = (properties["_sdkMetrics"] as? [String: Any] ?? [:])
-                .sortedWithAutoProperties()
-                .map { ($0.key, String(describing: $0.value)) }
-            properties["_sdkMetrics"] = nil
-
-            // flatten the nested `interactionData` properties into individual top level items.
-            var interactionData = (properties["interactionData"] as? [String: Any] ?? [:])
-            let formResponse = (interactionData["formResponse"] as? ExperienceData.StepState)?.formattedAsDebugData()
-            interactionData["formResponse"] = nil
-            properties["interactionData"] = nil
-            let interactionProps = interactionData
-                .sortedWithAutoProperties()
-                .map { ($0.key, String(describing: $0.value)) }
-
-            let userProps = properties
-                .sortedWithAutoProperties()
-                .map { ($0.key, String(describing: $0.value)) }
-
-            if !userProps.isEmpty {
-                groups.append(("Properties", userProps))
-            }
-
-            // Other types of interaction data
-            if !interactionProps.isEmpty {
-                groups.append(("Interaction Data", interactionProps))
-            }
-
-            if let formResponse = formResponse, !formResponse.isEmpty {
-                groups.append(("Interaction Data: Form Response", formResponse))
-            }
-
-            if !autoProps.isEmpty {
-                groups.append(("Identity Auto-properties", autoProps))
-            }
-
-            if !metricProps.isEmpty {
-                groups.append(("SDK Metrics", metricProps))
-            }
-
-            return groups
-        }
-
-        init(from update: TrackingUpdate) {
-            self.timestamp = update.timestamp
-            self.properties = update.properties
-
-            switch update.type {
-            case let .event(name, _) where SessionEvents.allNames.contains(name):
-                self.type = .session
-                self.name = name.prettifiedEventName
-            case let .event(name, _) where name.starts(with: "appcues:v2:"):
-                self.type = .experience
-                self.name = name.prettifiedEventName
-            case let .event(name, _):
-                self.type = .custom
-                self.name = name
-            case let .screen(title):
-                self.type = .screen
-                self.name = title
-            case .profile:
-                self.type = .profile
-                self.name = "\(update.properties?["userId"] ?? "Profile Update")"
-            case let .group(groupID):
-                self.type = .group
-                self.name = "\(groupID ?? "-")"
-            }
-        }
-    }
-}
-
-private extension Dictionary where Key == String, Value == Any {
-    func sortedWithAutoProperties() -> [(key: Key, value: Value)] {
-        self.sorted {
-            switch ($0.key.first, $1.key.first) {
-            case ("_", "_"):
-                return $0.key <= $1.key
-            case ("_", _):
-                return false
-            case (_, "_"):
-                return true
-            default:
-                return $0.key <= $1.key
-            }
-        }
-    }
-}
-
-private extension String {
-    var prettifiedEventName: String {
-        self
-            .split(separator: ":")
-            .last?
-            .split(separator: "_")
-            .map { $0.capitalized }
-            .joined(separator: " ") ?? self
-    }
-}
-
-@available(iOS 13.0, *)
-extension DebugViewModel.LoggedEvent {
-    enum EventType: CaseIterable, CustomStringConvertible {
-        case screen
-        case custom
-        case profile
-        case group
-        case session
-        case experience
-
-        var description: String {
-            switch self {
-            case .screen: return "Screen"
-            case .custom: return "Custom"
-            case .profile: return "User Profile"
-            case .group: return "Group"
-            case .session: return "Session"
-            case .experience: return "Experience"
-            }
-        }
-
-        var symbolName: String {
-            switch self {
-            case .screen: return "rectangle.portrait.on.rectangle.portrait"
-            case .custom: return "hand.tap"
-            case .profile: return "person"
-            case .group: return "person.3"
-            case .session: return "clock.arrow.2.circlepath"
-            case .experience: return "arrow.right.square"
-            }
+            subject.send(event)
         }
     }
 }

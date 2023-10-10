@@ -12,14 +12,42 @@ import SwiftUI
 @available(iOS 13.0, *)
 internal enum DebugFontUI {
     struct FontListView: View {
-        let sections: [(title: String, names: [String])]
+        static let sections: [(title: String, names: [String])] = {
+            let familyNames: [String] = (Bundle.main.infoDictionary?["UIAppFonts"] as? [String] ?? [])
+                .compactMap { resourceName in
+                    if let url = Bundle.main.url(forResource: resourceName, withExtension: nil),
+                       let fontData = try? Data(contentsOf: url),
+                       let fontDataProvider = CGDataProvider(data: fontData as CFData),
+                       let font = CGFont(fontDataProvider),
+                       let name = font.postScriptName {
+                        let ctfont = CTFontCreateWithName(name, 17, nil)
+                        return CTFontCopyFamilyName(ctfont) as String
+                    } else {
+                        return nil
+                    }
+                }
+
+            let appFonts = Set(familyNames).sorted().flatMap { UIFont.fontNames(forFamilyName: $0) }
+            let systemFonts = Font.Design.allCases.flatMap { design in
+                Font.Weight.allCases.map { weight in
+                    "System \(design.description) \(weight.description)"
+                }
+            }
+            let allFonts = UIFont.familyNames.flatMap { UIFont.fontNames(forFamilyName: $0) }
+
+            return [
+                ("App-Specific Fonts", appFonts),
+                ("System Fonts", systemFonts),
+                ("All Fonts", allFonts)
+            ]
+        }()
 
         private var filteredSections: [(title: String, names: [String])] {
             let query = searchText.lowercased()
 
-            guard !query.isEmpty else { return sections }
+            guard !query.isEmpty else { return FontListView.sections }
 
-            return sections.compactMap { title, names in
+            return FontListView.sections.compactMap { title, names in
                 let filteredNames = names.filter { $0.lowercased().contains(query) }
                 if !filteredNames.isEmpty {
                     return (title, filteredNames)
