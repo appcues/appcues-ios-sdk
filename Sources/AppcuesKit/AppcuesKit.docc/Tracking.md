@@ -16,6 +16,14 @@ override func viewDidAppear(_ animated: Bool) {
 }
 ```
 
+Or in a SwiftUI application, use the `onAppear(perform:)` view modifier:
+
+```swift
+.onAppear {
+    appcues.screen(title: "Screen Name")
+}
+```
+
 ## Tracking Events
 
 Tracking events lets you target Appcues content based on actions people have or have not taken in your app, and also see the impact of your flow content on user behaviors. An event is tracked with a call to ``Appcues/track(name:properties:)``.
