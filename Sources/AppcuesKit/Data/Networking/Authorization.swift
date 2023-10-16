@@ -8,7 +8,7 @@
 
 import Foundation
 
-internal enum Authorization {
+internal enum Authorization: Equatable {
     case bearer(String)
 
     init?(bearerToken: String?) {

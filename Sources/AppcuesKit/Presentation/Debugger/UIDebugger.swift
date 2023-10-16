@@ -17,6 +17,12 @@ internal protocol UIDebugging: AnyObject {
     func showToast(_ toast: DebugToast)
 }
 
+/// Methods used by ScreenCapturer
+internal protocol ScreenCaptureUI {
+    func showConfirmation(screen: Capture, completion: @escaping (Result<String, Error>) -> Void)
+    func showToast(_ toast: DebugToast)
+}
+
 /// Navigation destinations within the debugger
 internal enum DebugDestination {
     /// Font list screen
@@ -41,6 +47,7 @@ internal class UIDebugger: UIDebugging {
     private var debugWindow: DebugUIWindow?
     private var toastWindow: ToastUIWindow?
 
+    private var screenCapturer: ScreenCapturer
     private var apiVerifier: APIVerifier
     private var deepLinkVerifier: DeepLinkVerifier
     private var viewModel: DebugViewModel
@@ -51,7 +58,6 @@ internal class UIDebugger: UIDebugging {
     private let notificationCenter: NotificationCenter
     private let analyticsPublisher: AnalyticsPublishing
     private let networking: Networking
-    private let experienceRenderer: ExperienceRendering
 
     private var debugViewController: DebugViewController? {
         return debugWindow?.rootViewController as? DebugViewController
@@ -63,10 +69,18 @@ internal class UIDebugger: UIDebugging {
         self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
         self.notificationCenter = container.resolve(NotificationCenter.self)
         self.networking = container.resolve(Networking.self)
-        self.experienceRenderer = container.resolve(ExperienceRendering.self)
 
-        self.apiVerifier = APIVerifier(networking: container.resolve(Networking.self))
-        self.deepLinkVerifier = DeepLinkVerifier(applicationID: config.applicationID)
+        self.screenCapturer = ScreenCapturer(
+            config: config,
+            networking: networking,
+            experienceRenderer: container.resolve(ExperienceRendering.self)
+        )
+        self.apiVerifier = APIVerifier(
+            networking: container.resolve(Networking.self)
+        )
+        self.deepLinkVerifier = DeepLinkVerifier(
+            applicationID: config.applicationID
+        )
         self.viewModel = DebugViewModel(storage: storage, accountID: config.accountID, applicationID: config.applicationID)
 
         notificationCenter.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
@@ -152,7 +166,7 @@ internal class UIDebugger: UIDebugging {
 }
 
 @available(iOS 13.0, *)
-extension UIDebugger: DebugViewDelegate {
+extension UIDebugger: DebugViewDelegate, ScreenCaptureUI {
     func debugView(did event: DebugView.Event) {
         switch event {
         case .hide:
@@ -162,71 +176,17 @@ extension UIDebugger: DebugViewDelegate {
             viewModel.isAnonymous = storage.isAnonymous
             apiVerifier.verifyAPI()
         case let .screenCapture(authorization):
-            captureScreen(authorization: authorization)
+            screenCapturer.captureScreen(
+                window: UIApplication.shared.windows.first(where: { !$0.isAppcuesWindow }),
+                authorization: authorization,
+                captureUI: self
+            )
         case .show, .close, .reposition:
             break
         }
     }
 
-    private func captureScreen(authorization: Authorization) {
-        guard experienceRenderer.experienceData(forContext: .modal) == nil else {
-            experienceRenderer.dismiss(inContext: .modal, markComplete: false) { _ in
-                self.captureScreen(authorization: authorization)
-            }
-            return
-        }
-
-        guard let debugViewController = debugViewController,
-              let window = UIApplication.shared.windows.first(where: { !$0.isAppcuesWindow }),
-              let screenshot = window.screenshot(),
-              let layout = Appcues.elementTargeting.captureLayout() else {
-            let toast = DebugToast(message: .screenCaptureFailure, style: .failure)
-            showToast(toast)
-            return
-        }
-
-        let timestamp = Date()
-        var capture = Capture(
-            appId: config.applicationID,
-            displayName: window.screenCaptureDisplayName(),
-            screenshotImageUrl: nil,
-            layout: layout,
-            metadata: Capture.Metadata(insets: Capture.Insets(window.safeAreaInsets)),
-            timestamp: timestamp,
-            screenshot: screenshot
-        )
-
-        // show confirmation dialog
-        debugViewController.confirmCapture(screen: capture) { [weak self] result in
-            guard let self = self else { return }
-
-            if case let .success(name) = result {
-                // get updated name
-                capture.displayName = name
-
-                // save the screen into the account/app
-                self.saveScreen(debugViewController: debugViewController, capture: capture, authorization: authorization)
-            }
-        }
-    }
-
-    private func saveScreen(debugViewController: DebugViewController, capture: Capture, authorization: Authorization) {
-        self.saveScreenCapture(networking: self.networking, screen: capture, authorization: authorization) { result in
-            switch result {
-            case .success:
-                DispatchQueue.main.async {
-                    let toast = DebugToast(message: .screenCaptureSuccess(displayName: capture.displayName), style: .success)
-                    self.showToast(toast)
-                }
-            case .failure:
-                DispatchQueue.main.async {
-                    let toast = DebugToast(message: .screenUploadFailure, style: .failure, duration: 6.0) {
-                        // onRetry - recursively call save to try again
-                        self.saveScreen(debugViewController: debugViewController, capture: capture, authorization: authorization)
-                    }
-                    self.showToast(toast)
-                }
-            }
-        }
+    func showConfirmation(screen: Capture, completion: @escaping (Result<String, Error>) -> Void) {
+        debugViewController?.confirmCapture(screen: screen, completion: completion)
     }
 }
