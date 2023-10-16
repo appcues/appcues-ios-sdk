@@ -11,7 +11,7 @@ import Combine
 
 @available(iOS 13.0, *)
 internal class APIVerifier {
-    let title = "Connected to Appcues"
+    static let title = "Connected to Appcues"
     let networking: Networking
 
     let subject = PassthroughSubject<StatusItem, Never>()
@@ -21,17 +21,17 @@ internal class APIVerifier {
     }
 
     func verifyAPI() {
-        subject.send(StatusItem(status: .pending, title: title))
+        subject.send(StatusItem(status: .pending, title: APIVerifier.title))
 
         networking.get(from: APIEndpoint.health, authorization: nil) { [weak self] (result: Result<ActivityResponse, Error>) in
             DispatchQueue.main.async {
                 switch result {
                 case .success:
-                    self?.subject.send(StatusItem(status: .verified, title: self?.title ?? ""))
+                    self?.subject.send(StatusItem(status: .verified, title: APIVerifier.title))
                 case .failure(let error):
                     self?.subject.send(StatusItem(
                         status: .unverified,
-                        title: self?.title ?? "",
+                        title: APIVerifier.title,
                         subtitle: error.localizedDescription,
                         detailText: "\(error)"
                     ))
