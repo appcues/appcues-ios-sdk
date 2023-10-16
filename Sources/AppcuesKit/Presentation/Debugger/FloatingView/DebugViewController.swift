@@ -20,14 +20,15 @@ internal class DebugViewController: UIViewController {
     private var debugView = DebugView()
 
     let mode: DebugMode
-    private let apiVerifier: APIVerifier
-    private let deepLinkVerifier: DeepLinkVerifier
-    private let viewModel: DebugViewModel
 
-    init(apiVerifier: APIVerifier, deepLinkVerifier: DeepLinkVerifier, viewModel: DebugViewModel, mode: DebugMode) {
+    let viewModel: DebugViewModel
+    let apiVerifier: APIVerifier
+    let deepLinkVerifier: DeepLinkVerifier
+
+    init(viewModel: DebugViewModel, apiVerifier: APIVerifier, deepLinkVerifier: DeepLinkVerifier, mode: DebugMode) {
+        self.viewModel = viewModel
         self.apiVerifier = apiVerifier
         self.deepLinkVerifier = deepLinkVerifier
-        self.viewModel = viewModel
         self.mode = mode
         super.init(nibName: nil, bundle: nil)
     }
@@ -48,7 +49,11 @@ internal class DebugViewController: UIViewController {
         super.viewDidLoad()
 
         if case .debugger = mode {
-            let panelViewController = UIHostingController(rootView: DebugUI.MainPanelView(apiVerifier: apiVerifier, deepLinkVerifier: deepLinkVerifier, viewModel: viewModel))
+            let panelViewController = UIHostingController(rootView: DebugUI.MainPanelView(
+                apiVerifier: apiVerifier,
+                deepLinkVerifier: deepLinkVerifier,
+                viewModel: viewModel
+            ))
             addChild(panelViewController)
             debugView.panelWrapperView.addSubview(panelViewController.view)
             panelViewController.didMove(toParent: self)
