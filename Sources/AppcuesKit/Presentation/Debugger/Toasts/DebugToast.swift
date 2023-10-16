@@ -14,7 +14,7 @@ internal struct DebugToast {
         case failure
     }
 
-    enum Message {
+    enum Message: Equatable {
         case screenCaptureSuccess(displayName: String)
         case screenCaptureFailure
         case screenUploadFailure

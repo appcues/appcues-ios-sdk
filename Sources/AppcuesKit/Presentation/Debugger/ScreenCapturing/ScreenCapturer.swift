@@ -1,12 +1,12 @@
 //
-//  UIDebugger+Capture.swift
+//  ScreenCapturer.swift
 //  AppcuesKit
 //
 //  Created by James Ellis on 2/16/23.
 //  Copyright © 2023 Appcues. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 internal enum ScreenCaptureError: Error {
     case customerAPINotFound
@@ -15,9 +15,78 @@ internal enum ScreenCaptureError: Error {
 }
 
 @available(iOS 13.0, *)
-extension UIDebugger {
+internal class ScreenCapturer {
+    private let config: Appcues.Config
+    private let networking: Networking
+    private let experienceRenderer: ExperienceRendering
 
-    func saveScreenCapture(
+    init(config: Appcues.Config, networking: Networking, experienceRenderer: ExperienceRendering) {
+        self.config = config
+        self.networking = networking
+        self.experienceRenderer = experienceRenderer
+    }
+
+    func captureScreen(window: UIWindow?, authorization: Authorization, captureUI: ScreenCaptureUI) {
+        guard experienceRenderer.experienceData(forContext: .modal) == nil else {
+            experienceRenderer.dismiss(inContext: .modal, markComplete: false) { _ in
+                self.captureScreen(window: window, authorization: authorization, captureUI: captureUI)
+            }
+            return
+        }
+
+        guard let window = window,
+              let screenshot = window.screenshot(),
+              let layout = Appcues.elementTargeting.captureLayout() else {
+            let toast = DebugToast(message: .screenCaptureFailure, style: .failure)
+            captureUI.showToast(toast)
+            return
+        }
+
+        let timestamp = Date()
+        var capture = Capture(
+            appId: config.applicationID,
+            displayName: window.screenCaptureDisplayName(),
+            screenshotImageUrl: nil,
+            layout: layout,
+            metadata: Capture.Metadata(insets: Capture.Insets(window.safeAreaInsets)),
+            timestamp: timestamp,
+            screenshot: screenshot
+        )
+
+        captureUI.showConfirmation(screen: capture) { [weak self] result in
+            guard let self = self else { return }
+
+            if case let .success(name) = result {
+                // get updated name
+                capture.displayName = name
+
+                // save the screen into the account/app
+                self.saveScreen(captureUI: captureUI, capture: capture, authorization: authorization)
+            }
+        }
+    }
+
+    private func saveScreen(captureUI: ScreenCaptureUI, capture: Capture, authorization: Authorization) {
+        saveScreenCapture(networking: networking, screen: capture, authorization: authorization) { result in
+            switch result {
+            case .success:
+                DispatchQueue.main.async {
+                    let toast = DebugToast(message: .screenCaptureSuccess(displayName: capture.displayName), style: .success)
+                    captureUI.showToast(toast)
+                }
+            case .failure:
+                DispatchQueue.main.async {
+                    let toast = DebugToast(message: .screenUploadFailure, style: .failure, duration: 6.0) {
+                        // onRetry - recursively call save to try again
+                        self.saveScreen(captureUI: captureUI, capture: capture, authorization: authorization)
+                    }
+                    captureUI.showToast(toast)
+                }
+            }
+        }
+    }
+
+    private func saveScreenCapture(
         networking: Networking,
         screen: Capture,
         authorization: Authorization,
