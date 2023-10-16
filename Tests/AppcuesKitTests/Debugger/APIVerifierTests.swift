@@ -37,8 +37,8 @@ class APIVerifierTests: XCTestCase {
             }
             .store(in: &cancellables)
 
-        networking.onGet = { endpoint, _ in
-            return .success(ActivityResponse(ok: true))
+        networking.onGet = { endpoint, _, completion in
+            completion(.success(ActivityResponse(ok: true)))
         }
 
         // Act
@@ -65,8 +65,8 @@ class APIVerifierTests: XCTestCase {
             }
             .store(in: &cancellables)
 
-        networking.onGet = { endpoint, _ in
-            return .failure(NetworkingError.nonSuccessfulStatusCode(500))
+        networking.onGet = { endpoint, _, completion in
+            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500)))
         }
 
         // Act
