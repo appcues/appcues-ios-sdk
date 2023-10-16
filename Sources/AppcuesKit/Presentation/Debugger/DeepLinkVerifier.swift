@@ -17,25 +17,27 @@ internal class DeepLinkVerifier {
     /// Unique value to pass through a deep link to verify handling.
     private var deepLinkVerificationToken: String?
 
+    var urlTypes: [[String: Any]]? { Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] }
+
     let subject = PassthroughSubject<StatusItem, Never>()
 
     init(applicationID: String) {
         self.applicationID = applicationID
     }
 
-    func verifyDeepLink() {
+    func verifyDeepLink(token: UUID = UUID()) {
+        subject.send(StatusItem(status: .pending, title: title, subtitle: nil))
+
         guard infoPlistContainsScheme() else {
             subject.send(StatusItem(status: .unverified, title: title, subtitle: "Error 1: CFBundleURLSchemes value missing"))
             return
         }
 
-        subject.send(StatusItem(status: .pending, title: title, subtitle: nil))
-
-        verifyDeepLinkHandling(token: UUID().uuidString)
+        verifyDeepLinkHandling(token: token.uuidString)
     }
 
     private func infoPlistContainsScheme() -> Bool {
-        guard let urlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] else { return false }
+        guard let urlTypes = urlTypes else { return false }
 
         return urlTypes
             .flatMap { $0["CFBundleURLSchemes"] as? [String] ?? [] }
