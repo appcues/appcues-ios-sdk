@@ -18,6 +18,8 @@ internal struct LoggedEvent: Identifiable {
     let name: String
     let properties: [String: Any]?
 
+    let structuredLifecycleProperties: StructuredLifecycleProperties?
+
     var eventDetailItems: [Pair] {
         [
             ("Type", type.description),
@@ -104,6 +106,8 @@ internal struct LoggedEvent: Identifiable {
             self.type = .group
             self.name = "\(groupID ?? "-")"
         }
+
+        self.structuredLifecycleProperties = StructuredLifecycleProperties(update: update)
     }
 }
 

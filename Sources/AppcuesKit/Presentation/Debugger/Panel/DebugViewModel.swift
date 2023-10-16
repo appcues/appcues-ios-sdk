@@ -13,6 +13,7 @@ import Combine
 @available(iOS 13.0, *)
 internal class DebugViewModel: ObservableObject {
     private let storage: DataStoring
+    private var cancellables = Set<AnyCancellable>()
 
     // MARK: Navigation
     @Published var navigationDestination: DebugDestination?
@@ -22,12 +23,13 @@ internal class DebugViewModel: ObservableObject {
     }
 
     private var events: [LoggedEvent] = []
-    let subject = PassthroughSubject<LoggedEvent, Never>()
 
     // MARK: Status Overview
     let accountID: String
     let applicationID: String
     @Published var currentUserID: String = ""
+    @Published var isAnonymous = false
+    @Published var trackingPages = false
 
     @Published var filter: LoggedEvent.EventType?
     var filteredEvents: [LoggedEvent] {
@@ -35,16 +37,37 @@ internal class DebugViewModel: ObservableObject {
         return events.filter { $0.type == filter }
     }
 
-    @Published var trackingPages = false
-    @Published var isAnonymous = false
-
     @Published var experienceStatuses: [StatusItem] = []
-    private let syncQueue = DispatchQueue(label: "appcues-status-listing")
 
-    init(storage: DataStoring, accountID: String, applicationID: String) {
+    init(eventPublisher: AnyPublisher<LoggedEvent, Never>, storage: DataStoring, accountID: String, applicationID: String) {
         self.storage = storage
         self.accountID = accountID
         self.applicationID = applicationID
+
+        self.currentUserID = storage.userID
+        self.isAnonymous = storage.isAnonymous
+
+        // Subscriber to update the experience status list
+        eventPublisher
+            .receive(on: DispatchQueue.main)
+            .compactMap { [weak self] in
+                self?.mapToExperienceStatusList(event: $0)
+            }
+            .sink { [weak self] statuses in
+                self?.experienceStatuses = statuses
+            }
+            .store(in: &cancellables)
+
+        eventPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] event in
+                guard let strongSelf = self else { return }
+                strongSelf.currentUserID = storage.userID
+                strongSelf.isAnonymous = storage.isAnonymous
+                strongSelf.trackingPages = strongSelf.trackingPages || event.type == .screen
+                strongSelf.events.append(event)
+            }
+            .store(in: &cancellables)
     }
 
     func reset() {
@@ -59,10 +82,11 @@ internal class DebugViewModel: ObservableObject {
         self.experienceStatuses = self.experienceStatuses.filter { $0.id != id }
     }
 
-    // Expects to be called on a background thread.
-    private func handleExperienceEvent(properties: LifecycleEvent.EventProperties) {
-        var experienceStatuses = experienceStatuses
-        let existingIndex = experienceStatuses.firstIndex { $0.id == properties.experienceID }
+    private func mapToExperienceStatusList(event: LoggedEvent) -> [StatusItem]? {
+        guard let properties = event.structuredLifecycleProperties else { return nil }
+
+        var statuses = experienceStatuses
+        let existingIndex = statuses.firstIndex { $0.id == properties.experienceID }
 
         let status: StatusItem.Status
         let title: String
@@ -88,49 +112,20 @@ internal class DebugViewModel: ObservableObject {
             title = "Showing \(properties.experienceName)"
         case .experienceCompleted, .experienceDismissed:
             if let existingIndex = existingIndex {
-                DispatchQueue.main.sync {
-                    _ = self.experienceStatuses.remove(at: existingIndex)
-                }
+                statuses.remove(at: existingIndex)
             }
-            return
+            return statuses
         }
 
         let updatedStatus = StatusItem(status: status, title: title, subtitle: subtitle, id: properties.experienceID)
 
         if let existingIndex = existingIndex {
-            experienceStatuses[existingIndex] = updatedStatus
+            statuses[existingIndex] = updatedStatus
         } else {
-            experienceStatuses.append(updatedStatus)
+            statuses.append(updatedStatus)
         }
 
-        DispatchQueue.main.sync {
-            // Errors are listed last
-            self.experienceStatuses = experienceStatuses.sorted { $0.status == .verified && $1.status == .unverified }
-        }
-    }
-}
-
-@available(iOS 13.0, *)
-extension DebugViewModel: AnalyticsSubscribing {
-    func track(update: TrackingUpdate) {
-        // Publishing changes must from the main thread.
-        DispatchQueue.main.async { [unowned self] in
-            self.currentUserID = self.storage.userID
-            self.isAnonymous = self.storage.isAnonymous
-
-            let event = LoggedEvent(from: update)
-            self.trackingPages = self.trackingPages || event.type == .screen
-
-            if event.type == .experience, let properties = LifecycleEvent.restructure(update: update) {
-                // Perform updates sequentially to be safe because the order of the array can change.
-                syncQueue.async { [weak self] in
-                    self?.handleExperienceEvent(properties: properties)
-                }
-            }
-
-            events.append(event)
-
-            subject.send(event)
-        }
+        // Errors are listed last
+        return statuses.sorted { $0.status == .verified && $1.status == .unverified }
     }
 }

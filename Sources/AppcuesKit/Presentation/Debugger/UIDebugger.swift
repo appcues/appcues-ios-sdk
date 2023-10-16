@@ -48,16 +48,16 @@ internal class UIDebugger: UIDebugging {
     private var toastWindow: ToastUIWindow?
 
     private var screenCapturer: ScreenCapturer
-    private var apiVerifier: APIVerifier
-    private var deepLinkVerifier: DeepLinkVerifier
-    private var viewModel: DebugViewModel
-    private var cancellable: AnyCancellable?
 
     private let config: Appcues.Config
     private let storage: DataStoring
     private let notificationCenter: NotificationCenter
     private let analyticsPublisher: AnalyticsPublishing
     private let networking: Networking
+
+    private let subject = PassthroughSubject<LoggedEvent, Never>()
+    var eventPublisher: AnyPublisher<LoggedEvent, Never> { subject.eraseToAnyPublisher() }
+    private var cancellable = Set<AnyCancellable>()
 
     private var debugViewController: DebugViewController? {
         return debugWindow?.rootViewController as? DebugViewController
@@ -75,19 +75,12 @@ internal class UIDebugger: UIDebugging {
             networking: networking,
             experienceRenderer: container.resolve(ExperienceRendering.self)
         )
-        self.apiVerifier = APIVerifier(
-            networking: container.resolve(Networking.self)
-        )
-        self.deepLinkVerifier = DeepLinkVerifier(
-            applicationID: config.applicationID
-        )
-        self.viewModel = DebugViewModel(storage: storage, accountID: config.accountID, applicationID: config.applicationID)
 
         notificationCenter.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
     }
 
     func verifyInstall(token: String) {
-        deepLinkVerifier.receivedVerification(token: token)
+        debugViewController?.deepLinkVerifier.receivedVerification(token: token)
     }
 
     func show(mode: DebugMode) {
@@ -97,6 +90,13 @@ internal class UIDebugger: UIDebugging {
             }
             return
         }
+
+        let viewModel = DebugViewModel(
+            eventPublisher: eventPublisher,
+            storage: storage,
+            accountID: config.accountID,
+            applicationID: config.applicationID
+        )
 
         defer {
             if case let .debugger(destination) = mode {
@@ -123,24 +123,30 @@ internal class UIDebugger: UIDebugging {
             return
         }
 
-        analyticsPublisher.register(subscriber: viewModel)
-        let rootViewController = DebugViewController(apiVerifier: apiVerifier, deepLinkVerifier: deepLinkVerifier, viewModel: viewModel, mode: mode)
+        analyticsPublisher.register(subscriber: self)
+        let rootViewController = DebugViewController(
+            viewModel: viewModel,
+            apiVerifier: APIVerifier(networking: networking),
+            deepLinkVerifier: DeepLinkVerifier(applicationID: config.applicationID),
+            mode: mode
+        )
         rootViewController.delegate = self
 
-        cancellable = viewModel.subject.sink {
-            guard case .debugger = mode else { return }
-            rootViewController.logFleeting(message: $0.name, symbolName: $0.type.symbolName)
-        }
+        eventPublisher
+            .sink { [weak rootViewController] in
+                guard case .debugger = mode else { return }
+                rootViewController?.logFleeting(message: $0.name, symbolName: $0.type.symbolName)
+            }
+            .store(in: &cancellable)
 
         debugWindow = DebugUIWindow(windowScene: windowScene, rootViewController: rootViewController)
     }
 
     func hide() {
-        analyticsPublisher.remove(subscriber: viewModel)
+        analyticsPublisher.remove(subscriber: self)
         debugWindow?.isHidden = true
         debugWindow = nil
-        cancellable = nil
-        viewModel.reset()
+        cancellable.removeAll()
     }
 
     func showToast(_ toast: DebugToast) {
@@ -161,7 +167,7 @@ internal class UIDebugger: UIDebugging {
 
     @objc
     private func appcuesReset(notification: Notification) {
-        viewModel.reset()
+        debugViewController?.viewModel.reset()
     }
 }
 
@@ -172,9 +178,7 @@ extension UIDebugger: DebugViewDelegate, ScreenCaptureUI {
         case .hide:
             hide()
         case .open:
-            viewModel.currentUserID = storage.userID
-            viewModel.isAnonymous = storage.isAnonymous
-            apiVerifier.verifyAPI()
+            debugViewController?.apiVerifier.verifyAPI()
         case let .screenCapture(authorization):
             screenCapturer.captureScreen(
                 window: UIApplication.shared.windows.first(where: { !$0.isAppcuesWindow }),
@@ -188,5 +192,17 @@ extension UIDebugger: DebugViewDelegate, ScreenCaptureUI {
 
     func showConfirmation(screen: Capture, completion: @escaping (Result<String, Error>) -> Void) {
         debugViewController?.confirmCapture(screen: screen, completion: completion)
+    }
+}
+
+@available(iOS 13.0, *)
+extension UIDebugger: AnalyticsSubscribing {
+    func track(update: TrackingUpdate) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async { self.track(update: update) }
+            return
+        }
+
+        subject.send(LoggedEvent(from: update))
     }
 }
