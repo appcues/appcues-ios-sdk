@@ -86,8 +86,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertNotNil(appcues.storage.lastContentShownAt)
 
         XCTAssertEqual(
-            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
-            LifecycleEvent.EventProperties(
+            try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
+            StructuredLifecycleProperties(
                 type: .stepSeen,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
@@ -123,8 +123,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
-            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
-            LifecycleEvent.EventProperties(
+            try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
+            StructuredLifecycleProperties(
                 type: .stepSeen,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
@@ -161,8 +161,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
-            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
-            LifecycleEvent.EventProperties(
+            try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
+            StructuredLifecycleProperties(
                 type: .stepCompleted,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
@@ -207,8 +207,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
-            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
-            LifecycleEvent.EventProperties(
+            try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
+            StructuredLifecycleProperties(
                 type: .experienceDismissed,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
@@ -241,8 +241,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
-            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
-            LifecycleEvent.EventProperties(
+            try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
+            StructuredLifecycleProperties(
                 type: .experienceCompleted,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
@@ -273,8 +273,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
-            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
-            LifecycleEvent.EventProperties(
+            try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
+            StructuredLifecycleProperties(
                 type: .experienceCompleted,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
@@ -310,8 +310,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
-            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
-            LifecycleEvent.EventProperties(
+            try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
+            StructuredLifecycleProperties(
                 type: .experienceError,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
@@ -352,8 +352,8 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
 
         XCTAssertEqual(
-            try XCTUnwrap(LifecycleEvent.restructure(update: lastUpdate)),
-            LifecycleEvent.EventProperties(
+            try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
+            StructuredLifecycleProperties(
                 type: .stepError,
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
