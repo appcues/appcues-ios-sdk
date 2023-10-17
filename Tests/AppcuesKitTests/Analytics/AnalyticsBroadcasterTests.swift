@@ -135,7 +135,7 @@ class AnalyticsBroadcasterTests: XCTestCase {
                         "fieldRequired": true,
                         "value": "default value",
                         "label": "Form label"
-                    ]
+                    ] as [String : Any]
                 ]
             ]
         ].verifyPropertiesMatch(delegate.lastProperties)
