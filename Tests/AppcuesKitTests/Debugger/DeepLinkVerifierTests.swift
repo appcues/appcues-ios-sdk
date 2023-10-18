@@ -26,7 +26,7 @@ class DeepLinkVerifierTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Publishes values then finishes")
         var values: [StatusItem] = []
 
-        deepLinkVerifier.subject
+        deepLinkVerifier.publisher
             .sink {
                 values.append($0)
                 if values.count == 2 {
@@ -57,7 +57,7 @@ class DeepLinkVerifierTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Publishes values then finishes")
         var values: [StatusItem] = []
 
-        deepLinkVerifier.subject
+        deepLinkVerifier.publisher
             .sink {
                 values.append($0)
                 if values.count == 2 {
@@ -74,7 +74,7 @@ class DeepLinkVerifierTests: XCTestCase {
 
         // Assert
         wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(values.count, 2, "a pending value and a success one")
+        XCTAssertEqual(values.count, 2, "a pending value and an unverified one")
         XCTAssertEqual(values[safe: 0]?.status, .pending)
         XCTAssertEqual(values[safe: 1]?.status, .unverified)
         XCTAssertEqual(values[safe: 1]?.subtitle, "Error 0: Failed to set up verification")
@@ -85,7 +85,7 @@ class DeepLinkVerifierTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Publishes values then finishes")
         var values: [StatusItem] = []
 
-        deepLinkVerifier.subject
+        deepLinkVerifier.publisher
             .sink {
                 values.append($0)
                 if values.count == 2 {
@@ -102,7 +102,7 @@ class DeepLinkVerifierTests: XCTestCase {
 
         // Assert
         wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(values.count, 2, "a pending value and a success one")
+        XCTAssertEqual(values.count, 2, "a pending value and an unverified one")
         XCTAssertEqual(values[safe: 0]?.status, .pending)
         XCTAssertEqual(values[safe: 1]?.status, .unverified)
         XCTAssertEqual(values[safe: 1]?.subtitle, "Error 1: CFBundleURLSchemes value missing")
@@ -113,7 +113,7 @@ class DeepLinkVerifierTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Publishes values then finishes")
         var values: [StatusItem] = []
 
-        deepLinkVerifier.subject
+        deepLinkVerifier.publisher
             .sink {
                 values.append($0)
                 if values.count == 2 {
@@ -132,7 +132,7 @@ class DeepLinkVerifierTests: XCTestCase {
 
         // Assert
         wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(values.count, 2, "a pending value and a success one")
+        XCTAssertEqual(values.count, 2, "a pending value and an unverified one")
         XCTAssertEqual(values[safe: 0]?.status, .pending)
         XCTAssertEqual(values[safe: 1]?.status, .unverified)
         XCTAssertEqual(values[safe: 1]?.subtitle, "Error 2: Appcues SDK not receiving links")
@@ -143,7 +143,7 @@ class DeepLinkVerifierTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Publishes values then finishes")
         var values: [StatusItem] = []
 
-        deepLinkVerifier.subject
+        deepLinkVerifier.publisher
             .sink {
                 values.append($0)
                 if values.count == 2 {
@@ -162,7 +162,7 @@ class DeepLinkVerifierTests: XCTestCase {
 
         // Assert
         wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(values.count, 2, "a pending value and a success one")
+        XCTAssertEqual(values.count, 2, "a pending value and an unverified one")
         XCTAssertEqual(values[safe: 0]?.status, .pending)
         XCTAssertEqual(values[safe: 1]?.status, .unverified)
         XCTAssertEqual(values[safe: 1]?.subtitle, "Error 3: Unexpected result")

@@ -28,7 +28,7 @@ class APIVerifierTests: XCTestCase {
         let expectation = XCTestExpectation(description: "Publishes values then finishes")
         var values: [StatusItem] = []
 
-        apiVerifier.subject
+        apiVerifier.publisher
             .sink {
                 values.append($0)
                 if values.count == 2 {
@@ -56,7 +56,7 @@ class APIVerifierTests: XCTestCase {
         let expectation = expectation(description: "Publishes values then finishes")
         var values: [StatusItem] = []
 
-        apiVerifier.subject
+        apiVerifier.publisher
             .sink {
                 values.append($0)
                 if values.count == 2 {
@@ -74,7 +74,7 @@ class APIVerifierTests: XCTestCase {
 
         // Assert
         wait(for: [expectation], timeout: 1)
-        XCTAssertEqual(values.count, 2, "a pending value and a success one")
+        XCTAssertEqual(values.count, 2, "a pending value and an unverified one")
         XCTAssertEqual(values[safe: 0]?.status, .pending)
         XCTAssertEqual(values[safe: 1]?.status, .unverified)
     }
