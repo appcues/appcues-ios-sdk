@@ -114,7 +114,7 @@ internal enum DebugUI {
                 }
                 .foregroundColor(.secondary)
             }
-            .onReceive(apiVerifier.subject) {
+            .onReceive(apiVerifier.publisher) {
                 statusItem = $0
             }
         }
@@ -134,7 +134,7 @@ internal enum DebugUI {
                 }
                 .foregroundColor(.secondary)
             }
-            .onReceive(deepLinkVerifier.subject) {
+            .onReceive(deepLinkVerifier.publisher) {
                 statusItem = $0
             }
         }
