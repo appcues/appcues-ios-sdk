@@ -14,7 +14,8 @@ internal class APIVerifier {
     static let title = "Connected to Appcues"
     let networking: Networking
 
-    let subject = PassthroughSubject<StatusItem, Never>()
+    private let subject = PassthroughSubject<StatusItem, Never>()
+    var publisher: AnyPublisher<StatusItem, Never> { subject.eraseToAnyPublisher() }
 
     init(networking: Networking) {
         self.networking = networking

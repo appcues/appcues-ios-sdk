@@ -19,7 +19,8 @@ internal class DeepLinkVerifier {
 
     var urlTypes: [[String: Any]]? { Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] }
 
-    let subject = PassthroughSubject<StatusItem, Never>()
+    private let subject = PassthroughSubject<StatusItem, Never>()
+    var publisher: AnyPublisher<StatusItem, Never> { subject.eraseToAnyPublisher() }
 
     init(applicationID: String) {
         self.applicationID = applicationID
