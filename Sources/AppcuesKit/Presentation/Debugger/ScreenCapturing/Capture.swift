@@ -52,6 +52,32 @@ internal struct Capture: Identifiable {
     // The image data here is sent to a separate endpoint to upload the image, then
     // a URL to that image is returned to use for `screenshotImageUrl` in this capture model
     let screenshot: UIImage
+
+    // Info used on the confirm screen
+    let annotatedScreenshot: UIImage
+    let targetableElementCount: Int
+
+    internal init(
+        appId: String,
+        displayName: String,
+        screenshotImageUrl: URL?,
+        layout: AppcuesViewElement,
+        metadata: Capture.Metadata,
+        timestamp: Date,
+        screenshot: UIImage
+    ) {
+        self.appId = appId
+        self.displayName = displayName
+        self.screenshotImageUrl = screenshotImageUrl
+        self.layout = layout
+        self.metadata = metadata
+        self.timestamp = timestamp
+        self.screenshot = screenshot
+
+        let targetableRects = layout.targetableRects()
+        self.annotatedScreenshot = screenshot.annotate(with: targetableRects)
+        self.targetableElementCount = targetableRects.count
+    }
 }
 
 extension Capture: Encodable {
@@ -64,5 +90,42 @@ extension Capture: Encodable {
         case layout
         case metadata
         case timestamp
+    }
+}
+
+extension UIImage {
+    func annotate(with targetRects: [CGRect]) -> UIImage {
+        let imageSize = self.size
+        UIGraphicsBeginImageContextWithOptions(imageSize, false, 0)
+        defer {
+            UIGraphicsEndImageContext()
+        }
+        guard let context = UIGraphicsGetCurrentContext() else { return self }
+
+        self.draw(at: CGPoint.zero)
+
+        context.setFillColor(UIColor(red: 227 / 255, green: 242 / 255, blue: 255 / 255, alpha: 0.5).cgColor)
+        context.setStrokeColor(UIColor(red: 20 / 255, green: 146 / 255, blue: 255 / 255, alpha: 1).cgColor)
+
+        context.addRects(targetRects)
+        context.drawPath(using: .fillStroke)
+
+        return UIGraphicsGetImageFromCurrentImageContext() ?? self
+    }
+}
+
+extension AppcuesViewElement {
+    func targetableRects() -> [CGRect] {
+        var targetableRects: [CGRect] = []
+
+        if selector != nil {
+            targetableRects.append(CGRect(x: x, y: y, width: width, height: height))
+        }
+
+        children?.forEach { child in
+            targetableRects.append(contentsOf: child.targetableRects())
+        }
+
+        return targetableRects
     }
 }
