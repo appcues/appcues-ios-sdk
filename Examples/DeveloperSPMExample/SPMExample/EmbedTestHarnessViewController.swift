@@ -109,6 +109,9 @@ class EmbedTestHarnessViewController: UIViewController {
                 UIAction(title: "Toggle 'frame2'", image: UIImage(systemName: "photo.artframe")) { [weak self] _ in
                     guard let self = self else { return }
                     self.testHarnessView.toggleFrame(id: "frame2", viewController: self)
+                },
+                UIAction(title: "Identify 'user-1'", image: UIImage(systemName: "person")) { _ in
+                    Appcues.shared.identify(userID: "user-1")
                 }
             ])
 
