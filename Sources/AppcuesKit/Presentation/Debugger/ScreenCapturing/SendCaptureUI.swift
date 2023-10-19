@@ -64,18 +64,14 @@ internal enum SendCaptureUI {
                 VStack(alignment: .leading, spacing: 8) {
                     if capture.targetableElementCount > 0 {
                         Text("Not seeing the element you want highlighted?")
-                        Link(destination: helpLinkURL) {
-                            Text("Read the documentation for troubleshooting.")
-                        }
-                        .foregroundColor(.blue)
                     } else {
-                        Text("Warning: this screen capture has 0 target elements for use with anchored tooltips.")
+                        Text("Warning: this screen capture does not have any targetable elements identified.")
                             .foregroundColor(Color.orange)
-                        Link(destination: helpLinkURL) {
-                            Text("Need help? Read the documentation.")
-                        }
-                        .foregroundColor(.blue)
                     }
+                    Link(destination: helpLinkURL) {
+                        Text("Tap to view troubleshooting documentation.")
+                    }
+                    .foregroundColor(.blue)
                 }
                 .font(.system(size: 14))
                 .frame(maxWidth: .infinity, alignment: .leading)
