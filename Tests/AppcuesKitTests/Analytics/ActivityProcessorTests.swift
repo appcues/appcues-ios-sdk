@@ -44,8 +44,7 @@ class ActivityProcessorTests: XCTestCase {
             do {
                 let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
                 guard case .qualify(activity.userID) = apiEndpoint else { return XCTFail() }
-                let data = try NetworkClient.encoder.encode(activity)
-                XCTAssertEqual(data, body)
+                try XCTUnwrap(body).verifyMatch(activity: activity)
                 onPostExpectation.fulfill()
                 completion(.success(QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)))
             } catch {
@@ -111,8 +110,7 @@ class ActivityProcessorTests: XCTestCase {
                     let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
                     guard case let .activity(userID) = apiEndpoint else { return XCTFail() }
                     XCTAssertEqual("user1", userID)
-                    let data = try NetworkClient.encoder.encode(activity1)
-                    XCTAssertEqual(data, body)
+                    try XCTUnwrap(body).verifyMatch(activity: activity1)
                     completion(.success(QualifyResponse(experiences: [], performedQualification: false, qualificationReason: nil, experiments: nil)))
                     retryExpectation.fulfill()
                 } else if postCount == 3 {
@@ -120,8 +118,7 @@ class ActivityProcessorTests: XCTestCase {
                     let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
                     guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
                     XCTAssertEqual("user2", userID)
-                    let data = try NetworkClient.encoder.encode(activity2)
-                    XCTAssertEqual(data, body)
+                    try XCTUnwrap(body).verifyMatch(activity: activity2)
                     completion(.success(QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)))
                     onPostExpectation2.fulfill()
                 } else {
@@ -175,8 +172,7 @@ class ActivityProcessorTests: XCTestCase {
                     let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
                     guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
                     XCTAssertEqual("user2", userID)
-                    let data = try NetworkClient.encoder.encode(activity2)
-                    XCTAssertEqual(data, body)
+                    try XCTUnwrap(body).verifyMatch(activity: activity2)
                     completion(.success(QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)))
                     onPostExpectation2.fulfill()
                 } else {
@@ -282,24 +278,7 @@ class ActivityProcessorTests: XCTestCase {
                     let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
                     guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
                     XCTAssertEqual("user2", userID)
-                    // Xcode 15+ can no longer compare `body` to activity2 as Data instances directly, even if same
-                    // contents, they may not pass an equality check, so comparing data values within instead
-                    let unwrappedBody = try XCTUnwrap(body)
-                    let bodyJson = try JSONSerialization.jsonObject(with: unwrappedBody, options: []) as? [String : Any]
-                    let unwrappedBodyJson = try XCTUnwrap(bodyJson)
-                    XCTAssertEqual(activity2.userID, unwrappedBodyJson["user_id"] as? String)
-                    XCTAssertEqual(activity2.sessionID, unwrappedBodyJson["session_id"] as? String)
-                    XCTAssertEqual(activity2.requestID.appcuesFormatted, unwrappedBodyJson["request_id"] as? String)
-                    XCTAssertEqual(activity2.accountID, unwrappedBodyJson["account_id"] as? String)
-                    XCTAssertEqual(activity2.groupID, unwrappedBodyJson["group_id"] as? String)
-                    let events = unwrappedBodyJson["events"] as? [[String : Any]]
-                    let unwrappedEvents = try XCTUnwrap(events)
-                    XCTAssertEqual(1, unwrappedEvents.count)
-                    let event = unwrappedEvents[0]
-                    let expectedEvent = try XCTUnwrap(activity2.events?[0])
-                    XCTAssertEqual(expectedEvent.name, event["name"] as? String)
-                    let expectedAttributes = try XCTUnwrap(expectedEvent.attributes)
-                    expectedAttributes.verifyPropertiesMatch(event["attributes"] as? [String : Any])
+                    try XCTUnwrap(body).verifyMatch(activity: activity2)
                     completion(.success(QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)))
                     onPostExpectation2.fulfill()
                 } else {
@@ -406,5 +385,28 @@ extension XCTestCase {
         }
         // We use a buffer here to avoid flakiness with Timer on CI
         wait(for: [waitExpectation], timeout: duration + 0.5)
+    }
+}
+
+private extension Data {
+    // Xcode 15+ can no longer compare `body` Data to and Activity as Data instances directly, even if same
+    // contents, they may not pass an equality check, so comparing data values within instead
+    func verifyMatch(activity: Activity) throws {
+        let bodyJson = try JSONSerialization.jsonObject(with: self, options: []) as? [String : Any]
+        let unwrappedBodyJson = try XCTUnwrap(bodyJson)
+        XCTAssertEqual(activity.userID, unwrappedBodyJson["user_id"] as? String)
+        XCTAssertEqual(activity.sessionID, unwrappedBodyJson["session_id"] as? String)
+        XCTAssertEqual(activity.requestID.appcuesFormatted, unwrappedBodyJson["request_id"] as? String)
+        XCTAssertEqual(activity.accountID, unwrappedBodyJson["account_id"] as? String)
+        XCTAssertEqual(activity.groupID, unwrappedBodyJson["group_id"] as? String)
+        let events = unwrappedBodyJson["events"] as? [[String : Any]]
+        let unwrappedEvents = try XCTUnwrap(events)
+        XCTAssertEqual(activity.events?.count, unwrappedEvents.count)
+        try unwrappedEvents.enumerated().forEach { index, event in
+            let expectedEvent = try XCTUnwrap(activity.events?[index])
+            XCTAssertEqual(expectedEvent.name, event["name"] as? String)
+            let expectedAttributes = try XCTUnwrap(expectedEvent.attributes)
+            expectedAttributes.verifyPropertiesMatch(event["attributes"] as? [String : Any])
+        }
     }
 }
