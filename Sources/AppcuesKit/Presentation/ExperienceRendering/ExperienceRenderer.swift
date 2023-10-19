@@ -137,6 +137,12 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
             return
         }
 
+        guard experience.instanceID != stateMachine.state.currentExperienceData?.instanceID else {
+            // This experience is already showing
+            completion?(.success(()))
+            return
+        }
+
         guard experience.experiment?.shouldExecute ?? true else {
             // if we get here, it means we did have an experiment, but it was the control group and
             // we should not continue. So track experiment_entered analytics for it (always)..
