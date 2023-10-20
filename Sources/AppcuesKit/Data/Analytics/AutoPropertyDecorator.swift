@@ -116,19 +116,6 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_deviceType": UIDevice.current.userInterfaceIdiom.analyticsName,
             "_deviceModel": UIDevice.current.modelName
         ]
-
-        if Thread.isMainThread {
-            updateUserAgent()
-        } else {
-            DispatchQueue.main.sync {
-                self.updateUserAgent()
-            }
-        }
-    }
-
-    private func updateUserAgent() {
-        guard let userAgent = WKWebView().value(forKey: "userAgent") as? String else { return }
-        applicationProperties["_userAgent"] = userAgent
     }
 }
 
