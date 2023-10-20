@@ -67,7 +67,7 @@ class ExperienceRendererTests: XCTestCase {
                 preconditionExpectation.fulfill()
             }
         }
-        XCTAssertEqual(XCTWaiter().wait(for: [preconditionExpectation], timeout: 1), .completed)
+        wait(for: [preconditionExpectation], timeout: 1)
 
         // Act
         experienceRenderer.processAndShow(experience: ExperienceData(experience2.model, trigger: .showCall, priority: .normal, published: true)) { result in
@@ -78,7 +78,7 @@ class ExperienceRendererTests: XCTestCase {
         }
 
         // Assert
-        XCTAssertEqual(XCTWaiter().wait(for: [dismissExpectation, presentExpectation, completionExpectation], timeout: 1), .completed)
+        wait(for: [dismissExpectation, presentExpectation, completionExpectation], timeout: 1)
     }
 
     func testShowWhileBeginningInitialExperienceReplacesExisting() throws {
@@ -135,7 +135,7 @@ class ExperienceRendererTests: XCTestCase {
                 preconditionExpectation.fulfill()
             }
         }
-        XCTAssertEqual(XCTWaiter().wait(for: [preconditionExpectation, presentExpectation], timeout: 1), .completed)
+        wait(for: [preconditionExpectation, presentExpectation], timeout: 1)
 
         // Act
         experienceRenderer.processAndShow(experience: ExperienceData(experience2.model, trigger: .showCall, priority: .low, published: true)) { result in
@@ -146,7 +146,7 @@ class ExperienceRendererTests: XCTestCase {
         }
 
         // Assert
-        XCTAssertEqual(XCTWaiter().wait(for: [failureExpectation], timeout: 1), .completed)
+        wait(for: [failureExpectation], timeout: 1)
     }
 
     func testShowPublishedSameInstanceDoesntReplaceExisting() throws {
@@ -169,7 +169,7 @@ class ExperienceRendererTests: XCTestCase {
                 preconditionExpectation.fulfill()
             }
         }
-        XCTAssertEqual(XCTWaiter().wait(for: [preconditionExpectation], timeout: 1), .completed)
+        wait(for: [preconditionExpectation], timeout: 1)
 
         // Act
         experienceRenderer.processAndShow(experience: ExperienceData(experience.model, trigger: .showCall, priority: .normal, published: true)) { result in
@@ -180,7 +180,7 @@ class ExperienceRendererTests: XCTestCase {
         }
 
         // Assert
-        XCTAssertEqual(XCTWaiter().wait(for: [dismissExpectation, presentExpectation, completionExpectation], timeout: 1), .completed)
+        wait(for: [dismissExpectation, presentExpectation, completionExpectation], timeout: 1)
     }
 
     func testShowUnpublished() throws {
