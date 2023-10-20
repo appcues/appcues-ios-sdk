@@ -45,7 +45,7 @@ internal enum SendCaptureUI {
                 Button {
                     completion(.failure(SendCaptureError.canceled))
                 } label: {
-                    Image(systemName: "xmark").foregroundColor(.black)
+                    Image(systemName: "xmark").foregroundColor(.primary)
                 }
             }
         }
