@@ -61,7 +61,9 @@ internal class AppcuesLinkAction: AppcuesExperienceAction {
         if isWebLink {
             // Check try opening the link as if it's a universal link, and if not,
             // then fall back to the desired in-app or external browser.
-            let successfullyHandledUniversalLink = appcues.config.enableUniversalLinks && urlOpener.open(potentialUniversalLink: url)
+            let successfullyHandledUniversalLink = appcues.config.enableUniversalLinks
+            && isAllowListed(url)
+            && urlOpener.open(potentialUniversalLink: url)
 
             if successfullyHandledUniversalLink {
                 completion()
@@ -76,5 +78,14 @@ internal class AppcuesLinkAction: AppcuesExperienceAction {
             // Scheme link
             urlOpener.open(url, options: [:]) { _ in completion() }
         }
+    }
+
+    private func isAllowListed(_ url: URL) -> Bool {
+        guard let host = url.host, let hostAllowList = urlOpener.universalLinkHostAllowList else {
+            // If no `AppcuesUniversalLinkHostAllowList` value in Info.plist, then all hosts are allowed.
+            return true
+        }
+
+        return hostAllowList.contains(host)
     }
 }

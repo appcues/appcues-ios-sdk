@@ -13,7 +13,10 @@ internal protocol TopControllerGetting {
 
     func topViewController() -> UIViewController?
 }
+
 internal protocol URLOpening {
+    var universalLinkHostAllowList: [String]? { get }
+
     func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey: Any], completionHandler: ((Bool) -> Void)?)
     func open(potentialUniversalLink: URL) -> Bool
 }
@@ -84,6 +87,10 @@ extension UIApplication: TopControllerGetting {
 }
 
 extension UIApplication: URLOpening {
+    var universalLinkHostAllowList: [String]? {
+        Bundle.main.object(forInfoDictionaryKey: "AppcuesUniversalLinkHostAllowList") as? [String]
+    }
+
     func open(potentialUniversalLink url: URL) -> Bool {
         let userActivity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
         userActivity.webpageURL = url
