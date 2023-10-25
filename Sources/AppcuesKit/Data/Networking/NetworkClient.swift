@@ -134,7 +134,7 @@ internal class NetworkClient: Networking {
             if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
                 let data = String(data: data ?? Data(), encoding: .utf8) ?? ""
 
-                self?.config.logger.debug("RESPONSE: %{public}d %{public}s\n%{private}s", statusCode, url, data)
+                self?.config.logger.debug("RESPONSE: %{public}d %{public}@\n%{private}@", statusCode, url, data)
             }
 
             if let error = error {
@@ -161,7 +161,7 @@ internal class NetworkClient: Networking {
 
         if let method = urlRequest.httpMethod, let url = urlRequest.url?.absoluteString {
             let data = String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? ""
-            config.logger.debug("REQUEST: %{public}s %{public}s\n%{private}s", method, url, data)
+            config.logger.debug("REQUEST: %{public}@ %{public}@\n%{private}@", method, url, data)
         }
 
         dataTask.resume()
@@ -174,7 +174,7 @@ internal class NetworkClient: Networking {
     ) {
         let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] _, response, error in
             if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
-                self?.config.logger.debug("RESPONSE: %{public}d %{public}s", statusCode, url)
+                self?.config.logger.debug("RESPONSE: %{public}d %{public}@", statusCode, url)
             }
 
             if let error = error {
@@ -192,7 +192,7 @@ internal class NetworkClient: Networking {
 
         if let method = urlRequest.httpMethod, let url = urlRequest.url?.absoluteString {
             let data = String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? ""
-            config.logger.debug("REQUEST: %{public}s %{public}s\n%{private}s", method, url, data)
+            config.logger.debug("REQUEST: %{public}@ %{public}@\n%{private}@", method, url, data)
         }
 
         dataTask.resume()

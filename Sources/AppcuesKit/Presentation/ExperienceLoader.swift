@@ -52,7 +52,7 @@ internal class ExperienceLoader: ExperienceLoading {
                     completion: completion
                 )
             case .failure(let error):
-                self?.config.logger.error("Loading experience %{public}s failed with error %{public}s", experienceID, "\(error)")
+                self?.config.logger.error("Loading experience %{public}@ failed with error %{public}@", experienceID, "\(error)")
                 completion?(.failure(error))
             }
 
