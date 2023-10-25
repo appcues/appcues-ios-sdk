@@ -230,20 +230,22 @@ public class Appcues: NSObject {
 
     /// Register a trait that modifies an `Experience`.
     /// - Parameter trait: Trait to register.
+    /// - Returns: Whether the trait was successfully registered.
     @objc
-    internal func register(trait: AppcuesExperienceTrait.Type) {
-        guard #available(iOS 13.0, *) else { return }
+    internal func register(trait: AppcuesExperienceTrait.Type) -> Bool {
+        guard #available(iOS 13.0, *) else { return false }
 
-        traitRegistry.register(trait: trait)
+        return traitRegistry.register(trait: trait)
     }
 
     /// Register an action that can be activated in an `Experience`.
     /// - Parameter action: Action to register.
+    /// - Returns: Whether the action was successfully registered.
     @objc
-    internal func register(action: AppcuesExperienceAction.Type) {
-        guard #available(iOS 13.0, *) else { return }
+    internal func register(action: AppcuesExperienceAction.Type) -> Bool {
+        guard #available(iOS 13.0, *) else { return false }
 
-        actionRegistry.register(action: action)
+        return actionRegistry.register(action: action)
     }
 
     /// Registers the specified frame to be available to host qualified embedded Appcues experience content.

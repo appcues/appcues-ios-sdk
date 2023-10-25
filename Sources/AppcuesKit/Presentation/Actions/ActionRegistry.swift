@@ -35,17 +35,12 @@ internal class ActionRegistry {
         register(action: AppcuesRequestReviewAction.self)
     }
 
-    func register(action: AppcuesExperienceAction.Type) {
-        guard actions[action.type] == nil else {
-            #if DEBUG
-            if ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil {
-                assertionFailure("Action of type \(action.type) is already registered.")
-            }
-            #endif
-            return
-        }
+    @discardableResult
+    func register(action: AppcuesExperienceAction.Type) -> Bool {
+        guard actions[action.type] == nil else { return false }
 
         actions[action.type] = action
+        return true
     }
 
     private func processFirstAction() {

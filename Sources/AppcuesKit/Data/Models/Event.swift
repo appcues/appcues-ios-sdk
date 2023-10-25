@@ -7,22 +7,27 @@
 //
 
 import Foundation
+import os.log
 
 /// API request structure for an activity event.
 internal struct Event {
+    let logger: OSLog
+
     let name: String
     let timestamp: Date
     let attributes: [String: Any]?
     let context: [String: Any]?
 
-    init(name: String, timestamp: Date = Date(), attributes: [String: Any]? = nil, context: [String: Any]? = nil) {
+    init(name: String, timestamp: Date = Date(), attributes: [String: Any]? = nil, context: [String: Any]? = nil, logger: OSLog = .disabled) {
         self.name = name
         self.timestamp = timestamp
         self.attributes = attributes
         self.context = context
+        self.logger = logger
+
     }
 
-    init(screen screenTitle: String, attributes: [String: Any]? = nil, context: [String: Any]? = nil) {
+    init(screen screenTitle: String, attributes: [String: Any]? = nil, context: [String: Any]? = nil, logger: OSLog = .disabled) {
         name = "appcues:screen_view"
         timestamp = Date()
 
@@ -30,6 +35,7 @@ internal struct Event {
         extendedAttributes["screenTitle"] = screenTitle
         self.attributes = extendedAttributes
         self.context = context
+        self.logger = logger
     }
 }
 
@@ -48,12 +54,12 @@ extension Event: Encodable {
 
         if let attributes = attributes {
             var attributesContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .attributes)
-            try attributesContainer.encodeSkippingInvalid(attributes)
+            try attributesContainer.encodeSkippingInvalid(attributes, logger: logger)
         }
 
         if let context = context {
             var attributesContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .context)
-            try attributesContainer.encodeSkippingInvalid(context)
+            try attributesContainer.encodeSkippingInvalid(context, logger: logger)
         }
     }
 }

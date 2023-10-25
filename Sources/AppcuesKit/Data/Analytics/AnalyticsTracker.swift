@@ -150,20 +150,22 @@ extension Activity {
                 accountID: config.accountID,
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
-                events: [Event(name: name, attributes: update.properties, context: update.context)],
+                events: [Event(name: name, attributes: update.properties, context: update.context, logger: config.logger)],
                 profileUpdate: update.eventAutoProperties,
                 groupID: storage.groupID,
-                userSignature: storage.userSignature
+                userSignature: storage.userSignature,
+                logger: config.logger
             )
         case let .screen(title):
             self.init(
                 accountID: config.accountID,
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
-                events: [Event(screen: title, attributes: update.properties, context: update.context)],
+                events: [Event(screen: title, attributes: update.properties, context: update.context, logger: config.logger)],
                 profileUpdate: update.eventAutoProperties,
                 groupID: storage.groupID,
-                userSignature: storage.userSignature
+                userSignature: storage.userSignature,
+                logger: config.logger
             )
         case .profile:
             self.init(
@@ -173,7 +175,8 @@ extension Activity {
                 events: nil,
                 profileUpdate: update.properties,
                 groupID: storage.groupID,
-                userSignature: storage.userSignature
+                userSignature: storage.userSignature,
+                logger: config.logger
             )
         case .group:
             self.init(
@@ -183,7 +186,8 @@ extension Activity {
                 events: nil,
                 groupID: storage.groupID,
                 groupUpdate: update.properties,
-                userSignature: storage.userSignature
+                userSignature: storage.userSignature,
+                logger: config.logger
             )
         }
     }

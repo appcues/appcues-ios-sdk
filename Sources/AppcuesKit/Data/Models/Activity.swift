@@ -7,9 +7,12 @@
 //
 
 import Foundation
+import os.log
 
 /// API request body for registering user activity.
 internal struct Activity {
+    let logger: OSLog
+
     let requestID = UUID()
     var events: [Event]?
     var profileUpdate: [String: Any]?
@@ -28,7 +31,8 @@ internal struct Activity {
         profileUpdate: [String: Any]? = nil,
         groupID: String? = nil,
         groupUpdate: [String: Any]? = nil,
-        userSignature: String? = nil
+        userSignature: String? = nil,
+        logger: OSLog = .disabled
     ) {
         self.accountID = accountID
         self.sessionID = sessionID
@@ -38,6 +42,7 @@ internal struct Activity {
         self.groupID = groupID
         self.groupUpdate = groupUpdate
         self.userSignature = userSignature
+        self.logger = logger
     }
 }
 
@@ -67,12 +72,12 @@ extension Activity: Encodable {
 
         if let profileUpdate = profileUpdate {
             var profileInfoContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .profileUpdate)
-            try profileInfoContainer.encodeSkippingInvalid(profileUpdate)
+            try profileInfoContainer.encodeSkippingInvalid(profileUpdate, logger: logger)
         }
 
         if let groupUpdate = groupUpdate {
             var groupInfoContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .groupUpdate)
-            try groupInfoContainer.encodeSkippingInvalid(groupUpdate)
+            try groupInfoContainer.encodeSkippingInvalid(groupUpdate, logger: logger)
         }
     }
 }
