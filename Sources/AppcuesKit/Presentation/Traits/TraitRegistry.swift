@@ -32,17 +32,12 @@ internal class TraitRegistry {
         register(trait: AppcuesEmbeddedTrait.self)
     }
 
-    func register(trait: AppcuesExperienceTrait.Type) {
-        guard traits[trait.type] == nil else {
-            #if DEBUG
-            if ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil {
-                assertionFailure("Trait of type \(trait.type) is already registered.")
-            }
-            #endif
-            return
-        }
+    @discardableResult
+    func register(trait: AppcuesExperienceTrait.Type) -> Bool {
+        guard traits[trait.type] == nil else { return false }
 
         traits[trait.type] = trait
+        return true
     }
 
     func instances(

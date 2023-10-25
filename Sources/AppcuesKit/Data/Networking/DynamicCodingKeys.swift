@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import os.log
 
 internal struct DynamicCodingKeys: CodingKey {
     var stringValue: String
@@ -30,7 +31,7 @@ internal struct DynamicCodingKeys: CodingKey {
 extension KeyedEncodingContainer where K == DynamicCodingKeys {
 
     /// Encodes the given dictionary to primitive types permitted by the Appcues API, skipping invalid types.
-    mutating func encodeSkippingInvalid(_ dict: [String: Any]?) throws {
+    mutating func encodeSkippingInvalid(_ dict: [String: Any]?, logger: OSLog = .disabled) throws {
         var encodingErrorKeys: [String] = []
 
         try dict?.forEach { key, value in
@@ -41,7 +42,7 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
                 // "interactionData" is a special case where a nested object is expected
                 // "_sdkMetrics" is a special case - the Experience rendering timing metrics
                 var autopropContainer = self.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: codingKey)
-                try autopropContainer.encodeSkippingInvalid(nestedProps)
+                try autopropContainer.encodeSkippingInvalid(nestedProps, logger: logger)
             } else if #available(iOS 13.0, *), let stepState = value as? ExperienceData.StepState {
                 // Allow encoding the nested StepState structure since platform expects it
                 try self.encode(stepState, forKey: codingKey)
@@ -68,12 +69,14 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
             }
         }
 
-        if !encodingErrorKeys.isEmpty && ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil {
-            assertionFailure(
-            """
-            Unsupported value(s) included in \(self.codingPath) for key(s): \(encodingErrorKeys).
-            Only String, Number, Date, URL and Bool types allowed.
-            """
+        if !encodingErrorKeys.isEmpty {
+            logger.error(
+                """
+                Unsupported value(s) included in %{public}s when encoding key(s): %{public}s.
+                These keys have been omitted. Only String, Number, Date, URL and Bool types allowed.
+                """,
+                self.codingPath.pretty,
+                encodingErrorKeys.description
             )
         }
     }
