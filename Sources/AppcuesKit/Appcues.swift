@@ -231,6 +231,8 @@ public class Appcues: NSObject {
     /// Register a trait that modifies an `Experience`.
     /// - Parameter trait: Trait to register.
     /// - Returns: Whether the trait was successfully registered.
+    ///
+    /// A trait will not be registered if the specified trait type is already registered.
     @objc
     internal func register(trait: AppcuesExperienceTrait.Type) -> Bool {
         guard #available(iOS 13.0, *) else { return false }
@@ -241,6 +243,8 @@ public class Appcues: NSObject {
     /// Register an action that can be activated in an `Experience`.
     /// - Parameter action: Action to register.
     /// - Returns: Whether the action was successfully registered.
+    ///
+    /// An action will not be registered if the specified action type is already registered.
     @objc
     internal func register(action: AppcuesExperienceAction.Type) -> Bool {
         guard #available(iOS 13.0, *) else { return false }
