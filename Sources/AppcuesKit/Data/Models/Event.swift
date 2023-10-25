@@ -11,23 +11,22 @@ import os.log
 
 /// API request structure for an activity event.
 internal struct Event {
-    let logger: OSLog
+    let logger: Logging
 
     let name: String
     let timestamp: Date
     let attributes: [String: Any]?
     let context: [String: Any]?
 
-    init(name: String, timestamp: Date = Date(), attributes: [String: Any]? = nil, context: [String: Any]? = nil, logger: OSLog = .disabled) {
+    init(name: String, timestamp: Date = Date(), attributes: [String: Any]? = nil, context: [String: Any]? = nil, logger: Logging = OSLog.disabled) {
         self.name = name
         self.timestamp = timestamp
         self.attributes = attributes
         self.context = context
         self.logger = logger
-
     }
 
-    init(screen screenTitle: String, attributes: [String: Any]? = nil, context: [String: Any]? = nil, logger: OSLog = .disabled) {
+    init(screen screenTitle: String, attributes: [String: Any]? = nil, context: [String: Any]? = nil, logger: Logging = OSLog.disabled) {
         name = "appcues:screen_view"
         timestamp = Date()
 

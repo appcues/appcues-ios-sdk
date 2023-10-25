@@ -27,7 +27,7 @@ public extension Appcues {
 
         var urlSession: URLSession = NetworkClient.defaultURLSession
 
-        var logger: OSLog = .disabled
+        var logger: Logging = OSLog.disabled
 
         var anonymousIDFactory: () -> String = {
             UIDevice.identifier

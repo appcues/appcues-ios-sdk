@@ -22,11 +22,13 @@ internal class DebugViewController: UIViewController {
     let mode: DebugMode
 
     let viewModel: DebugViewModel
+    let logger: DebugLogger
     let apiVerifier: APIVerifier
     let deepLinkVerifier: DeepLinkVerifier
 
-    init(viewModel: DebugViewModel, apiVerifier: APIVerifier, deepLinkVerifier: DeepLinkVerifier, mode: DebugMode) {
+    init(viewModel: DebugViewModel, logger: DebugLogger, apiVerifier: APIVerifier, deepLinkVerifier: DeepLinkVerifier, mode: DebugMode) {
         self.viewModel = viewModel
+        self.logger = logger
         self.apiVerifier = apiVerifier
         self.deepLinkVerifier = deepLinkVerifier
         self.mode = mode
@@ -53,7 +55,7 @@ internal class DebugViewController: UIViewController {
                 apiVerifier: apiVerifier,
                 deepLinkVerifier: deepLinkVerifier,
                 viewModel: viewModel
-            ))
+            ).environmentObject(logger))
             addChild(panelViewController)
             debugView.panelWrapperView.addSubview(panelViewController.view)
             panelViewController.didMove(toParent: self)

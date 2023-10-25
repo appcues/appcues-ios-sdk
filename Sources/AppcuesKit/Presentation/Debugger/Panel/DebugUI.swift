@@ -51,6 +51,9 @@ internal enum DebugUI {
                         NavigationLink(destination: DebugFontUI.FontListView(), isActive: $viewModel.navigationDestinationIsFonts) {
                             Text("Available Fonts")
                         }
+                        NavigationLink(destination: DebugLogUI.LoggerView()) {
+                            Text("Detailed Log")
+                        }
                     }
 
                     Section(header: EventsSectionHeader(selection: $viewModel.filter)) {

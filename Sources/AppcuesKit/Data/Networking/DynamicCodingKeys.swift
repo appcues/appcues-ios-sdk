@@ -31,7 +31,7 @@ internal struct DynamicCodingKeys: CodingKey {
 extension KeyedEncodingContainer where K == DynamicCodingKeys {
 
     /// Encodes the given dictionary to primitive types permitted by the Appcues API, skipping invalid types.
-    mutating func encodeSkippingInvalid(_ dict: [String: Any]?, logger: OSLog = .disabled) throws {
+    mutating func encodeSkippingInvalid(_ dict: [String: Any]?, logger: Logging = OSLog.disabled) throws {
         var encodingErrorKeys: [String] = []
 
         try dict?.forEach { key, value in
@@ -76,7 +76,7 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
                 These keys have been omitted. Only String, Number, Date, URL and Bool types allowed.
                 """,
                 self.codingPath.pretty,
-                encodingErrorKeys.description
+                encodingErrorKeys.sorted().description
             )
         }
     }
