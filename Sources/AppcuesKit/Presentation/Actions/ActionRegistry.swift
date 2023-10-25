@@ -37,7 +37,10 @@ internal class ActionRegistry {
 
     @discardableResult
     func register(action: AppcuesExperienceAction.Type) -> Bool {
-        guard actions[action.type] == nil else { return false }
+        guard actions[action.type] == nil else {
+            appcues?.config.logger.error("Action of type %{public}@ is already registered.", action.type)
+            return false
+        }
 
         actions[action.type] = action
         return true

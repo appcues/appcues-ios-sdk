@@ -34,7 +34,10 @@ internal class TraitRegistry {
 
     @discardableResult
     func register(trait: AppcuesExperienceTrait.Type) -> Bool {
-        guard traits[trait.type] == nil else { return false }
+        guard traits[trait.type] == nil else {
+            appcues?.config.logger.error("Trait of type %{public}@ is already registered.", trait.type)
+            return false
+        }
 
         traits[trait.type] = trait
         return true
