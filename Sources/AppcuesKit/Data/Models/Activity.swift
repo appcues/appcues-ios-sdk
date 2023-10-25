@@ -11,7 +11,7 @@ import os.log
 
 /// API request body for registering user activity.
 internal struct Activity {
-    let logger: OSLog
+    let logger: Logging
 
     let requestID = UUID()
     var events: [Event]?
@@ -32,7 +32,7 @@ internal struct Activity {
         groupID: String? = nil,
         groupUpdate: [String: Any]? = nil,
         userSignature: String? = nil,
-        logger: OSLog = .disabled
+        logger: Logging = OSLog.disabled
     ) {
         self.accountID = accountID
         self.sessionID = sessionID

@@ -1,5 +1,5 @@
 //
-//  OSLog+Convenience.swift
+//  Logging.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-10-08.
@@ -8,13 +8,21 @@
 
 import os.log
 
+internal protocol Logging {
+    func debug(_ message: StaticString, _ args: CVarArg...)
+    func info(_ message: StaticString, _ args: CVarArg...)
+    func log(_ message: StaticString, _ args: CVarArg...)
+    func error(_ message: StaticString, _ args: CVarArg...)
+    func fault(_ message: StaticString, _ args: CVarArg...)
+}
+
 // Convenience methods to make the logging call site a bit tidier:
-// `logger.error("%{private}s", data)`
+// `logger.error("%{private}@", data)`
 // vs
-// `os_log("%{private}s", log: .default, type: .error, data)`
+// `os_log("%{private}@", log: .default, type: .error, data)`
 //
 // This also saves us having to `import os.log` everywhere.
-extension OSLog {
+extension OSLog: Logging {
 
     /// Create an appcues-specific logger.
     convenience init(appcuesCategory category: String) {

@@ -123,9 +123,13 @@ internal class UIDebugger: UIDebugging {
             return
         }
 
+        let debugLogger = DebugLogger(previousLogger: config.logger)
+        config.logger = debugLogger
+
         analyticsPublisher.register(subscriber: self)
         let rootViewController = DebugViewController(
             viewModel: viewModel,
+            logger: debugLogger,
             apiVerifier: APIVerifier(networking: networking),
             deepLinkVerifier: DeepLinkVerifier(applicationID: config.applicationID),
             mode: mode
@@ -147,6 +151,11 @@ internal class UIDebugger: UIDebugging {
         debugWindow?.isHidden = true
         debugWindow = nil
         cancellable.removeAll()
+
+        // Reset the logger back to the way it was
+        if let oldLogger = (config.logger as? DebugLogger)?.previousLogger {
+            config.logger = oldLogger
+        }
     }
 
     func showToast(_ toast: DebugToast) {
