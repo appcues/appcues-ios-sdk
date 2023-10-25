@@ -49,11 +49,12 @@ class TraitRegistryTests: XCTestCase {
         let traitModel = Experience.Trait(type: TestTrait.type, config: nil)
 
         // Act
-        traitRegistry.register(trait: TestTrait.self)
-        // This will trigger an assertionFailure if we're not in a test cycle
-        traitRegistry.register(trait: TestTrait.self)
+        let successfullyRegisteredTrait1 = traitRegistry.register(trait: TestTrait.self)
+        let successfullyRegisteredTrait2 = traitRegistry.register(trait: TestTrait.self)
 
         // Assert
+        XCTAssertTrue(successfullyRegisteredTrait1)
+        XCTAssertFalse(successfullyRegisteredTrait2)
         let traitInstances = traitRegistry.instances(for: [traitModel], level: .group, renderContext: .modal)
         XCTAssertEqual(traitInstances.count, 1)
     }
