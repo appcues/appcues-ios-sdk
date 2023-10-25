@@ -78,11 +78,12 @@ class ActionRegistryTests: XCTestCase {
         )
 
         // Act
-        actionRegistry.register(action: TestAction.self)
-        // This will trigger an assertionFailure if we're not in a test cycle
-        actionRegistry.register(action: TestAction2.self)
+        let successfullyRegisteredAction1 = actionRegistry.register(action: TestAction.self)
+        let successfullyRegisteredAction2 = actionRegistry.register(action: TestAction2.self)
 
         // Assert
+        XCTAssertTrue(successfullyRegisteredAction1)
+        XCTAssertFalse(successfullyRegisteredAction2)
         actionRegistry.enqueue(
             actionModels: [actionModel],
             level: .step,
