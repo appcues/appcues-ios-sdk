@@ -72,7 +72,7 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
         if !encodingErrorKeys.isEmpty {
             logger.error(
                 """
-                Unsupported value(s) included in %{public}s when encoding key(s): %{public}s.
+                Unsupported value(s) included in %{public}@ when encoding key(s): %{public}@.
                 These keys have been omitted. Only String, Number, Date, URL and Bool types allowed.
                 """,
                 self.codingPath.pretty,

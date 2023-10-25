@@ -117,7 +117,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                     SdkMetrics.remove(activity.requestID)
                 }
             case .failure(let error):
-                self?.config.logger.error("Failed processing qualify response: %{public}s", "\(error)")
+                self?.config.logger.error("Failed processing qualify response: %{public}@", "\(error)")
                 SdkMetrics.remove(activity.requestID)
             }
         }

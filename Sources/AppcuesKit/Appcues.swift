@@ -92,7 +92,7 @@ public class Appcues: NSObject {
 
         initializeContainer()
 
-        config.logger.info("Appcues SDK %{public}s initialized", version())
+        config.logger.info("Appcues SDK %{public}@ initialized", version())
     }
 
     /// Get the current version of the Appcues SDK.
