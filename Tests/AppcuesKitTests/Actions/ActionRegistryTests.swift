@@ -14,9 +14,12 @@ class ActionRegistryTests: XCTestCase {
 
     var appcues: MockAppcues!
     var actionRegistry: ActionRegistry!
+    var logger: DebugLogger!
 
     override func setUpWithError() throws {
+        logger = DebugLogger(previousLogger: nil)
         appcues = MockAppcues()
+        appcues.config.logger = logger
         actionRegistry = ActionRegistry(container: appcues.container)
     }
 
@@ -91,6 +94,11 @@ class ActionRegistryTests: XCTestCase {
             interactionType: "Button Tapped",
             viewDescription: "My Button")
         waitForExpectations(timeout: 1)
+
+        XCTAssertEqual(logger.log.count, 1)
+        let log = try XCTUnwrap(logger.log.first)
+        XCTAssertEqual(log.level, .error)
+        XCTAssertEqual(log.message, "Action of type @test/action is already registered.")
     }
 
     func testQueueExecution() throws {

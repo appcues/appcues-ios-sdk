@@ -14,9 +14,12 @@ class TraitRegistryTests: XCTestCase {
 
     var appcues: MockAppcues!
     var traitRegistry: TraitRegistry!
+    var logger: DebugLogger!
 
     override func setUpWithError() throws {
+        logger = DebugLogger(previousLogger: nil)
         appcues = MockAppcues()
+        appcues.config.logger = logger
         traitRegistry = TraitRegistry(container: appcues.container)
     }
 
@@ -57,6 +60,11 @@ class TraitRegistryTests: XCTestCase {
         XCTAssertFalse(successfullyRegisteredTrait2)
         let traitInstances = traitRegistry.instances(for: [traitModel], level: .group, renderContext: .modal)
         XCTAssertEqual(traitInstances.count, 1)
+
+        XCTAssertEqual(logger.log.count, 1)
+        let log = try XCTUnwrap(logger.log.first)
+        XCTAssertEqual(log.level, .error)
+        XCTAssertEqual(log.message, "Trait of type @test/trait is already registered.")
     }
 }
 

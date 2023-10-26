@@ -9,13 +9,12 @@
 import XCTest
 @testable import AppcuesKit
 
+@available(iOS 13.0, *)
 class DynamicCodingKeysTests: XCTestCase {
 
     var encoder: JSONEncoder = {
         let encoder = JSONEncoder()
-        if #available(iOS 11.0, *) {
-            encoder.outputFormatting = .sortedKeys
-        }
+        encoder.outputFormatting = .sortedKeys
         return encoder
     }()
 
@@ -29,6 +28,7 @@ class DynamicCodingKeysTests: XCTestCase {
         // Assert
         let asString = try XCTUnwrap(String(data: data, encoding: .utf8))
         XCTAssertEqual(asString, #"{"dict":{"bool":true,"double":3.14,"int":42,"number":1,"string":"value"}}"#)
+        XCTAssertEqual(testData.logger.log.count, 0)
     }
 
     func testEncodeDictAnyInvalid() throws {
@@ -42,11 +42,18 @@ class DynamicCodingKeysTests: XCTestCase {
         // Assert
         let asString = try XCTUnwrap(String(data: data, encoding: .utf8))
         XCTAssertEqual(asString, #"{"dict":{"before":1,"valid":"Valid value"}}"#)
+        XCTAssertEqual(testData.logger.log.count, 1)
+        let log = try XCTUnwrap(testData.logger.log.first)
+        XCTAssertEqual(log.level, .error)
+        XCTAssertEqual(log.message, #"Unsupported value(s) included in dict when encoding key(s): ["anotherInvalid", "invalid"].\#nThese keys have been omitted. Only String, Number, Date, URL and Bool types allowed."#)
     }
 }
 
+@available(iOS 13.0, *)
 extension DynamicCodingKeysTests {
     struct TestData: Encodable {
+        let logger = DebugLogger(previousLogger: nil)
+
         let dict: [String: Any]
 
         enum CodingKeys: CodingKey {
@@ -56,7 +63,7 @@ extension DynamicCodingKeysTests {
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             var dictContainer = container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .dict)
-            try dictContainer.encodeSkippingInvalid(dict)
+            try dictContainer.encodeSkippingInvalid(dict, logger: logger)
         }
     }
 }
