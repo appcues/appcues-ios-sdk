@@ -116,7 +116,8 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
         if reason == .preview {
             pendingPreviewExperiences[experience.renderContext] = experience
-        } else {
+        } else if experience.renderContext != .modal {
+            // No caching required for modals since they can't be lazy-loaded.
             potentiallyRenderableExperiences[experience.renderContext] = [experience]
         }
 
