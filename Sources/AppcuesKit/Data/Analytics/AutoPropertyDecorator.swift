@@ -55,6 +55,9 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             sessionLatestUserProperties = [:]
             currentScreen = nil
             previousScreen = nil
+        case .group(nil):
+            // removing from a group should not have any auto props
+            return tracking
         case .group:
             // group updates only have this single auto prop, so add that and return early
             decorated.properties = (decorated.properties ?? [:]).merging([
