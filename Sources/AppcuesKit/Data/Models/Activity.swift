@@ -48,6 +48,7 @@ internal struct Activity {
 
 extension Activity: Encodable {
     enum CodingKeys: String, CodingKey {
+        case source
         case requestID = "request_id"
         case events
         case profileUpdate = "profile_update"
@@ -61,6 +62,7 @@ extension Activity: Encodable {
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode("mobile", forKey: .source)
         try container.encode(accountID, forKey: .accountID)
         try container.encode(sessionID, forKey: .sessionID)
         try container.encode(userID, forKey: .userID)
