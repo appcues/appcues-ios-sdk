@@ -81,7 +81,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
 
         // Assert
         XCTAssertNil(decorated.context)
-        let expectedPropertyKeys = ["CUSTOM"]
+        let expectedPropertyKeys = ["CUSTOM", "_lastSeenAt"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
         XCTAssertNil(decorated.eventAutoProperties)
     }
