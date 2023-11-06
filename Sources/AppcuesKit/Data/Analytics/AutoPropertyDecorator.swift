@@ -41,6 +41,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {
 
         var context = self.contextProperties
+        var decorated = tracking
 
         switch tracking.type {
         case let .screen(title):
@@ -55,13 +56,14 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             currentScreen = nil
             previousScreen = nil
         case .group:
-            // group updates do not have auto props, don't manipulate anything in the properties
-            return tracking
+            // group updates only have this single auto prop, so add that and return early
+            decorated.properties = (decorated.properties ?? [:]).merging([
+                "_lastSeenAt": Date()
+            ])
+            return decorated
         default:
             break
         }
-
-        var decorated = tracking
 
         var sessionProperties: [String: Any?] = [
             "userId": storage.userID,
