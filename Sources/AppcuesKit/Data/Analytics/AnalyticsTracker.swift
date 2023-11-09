@@ -28,8 +28,17 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 
     // maintain a batch of asynchronous events that are waiting to be flushed to network
     private let syncQueue = DispatchQueue(label: "appcues-analytics")
+
+    // this is the background analytics processing queue - 10 sec batch
     private var pendingActivity: [Activity] = []
+    // this is the immediate processing queue - 50ms batch to group identify with immediate subsequent updates
+    private var priorityActivity: [Activity] = []
+
+    // holds the work item for background analytics (flow events) to batch and send in 10 sec intervals
     private var flushWorkItem: DispatchWorkItem?
+
+    // holds items to be immediately processed, but allowed to group with very near additional updates (50ms)
+    private var priorityFlushWorkItem: DispatchWorkItem?
 
     init(container: DIContainer) {
         self.appcues = container.owner
@@ -48,6 +57,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         let activity = Activity(from: update, config: config, storage: storage, sessionID: sessionID)
 
         switch update.policy {
+        // used by normal interactive screen/track calls
         case .queueThenFlush:
             syncQueue.sync {
                 flushWorkItem?.cancel()
@@ -55,13 +65,17 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 flushPendingActivity(trackedAt: update.timestamp) // immediately flush, eligible for qualification, so track timing
             }
 
-        case .flushThenSend:
+        // used by identify, group and session_started event
+        case .flushThenSend(let waitForBatch):
             syncQueue.sync {
                 flushWorkItem?.cancel()
-                flushPendingActivity() // no timing tracking on pending background activity
-                flush(activity, trackedAt: update.timestamp) // immediately flush, eligible for qualification, so track timing
+                // no timing tracking on pending background activity
+                flushPendingActivity()
+                // immediately flush, eligible for qualification, so track timing
+                flushWithPriorityQueue(activity, startQueue: waitForBatch, trackedAt: update.timestamp)
             }
 
+        // used by non-interactive tracking - flow events
         case .queue:
             syncQueue.sync {
                 pendingActivity.append(activity)
@@ -82,17 +96,79 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     // i.e. app going to background / being killed
     func flush() {
         syncQueue.sync {
+            // this will move into priority queue, if exists
             flushPendingActivity()
+            // flush priority queue, if exists
+            flushPriorityActivity()
         }
     }
 
+    // send anything in the background analytics queue, merging into a priority queue, if exists
     private func flushPendingActivity(trackedAt: Date? = nil) {
         flushWorkItem = nil
         let merged = pendingActivity.merge()
         pendingActivity = []
+        // sending through the priority queue here - if there
+        // is anything batching at 50ms delay (i.e. a new identify)
+        // then these items will get merged in. Typically, this
+        // is not the case, and they will be sent immediately.
+        // `startQueue` is false, as this call will never start a new
+        // 50ms delay, only merge with an existing one, if exists.
+        flushWithPriorityQueue(merged, startQueue: false, trackedAt: trackedAt)
+    }
+
+    // send the priority queue
+    private func flushPriorityActivity(trackedAt: Date? = nil) {
+        priorityFlushWorkItem = nil
+        let merged = priorityActivity.merge()
+        priorityActivity = []
         flush(merged, trackedAt: trackedAt)
     }
 
+    // initiate the send of this item through the optional priority queue
+    // the `startQueue` param will indicate whether a 50ms buffer should be created to allow for
+    // calls in very near succession to this one to be batched together.
+    //
+    // * will only start the queue if `startQueue` is true - this is only used for identify() or
+    //   session_started events
+    // * if no queue exists, and not starting a queue - will send immediately with no delay
+    // * if a queue exists and it contains items from a different user - will flush those existing items
+    //   immediately, then process this item
+    // * otherwise, add this item to the queue and start it (if not already)
+    private func flushWithPriorityQueue(_ activity: Activity?, startQueue: Bool, trackedAt: Date?) {
+        guard let activity = activity else { return }
+        // if there is no queue in flight, just send it immediate - hopefully common case
+        if !startQueue && priorityActivity.isEmpty {
+            flush(activity, trackedAt: trackedAt)
+            return
+        }
+        // if the queue items are for a different user
+        if (priorityActivity.contains(where: { $0.userID != activity.userID })) {
+            // flush immediately...
+            priorityFlushWorkItem = nil
+            flushPriorityActivity()
+            // note: we know that background items were already flushed before getting here
+            // with a new user identified, in flushThenSend.
+            //
+            // then try again..
+            flushWithPriorityQueue(activity, startQueue: startQueue, trackedAt: trackedAt)
+            return
+        }
+        // add activity to priority queue
+        priorityActivity.append(activity)
+        // schedule the flush task (if not already)
+        if priorityFlushWorkItem == nil {
+            let workItem = DispatchWorkItem { [weak self] in
+                self?.syncQueue.sync {
+                    self?.flushPriorityActivity(trackedAt: trackedAt)
+                }
+            }
+            priorityFlushWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(50), execute: workItem)
+        }
+    }
+
+    // final step after all queueing - make the network call to send the activity, and process the result
     private func flush(_ activity: Activity?, trackedAt: Date?) {
         guard let activity = activity else { return }
         // `trackedAt` value is only sent in cases of immediate qualification-eligible tracking, for SDK metrics
@@ -194,11 +270,11 @@ extension Activity {
 
     mutating func append(_ activity: Activity) {
         // this will merge any additional events or profile updates.
-        // we do not support any update to the user ID or group ID here, as a change
-        // in those values would trigger an immediate flush of pending items then the new update
+        // we do not support any update to the user ID, as a change
+        // in that values would trigger an immediate flush of pending items then the new update
         // sent. The reason is that the activity prior to that update needs to be associated to
-        // the previous user/group and the activity after that update needs to be associated with
-        // the new user/group
+        // the previous user and the activity after that update needs to be associated with
+        // the new user (part of the API path and root of request)
         if let newEvents = activity.events {
             let existingEvents = events ?? []
             events = existingEvents + newEvents
@@ -208,6 +284,13 @@ extension Activity {
         if let newProfileUpdate = activity.profileUpdate {
             let existingProfileUpdate = profileUpdate ?? [:]
             profileUpdate = existingProfileUpdate.merging(newProfileUpdate)
+        }
+
+        // merge in any updated group info
+        groupID = activity.groupID
+        if let newGroupUpdate = activity.groupUpdate {
+            let existingGroupUpdate = groupUpdate ?? [:]
+            groupUpdate = existingGroupUpdate.merging(newGroupUpdate)
         }
     }
 }

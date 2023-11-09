@@ -60,9 +60,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             return tracking
         case .group:
             // group updates only have this single auto prop, so add that and return early
-            decorated.properties = (decorated.properties ?? [:]).merging([
-                "_lastSeenAt": Date()
-            ])
+            decorated.properties = (decorated.properties ?? [:]).merging(["_lastSeenAt": Date()])
             return decorated
         default:
             break

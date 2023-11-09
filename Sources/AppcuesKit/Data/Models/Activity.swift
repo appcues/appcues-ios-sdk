@@ -18,8 +18,8 @@ internal struct Activity {
     var profileUpdate: [String: Any]?
     let userID: String
     let accountID: String
-    let groupID: String?
-    let groupUpdate: [String: Any]?
+    var groupID: String?
+    var groupUpdate: [String: Any]?
     let userSignature: String?
     let sessionID: String
 
