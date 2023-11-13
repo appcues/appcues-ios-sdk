@@ -66,6 +66,123 @@ class AnalyticsTrackerTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testIdentifyWithGroup() throws {
+        // Arrange
+        let onRequestExpectation = expectation(description: "Valid request")
+
+        // In the case of a profile update, immediately followed by a group update, verify that the
+        // updates get merged together in a single Activity that gets sent to the ActivityProcessor
+        appcues.activityProcessor.onProcess = { activity, completion in
+            ["userProp":1].verifyPropertiesMatch(activity.profileUpdate)
+            ["groupProp":2].verifyPropertiesMatch(activity.groupUpdate)
+            XCTAssertEqual("test-group", activity.groupID)
+            onRequestExpectation.fulfill()
+        }
+
+        let profileUpdate = TrackingUpdate(type: .profile(interactive: true), properties: ["userProp":1], isInternal: false)
+        let groupUpdate = TrackingUpdate(type: .group("test-group"), properties: ["groupProp":2], isInternal: false)
+
+        // Act
+        tracker.track(update: profileUpdate)
+        appcues.storage.groupID = "test-group" // mimick what is done in Appcues group() call
+        tracker.track(update: groupUpdate)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testIdentifyWithDifferentUser() throws {
+        // Arrange
+        let onRequestExpectation = expectation(description: "Valid request")
+        onRequestExpectation.expectedFulfillmentCount = 2
+
+        var updateCount = 0
+
+        // In the case of a profile update, immediately followed by another identify with a different
+        // user, there should be no batching of the Activity, as the first user profile update must
+        // be sent, then the second update with the new user.
+        appcues.activityProcessor.onProcess = { activity, completion in
+            updateCount += 1
+            if updateCount == 1 {
+                ["userProp":1].verifyPropertiesMatch(activity.profileUpdate)
+                XCTAssertEqual("user-1", activity.userID)
+            } else if updateCount == 2 {
+                ["userProp":2].verifyPropertiesMatch(activity.profileUpdate)
+                XCTAssertEqual("user-2", activity.userID)
+            }
+            onRequestExpectation.fulfill()
+        }
+
+        let profileUpdate1 = TrackingUpdate(type: .profile(interactive: true), properties: ["userProp":1], isInternal: false)
+        let profileUpdate2 = TrackingUpdate(type: .profile(interactive: true), properties: ["userProp":2], isInternal: false)
+
+        // Act
+        appcues.storage.userID = "user-1" // mimick what is done in Appcues identify() call
+        tracker.track(update: profileUpdate1)
+        appcues.storage.userID = "user-2" // mimick what is done in Appcues identify() call
+        tracker.track(update: profileUpdate2)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testIdentifyWithScreen() throws {
+        // Arrange
+        let onRequestExpectation = expectation(description: "Valid request")
+        let expectedEvents = [Event(name: "appcues:screen_view", attributes: ["screenTitle":"screen-name"])]
+
+        // In the case of a profile update, immediately followed by a group update, verify that the
+        // updates get merged together in a single Activity that gets sent to the ActivityProcessor
+        appcues.activityProcessor.onProcess = { activity, completion in
+            ["userProp":1].verifyPropertiesMatch(activity.profileUpdate)
+            expectedEvents.verifyMatchingEvents(activity.events)
+            onRequestExpectation.fulfill()
+        }
+
+        let profileUpdate = TrackingUpdate(type: .profile(interactive: true), properties: ["userProp":1], isInternal: false)
+        let screenUpdate = TrackingUpdate(type: .screen("screen-name"), isInternal: false)
+
+        // Act
+        tracker.track(update: profileUpdate)
+        tracker.track(update: screenUpdate)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testIdentifyWithDelayThenScreen() throws {
+        // Arrange
+        let onRequestExpectation = expectation(description: "Valid request")
+        onRequestExpectation.expectedFulfillmentCount = 2
+        let expectedEvents = [Event(name: "appcues:screen_view", attributes: ["screenTitle":"screen-name"])]
+        var updateCount = 0
+
+        // In the case of a profile update, followed after by a screen update that
+        // occurs > than the 50ms batch time on identify, there should be two requests
+        // sent with two different Activity payloads
+        appcues.activityProcessor.onProcess = { activity, completion in
+            updateCount += 1
+            if updateCount == 1 {
+                ["userProp":1].verifyPropertiesMatch(activity.profileUpdate)
+                XCTAssertNil(activity.events)
+            } else if updateCount == 2 {
+                expectedEvents.verifyMatchingEvents(activity.events)
+            }
+            onRequestExpectation.fulfill()
+        }
+
+        let profileUpdate = TrackingUpdate(type: .profile(interactive: true), properties: ["userProp":1], isInternal: false)
+        let screenUpdate = TrackingUpdate(type: .screen("screen-name"), isInternal: false)
+
+        // Act
+        tracker.track(update: profileUpdate)
+        wait(for: 0.1) // 50 ms batch time is supported for profile update above - wait longer than 50ms to avoid batch
+        tracker.track(update: screenUpdate)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
     func testGroupTracking() throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
