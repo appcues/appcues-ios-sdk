@@ -27,6 +27,7 @@ internal class DebugViewModel: ObservableObject {
     // MARK: Status Overview
     let accountID: String
     let applicationID: String
+    @Published var currentGroupID: String?
     @Published var currentUserID: String = ""
     @Published var isAnonymous = false
     @Published var trackingPages = false
@@ -44,6 +45,7 @@ internal class DebugViewModel: ObservableObject {
         self.accountID = accountID
         self.applicationID = applicationID
 
+        self.currentGroupID = storage.groupID
         self.currentUserID = storage.userID
         self.isAnonymous = storage.isAnonymous
 
@@ -62,6 +64,7 @@ internal class DebugViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] event in
                 guard let strongSelf = self else { return }
+                strongSelf.currentGroupID = storage.groupID
                 strongSelf.currentUserID = storage.userID
                 strongSelf.isAnonymous = storage.isAnonymous
                 strongSelf.trackingPages = strongSelf.trackingPages || event.type == .screen
@@ -76,6 +79,7 @@ internal class DebugViewModel: ObservableObject {
         trackingPages = false
         currentUserID = storage.userID
         isAnonymous = storage.isAnonymous
+        currentGroupID = storage.groupID
     }
 
     func removeExperienceStatus(id: UUID) {

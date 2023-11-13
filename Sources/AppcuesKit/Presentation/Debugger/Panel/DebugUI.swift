@@ -25,6 +25,7 @@ internal enum DebugUI {
                 DeepLinkRow(deepLinkVerifier: deepLinkVerifier)
                 ScreensRow(isTrackingScreens: viewModel.trackingPages)
                 UserRow(currentUserID: viewModel.currentUserID, isAnonymous: viewModel.isAnonymous)
+                GroupRow(currentGroupID: viewModel.currentGroupID)
 
                 ForEach(viewModel.experienceStatuses) { experienceItem in
                     ListItemRowView(item: experienceItem) {
@@ -169,6 +170,23 @@ internal enum DebugUI {
                 title: "User Identified",
                 subtitle: !currentUserID.isEmpty && isAnonymous ? "Anonymous User" : currentUserID,
                 detailText: currentUserID
+            )
+        }
+
+        var body: some View {
+            ListItemRowView(item: statusItem)
+        }
+    }
+
+    struct GroupRow: View {
+        let currentGroupID: String?
+
+        var statusItem: StatusItem {
+            return StatusItem(
+                status: currentGroupID == nil ? .pending : .verified,
+                title: "Group Identified",
+                subtitle: currentGroupID ?? "No group identified",
+                detailText: currentGroupID
             )
         }
 
