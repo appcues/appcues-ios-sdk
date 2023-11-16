@@ -131,7 +131,7 @@ class AnalyticsTrackerTests: XCTestCase {
         let onRequestExpectation = expectation(description: "Valid request")
         let expectedEvents = [Event(name: "appcues:screen_view", attributes: ["screenTitle":"screen-name"])]
 
-        // In the case of a profile update, immediately followed by a group update, verify that the
+        // In the case of a profile update, immediately followed by a screen view, verify that the
         // updates get merged together in a single Activity that gets sent to the ActivityProcessor
         appcues.activityProcessor.onProcess = { activity, completion in
             ["userProp":1].verifyPropertiesMatch(activity.profileUpdate)
