@@ -6,7 +6,7 @@
 //  Copyright © 2023 Appcues. All rights reserved.
 //
 
-import Foundation
+import UIKit
 
 /// Represents a view in the layout hierarchy of the application.
 ///

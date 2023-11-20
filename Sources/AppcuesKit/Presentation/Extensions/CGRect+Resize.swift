@@ -6,7 +6,7 @@
 //  Copyright © 2023 Appcues. All rights reserved.
 //
 
-import Foundation
+import CoreGraphics
 
 internal extension CGRect {
     var zeroed: CGRect {

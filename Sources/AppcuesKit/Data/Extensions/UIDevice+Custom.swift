@@ -6,7 +6,6 @@
 //  Copyright © 2021 Appcues. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 extension UIDevice {
