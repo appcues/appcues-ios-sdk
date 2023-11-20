@@ -9,4 +9,4 @@
 import Foundation
 
 // BREAKING.FEATURE.FIX
-internal let __appcues_version = "3.1.1"
+internal let __appcues_version = "3.1.2"
