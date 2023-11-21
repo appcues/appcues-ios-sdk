@@ -130,7 +130,11 @@ extension ExperienceStateMachine {
             if recoverable {
                 experience.recoverableErrorID = errorID
             }
-            let errorProperties = LifecycleEvent.properties(experience, stepIndex, error: LifecycleEvent.ErrorBody(message: message, id: errorID))
+            let errorProperties = LifecycleEvent.properties(
+                experience,
+                stepIndex,
+                error: LifecycleEvent.ErrorBody(message: message, id: errorID)
+            )
             trackLifecycleEvent(.stepError, errorProperties)
         }
 
@@ -138,7 +142,11 @@ extension ExperienceStateMachine {
             // only track a recovery if we had previously captured a render error for this experience
             guard let errorID = experience.recoverableErrorID else { return }
 
-            let errorProperties = LifecycleEvent.properties(experience, stepIndex, error: LifecycleEvent.ErrorBody(message: nil, id: errorID))
+            let errorProperties = LifecycleEvent.properties(
+                experience,
+                stepIndex,
+                error: LifecycleEvent.ErrorBody(message: nil, id: errorID)
+            )
             trackLifecycleEvent(.stepRecovered, errorProperties)
             experience.recoverableErrorID = nil
         }

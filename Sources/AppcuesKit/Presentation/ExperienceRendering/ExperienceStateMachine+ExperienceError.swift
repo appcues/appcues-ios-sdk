@@ -59,7 +59,8 @@ extension ExperienceStateMachine.ExperienceError: CustomStringConvertible, Custo
         case let .experience(experience, message):
             return ".experience(experienceID: \(experience.id.uuidString), message: \(message))"
         case let .step(experience, stepIndex, message, recoverable):
-            return ".step(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex), message: \(message), recoverable: \(recoverable)"
+            return ".step(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex), " +
+                "message: \(message), recoverable: \(recoverable)"
         }
     }
 }

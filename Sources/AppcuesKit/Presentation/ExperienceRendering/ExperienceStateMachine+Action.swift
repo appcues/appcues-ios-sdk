@@ -16,7 +16,7 @@ extension ExperienceStateMachine {
         case renderStep
         case endExperience(markComplete: Bool)
         case reset
-        case reportError(error: ExperienceError, retryEffect: SideEffect)
+        case reportError(error: ExperienceError, retryEffect: SideEffect?)
         case retry
     }
 }

@@ -48,6 +48,7 @@ extension ExperienceStateMachine {
             }
         }
 
+        // swiftlint:disable cyclomatic_complexity
         func transition(for action: Action, traitComposer: TraitComposing) -> Transition? {
             switch (self, action) {
             case let (.idling, .startExperience(experience)):
@@ -87,13 +88,19 @@ extension ExperienceStateMachine {
 
             // Error cases
             case let (_, .startExperience(experience)):
-                return Transition(toState: nil, sideEffect: .error(.experienceAlreadyActive(ignoredExperience: experience), reset: false))
+                return Transition(toState: nil, sideEffect: .error(.experienceAlreadyActive(ignoredExperience: experience)))
             case let (_, .reportError(error, retryEffect)):
-                // this case occurs on failure from a transition, specifically a trait error during a presentation effect.
-                // move the machine to the failing state with the information necessary to retry, and send the error
-                // information to observers. The error will indicate whether it is recoverable, and an observer may attempt
-                // to retry if the application state changes in a way that would support another attempt
-                return Transition(toState: .failing(targetState: self, retryEffect: retryEffect), sideEffect: .error(error, reset: false))
+                if let retryEffect = retryEffect {
+                    // this case occurs on failure from a transition, specifically a trait error during a presentation effect.
+                    // move the machine to the failing state with the information necessary to retry, and send the error
+                    // information to observers. The error will indicate whether it is recoverable, and an observer may attempt
+                    // to retry if the application state changes in a way that would support another attempt
+                    return Transition(toState: .failing(targetState: self, retryEffect: retryEffect), sideEffect: .error(error))
+                } else {
+                    // it is a fatal error, move back to idling and report
+                    return Transition(toState: .idling, sideEffect: .error(error), resetObservers: true)
+
+                }
             default:
                 return nil
             }
@@ -117,6 +124,9 @@ extension ExperienceStateMachine.State: Equatable {
             return experience1.id == experience2.id && stepIndex1 == stepIndex2 && markComplete1 == markComplete2
         case let (.endingExperience(experience1, stepIndex1, markComplete1), .endingExperience(experience2, stepIndex2, markComplete2)):
             return experience1.id == experience2.id && stepIndex1 == stepIndex2 && markComplete1 == markComplete2
+        case let (.failing(targetState1, _), .failing(targetState2, _)):
+            // TODO: to fully compare equality, would need to make SideEffect equatable (many cascading updates)
+            return targetState1 == targetState2
         default:
             return false
         }
@@ -152,11 +162,11 @@ extension ExperienceStateMachine.Transition {
     static func fromIdlingToBeginningExperience(_ experience: ExperienceData) -> Self {
         // handle errors that occurred prior to starting the experience - such as flow deserialization issues
         if let error = experience.error, !error.isEmpty {
-            return .init(toState: nil, sideEffect: .error(.experience(experience, error), reset: true))
+            return .init(toState: .idling, sideEffect: .error(.experience(experience, error)), resetObservers: true)
         }
 
         guard !experience.steps.isEmpty else {
-            return .init(toState: nil, sideEffect: .error(.experience(experience, "Experience has 0 steps"), reset: true))
+            return .init(toState: .idling, sideEffect: .error(.experience(experience, "Experience has 0 steps")), resetObservers: true)
         }
 
         return .init(
@@ -183,7 +193,7 @@ extension ExperienceStateMachine.Transition {
                 sideEffect: .presentContainer(experience, stepIndex, package, navigationActions)
             )
         } catch {
-            return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "\(error)"), reset: true))
+            return .init(toState: .idling, sideEffect: .error(.step(experience, stepIndex, "\(error)")), resetObservers: true)
         }
     }
 
@@ -198,7 +208,7 @@ extension ExperienceStateMachine.Transition {
                 )
             }
 
-            return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "Step at \(stepRef) does not exist"), reset: false))
+            return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "Step at \(stepRef) does not exist")))
         }
 
         let sideEffect: ExperienceStateMachine.SideEffect
@@ -221,7 +231,7 @@ extension ExperienceStateMachine.Transition {
         guard let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex) else {
             return .init(
                 toState: nil,
-                sideEffect: .error(.step(experience, currentIndex, "Step at \(stepRef) does not exist"), reset: false)
+                sideEffect: .error(.step(experience, currentIndex, "Step at \(stepRef) does not exist"))
             )
         }
 
@@ -236,7 +246,7 @@ extension ExperienceStateMachine.Transition {
                 sideEffect: .presentContainer(experience, stepIndex, package, navigationActions)
             )
         } catch {
-            return .init(toState: nil, sideEffect: .error(.step(experience, stepIndex, "\(error)"), reset: true))
+            return .init(toState: .idling, sideEffect: .error(.step(experience, stepIndex, "\(error)")), resetObservers: true)
         }
     }
 }

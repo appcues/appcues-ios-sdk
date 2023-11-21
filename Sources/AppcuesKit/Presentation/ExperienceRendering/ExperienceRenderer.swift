@@ -43,41 +43,49 @@ internal enum ExperienceRendererError: Error {
 
 @available(iOS 13.0, *)
 private class StepRecoveryObserver: ExperienceStateObserver {
-    private var currentExperienceInstanceID: UUID?
     private let stateMachine: ExperienceStateMachine
+
+    private var retryWorkItem: DispatchWorkItem?
 
     init(stateMachine: ExperienceStateMachine) {
         self.stateMachine = stateMachine
     }
 
-    func start(_ experience: ExperienceData) {
-        currentExperienceInstanceID = experience.instanceID
-    }
-
-    func stop() {
-        currentExperienceInstanceID = nil
+    func stopRetryHandler() {
+        if retryWorkItem != nil {
+            print("stopping existing step recovery attempts due to screen change")
+        }
+        retryWorkItem?.cancel()
+        retryWorkItem = nil
     }
 
     func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
-        guard let instanceID = currentExperienceInstanceID, result.matches(instanceID: instanceID) else { return false }
-
-        if case .failure(.step(_, _, _, true /* recoverable */)) = result {
-
-            // this is where we would inject more advanced logic - we'll want to start observing
-            // scroll changes and detect when they occur and then come to rest, with some debounce,
-            // then trigger a retry
-
-            // simulating this with a 3 sec timer to test for now
-
-            print("recoverable step error - will retry in 3 sec")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-                print("retrying step...")
-                try? self.stateMachine.transition(.retry)
-            }
+        if case .failure(.step(_, _, _, recoverable: true)) = result {
+            startRetryHandler()
         }
 
         // recovery observer never stops observing
         return false
+    }
+
+    private func startRetryHandler() {
+        // this is where we would inject more advanced logic - we'll want to start observing
+        // scroll changes and detect when they occur and then come to rest, with some debounce,
+        // then trigger a retry
+
+        // simulating this with a 3 sec timer to test for now
+
+        if retryWorkItem == nil {
+            print("recoverable step error - will retry in 3 sec")
+            let workItem = DispatchWorkItem { [weak self] in
+                guard let self = self else { return }
+                print("retrying step...")
+                self.retryWorkItem = nil
+                try? self.stateMachine.transition(.retry)
+            }
+            retryWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: workItem)
+        }
     }
 }
 
@@ -140,10 +148,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         if shouldClearCache {
             potentiallyRenderableExperiences = [:]
             stateMachines.cleanup()
-
-            // stop any ongoing recovery attempts
-            print("stopping any existing step recovery attempts due to screen change")
-            stepRecoveryObserver.stop()
+            stepRecoveryObserver.stopRetryHandler()
         }
 
         // Add new experiences, replacing any existing ones
@@ -180,7 +185,10 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         }
 
         guard let stateMachine = stateMachines[experience.renderContext] else {
-            analyticsObserver.trackRecoverableError(experience: experience, message: "no render context for \(experience.renderContext.description)")
+            analyticsObserver.trackRecoverableError(
+                experience: experience,
+                message: "no render context for \(experience.renderContext.description)"
+            )
             completion?(.failure(ExperienceRendererError.renderDeferred(experience.renderContext, experience.model)))
             return
         }
@@ -212,13 +220,18 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
             return
         }
 
+        // all the pre-requisite checks are complete - start the experience
+        start(experience, in: stateMachine, completion: completion)
+    }
+
+    private func start(
+        _ experience: ExperienceData,
+        in stateMachine: ExperienceStateMachine,
+        completion: ((Result<Void, Error>) -> Void)?
+    ) {
         // if we get here, either we did not have an experiment, or it is active and did not exit early (not control group).
         // if an active experiment does exist, it should now track the experiment_entered analytic
         track(experiment: experience.experiment)
-
-        if renderContext == .modal {
-            stepRecoveryObserver.start(experience)
-        }
 
         // only track analytics on published experiences (not previews)
         // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
@@ -227,7 +240,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
                 stateMachine.addObserver(analyticsObserver)
             }
 
-            if renderContext == .modal {
+            if experience.renderContext == .modal {
                 // add recovery observer - on recoverable step errors, initiate recovery and retry
                 stateMachine.addObserver(stepRecoveryObserver)
             }
