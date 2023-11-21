@@ -42,6 +42,46 @@ internal enum ExperienceRendererError: Error {
 }
 
 @available(iOS 13.0, *)
+private class StepRecoveryObserver: ExperienceStateObserver {
+    private var currentExperienceInstanceID: UUID?
+    private let stateMachine: ExperienceStateMachine
+
+    init(stateMachine: ExperienceStateMachine) {
+        self.stateMachine = stateMachine
+    }
+
+    func start(_ experience: ExperienceData) {
+        currentExperienceInstanceID = experience.instanceID
+    }
+
+    func stop() {
+        currentExperienceInstanceID = nil
+    }
+
+    func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
+        guard let instanceID = currentExperienceInstanceID, result.matches(instanceID: instanceID) else { return false }
+
+        if case .failure(.step(_, _, _, true /* recoverable */)) = result {
+
+            // this is where we would inject more advanced logic - we'll want to start observing
+            // scroll changes and detect when they occur and then come to rest, with some debounce,
+            // then trigger a retry
+
+            // simulating this with a 3 sec timer to test for now
+
+            print("recoverable step error - will retry in 3 sec")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                print("retrying step...")
+                try? self.stateMachine.transition(.retry)
+            }
+        }
+
+        // recovery observer never stops observing
+        return false
+    }
+}
+
+@available(iOS 13.0, *)
 internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
     // Conformance to `StateMachineOwning`.
@@ -53,6 +93,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
     private var pendingPreviewExperiences: [RenderContext: ExperienceData] = [:]
     private var potentiallyRenderableExperiences: [RenderContext: [ExperienceData]] = [:]
     private let analyticsObserver: ExperienceStateMachine.AnalyticsObserver
+    private let stepRecoveryObserver: StepRecoveryObserver
     private weak var appcues: Appcues?
     private let config: Appcues.Config
 
@@ -62,8 +103,10 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
         // two items below are not registered/resolved directly from container as they
         // are considered private implementation details of the ExperienceRenderer - helpers.
-        self.stateMachine = ExperienceStateMachine(container: container)
+        let stateMachine = ExperienceStateMachine(container: container)
+        self.stateMachine = stateMachine
         self.analyticsObserver = ExperienceStateMachine.AnalyticsObserver(container: container)
+        self.stepRecoveryObserver = StepRecoveryObserver(stateMachine: stateMachine)
 
         stateMachines[ownerFor: .modal] = self
     }
@@ -97,6 +140,10 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         if shouldClearCache {
             potentiallyRenderableExperiences = [:]
             stateMachines.cleanup()
+
+            // stop any ongoing recovery attempts
+            print("stopping any existing step recovery attempts due to screen change")
+            stepRecoveryObserver.stop()
         }
 
         // Add new experiences, replacing any existing ones
@@ -169,11 +216,23 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         // if an active experiment does exist, it should now track the experiment_entered analytic
         track(experiment: experience.experiment)
 
+        if renderContext == .modal {
+            stepRecoveryObserver.start(experience)
+        }
+
         // only track analytics on published experiences (not previews)
         // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
-        if experience.published && stateMachine.state == .idling {
-            stateMachine.addObserver(analyticsObserver)
+        if stateMachine.state == .idling {
+            if experience.published {
+                stateMachine.addObserver(analyticsObserver)
+            }
+
+            if renderContext == .modal {
+                // add recovery observer - on recoverable step errors, initiate recovery and retry
+                stateMachine.addObserver(stepRecoveryObserver)
+            }
         }
+
         analyticsObserver.trackErrorRecovery(ifErrorOn: experience)
         stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
         stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in

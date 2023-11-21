@@ -24,13 +24,15 @@ extension Result where Success == ExperienceStateMachine.State, Failure == Exper
         switch self {
         case .success(.idling), .failure(.noTransition):
             return true
+        case .success(.failing(let targetState, _)):
+            return targetState.currentExperienceData?.instanceID == instanceID
         case let .success(.beginningExperience(experience)),
             let .success(.beginningStep(experience, _, _, _)),
             let .success(.renderingStep(experience, _, _, _)),
             let .success(.endingStep(experience, _, _, _)),
             let .success(.endingExperience(experience, _, _)),
             let .failure(.experienceAlreadyActive(ignoredExperience: experience)),
-            let .failure(.step(experience, _, _)),
+            let .failure(.step(experience, _, _, _)),
             let .failure(.experience(experience, _)):
             return experience.instanceID == instanceID
         }
@@ -79,6 +81,8 @@ extension ExperienceStateMachine {
                 let metrics = SdkMetrics.trackRender(experience.requestID)
                 let experienceStartProps = LifecycleEvent.properties(experience).merging(metrics)
                 trackLifecycleEvent(.experienceStarted, experienceStartProps)
+                // optionally track the recovery from a render error, if it is now rendering
+                trackStepRecovery(ifErrorOn: experience, stepIndex: stepIndex)
                 trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
                 trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
@@ -92,10 +96,12 @@ extension ExperienceStateMachine {
                 } else {
                     trackLifecycleEvent(.experienceDismissed, LifecycleEvent.properties(experience, stepIndex))
                 }
+            case .success(.failing):
+                break
             case let .failure(.experience(experience, message)):
                 trackLifecycleEvent(.experienceError, LifecycleEvent.properties(experience, error: "\(message)"))
-            case let .failure(.step(experience, stepIndex, message)):
-                trackLifecycleEvent(.stepError, LifecycleEvent.properties(experience, stepIndex, error: "\(message)"))
+            case let .failure(.step(experience, stepIndex, message, recoverable)):
+                trackStepError(experience: experience, stepIndex: stepIndex, message: message, recoverable: recoverable)
             case .failure(.noTransition):
                 break
             case .failure(.experienceAlreadyActive):
@@ -114,6 +120,29 @@ extension ExperienceStateMachine {
             ))
         }
 
+        private func trackStepError(experience: ExperienceData, stepIndex: Experience.StepIndex, message: String, recoverable: Bool) {
+            // guard against tracking the same step error repeatedly during retry
+            // don't need to guard for published, since this function is only called private to this class
+            // and the observer is only attached on published flows
+            guard experience.recoverableErrorID == nil else { return }
+
+            let errorID = UUID.create()
+            if recoverable {
+                experience.recoverableErrorID = errorID
+            }
+            let errorProperties = LifecycleEvent.properties(experience, stepIndex, error: LifecycleEvent.ErrorBody(message: message, id: errorID))
+            trackLifecycleEvent(.stepError, errorProperties)
+        }
+
+        private func trackStepRecovery(ifErrorOn experience: ExperienceData, stepIndex: Experience.StepIndex) {
+            // only track a recovery if we had previously captured a render error for this experience
+            guard let errorID = experience.recoverableErrorID else { return }
+
+            let errorProperties = LifecycleEvent.properties(experience, stepIndex, error: LifecycleEvent.ErrorBody(message: nil, id: errorID))
+            trackLifecycleEvent(.stepRecovered, errorProperties)
+            experience.recoverableErrorID = nil
+        }
+
         func trackRecoverableError(experience: ExperienceData, message: String) {
             guard experience.published, experience.recoverableErrorID == nil else { return }
 
@@ -130,5 +159,6 @@ extension ExperienceStateMachine {
             trackLifecycleEvent(.experienceRecovered, errorProperties)
             experience.recoverableErrorID = nil
         }
+
     }
 }
