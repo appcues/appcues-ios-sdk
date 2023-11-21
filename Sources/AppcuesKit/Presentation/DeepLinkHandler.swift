@@ -144,7 +144,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
             message = "Mobile flow not found."
         case is NetworkingError:
             message = "Error loading mobile flow preview."
-        case let ExperienceStateMachine.ExperienceError.step(experience, _, errorMessage),
+        case let ExperienceStateMachine.ExperienceError.step(experience, _, errorMessage, _),
             let ExperienceStateMachine.ExperienceError.experience(experience, errorMessage):
             message = "Preview of \(experience.name) failed: \(errorMessage)"
         default:

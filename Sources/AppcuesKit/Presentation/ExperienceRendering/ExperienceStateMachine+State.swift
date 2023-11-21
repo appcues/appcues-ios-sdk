@@ -10,13 +10,14 @@ import Foundation
 
 @available(iOS 13.0, *)
 extension ExperienceStateMachine {
-    enum State {
+    indirect enum State {
         case idling
         case beginningExperience(ExperienceData)
         case beginningStep(ExperienceData, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
         case renderingStep(ExperienceData, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
         case endingStep(ExperienceData, Experience.StepIndex, ExperiencePackage, markComplete: Bool)
         case endingExperience(ExperienceData, Experience.StepIndex, markComplete: Bool)
+        case failing(targetState: State, retryEffect: SideEffect)
 
         var currentExperienceData: ExperienceData? {
             switch self {
@@ -28,6 +29,8 @@ extension ExperienceStateMachine {
                     .endingStep(let experienceData, _, _, _),
                     .endingExperience(let experienceData, _, _):
                 return experienceData
+            case .failing(let targetState, _):
+                return targetState.currentExperienceData
             }
         }
 
@@ -40,6 +43,8 @@ extension ExperienceStateMachine {
                     .endingStep(_, let stepIndex, _, _),
                     .endingExperience(_, let stepIndex, _):
                 return stepIndex
+            case .failing(let targetState, _):
+                return targetState.currentStepIndex
             }
         }
 
@@ -70,15 +75,25 @@ extension ExperienceStateMachine {
                 if markComplete {
                     sideEffect = .processActions(experience.postExperienceActionFactory)
                 }
-                return Transition(toState: .idling, sideEffect: sideEffect)
+                return Transition(toState: .idling, sideEffect: sideEffect, resetObservers: true)
+            case let (.failing(targetState, retryEffect), .retry):
+                return Transition(toState: targetState, sideEffect: retryEffect)
+            case (.failing, .startExperience):
+                // do not reset observers here, as we want to maintain the attached analytics listener
+                // through the transition to idling and on to the new experience start attempt
+                return Transition(toState: .idling, sideEffect: .continuation(action), resetObservers: false)
+            case (.failing, .endExperience):
+                return Transition(toState: .idling, resetObservers: true)
 
             // Error cases
             case let (_, .startExperience(experience)):
                 return Transition(toState: nil, sideEffect: .error(.experienceAlreadyActive(ignoredExperience: experience), reset: false))
-            case let (_, .reportError(error, fatal)):
-                // Don't transition directly to .idling for fatal errors because that removes
-                // observers before they're notified of the error by the side effect.
-                return Transition(toState: nil, sideEffect: .error(error, reset: fatal))
+            case let (_, .reportError(error, retryEffect)):
+                // this case occurs on failure from a transition, specifically a trait error during a presentation effect.
+                // move the machine to the failing state with the information necessary to retry, and send the error
+                // information to observers. The error will indicate whether it is recoverable, and an observer may attempt
+                // to retry if the application state changes in a way that would support another attempt
+                return Transition(toState: .failing(targetState: self, retryEffect: retryEffect), sideEffect: .error(error, reset: false))
             default:
                 return nil
             }
@@ -124,6 +139,8 @@ extension ExperienceStateMachine.State: CustomStringConvertible {
             return ".endingStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex), markComplete: \(markComplete))"
         case let .endingExperience(experience, _, markComplete):
             return ".endingExperience(experienceID: \(experience.id.uuidString), markComplete: \(markComplete))"
+        case let .failing(targetState, _):
+            return ".failing(targetState: \(targetState.description)"
         }
     }
 }

@@ -21,10 +21,6 @@ internal class ExperienceStateMachine {
         didSet {
             // Call each observer and filter out ones that been satisfied
             stateObservers = stateObservers.filter { !$0.evaluateIfSatisfied(result: .success(state)) }
-            // Remove all observers when the state machine resets
-            if state == .idling {
-                stateObservers.removeAll()
-            }
         }
     }
 
@@ -74,6 +70,12 @@ internal class ExperienceStateMachine {
 
         if let sideEffect = transition.sideEffect {
             try sideEffect.execute(in: self)
+        }
+
+        // only after the rest of the transition has fully completed, check if we should
+        // remove all the observers (i.e. clear the analytics observer on return to idling)
+        if transition.resetObservers {
+            stateObservers.removeAll()
         }
     }
 
@@ -201,10 +203,12 @@ extension ExperienceStateMachine {
     struct Transition {
         let toState: State?
         let sideEffect: SideEffect?
+        let resetObservers: Bool
 
-        init(toState: State?, sideEffect: SideEffect? = nil) {
+        init(toState: State?, sideEffect: SideEffect? = nil, resetObservers: Bool = false) {
             self.toState = toState
             self.sideEffect = sideEffect
+            self.resetObservers = resetObservers
         }
     }
 
@@ -218,23 +222,24 @@ extension ExperienceStateMachine {
 extension ExperienceStateMachine {
     enum SideEffect {
         case continuation(Action)
-        case presentContainer(ExperienceData, Experience.StepIndex, ExperiencePackage, [Experience.Action])
+        case presentContainer(ExperienceData, Experience.StepIndex, ExperiencePackage, [Experience.Action], isRecovering: Bool = false)
         case navigateInContainer(ExperiencePackage, pageIndex: Int)
         case dismissContainer(ExperiencePackage, continuation: Action)
-        case error(ExperienceError, reset: Bool)
+        case error(ExperienceError, reset: Bool) // Call each observer with the error as a failure, optionally reset to idling
         case processActions((Appcues?) -> [AppcuesExperienceAction])
 
         func execute(in machine: ExperienceStateMachine) throws {
             switch self {
             case .continuation(let action):
                 try machine.transition(action)
-            case let .presentContainer(experience, stepIndex, package, actions):
+            case let .presentContainer(experience, stepIndex, package, actions, isRecovering):
                 machine.actionRegistry.enqueue(actionModels: actions, level: .group, renderContext: experience.renderContext) {
                     executePresentContainer(
                         machine: machine,
                         experience: experience,
                         stepIndex: stepIndex,
-                        package: package
+                        package: package,
+                        isRecovering: isRecovering
                     )
                 }
             case let .navigateInContainer(package, pageIndex):
@@ -258,25 +263,36 @@ extension ExperienceStateMachine {
             machine: ExperienceStateMachine,
             experience: ExperienceData,
             stepIndex: Experience.StepIndex,
-            package: ExperiencePackage
+            package: ExperiencePackage,
+            isRecovering: Bool
         ) {
             machine.clientControllerDelegate = UIApplication.shared.topViewController() as? AppcuesExperienceDelegate
             guard machine.canDisplay(experience: experience.model) else {
-                try? machine.transition(.reportError(.step(experience, stepIndex, "Step blocked by app"), fatal: true))
+                try? machine.transition(.reportError(
+                    error: .step(experience, stepIndex, "Step blocked by app"),
+                    retryEffect: .presentContainer(experience, stepIndex, package, []))
+                )
                 return
             }
 
             package.containerController.eventHandler = machine
 
-            package.pageMonitor.addObserver { [weak machine, weak package] newIndex, oldIndex in
-                do {
-                    try package?.stepDecoratingTraitUpdater(newIndex, oldIndex)
-                    machine?.containerNavigated(from: oldIndex, to: newIndex)
-                } catch {
-                    // Report a fatal error and dismiss the experience
-                    let errorTargetStepIndex = Experience.StepIndex(group: stepIndex.group, item: newIndex)
-                    try? machine?.transition(.reportError(.step(experience, errorTargetStepIndex, "\(error)"), fatal: true))
-                    package?.dismisser({})
+            if !isRecovering { // guard against adding multiple observers during recovery attempts
+                package.pageMonitor.addObserver { [weak machine, weak package] newIndex, oldIndex in
+                    guard let machine = machine, let package = package else { return }
+                    do {
+                        try package.stepDecoratingTraitUpdater(newIndex, oldIndex)
+                        machine.containerNavigated(from: oldIndex, to: newIndex)
+                    } catch {
+                        // Report a fatal error and dismiss the experience
+                        let errorTargetStepIndex = Experience.StepIndex(group: stepIndex.group, item: newIndex)
+                        let recoverable = (error as? AppcuesTraitError)?.recoverable ?? false
+                        try? machine.transition(.reportError(
+                            error: .step(experience, errorTargetStepIndex, "\(error)", recoverable: recoverable),
+                            retryEffect: .presentContainer(experience, errorTargetStepIndex, package, [], isRecovering: true))
+                        )
+                        package.dismisser({})
+                    }
                 }
             }
 
@@ -312,8 +328,12 @@ extension ExperienceStateMachine {
                 SdkMetrics.renderStart(experience.requestID)
 
                 presentStep { error in
+                    let recoverable = (error as? AppcuesTraitError)?.recoverable ?? false
                     // on failure, report a fatal error and dismiss the experience
-                    try? machine.transition(.reportError(.step(experience, stepIndex, "\(error)"), fatal: true))
+                    try? machine.transition(.reportError(
+                        error: .step(experience, stepIndex, "\(error)", recoverable: recoverable),
+                        retryEffect: .presentContainer(experience, stepIndex, package, [], isRecovering: true))
+                    )
                 }
             }
         }

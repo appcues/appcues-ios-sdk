@@ -108,7 +108,8 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
         guard !weightedViews.isEmpty else {
             throw AppcuesTraitError(
                 description: "No view matching selector \(config.selector)",
-                retryMilliseconds: retryMilliseconds
+                retryMilliseconds: retryMilliseconds,
+                recoverable: true
             )
         }
 
@@ -139,7 +140,8 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
             // this selector was not able to find a distinct match in this view
             throw AppcuesTraitError(
                 description: "multiple non-distinct views (\(weightedViews.count)) matched selector \(config.selector)",
-                retryMilliseconds: retryMilliseconds
+                retryMilliseconds: retryMilliseconds,
+                recoverable: true
             )
         }
 
