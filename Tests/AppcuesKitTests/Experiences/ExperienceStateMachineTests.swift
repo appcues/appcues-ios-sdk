@@ -553,39 +553,33 @@ class ExperienceStateMachineTests: XCTestCase {
         // Assert
         XCTAssertEqual(stateMachine.state, initialState)
     }
-    func test_stateIsRenderingStep_whenReportNonFatalError_noTransition() throws {
+    func test_stateIsRenderingStep_whenReporError_transitionsToFailing() throws {
         // Arrange
         let experience = ExperienceData.mock
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
-        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState), fatal: false)
+        let effect: ExperienceStateMachine.SideEffect = .continuation(.reset)
+        let action: Action = .reportError(
+            error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
+            retryEffect: effect
+        )
         let stateMachine = givenState(is: initialState)
 
         // Act
         try stateMachine.transition(action)
 
         // Assert
-        XCTAssertEqual(stateMachine.state, initialState)
+        XCTAssertEqual(stateMachine.state, .failing(targetState: initialState, retryEffect: effect))
     }
 
-    func test_stateIsRenderingStep_whenReportFatalError_transitionsToIdling() throws {
+    func testExperienceErrorNotifiesObserver() throws {
         // Arrange
         let experience = ExperienceData.mock
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
-        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState), fatal: true)
-        let stateMachine = givenState(is: initialState)
-
-        // Act
-        try stateMachine.transition(action)
-
-        // Assert
-        XCTAssertEqual(stateMachine.state, .idling)
-    }
-
-    func testFatalExperienceErrorNotifiesObserver() throws {
-        // Arrange
-        let experience = ExperienceData.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
-        let action: Action = .reportError(ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState), fatal: true)
+        let effect: ExperienceStateMachine.SideEffect = .continuation(.reset)
+        let action: Action = .reportError(
+            error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
+            retryEffect: effect
+        )
         let stateMachine = givenState(is: initialState)
         let listingObserver = ListingObserver()
         stateMachine.addObserver(listingObserver)
@@ -595,17 +589,12 @@ class ExperienceStateMachineTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(
-            stateMachine.state,
-            .idling
-        )
-        XCTAssertEqual(
             listingObserver.results,
             [
-                .failure(.noTransition(currentState: initialState)),
-                .success(.idling)
+                .success(.failing(targetState: initialState, retryEffect: effect)),
+                .failure(.noTransition(currentState: initialState))
             ]
         )
-        XCTAssertEqual(stateMachine.stateObservers.count, 0, "observer is removed when reset to idling")
     }
 
     func test_stateIsRenderingStep_whenReset_noTransition() throws {
