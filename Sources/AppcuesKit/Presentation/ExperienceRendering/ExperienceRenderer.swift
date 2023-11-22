@@ -45,23 +45,23 @@ internal enum ExperienceRendererError: Error {
 private class StepRecoveryObserver: ExperienceStateObserver {
     private let stateMachine: ExperienceStateMachine
 
-    private var retryWorkItem: DispatchWorkItem?
+    // private var retryWorkItem: DispatchWorkItem?
 
     init(stateMachine: ExperienceStateMachine) {
         self.stateMachine = stateMachine
     }
 
     func stopRetryHandler() {
-        if retryWorkItem != nil {
-            print("stopping existing step recovery attempts due to screen change")
-        }
-        retryWorkItem?.cancel()
-        retryWorkItem = nil
+//        if retryWorkItem != nil {
+//            print("stopping existing step recovery attempts due to screen change")
+//        }
+//        retryWorkItem?.cancel()
+//        retryWorkItem = nil
     }
 
     func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
         if case .failure(.step(_, _, _, recoverable: true)) = result {
-            startRetryHandler()
+            // startRetryHandler()
         }
 
         // recovery observer never stops observing
@@ -75,17 +75,17 @@ private class StepRecoveryObserver: ExperienceStateObserver {
 
         // simulating this with a 3 sec timer to test for now
 
-        if retryWorkItem == nil {
-            print("recoverable step error - will retry in 3 sec")
-            let workItem = DispatchWorkItem { [weak self] in
-                guard let self = self else { return }
-                print("retrying step...")
-                self.retryWorkItem = nil
-                try? self.stateMachine.transition(.retry)
-            }
-            retryWorkItem = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: workItem)
-        }
+//        if retryWorkItem == nil {
+//            print("recoverable step error - will retry in 3 sec")
+//            let workItem = DispatchWorkItem { [weak self] in
+//                guard let self = self else { return }
+//                print("retrying step...")
+//                self.retryWorkItem = nil
+//                try? self.stateMachine.transition(.retry)
+//            }
+//            retryWorkItem = workItem
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: workItem)
+//        }
     }
 }
 
