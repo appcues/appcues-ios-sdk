@@ -431,4 +431,55 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertEqual(updates.count, 0)
     }
 
+    func testStepErrorAndRecovery() throws {
+        // Arrange
+        UUID.generator = { UUID(uuidString: "aa47c304-7a42-40e4-8cbf-6d7d8f46c31c")! }
+        let experience = ExperienceData.mock
+        let package = experience.package()
+
+        // Act
+        // simulates the same recoverable step error occurring multiple times, then a successful render of the step
+        _ = observer.evaluateIfSatisfied(result: .failure(.step(experience, .initial, "recoverable step error", recoverable: true)))
+        _ = observer.evaluateIfSatisfied(result: .failure(.step(experience, .initial, "recoverable step error", recoverable: true)))
+        _ = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, package, isFirst: true)))
+
+        // Assert
+        XCTAssertEqual(updates.count, 4) // step_error, experience_started, step_recovered, step_seen
+        let stepError = updates[0]
+        let experienceStarted = updates[1]
+        let stepRecovered = updates[2]
+        let stepSeen = updates[3]
+        XCTAssertEqual(stepError.type, .event(name: "appcues:v2:step_error", interactive: false))
+        XCTAssertEqual(experienceStarted.type, .event(name: "appcues:v2:experience_started", interactive: false))
+        XCTAssertEqual(stepRecovered.type, .event(name: "appcues:v2:step_recovered", interactive: false))
+        XCTAssertEqual(stepSeen.type, .event(name: "appcues:v2:step_seen", interactive: false))
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
+            "stepType": "modal",
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "stepIndex": "0,0",
+            "message": "recoverable step error",
+            "errorId": "aa47c304-7a42-40e4-8cbf-6d7d8f46c31c"
+        ].verifyPropertiesMatch(stepError.properties)
+        [
+            "experienceName": "Mock Experience: Group with 3 steps, Single step",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "localeName": "English",
+            "localeId": "en",
+            "stepType": "modal",
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "stepIndex": "0,0",
+            "errorId": "aa47c304-7a42-40e4-8cbf-6d7d8f46c31c"
+        ].verifyPropertiesMatch(stepRecovered.properties)
+    }
+
 }
