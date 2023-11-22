@@ -311,6 +311,13 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
     }
 
     func resetAll() {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async {
+                self.resetAll()
+            }
+            return
+        }
+
         pendingPreviewExperiences.removeAll()
         potentiallyRenderableExperiences.removeAll()
 
