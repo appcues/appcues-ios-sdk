@@ -77,7 +77,8 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
 
         configureConstraints(isEmpty: false)
 
-        viewController.embedChildViewController(experienceController, inSuperview: self, margins: margins)
+        self.directionalLayoutMargins = margins
+        viewController.embedChildViewController(experienceController, inSuperview: self, respectLayoutMargins: true)
         experienceViewController = experienceController
 
         switch transition {
