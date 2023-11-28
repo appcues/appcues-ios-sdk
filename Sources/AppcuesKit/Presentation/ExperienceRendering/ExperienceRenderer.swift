@@ -41,27 +41,32 @@ internal enum ExperienceRendererError: Error {
     case experimentControl
 }
 
+// This class is only used by the Modal RenderContext (modals and tooltips)
+// to detect recoverable step errors and attempt to retry when scroll changes
+// are observed. It hooks into the AppcuesScrollViewDelegate, which receives
+// scroll updates from the UIScrollView implementations in the app via
+// method swizzling.
 @available(iOS 13.0, *)
-private class StepRecoveryObserver: ExperienceStateObserver {
-    private let stateMachine: ExperienceStateMachine
+internal class StepRecoveryObserver: ExperienceStateObserver {
 
-    // private var retryWorkItem: DispatchWorkItem?
+    private let stateMachine: ExperienceStateMachine
 
     init(stateMachine: ExperienceStateMachine) {
         self.stateMachine = stateMachine
     }
 
+    func scrollEnded() {
+        stopRetryHandler() // stop now, if this next retry fails, it will start over again
+        try? stateMachine.transition(.retry)
+    }
+
     func stopRetryHandler() {
-//        if retryWorkItem != nil {
-//            print("stopping existing step recovery attempts due to screen change")
-//        }
-//        retryWorkItem?.cancel()
-//        retryWorkItem = nil
+        AppcuesScrollViewDelegate.shared.observer = nil
     }
 
     func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
         if case .failure(.step(_, _, _, recoverable: true)) = result {
-            // startRetryHandler()
+            startRetryHandler()
         }
 
         // recovery observer never stops observing
@@ -69,23 +74,7 @@ private class StepRecoveryObserver: ExperienceStateObserver {
     }
 
     private func startRetryHandler() {
-        // this is where we would inject more advanced logic - we'll want to start observing
-        // scroll changes and detect when they occur and then come to rest, with some debounce,
-        // then trigger a retry
-
-        // simulating this with a 3 sec timer to test for now
-
-//        if retryWorkItem == nil {
-//            print("recoverable step error - will retry in 3 sec")
-//            let workItem = DispatchWorkItem { [weak self] in
-//                guard let self = self else { return }
-//                print("retrying step...")
-//                self.retryWorkItem = nil
-//                try? self.stateMachine.transition(.retry)
-//            }
-//            retryWorkItem = workItem
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: workItem)
-//        }
+        AppcuesScrollViewDelegate.shared.observer = self
     }
 }
 
@@ -117,6 +106,9 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         self.stepRecoveryObserver = StepRecoveryObserver(stateMachine: stateMachine)
 
         stateMachines[ownerFor: .modal] = self
+
+        // TODO: guard against multiple
+        UIScrollView.swizzleScrollViewGetDelegate()
     }
 
     func start(owner: StateMachineOwning, forContext context: RenderContext) {
