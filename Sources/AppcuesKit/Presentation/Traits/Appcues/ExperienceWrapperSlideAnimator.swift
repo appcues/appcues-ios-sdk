@@ -54,9 +54,9 @@ internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimate
             // We need to add the modal to the view hierarchy,
             // and perform the animation.
             if let toView = transitionContext.view(forKey: .to) {
-                toView.translatesAutoresizingMaskIntoConstraints = false
                 transitionContext.containerView.addSubview(toView)
-                toView.pin(to: transitionContext.containerView)
+                toView.frame = transitionContext.containerView.bounds
+                toView.autoresizingMask = [.flexibleHeight, .flexibleWidth]
                 toView.layoutIfNeeded()
             }
 
