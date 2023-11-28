@@ -12,7 +12,6 @@ extension UIViewController {
     func embedChildViewController(
         _ childVC: UIViewController,
         inSuperview superview: UIView,
-        margins: NSDirectionalEdgeInsets = .zero,
         respectLayoutMargins: Bool = false
     ) {
         addChild(childVC)
@@ -20,7 +19,7 @@ extension UIViewController {
         if respectLayoutMargins {
             childVC.view.pin(to: superview.layoutMarginsGuide)
         } else {
-            childVC.view.pin(to: superview, margins: margins)
+            childVC.view.pin(to: superview)
         }
         childVC.didMove(toParent: self)
     }

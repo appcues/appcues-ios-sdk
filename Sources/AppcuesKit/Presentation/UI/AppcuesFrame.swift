@@ -42,6 +42,13 @@ extension AppcuesFrame {
             view = frameView
         }
 
+        override func viewDidLoad() {
+            super.viewDidLoad()
+
+            // Only want to render the margins specified by the embed style
+            viewRespectsSystemMinimumLayoutMargins = false
+        }
+
         override func viewWillLayoutSubviews() {
             super.viewWillLayoutSubviews()
 
@@ -59,7 +66,15 @@ extension AppcuesFrame {
                 return
             }
 
-            preferredContentSize = container.preferredContentSize
+
+            // Add frame margins to the calculated size. Need to do this because the margins must be set on the FrameView,
+            // not the UIViewController it contains which manages the preferredContentSize
+            let margins = frameView.directionalLayoutMargins
+
+            preferredContentSize = CGSize(
+                width: container.preferredContentSize.width + margins.leading + margins.trailing,
+                height: container.preferredContentSize.height + margins.top + margins.bottom
+            )
         }
     }
 }
