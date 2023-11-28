@@ -162,14 +162,21 @@ internal extension UIView {
     }
 
     func asViewElement() -> AppcuesViewElement? {
-        return self.asViewElement(in: self.bounds, autoTag: nil)
+        return self.asViewElement(in: self.bounds, safeAreaInsets: self.safeAreaInsets, autoTag: nil)
     }
 
-    private func asViewElement(in bounds: CGRect, autoTag: String?) -> AppcuesViewElement? {
+    private func asViewElement(in bounds: CGRect, safeAreaInsets: UIEdgeInsets, autoTag: String?) -> AppcuesViewElement? {
         let absolutePosition = self.convert(self.bounds, to: nil)
 
         // discard views that are not visible in the screenshot image
         guard absolutePosition.intersects(bounds) else { return nil }
+
+        let childInsets = UIEdgeInsets(
+            top: max(safeAreaInsets.top, self.safeAreaInsets.top),
+            left: max(safeAreaInsets.left, self.safeAreaInsets.left),
+            bottom: max(safeAreaInsets.bottom, self.safeAreaInsets.bottom),
+            right: max(safeAreaInsets.right, self.safeAreaInsets.right)
+        )
 
         var tabCount = 0
 
@@ -182,16 +189,21 @@ internal extension UIView {
                 childTabIndex = tabCount - 1
             }
             let childAutoTag = getAutoTag(tabIndex: childTabIndex)
-            return subview.asViewElement(in: bounds, autoTag: childAutoTag)
+            return subview.asViewElement(in: bounds, safeAreaInsets: childInsets, autoTag: childAutoTag)
         }
 
-        let selector = getAppcuesSelector(autoTag: autoTag)
+        // only create a selector for elements that have at least the center point 
+        // visible in the current screen bounds, inset by any safe area adjustments
+        let safeBounds = bounds.inset(by: safeAreaInsets)
+        let centerPointVisible = safeBounds.contains(CGPoint(x: absolutePosition.midX, y: absolutePosition.midY))
+        let visibleRect = safeBounds.intersection(absolutePosition)
+        let selector = centerPointVisible ? getAppcuesSelector(autoTag: autoTag) : nil
 
         return AppcuesViewElement(
-            x: absolutePosition.origin.x,
-            y: absolutePosition.origin.y,
-            width: absolutePosition.width,
-            height: absolutePosition.height,
+            x: visibleRect.origin.x,
+            y: visibleRect.origin.y,
+            width: visibleRect.width,
+            height: visibleRect.height,
             type: displayType,
             selector: selector,
             children: children.isEmpty ? nil : children,
