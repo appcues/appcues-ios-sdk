@@ -61,7 +61,7 @@ internal class StepRecoveryObserver: ExperienceStateObserver {
     }
 
     func stopRetryHandler() {
-        AppcuesScrollViewDelegate.shared.observer = nil
+        AppcuesScrollViewDelegate.shared.detach()
     }
 
     func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
@@ -74,7 +74,7 @@ internal class StepRecoveryObserver: ExperienceStateObserver {
     }
 
     private func startRetryHandler() {
-        AppcuesScrollViewDelegate.shared.observer = self
+        AppcuesScrollViewDelegate.shared.attach(using: self)
     }
 }
 
@@ -106,9 +106,6 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         self.stepRecoveryObserver = StepRecoveryObserver(stateMachine: stateMachine)
 
         stateMachines[ownerFor: .modal] = self
-
-        // TODO: guard against multiple
-        UIScrollView.swizzleScrollViewGetDelegate()
     }
 
     func start(owner: StateMachineOwning, forContext context: RenderContext) {
@@ -170,9 +167,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
     private func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
         guard Thread.isMainThread else {
-            DispatchQueue.main.async {
-                self.show(experience: experience, completion: completion)
-            }
+            DispatchQueue.main.async { self.show(experience: experience, completion: completion) }
             return
         }
 
@@ -376,9 +371,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
     func resetAll() {
         guard Thread.isMainThread else {
-            DispatchQueue.main.async {
-                self.resetAll()
-            }
+            DispatchQueue.main.async { self.resetAll() }
             return
         }
 

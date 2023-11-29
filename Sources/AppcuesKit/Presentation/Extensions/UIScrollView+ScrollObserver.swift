@@ -23,7 +23,20 @@ internal class AppcuesScrollViewDelegate: NSObject, UIScrollViewDelegate {
     // This could have been a more sophisticated list of weak references to some Protocol implementation,
     // but that would seem to add unnecessary complexity and list management, when really only a single
     // RenderContext in the application (the modal context) can be in recovery mode at any given time.
-    weak var observer: StepRecoveryObserver?
+    private weak var observer: StepRecoveryObserver?
+
+    override private init() {
+        super.init()
+        UIScrollView.swizzleScrollViewGetDelegate()
+    }
+
+    func attach(using observer: StepRecoveryObserver) {
+        self.observer = observer
+    }
+
+    func detach() {
+        self.observer = nil
+    }
 
     // if any scroll activity is currently active, cancel any pending scrollEnded notifications
     // and wait for the next scroll completion to attempt any retry
