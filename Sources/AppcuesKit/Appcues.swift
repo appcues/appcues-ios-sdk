@@ -256,7 +256,7 @@ public class Appcues: NSObject {
     /// - Parameters:
     ///   - frameID: The unique identifier for the embedded ``AppcuesFrameView``.
     ///   - view: The ``AppcuesFrameView`` to register for hosting embedded content.
-    ///   - viewController: The `UIViewController` that owns the provided ``AppcuesFrameView`` instance.
+    ///   - parentViewController: The `UIViewController` that owns the provided ``AppcuesFrameView`` instance.
     @objc
     public func register(frameID: String, for view: AppcuesFrameView, on parentViewController: UIViewController) {
         guard #available(iOS 13.0, *) else {
