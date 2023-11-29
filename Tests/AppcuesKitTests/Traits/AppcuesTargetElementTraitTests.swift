@@ -20,6 +20,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
     var window: UIWindow!
     var rootViewController: UIViewController!
     var backdropView: UIView!
+    var safeArea: CGRect!
 
     override func setUpWithError() throws {
         appcues = MockAppcues()
@@ -34,6 +35,8 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         window.rootViewController = rootViewController
         window.makeKeyAndVisible()
         window.addSubview(backdropView)
+
+        safeArea = rootViewController.view.bounds.inset(by: rootViewController.view.safeAreaInsets)
     }
 
     override func tearDownWithError() throws {
@@ -113,7 +116,8 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
-        let view1 = UIView(frame: CGRect(x: 20, y: 20, width: 100, height: 100), accessibilityIdentifier: "myID")
+        let frame = CGRect(x: 20, y: 20, width: 100, height: 100)
+        let view1 = UIView(frame: frame, accessibilityIdentifier: "myID")
         rootViewController.view.addSubview(view1)
 
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
@@ -127,16 +131,18 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(metadataUpdates.count, 1)
         let latestMetadata = try XCTUnwrap(metadataUpdates.last)
 
-        XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 20, y: 20, width: 100, height: 100))
+        XCTAssertEqual(latestMetadata["targetRectangle"], safeArea.intersection(frame))
     }
 
     func testDecorateMultipleMatches() throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
-        let view1 = UIView(frame: CGRect(x: 20, y: 20, width: 100, height: 100), accessibilityIdentifier: "myID", accessibilityLabel: "My View")
+        let frame1 = CGRect(x: 20, y: 20, width: 100, height: 100)
+        let view1 = UIView(frame: frame1, accessibilityIdentifier: "myID", accessibilityLabel: "My View")
         rootViewController.view.addSubview(view1)
-        let view2 = UIView(frame: CGRect(x: 140, y: 20, width: 100, height: 100), accessibilityIdentifier: "myID", tag: 54)
+        let frame2 = CGRect(x: 140, y: 20, width: 100, height: 100)
+        let view2 = UIView(frame: frame2, accessibilityIdentifier: "myID", tag: 54)
         rootViewController.view.addSubview(view2)
 
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID", "accessibilityLabel": "My View", "tag": "54"]))
@@ -150,7 +156,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(metadataUpdates.count, 1)
         let latestMetadata = try XCTUnwrap(metadataUpdates.last)
 
-        XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 140, y: 20, width: 100, height: 100))
+        XCTAssertEqual(latestMetadata["targetRectangle"], safeArea.intersection(frame2))
     }
 
     func testFrameRecalculation() throws {
@@ -166,18 +172,21 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         try trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
+        let updatedFrame = CGRect(x: 500, y: 20, width: 100, height: 100)
+
         // Act
-        view1.frame = CGRect(x: 500, y: 20, width: 100, height: 100)
+        view1.frame = updatedFrame
         window.frame = CGRect(x: 0, y: 0, width: 1000, height: 500)
         backdropView.frame = CGRect(x: 0, y: 0, width: 1000, height: 500)
         backdropView.setNeedsLayout()
         backdropView.layoutIfNeeded()
+        let updatedSafeArea = rootViewController.view.bounds.inset(by: rootViewController.view.safeAreaInsets)
 
         // Assert
         XCTAssertEqual(metadataUpdates.count, 2)
         let latestMetadata = try XCTUnwrap(metadataUpdates.last)
 
-        XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 500, y: 20, width: 100, height: 100))
+        XCTAssertEqual(latestMetadata["targetRectangle"], updatedSafeArea.intersection(updatedFrame))
     }
 
     func testUndecorate() throws {
@@ -211,26 +220,29 @@ class AppcuesTargetElementTraitTests: XCTestCase {
     }
 
     func testElementDisplayName() throws {
-        let view1 = UIView()
+        let frame = CGRect(x: 20, y: 20, width: 100, height: 100)
+
+        let view1 = UIView(frame: frame)
         view1.accessibilityIdentifier = "myAccessibilityID"
         let view1Element = try XCTUnwrap(view1.asViewElement())
         XCTAssertEqual(view1Element.displayName, "myAccessibilityID")
 
         let view2 = AppcuesTargetView(identifier: "someID")
+        view2.frame = frame
         let view2Element = try XCTUnwrap(view2.asViewElement())
         XCTAssertEqual(view2Element.displayName, "someID")
 
-        let view3 = UIView()
+        let view3 = UIView(frame: frame)
         view3.tag = 226
         let view3Element = try XCTUnwrap(view3.asViewElement())
         XCTAssertEqual(view3Element.displayName, "UIView (tag 226)")
 
-        let view4 = UIButton()
+        let view4 = UIButton(frame: frame)
         view4.accessibilityLabel = "My Button"
         let view4Element = try XCTUnwrap(view4.asViewElement())
         XCTAssertEqual(view4Element.displayName, "UIButton (My Button)")
 
-        let view5 = UIView()
+        let view5 = UIView(frame: frame)
         let view5Element = try XCTUnwrap(view5.asViewElement())
         XCTAssertNil(view5Element.displayName)
     }
@@ -249,7 +261,9 @@ class AppcuesTargetElementTraitTests: XCTestCase {
     }
 
     func testTabBarDisplayName() throws {
-        let tabBarView = UITabBar()
+        let frame = CGRect(x: 20, y: 20, width: 100, height: 100)
+        
+        let tabBarView = UITabBar(frame: frame)
         let tabBarButton1 = UITabBarButton()
         let tabBarButton2 = UITabBarButton()
         let tabBarButton3 = UITabBarButton()
