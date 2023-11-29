@@ -36,21 +36,21 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
     }
 
     override func viewDidLoad() {
-         super.viewDidLoad()
+        super.viewDidLoad()
 
-         NotificationCenter.default.addObserver(
-             self,
-             selector: #selector(adjustForKeyboard),
-             name: UIResponder.keyboardWillHideNotification,
-             object: nil
-         )
-         NotificationCenter.default.addObserver(
-             self,
-             selector: #selector(adjustForKeyboard),
-             name: UIResponder.keyboardWillChangeFrameNotification,
-             object: nil
-         )
-     }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(adjustForKeyboard),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(adjustForKeyboard),
+            name: UIResponder.keyboardWillChangeFrameNotification,
+            object: nil
+        )
+    }
 
     @discardableResult
     func configureStyle(_ style: ExperienceComponent.Style?, transition: AppcuesModalTrait.Transition = .fade) -> Self {
