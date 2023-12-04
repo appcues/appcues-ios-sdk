@@ -32,3 +32,5 @@ The format of anonymous IDs can customized with ``Appcues/Config/anonymousIDFact
 Associating a user with a group allows you to additionally capture analytics at the group level, and target content to show based upon group membership and properties.
 
 ``Appcues/group(groupID:properties:)``
+
+To ensure the most accurate content targeting based upon group information, it's recommended to supply the group information immediately after a new user is identified.
