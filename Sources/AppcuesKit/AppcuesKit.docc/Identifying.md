@@ -26,3 +26,9 @@ This signature will be used in an Authorization header on network requests from 
 ``Appcues/anonymous()``
 
 The format of anonymous IDs can customized with ``Appcues/Config/anonymousIDFactory(_:)``. Anonymous IDs will always be prefixed with `anon:` by the SDK.
+
+## Grouping Users
+
+Associating a user with a group allows you to additionally capture analytics at the group level, and target content to show based upon group membership and properties.
+
+``Appcues/group(groupID:properties:)``

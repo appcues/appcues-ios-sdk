@@ -111,6 +111,10 @@ In order to target content to the right users at the right time, you need to ide
 
 - `identify(userID:)`
 
+After identifying a user, you can optionally associate that user with group.
+
+- `group(groupID:)`
+
 ### Tracking Screens and Events
 
 Events are the “actions” your users take in your application, which can be anything from clicking a certain button to viewing a specific screen. Once you’ve installed and initialized the Appcues iOS SDK, you can start tracking screens and events using the following methods:
