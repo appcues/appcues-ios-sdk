@@ -17,6 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         // Override point for customization after application launch.
 
+        registerForPush(application)
+
         return true
     }
 
@@ -66,10 +68,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return false
         }
     }
+
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
+        print("push deviceToken: \(token)")
+    }
+
+    private func registerForPush(_ application: UIApplication) {
+        application.registerForRemoteNotifications()
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+        var options: UNAuthorizationOptions = [.alert, .sound, .badge]
+//        if #available(iOS 12.0, *) {
+//          options = UNAuthorizationOptions(rawValue: options.rawValue | UNAuthorizationOptions.provisional.rawValue)
+//        }
+        center.requestAuthorization(options: options) { granted, error in
+            print("Notification authorization, granted: \(granted), error: \(String(describing: error))")
+        }
+    }
 }
 
 extension Appcues {
     // Find your Appcues account ID in your account settings in Appcues Studio.
     // Find your Appcues application ID in your account settings under the Apps & Installation tab in Appcues Studio.
-    static var shared = Appcues(config: Config(accountID: <#APPCUES_ACCOUNT_ID#>, applicationID: <#APPCUES_APPLICATION_ID#>))
+    static var shared = Appcues(config: Config(accountID: "103523", applicationID: "8bc9bdb8-6546-4781-95f8-75abee12fa7a"))
+}
+
+extension AppDelegate: UNUserNotificationCenterDelegate {
+
 }
