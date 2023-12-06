@@ -69,6 +69,11 @@ extension ExperienceStateMachine {
         }
 
         func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
+            guard result.shouldTrack else {
+                // Always continue observing
+                return false
+            }
+
             switch result {
             case .success(.idling):
                 break
@@ -112,7 +117,7 @@ extension ExperienceStateMachine {
             return false
         }
 
-        func trackLifecycleEvent(_ name: LifecycleEvent, _ properties: [String: Any]) {
+        private func trackLifecycleEvent(_ name: LifecycleEvent, _ properties: [String: Any]) {
             analyticsPublisher.publish(TrackingUpdate(
                 type: .event(name: name.rawValue, interactive: false),
                 properties: properties,
@@ -168,5 +173,33 @@ extension ExperienceStateMachine {
             experience.recoverableErrorID = nil
         }
 
+    }
+}
+
+@available(iOS 13.0, *)
+private extension ExperienceStateObserver.StateResult {
+    var shouldTrack: Bool {
+        switch self {
+        case let .success(state):
+            return state.currentExperienceData?.published ?? false
+        case let .failure(error):
+            return error.shouldTrack
+        }
+    }
+}
+
+@available(iOS 13.0, *)
+private extension ExperienceStateMachine.ExperienceError {
+    var shouldTrack: Bool {
+        switch self {
+        case .noTransition:
+            return false
+        case .experienceAlreadyActive:
+            return false
+        case let .experience(experience, _):
+            return experience.published
+        case let .step(experience, _, _, _):
+            return experience.published
+        }
     }
 }
