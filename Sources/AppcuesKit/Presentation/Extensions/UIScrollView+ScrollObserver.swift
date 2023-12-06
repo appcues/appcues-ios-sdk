@@ -18,6 +18,10 @@ internal class AppcuesScrollViewDelegate: NSObject, UIScrollViewDelegate {
 
     private var retryWorkItem: DispatchWorkItem?
 
+    // tracks whether our swizzled scroll handlers have been activated yet,
+    // allows for delaying this until only when actually needed, and only doing once
+    private var initialized = false
+
     // Using a simple approach here where a single StepRecoverObserver can be attached at a time.
     //
     // This could have been a more sophisticated list of weak references to some Protocol implementation,
@@ -25,12 +29,11 @@ internal class AppcuesScrollViewDelegate: NSObject, UIScrollViewDelegate {
     // RenderContext in the application (the modal context) can be in recovery mode at any given time.
     private weak var observer: StepRecoveryObserver?
 
-    override private init() {
-        super.init()
-        UIScrollView.swizzleScrollViewGetDelegate()
-    }
-
     func attach(using observer: StepRecoveryObserver) {
+        if !initialized {
+            initialized = true
+            UIScrollView.swizzleScrollViewGetDelegate()
+        }
         self.observer = observer
     }
 
@@ -40,7 +43,7 @@ internal class AppcuesScrollViewDelegate: NSObject, UIScrollViewDelegate {
 
     // if any scroll activity is currently active, cancel any pending scrollEnded notifications
     // and wait for the next scroll completion to attempt any retry
-    func didScroll() {
+    func didBeginDragging() {
         // cancel any existing notification
         retryWorkItem?.cancel()
         retryWorkItem = nil
@@ -57,12 +60,14 @@ internal class AppcuesScrollViewDelegate: NSObject, UIScrollViewDelegate {
         // start a 1 sec timer to notify observer unless more scroll occurs
         if retryWorkItem == nil {
             let workItem = DispatchWorkItem { [weak self] in
+                guard let self = self else { return }
                 // the observer may have been made `nil` in the 1 second delay, so
                 // we use the current state and do not send the notification if it
                 // is no longer listening for retry
-                self?.observer?.scrollEnded()
+                self.observer?.scrollEnded()
+                self.retryWorkItem = nil
             }
-            retryWorkItem = workItem
+            self.retryWorkItem = workItem
             DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
         }
     }
@@ -106,9 +111,9 @@ extension UIScrollView {
 
         swizzle(
             delegate,
-            targetSelector: NSSelectorFromString("scrollViewDidScroll:"),
-            placeholderSelector: #selector(appcues__placeholderScrollViewDidScroll),
-            swizzleSelector: #selector(appcues__scrollViewDidScroll)
+            targetSelector: NSSelectorFromString("scrollViewWillBeginDragging:"),
+            placeholderSelector: #selector(appcues__placeholderScrollViewWillBeginDragging),
+            swizzleSelector: #selector(appcues__scrollViewWillBeginDragging)
         )
 
         swizzle(
@@ -195,7 +200,7 @@ extension UIScrollView {
     }
 
     @objc
-    func appcues__placeholderScrollViewDidScroll(_ scrollView: UIScrollView) {
+    func appcues__placeholderScrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         // this gives swizzling something to replace, if the existing delegate doesn't already
         // implement this function.
     }
@@ -213,10 +218,10 @@ extension UIScrollView {
     }
 
     @objc
-    func appcues__scrollViewDidScroll(_ scrollView: UIScrollView) {
-        appcues__scrollViewDidScroll(scrollView)
+    func appcues__scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        appcues__scrollViewWillBeginDragging(scrollView)
 
-        AppcuesScrollViewDelegate.shared.didScroll()
+        AppcuesScrollViewDelegate.shared.didBeginDragging()
     }
 
     @objc
