@@ -32,8 +32,20 @@ internal class StepRecoveryObserver: ExperienceStateObserver {
     }
 
     func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
-        if case .failure(.step(_, _, _, recoverable: true)) = result {
+        switch result {
+        case .failure(.step(_, _, _, recoverable: true)):
+            // a recoverable step error has been observed, so we begin attempting
+            // recovery - this will attach a listener to scroll changes in the app
+            // to see if layout changes make this experience presentable
             startRetryHandler()
+        case .success(.idling):
+            // if the machine goes back to idling, this means that any experience
+            // that was in a retry state was fully dismissed, or potentially a new
+            // experience has been queued up to start in its place - remove any
+            // existing retry handler to stop attempting recovery
+            stopRetryHandler()
+        default:
+            break
         }
 
         // recovery observer never stops observing
