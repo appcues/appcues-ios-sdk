@@ -182,12 +182,10 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         // if an active experiment does exist, it should now track the experiment_entered analytic
         track(experiment: experience.experiment)
 
-        // only track analytics on published experiences (not previews)
         // and only add the observer if the state machine is idling, otherwise there's already another experience in-flight
         if stateMachine.state == .idling {
-            if experience.published {
-                stateMachine.addObserver(analyticsObserver)
-            }
+            // we always add an analytics observer, it will internally filter out unpublished flows (builder previews)
+            stateMachine.addObserver(analyticsObserver)
 
             if experience.renderContext == .modal {
                 // add recovery observer - on recoverable step errors, initiate recovery and retry
