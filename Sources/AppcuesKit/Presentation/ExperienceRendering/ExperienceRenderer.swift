@@ -100,7 +100,6 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         if shouldClearCache {
             potentiallyRenderableExperiences = [:]
             stateMachines.cleanup()
-            stepRecoveryObserver.stopRetryHandler()
         }
 
         // Add new experiences, replacing any existing ones
