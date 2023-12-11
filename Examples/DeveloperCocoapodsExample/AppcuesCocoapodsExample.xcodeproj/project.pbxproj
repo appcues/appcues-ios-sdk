@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -20,6 +20,7 @@
 		9E6FF9F4B22B8874E5AA6544 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 93D50517BBE18B336D130E13 /* LaunchScreen.storyboard */; };
 		A245C61F75A6DAA8985A6772 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C713E67205D9507CE2DC80 /* AppDelegate.swift */; };
 		A5CE7AE8513C052690838416 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */; };
+		C9DB63862B2770D100469E05 /* ScrollingTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9DB63852B2770D100469E05 /* ScrollingTableViewController.swift */; };
 		CCD458B6662FC0AC5C80CAFF /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384497BA35A275E793B475C1 /* ProfileViewController.swift */; };
 		CD156254F042866368E77CC3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 024025AF9E2E0D38C368A6AC /* Main.storyboard */; };
 		DBE453F2B40A01B4818CB84E /* Lato-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C47ABB97FE784624C32E96D7 /* Lato-Bold.ttf */; };
@@ -47,6 +48,7 @@
 		9D26E6136C6539597C9E50A9 /* EventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsViewController.swift; sourceTree = "<group>"; };
 		AAD7ED9DCA5972361B3F5E67 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C47ABB97FE784624C32E96D7 /* Lato-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Bold.ttf"; sourceTree = "<group>"; };
+		C9DB63852B2770D100469E05 /* ScrollingTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingTableViewController.swift; sourceTree = "<group>"; };
 		CF3444B81C1A2ED10CA985F2 /* Mulish-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		D2C0EC54920737EBD7E2961F /* AppcuesCocoapodsExample.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = AppcuesCocoapodsExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3C0F23F9CDE7740C2E2DBF7 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
@@ -70,7 +72,6 @@
 				925915F4923FF8E1B2479C94 /* Pods-AppcuesCocoapodsExample.debug.xcconfig */,
 				2777BD40C9776A5F0E012EE4 /* Pods-AppcuesCocoapodsExample.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -103,6 +104,7 @@
 				384497BA35A275E793B475C1 /* ProfileViewController.swift */,
 				25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */,
 				8663BEDD1883CC408AA4A302 /* SignInViewController.swift */,
+				C9DB63852B2770D100469E05 /* ScrollingTableViewController.swift */,
 			);
 			path = CocoapodsExample;
 			sourceTree = "<group>";
@@ -163,8 +165,6 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 1200;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 95033167E7E129F199208F61 /* Build configuration list for PBXProject "AppcuesCocoapodsExample" */;
 			compatibilityVersion = "Xcode 11.0";
@@ -276,6 +276,7 @@
 				CCD458B6662FC0AC5C80CAFF /* ProfileViewController.swift in Sources */,
 				A5CE7AE8513C052690838416 /* SceneDelegate.swift in Sources */,
 				0384A2A89074FC193A107EE5 /* SignInViewController.swift in Sources */,
+				C9DB63862B2770D100469E05 /* ScrollingTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
