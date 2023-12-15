@@ -325,4 +325,31 @@ class AppcuesTests: XCTestCase {
         XCTAssertNil(weakActionRegistry)
         XCTAssertNil(weakTraitComposing)
     }
+
+    func testDIContainerThreadSafety() throws {
+        // Arrange
+        let dispatchGroup = DispatchGroup()
+        let completeExpectation = expectation(description: "multi thread")
+        completeExpectation.expectedFulfillmentCount = 100
+
+        let container = DIContainer()
+
+        // Act
+        // Register and read a dependency on 100 threads
+        for i in 0..<100 {
+            dispatchGroup.enter()
+            DispatchQueue.global().async {
+                let dep = Appcues.Config(accountID: "<acc_id>", applicationID: "<app_id>")
+                container.register(Appcues.Config.self, value: dep)
+                _ = container.resolve(Appcues.Config.self)
+                completeExpectation.fulfill()
+                print("Resolved", i)
+                dispatchGroup.leave()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 2)
+
+    }
 }
