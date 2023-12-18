@@ -288,9 +288,11 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
+        // tab bar needs to be inside the safe area
         let tabBarView = UITabBar()
         let tabBarButton1 = UITabBarButton()
         let tabBarButton2 = UITabBarButton()
+        // this button is inside the tab bar
         let tabBarButton3 = UITabBarButton(frame: CGRect(x: 10, y: 100, width: 40, height: 40))
         tabBarView.addSubview(tabBarButton1)
         tabBarView.addSubview(tabBarButton2)
@@ -311,6 +313,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(metadataUpdates.count, 1)
         let latestMetadata = try XCTUnwrap(metadataUpdates.last)
 
+        // the rect here is x/y positioned relative to button 3 offset within the tab bar frame
         XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 10, y: 100, width: 40, height: 40))
     }
 }

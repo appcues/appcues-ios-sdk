@@ -192,18 +192,25 @@ internal extension UIView {
             return subview.asViewElement(in: bounds, safeAreaInsets: childInsets, autoTag: childAutoTag)
         }
 
-        // only create a selector for elements that have at least the center point 
-        // visible in the current screen bounds, inset by any safe area adjustments
+        // find the rect of the visible area of the view within the safe area
         let safeBounds = bounds.inset(by: safeAreaInsets)
-        let centerPointVisible = safeBounds.contains(CGPoint(x: absolutePosition.midX, y: absolutePosition.midY))
         let visibleRect = safeBounds.intersection(absolutePosition)
+
+        // if there is no visible rect, fall back to the absolute position, but we will
+        // not generate any selector for non-visible item below. Do not skip the item entirely
+        // since it could have children that are within the visible range (out of bounds of parent)
+        let locationRect = visibleRect.isNull ? absolutePosition : visibleRect
+
+        // only create a selector for elements that have at least the center point
+        // visible in the current screen bounds, inset by any safe area adjustments
+        let centerPointVisible = safeBounds.contains(CGPoint(x: absolutePosition.midX, y: absolutePosition.midY))
         let selector = centerPointVisible ? getAppcuesSelector(autoTag: autoTag) : nil
 
         return AppcuesViewElement(
-            x: visibleRect.origin.x,
-            y: visibleRect.origin.y,
-            width: visibleRect.width,
-            height: visibleRect.height,
+            x: locationRect.origin.x,
+            y: locationRect.origin.y,
+            width: locationRect.width,
+            height: locationRect.height,
             type: displayType,
             selector: selector,
             children: children.isEmpty ? nil : children,
