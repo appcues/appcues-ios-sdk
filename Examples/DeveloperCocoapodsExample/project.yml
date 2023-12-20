@@ -17,6 +17,7 @@ targets:
       properties:
         com.apple.developer.associated-domains:
           - applinks:appcues-mobile-links.netlify.app
+        aps-environment: development
     postbuildScripts:
     - name: SwiftLint
       script: 'if which mint >/dev/null; then
