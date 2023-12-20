@@ -76,7 +76,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_lastScreenTitle": previousScreen,
             "_updatedAt": Date(),
             "_lastContentShownAt": storage.lastContentShownAt,
-            "_sessionId": appcues?.sessionID?.appcuesFormatted
+            "_sessionId": appcues?.sessionID?.appcuesFormatted,
+            "_deviceToken": storage.deviceToken
         ]
 
         if let bundleLanguageID = Bundle.main.preferredLocalizations.first {

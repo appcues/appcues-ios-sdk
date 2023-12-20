@@ -309,6 +309,13 @@ public class Appcues: NSObject {
         return container.resolve(DeepLinkHandling.self).didHandleURL(url)
     }
 
+    @objc
+    public func setPushToken(_ deviceToken: Data?) {
+        let token = deviceToken?.map { String(format: "%02.2hhx", $0) }.joined()
+        storage.deviceToken = token
+    }
+
+
     func initializeContainer() {
         container.owner = self
         container.register(Config.self, value: config)
