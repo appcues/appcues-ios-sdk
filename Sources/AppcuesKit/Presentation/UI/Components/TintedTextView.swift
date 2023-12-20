@@ -20,9 +20,9 @@ internal struct TintedTextView: View {
     @Environment(\.sizeCategory) var sizeCategory
 
     var body: some View {
-        let style = AppcuesStyle(from: model.style)
+        let style = AppcuesStyle(from: model.style, theme: viewModel.theme)
 
-        Text(textModel: model, skipColor: tintColor != nil, scaled: viewModel.enableTextScaling)
+        Text(textModel: model, theme: viewModel.theme, skipColor: tintColor != nil, scaled: viewModel.enableTextScaling)
             .applyTextStyle(style, model: model)
             .setupActions(on: viewModel, for: model)
             .ifLet(tintColor) { view, val in

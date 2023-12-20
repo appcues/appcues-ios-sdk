@@ -20,6 +20,6 @@ internal struct AppcuesEmbed: View {
             .ifLet(model.intrinsicSize?.aspectRatio) { view, val in
                 view.aspectRatio(val, contentMode: .fill)
             }
-            .applyAllAppcues(AppcuesStyle(from: model.style))
+            .applyAllAppcues(AppcuesStyle(from: model.style, theme: viewModel.theme))
     }
 }

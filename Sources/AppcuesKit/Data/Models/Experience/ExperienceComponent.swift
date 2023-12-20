@@ -289,6 +289,64 @@ extension ExperienceComponent {
     }
 
     struct Style: Decodable {
+        internal init(
+            themeID: String? = nil,
+            verticalAlignment: String? = nil,
+            horizontalAlignment: String? = nil,
+            paddingTop: Double? = nil,
+            paddingLeading: Double? = nil,
+            paddingBottom: Double? = nil,
+            paddingTrailing: Double? = nil,
+            marginTop: Double? = nil,
+            marginLeading: Double? = nil,
+            marginBottom: Double? = nil,
+            marginTrailing: Double? = nil,
+            height: Double? = nil,
+            width: Double? = nil,
+            fontName: String? = nil,
+            fontSize: Double? = nil,
+            letterSpacing: Double? = nil,
+            lineHeight: Double? = nil,
+            textAlignment: String? = nil,
+            foregroundColor: Style.DynamicColor? = nil,
+            backgroundColor: Style.DynamicColor? = nil,
+            backgroundGradient: Style.RawGradient? = nil,
+            backgroundImage: Style.BackgroundImage? = nil,
+            shadow: Style.RawShadow? = nil,
+            cornerRadius: Double? = nil,
+            borderColor: Style.DynamicColor? = nil,
+            borderWidth: Double? = nil
+        ) {
+            self.themeID = themeID
+            self.verticalAlignment = verticalAlignment
+            self.horizontalAlignment = horizontalAlignment
+            self.paddingTop = paddingTop
+            self.paddingLeading = paddingLeading
+            self.paddingBottom = paddingBottom
+            self.paddingTrailing = paddingTrailing
+            self.marginTop = marginTop
+            self.marginLeading = marginLeading
+            self.marginBottom = marginBottom
+            self.marginTrailing = marginTrailing
+            self.height = height
+            self.width = width
+            self.fontName = fontName
+            self.fontSize = fontSize
+            self.letterSpacing = letterSpacing
+            self.lineHeight = lineHeight
+            self.textAlignment = textAlignment
+            self.foregroundColor = foregroundColor
+            self.backgroundColor = backgroundColor
+            self.backgroundGradient = backgroundGradient
+            self.backgroundImage = backgroundImage
+            self.shadow = shadow
+            self.cornerRadius = cornerRadius
+            self.borderColor = borderColor
+            self.borderWidth = borderWidth
+        }
+
+        let themeID: String?
+
         let verticalAlignment: String?
         let horizontalAlignment: String?
         let paddingTop: Double?

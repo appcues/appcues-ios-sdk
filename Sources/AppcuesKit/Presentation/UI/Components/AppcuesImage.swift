@@ -21,7 +21,7 @@ internal struct AppcuesImage: View {
 
         // special case for images - need to pass the content mode and aspectRatio values so we can properly
         // set the borderInsets to use for this view
-        let style = AppcuesStyle(from: model.style, contentMode: contentMode, aspectRatio: model.intrinsicSize?.aspectRatio)
+        let style = AppcuesStyle(from: model.style, theme: viewModel.theme, contentMode: contentMode, aspectRatio: model.intrinsicSize?.aspectRatio)
 
         content(placeholder: style.backgroundColor)
             .ifLet(model.accessibilityLabel) { view, val in

@@ -22,8 +22,8 @@ internal struct AppcuesTextInput: View {
     @EnvironmentObject var stepState: ExperienceData.StepState
 
     var body: some View {
-        let style = AppcuesStyle(from: model.style)
-        let textFieldStyle = AppcuesStyle(from: model.textFieldStyle)
+        let style = AppcuesStyle(from: model.style, theme: viewModel.theme)
+        let textFieldStyle = AppcuesStyle(from: model.textFieldStyle, theme: viewModel.theme)
         let errorTintColor = stepState.shouldShowError(for: model.id) ? Color(dynamicColor: model.errorLabel?.style?.foregroundColor) : nil
 
         VStack(alignment: style.horizontalAlignment, spacing: 0) {

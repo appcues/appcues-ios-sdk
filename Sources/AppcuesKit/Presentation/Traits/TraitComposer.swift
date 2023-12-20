@@ -18,12 +18,14 @@ internal class TraitComposer: TraitComposing {
 
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
+    private let themeProvider: ThemeProviding
     private let config: Appcues.Config
     private let notificationCenter: NotificationCenter
 
     init(container: DIContainer) {
         traitRegistry = container.resolve(TraitRegistry.self)
         actionRegistry = container.resolve(ActionRegistry.self)
+        themeProvider = container.resolve(ThemeProviding.self)
         notificationCenter = container.resolve(NotificationCenter.self)
         config = container.resolve(Appcues.Config.self)
     }
@@ -87,6 +89,7 @@ internal class TraitComposer: TraitComposing {
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithTraits.map {
             let viewModel = ExperienceStepViewModel(
                 step: $0.step,
+                themePublisher: themeProvider.get(themeID: experience.themeID),
                 actionRegistry: actionRegistry,
                 renderContext: experience.renderContext,
                 config: config

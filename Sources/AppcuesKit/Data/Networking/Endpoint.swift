@@ -43,6 +43,22 @@ internal enum APIEndpoint: Endpoint {
 }
 
 /// Mobile SDK configuration endpoints, providing links to other services.
+internal enum ThemesEndpoint: Endpoint {
+    case theme(id: String)
+
+    func url(config: Appcues.Config, storage: DataStoring) -> URL? {
+        guard var components = URLComponents(url: NetworkClient.sdkSettingsHost, resolvingAgainstBaseURL: false) else { return nil }
+
+        switch self {
+        case let .theme(id):
+            components.path = "/v1/accounts/\(config.accountID)/styles/\(id)"
+        }
+
+        return components.url
+    }
+}
+
+/// Mobile SDK configuration endpoints, providing links to other services.
 internal enum SettingsEndpoint: Endpoint {
     case settings
 

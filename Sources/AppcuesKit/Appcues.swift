@@ -327,6 +327,7 @@ public class Appcues: NSObject {
         if #available(iOS 13.0, *) {
             container.registerLazy(DeepLinkHandling.self, initializer: DeepLinkHandler.init)
             container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
+            container.registerLazy(ThemeProviding.self, initializer: ThemeProvider.init)
             container.registerLazy(ExperienceLoading.self, initializer: ExperienceLoader.init)
             container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
             container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)

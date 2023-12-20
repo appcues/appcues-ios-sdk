@@ -15,7 +15,7 @@ internal struct AppcuesStack: View {
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
-        let style = AppcuesStyle(from: model.style)
+        let style = AppcuesStyle(from: model.style, theme: viewModel.theme)
 
         switch (model.orientation, model.distribution) {
         case (.vertical, _):

@@ -19,9 +19,9 @@ internal struct AppcuesText: View {
     @Environment(\.sizeCategory) var sizeCategory
 
     var body: some View {
-        let style = AppcuesStyle(from: model.style)
+        let style = AppcuesStyle(from: model.style, theme: viewModel.theme)
 
-        Text(textModel: model, scaled: viewModel.enableTextScaling)
+        Text(textModel: model, theme: viewModel.theme, scaled: viewModel.enableTextScaling)
             .applyTextStyle(style, model: model)
             .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
@@ -31,7 +31,7 @@ internal struct AppcuesText: View {
 
 @available(iOS 13.0, *)
 extension Text {
-    init(textModel: ExperienceComponent.TextModel, skipColor: Bool = false, scaled: Bool = false) {
+    init(textModel: ExperienceComponent.TextModel, theme: Theme?, skipColor: Bool = false, scaled: Bool = false) {
         self.init(verbatim: "")
 
         // Note: a ViewBuilder approach here doesn't work because the requirement that we operate strictly on `Text`
@@ -40,8 +40,8 @@ extension Text {
             var text = Text(span.text)
 
             if let font = Font(
-                name: span.style?.fontName ?? textModel.style?.fontName,
-                size: span.style?.fontSize ?? textModel.style?.fontSize ?? UIFont.labelFontSize,
+                name: span.style?.fontName ?? textModel.style?.fontName ?? theme?[textModel.style?.themeID]?.fontName,
+                size: span.style?.fontSize ?? textModel.style?.fontSize ?? theme?[textModel.style?.themeID]?.fontSize ?? UIFont.labelFontSize,
                 scaled: scaled
             ) {
                 text = text.font(font)

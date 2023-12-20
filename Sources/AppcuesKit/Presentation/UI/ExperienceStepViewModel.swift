@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @available(iOS 13.0, *)
 internal class ExperienceStepViewModel: ObservableObject {
@@ -16,14 +17,18 @@ internal class ExperienceStepViewModel: ObservableObject {
         case longPress
     }
 
+    @Published var theme: Theme?
+    private var cancellable: AnyCancellable?
+
     let step: Experience.Step.Child
     let enableTextScaling: Bool
     private let actions: [UUID: [Experience.Action]]
     private let actionRegistry: ActionRegistry?
     private let renderContext: RenderContext
 
-    init(step: Experience.Step.Child, actionRegistry: ActionRegistry, renderContext: RenderContext, config: Appcues.Config?) {
+    init(step: Experience.Step.Child, themePublisher: AnyPublisher<Theme?, Never>, actionRegistry: ActionRegistry, renderContext: RenderContext, config: Appcues.Config?) {
         self.step = step
+
         // Update the action list to be keyed by the UUID.
         self.actions = step.actions.reduce(into: [:]) { dict, item in
             guard let uuidKey = UUID(uuidString: item.key) else { return }
@@ -32,6 +37,12 @@ internal class ExperienceStepViewModel: ObservableObject {
         self.actionRegistry = actionRegistry
         self.renderContext = renderContext
         self.enableTextScaling = config?.enableTextScaling ?? false
+
+        cancellable = themePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] in
+                self?.theme = $0
+            }
     }
 
     // Create an empty view model for contexts that require an `ExperienceStepViewModel` but aren't in a step context.
@@ -47,6 +58,7 @@ internal class ExperienceStepViewModel: ObservableObject {
                 style: nil
             ))
         )
+        self.theme = nil
         self.actions = [:]
         self.actionRegistry = nil
         self.renderContext = renderContext

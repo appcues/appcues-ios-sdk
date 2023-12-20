@@ -15,7 +15,7 @@ internal struct AppcuesButton: View {
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
-        let style = AppcuesStyle(from: model.style)
+        let style = AppcuesStyle(from: model.style, theme: viewModel.theme)
 
         Button {
             // handle tap in `.setupActions`
