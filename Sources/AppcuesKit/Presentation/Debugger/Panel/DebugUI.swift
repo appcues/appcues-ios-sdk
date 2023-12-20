@@ -309,6 +309,12 @@ internal enum DebugUI {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.trailing)
                 }
+            }.onTapGesture {
+                if let value = value {
+                    UIPasteboard.general.string = value
+                    let impactHeavy = UIImpactFeedbackGenerator(style: .medium)
+                    impactHeavy.impactOccurred()
+                }
             }
         }
     }
