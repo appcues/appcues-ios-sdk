@@ -12,6 +12,8 @@ targets:
     platform: iOS
     sources:
     - path: CocoapodsExample
+    dependencies:
+      - target: NotificationServiceExtension
     entitlements:
       path: AppcuesCocoapodsExample.entitlements
       properties:
@@ -34,6 +36,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk-example-cocoapods
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  
   NotificationServiceExtension:
     type: app-extension
     platform: iOS
@@ -42,4 +45,3 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk-example-cocoapods.notification-service
-
