@@ -157,6 +157,7 @@ platform :ios do
 
     upload_to_testflight(
       api_key: ENV["APP_STORE_CONNECT_API_KEY"],
+      app_identifier: "com.appcues.sdk-example-cocoapods",
       changelog: changelog_message,
       skip_submission: true)
   end
