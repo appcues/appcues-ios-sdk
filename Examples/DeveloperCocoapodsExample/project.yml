@@ -42,6 +42,12 @@ targets:
     platform: iOS
     sources:
     - path: NotificationServiceExtension
+    entitlements:
+      path: NotificationServiceExtension.entitlements
+      properties:
+        com.apple.developer.associated-domains:
+          - applinks:appcues-mobile-links.netlify.app
+        aps-environment: development
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk-example-cocoapods.notification-service
