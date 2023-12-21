@@ -100,6 +100,16 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
 
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        let userInfo = response.notification.request.content.userInfo
+
+        if let link = userInfo["appcues_deep_link_url"] as? String,
+           let scene = UIApplication.shared.connectedScenes.first(where: { $0.delegate is SceneDelegate }),
+           let sceneDelegate = scene.delegate as? SceneDelegate {
+                sceneDelegate.deepLinkNavigator.handle(url: URL(string: link))
+        }
+    }
+
 }
 
 extension Appcues {
