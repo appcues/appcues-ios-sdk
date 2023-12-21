@@ -34,3 +34,12 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk-example-cocoapods
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+  NotificationServiceExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+    - path: NotificationServiceExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk-example-cocoapods.notification-service
+
