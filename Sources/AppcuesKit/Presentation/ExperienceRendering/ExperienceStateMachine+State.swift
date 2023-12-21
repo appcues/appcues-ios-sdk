@@ -13,6 +13,7 @@ extension ExperienceStateMachine {
     indirect enum State {
         case idling
         case beginningExperience(ExperienceData)
+        case loadingTheme(ExperienceData, Experience.StepIndex, isFirst: Bool)
         case beginningStep(ExperienceData, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
         case renderingStep(ExperienceData, Experience.StepIndex, ExperiencePackage, isFirst: Bool)
         case endingStep(ExperienceData, Experience.StepIndex, ExperiencePackage, markComplete: Bool)
@@ -24,6 +25,7 @@ extension ExperienceStateMachine {
             case .idling:
                 return nil
             case .beginningExperience(let experienceData),
+                    .loadingTheme(let experienceData, _, _),
                     .beginningStep(let experienceData, _, _, _),
                     .renderingStep(let experienceData, _, _, _),
                     .endingStep(let experienceData, _, _, _),
@@ -38,7 +40,8 @@ extension ExperienceStateMachine {
             switch self {
             case .idling, .beginningExperience:
                 return nil
-            case .beginningStep(_, let stepIndex, _, _),
+            case .loadingTheme(_, let stepIndex, _),
+                    .beginningStep(_, let stepIndex, _, _),
                     .renderingStep(_, let stepIndex, _, _),
                     .endingStep(_, let stepIndex, _, _),
                     .endingExperience(_, let stepIndex, _):
@@ -53,11 +56,16 @@ extension ExperienceStateMachine {
             switch (self, action) {
             case let (.idling, .startExperience(experience)):
                 return Transition.fromIdlingToBeginningExperience(experience)
-            case let (.beginningExperience(experience), .startStep(.index(0))):
-                return Transition.fromBeginningExperienceToBeginningStep(experience, traitComposer)
+            case let (.beginningExperience(experience), .loadStep(.index(0))):
+                return .init(
+                    toState: .loadingTheme(experience, .initial, isFirst: true),
+                    sideEffect: .fetchTheme(experience, .initial)
+                )
+            case let (.loadingTheme(experience, stepIndex, isFirst: isFirst), .startStep(theme)):
+                return Transition.fromLoadingThemeToBeginningStep(experience, theme, traitComposer, isFirst: isFirst)
             case let (.beginningStep(experience, stepIndex, package, isFirst), .renderStep):
                 return Transition(toState: .renderingStep(experience, stepIndex, package, isFirst: isFirst))
-            case let (.renderingStep(experience, stepIndex, package, _), .startStep(stepRef)):
+            case let (.renderingStep(experience, stepIndex, package, _), .loadStep(stepRef)):
                 return Transition.fromRenderingStepToEndingStep(experience, stepIndex, package, stepRef)
             case let (.renderingStep(experience, stepIndex, package, _), .endExperience(markComplete)):
                 return Transition(
@@ -69,8 +77,8 @@ extension ExperienceStateMachine {
                     toState: .endingExperience(experience, stepIndex, markComplete: markComplete),
                     sideEffect: .dismissContainer(package, continuation: .reset)
                 )
-            case let (.endingStep(experience, currentIndex, _, _), .startStep(stepRef)):
-                return Transition.fromEndingStepToBeginningStep(experience, currentIndex, stepRef, traitComposer)
+            case let (.endingStep(experience, currentIndex, _, _), .loadStep(stepRef)):
+                return Transition.fromEndingStepToLoadingTheme(experience, currentIndex, stepRef, traitComposer)
             case let (.endingExperience(experience, _, markComplete), .reset):
                 var sideEffect: SideEffect?
                 if markComplete {
@@ -141,6 +149,8 @@ extension ExperienceStateMachine.State: CustomStringConvertible {
             return ".idling"
         case let .beginningExperience(experience):
             return ".beginningExperience(experienceID: \(experience.id.uuidString))"
+        case let .loadingTheme(experience, stepIndex, _):
+            return ".loadingTheme(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .beginningStep(experience, stepIndex, _, _):
             return ".beginningStep(experienceID: \(experience.id.uuidString), stepIndex: \(stepIndex))"
         case let .renderingStep(experience, stepIndex, _, _):
@@ -171,14 +181,14 @@ extension ExperienceStateMachine.Transition {
 
         return .init(
            toState: .beginningExperience(experience),
-           sideEffect: .continuation(.startStep(.index(0)))
+           sideEffect: .continuation(.loadStep(.index(0)))
        )
     }
 
-    static func fromBeginningExperienceToBeginningStep(_ experience: ExperienceData, _ traitComposer: TraitComposing) -> Self {
+    static func fromLoadingThemeToBeginningStep(_ experience: ExperienceData, _ theme: Theme?, _ traitComposer: TraitComposing, isFirst: Bool) -> Self {
         let stepIndex = Experience.StepIndex.initial
         do {
-            let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
+            let package = try traitComposer.package(experience: experience, theme: theme, stepIndex: stepIndex)
 
             let navigationActions: [Experience.Action]
             if experience.trigger.shouldNavigateBeforeRender {
@@ -189,7 +199,7 @@ extension ExperienceStateMachine.Transition {
             }
 
             return .init(
-                toState: .beginningStep(experience, stepIndex, package, isFirst: true),
+                toState: .beginningStep(experience, stepIndex, package, isFirst: isFirst),
                 sideEffect: .presentContainer(experience, stepIndex, package, navigationActions)
             )
         } catch {
@@ -217,7 +227,7 @@ extension ExperienceStateMachine.Transition {
         if let stepID = experience.step(at: newStepIndex)?.id, let pageIndex = package.steps.firstIndex(where: { $0.id == stepID }) {
             sideEffect = .navigateInContainer(package, pageIndex: pageIndex)
         } else {
-            sideEffect = .dismissContainer(package, continuation: .startStep(stepRef))
+            sideEffect = .dismissContainer(package, continuation: .loadStep(stepRef))
         }
 
         // Moving to a new step is an interaction that indicates the ending step is completed
@@ -225,7 +235,7 @@ extension ExperienceStateMachine.Transition {
         return .init(toState: .endingStep(experience, stepIndex, package, markComplete: newStepIndex > stepIndex), sideEffect: sideEffect)
     }
 
-    static func fromEndingStepToBeginningStep(
+    static func fromEndingStepToLoadingTheme(
         _ experience: ExperienceData, _ currentIndex: Experience.StepIndex, _ stepRef: StepReference, _ traitComposer: TraitComposing
     ) -> Self {
         guard let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex) else {
@@ -235,18 +245,9 @@ extension ExperienceStateMachine.Transition {
             )
         }
 
-        let stepGroup = experience.steps[stepIndex.group]
-        let navigationActions = stepGroup.actions[stepGroup.id.appcuesFormatted]?.filter { $0.trigger == "navigate" } ?? []
-
-        do {
-            // moving to a new step group / container, we may need to navigate the app to a new screen
-            let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
-            return .init(
-                toState: .beginningStep(experience, stepIndex, package, isFirst: false),
-                sideEffect: .presentContainer(experience, stepIndex, package, navigationActions)
-            )
-        } catch {
-            return .init(toState: .idling, sideEffect: .error(.step(experience, stepIndex, "\(error)")), resetObservers: true)
-        }
+        return .init(
+            toState: .loadingTheme(experience, stepIndex, isFirst: false),
+            sideEffect: .fetchTheme(experience, stepIndex)
+        )
     }
 }

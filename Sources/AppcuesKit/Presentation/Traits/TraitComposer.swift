@@ -10,7 +10,7 @@ import UIKit
 
 @available(iOS 13.0, *)
 internal protocol TraitComposing: AnyObject {
-    func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage
+    func package(experience: ExperienceData, theme: Theme?, stepIndex: Experience.StepIndex) throws -> ExperiencePackage
 }
 
 @available(iOS 13.0, *)
@@ -18,20 +18,18 @@ internal class TraitComposer: TraitComposing {
 
     private let traitRegistry: TraitRegistry
     private let actionRegistry: ActionRegistry
-    private let themeProvider: ThemeProviding
     private let config: Appcues.Config
     private let notificationCenter: NotificationCenter
 
     init(container: DIContainer) {
         traitRegistry = container.resolve(TraitRegistry.self)
         actionRegistry = container.resolve(ActionRegistry.self)
-        themeProvider = container.resolve(ThemeProviding.self)
         notificationCenter = container.resolve(NotificationCenter.self)
         config = container.resolve(Appcues.Config.self)
     }
 
     // swiftlint:disable:next function_body_length
-    func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
+    func package(experience: ExperienceData, theme: Theme?, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
         let stepModels: [Experience.Step.Child] = experience.steps[stepIndex.group].items
         let targetPageIndex = stepIndex.item
 
@@ -45,7 +43,8 @@ internal class TraitComposer: TraitComposing {
         let decomposedTraits = DecomposedTraits(traits: traitRegistry.instances(
             for: experience.traits,
             level: .experience,
-            renderContext: experience.renderContext
+            renderContext: experience.renderContext,
+            theme: theme
         ))
         var allTraitInstances = decomposedTraits.allTraitInstances
 
@@ -55,7 +54,8 @@ internal class TraitComposer: TraitComposing {
             let decomposedGroupTraits = DecomposedTraits(traits: traitRegistry.instances(
                 for: stepGroup.traits,
                 level: .group,
-                renderContext: experience.renderContext
+                renderContext: experience.renderContext,
+                theme: theme
             ))
             decomposedTraits.append(contentsOf: decomposedGroupTraits)
             allTraitInstances.append(contentsOf: decomposedGroupTraits.allTraitInstances)
@@ -65,7 +65,8 @@ internal class TraitComposer: TraitComposing {
                 contentsOf: DecomposedTraits(traits: traitRegistry.instances(
                     for: childStep.traits,
                     level: .step,
-                    renderContext: experience.renderContext
+                    renderContext: experience.renderContext,
+                    theme: theme
                 )),
                 ignoringDecorators: true
             )
@@ -75,7 +76,8 @@ internal class TraitComposer: TraitComposing {
             let decomposedStepTraits = DecomposedTraits(traits: traitRegistry.instances(
                 for: stepModel.traits,
                 level: .step,
-                renderContext: experience.renderContext
+                renderContext: experience.renderContext,
+                theme: theme
             ))
             decomposedStepTraits.propagateDecorators(from: decomposedTraits)
             allTraitInstances.append(contentsOf: decomposedStepTraits.allTraitInstances)
@@ -89,7 +91,7 @@ internal class TraitComposer: TraitComposing {
         let stepControllers: [ExperienceStepViewController] = try stepModelsWithTraits.map {
             let viewModel = ExperienceStepViewModel(
                 step: $0.step,
-                themePublisher: themeProvider.get(themeID: experience.themeID),
+                theme: theme,
                 actionRegistry: actionRegistry,
                 renderContext: experience.renderContext,
                 config: config

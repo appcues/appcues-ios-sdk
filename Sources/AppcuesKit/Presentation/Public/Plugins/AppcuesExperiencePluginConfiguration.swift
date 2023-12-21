@@ -33,10 +33,13 @@ internal class AppcuesExperiencePluginConfiguration: NSObject {
 
     let renderContext: RenderContext
 
-    init(_ decoder: PluginDecoder, level: Level, renderContext: RenderContext, appcues: Appcues?) {
+    let theme: Theme?
+
+    init(_ decoder: PluginDecoder, level: Level, renderContext: RenderContext, theme: Theme?, appcues: Appcues?) {
         self.decoder = decoder
         self.level = level
         self.renderContext = renderContext
+        self.theme = theme
         self.appcues = appcues
     }
 

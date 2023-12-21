@@ -14,6 +14,7 @@ internal class ExperienceStateMachine {
     private let config: Appcues.Config
     private let traitComposer: TraitComposing
     private let actionRegistry: ActionRegistry
+    private let themeProvider: ThemeProviding
 
     private(set) var stateObservers: [ExperienceStateObserver] = []
 
@@ -31,6 +32,7 @@ internal class ExperienceStateMachine {
         config = container.resolve(Appcues.Config.self)
         traitComposer = container.resolve(TraitComposing.self)
         actionRegistry = container.resolve(ActionRegistry.self)
+        themeProvider = container.resolve(ThemeProviding.self)
 
         state = initialState
     }
@@ -222,6 +224,7 @@ extension ExperienceStateMachine {
 extension ExperienceStateMachine {
     enum SideEffect {
         case continuation(Action)
+        case fetchTheme(ExperienceData, Experience.StepIndex)
         case presentContainer(ExperienceData, Experience.StepIndex, ExperiencePackage, [Experience.Action])
         case retryPresentation(ExperienceData, Experience.StepIndex, ExperiencePackage)
         case navigateInContainer(ExperiencePackage, pageIndex: Int)
@@ -233,6 +236,12 @@ extension ExperienceStateMachine {
             switch self {
             case .continuation(let action):
                 try machine.transition(action)
+            case let .fetchTheme(experience, stepIndex):
+                executeFetchTheme(
+                    machine: machine,
+                    experience: experience,
+                    stepIndex: stepIndex
+                )
             case let .presentContainer(experience, stepIndex, package, actions):
                 machine.actionRegistry.enqueue(actionModels: actions, level: .group, renderContext: experience.renderContext) {
                     executePresentContainer(
@@ -262,6 +271,31 @@ extension ExperienceStateMachine {
                 }
             case let .processActions(actionFactory):
                 machine.actionRegistry.enqueue(actionFactory: actionFactory)
+            }
+        }
+
+        private func executeFetchTheme(
+            machine: ExperienceStateMachine,
+            experience: ExperienceData,
+            stepIndex: Experience.StepIndex
+        ) {
+            // TODO: theme per step group
+            let themeID = experience.themeID
+
+            machine.themeProvider.theme(id: themeID) { result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success(let theme):
+                        try? machine.transition(.startStep(theme))
+                    case .failure:
+                        try? machine.transition(
+                            .reportError(
+                                error: .step(experience, stepIndex, "Could not load theme"),
+                                retryEffect: nil
+                            )
+                        )
+                    }
+                }
             }
         }
 

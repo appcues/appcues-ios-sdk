@@ -21,11 +21,15 @@ internal class AppcuesBackdropTrait: AppcuesBackdropDecoratingTrait {
     private let backgroundColor: UIColor
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
-        guard let config = configuration.decode(Config.self),
-              let backgroundColor = UIColor(dynamicColor: config.backgroundColor) else {
+        if let config = configuration.decode(Config.self),
+           let backgroundColor = UIColor(dynamicColor: config.backgroundColor) {
+            self.backgroundColor = backgroundColor
+        } else if let backdropTheme = configuration.theme?["backdrop"],
+                  let backgroundColor = UIColor(dynamicColor: backdropTheme.backgroundColor) {
+            self.backgroundColor = backgroundColor
+        } else {
             return nil
         }
-        self.backgroundColor = backgroundColor
     }
 
     func decorate(backdropView: UIView) throws {

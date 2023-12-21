@@ -249,7 +249,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
             return
         }
 
-        stateMachine.transitionAndObserve(.startStep(stepRef)) { result in
+        stateMachine.transitionAndObserve(.loadStep(stepRef)) { result in
             switch result {
             case .success(.renderingStep):
                 DispatchQueue.main.async { completion?() }

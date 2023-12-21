@@ -74,6 +74,7 @@ internal class ActionRegistry {
                 $0.configDecoder,
                 level: level,
                 renderContext: renderContext,
+                theme: nil,
                 appcues: appcues
             ))
         }
@@ -101,6 +102,7 @@ internal class ActionRegistry {
                 $0.configDecoder,
                 level: level,
                 renderContext: renderContext,
+                theme: nil,
                 appcues: appcues
             ))
         }

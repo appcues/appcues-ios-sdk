@@ -24,6 +24,7 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
     let tooltipStyle: ExperienceComponent.Style?
+    let themeStyle: ExperienceComponent.Style?
     let hidePointer: Bool
     let pointerSize: CGSize
     let pointerCornerRadius: CGFloat
@@ -34,6 +35,7 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
         self.pointerSize = CGSize(width: config?.pointerBase ?? 16, height: config?.pointerLength ?? 8)
         self.pointerCornerRadius = config?.pointerCornerRadius ?? 0
         self.tooltipStyle = config?.style
+        self.themeStyle = configuration.theme?["tooltip"]
     }
 
     func decorate(stepController: UIViewController) throws {
@@ -44,7 +46,7 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
 
     func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
         let experienceWrapperViewController = ExperienceWrapperViewController<TooltipWrapperView>(wrapping: containerController)
-        experienceWrapperViewController.configureStyle(tooltipStyle)
+        experienceWrapperViewController.configureStyle(tooltipStyle, themeStyle: themeStyle)
         experienceWrapperViewController.bodyView.pointerSize = hidePointer ? nil : pointerSize
         experienceWrapperViewController.bodyView.pointerCornerRadius = pointerCornerRadius
 

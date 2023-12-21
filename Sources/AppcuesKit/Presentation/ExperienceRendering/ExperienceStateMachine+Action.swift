@@ -12,7 +12,8 @@ import Foundation
 extension ExperienceStateMachine {
     indirect enum Action {
         case startExperience(ExperienceData)
-        case startStep(StepReference)
+        case loadStep(StepReference)
+        case startStep(Theme?)
         case renderStep
         case endExperience(markComplete: Bool)
         case reset

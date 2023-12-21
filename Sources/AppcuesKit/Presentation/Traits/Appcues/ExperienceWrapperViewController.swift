@@ -53,13 +53,13 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
     }
 
     @discardableResult
-    func configureStyle(_ style: ExperienceComponent.Style?, transition: AppcuesModalTrait.Transition = .fade) -> Self {
-        bodyView.contentWrapperView.backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
+    func configureStyle(_ style: ExperienceComponent.Style?, themeStyle: ExperienceComponent.Style?, transition: AppcuesModalTrait.Transition = .fade) -> Self {
+        bodyView.contentWrapperView.backgroundColor = UIColor(dynamicColor: style?.backgroundColor ?? themeStyle?.backgroundColor)
 
-        bodyView.applyCornerRadius(CGFloat(style?.cornerRadius))
-        bodyView.applyBorder(color: UIColor(dynamicColor: style?.borderColor), width: CGFloat(style?.borderWidth))
+        bodyView.applyCornerRadius(CGFloat(style?.cornerRadius ?? themeStyle?.cornerRadius))
+        bodyView.applyBorder(color: UIColor(dynamicColor: style?.borderColor ?? themeStyle?.borderColor), width: CGFloat(style?.borderWidth ?? themeStyle?.borderWidth))
 
-        if let shadowModel = style?.shadow {
+        if let shadowModel = style?.shadow ?? themeStyle?.shadow {
             bodyView.shadowWrappingView.layer.shadowColor = UIColor(dynamicColor: shadowModel.color)?.cgColor
             bodyView.shadowWrappingView.layer.shadowOpacity = 1
             bodyView.shadowWrappingView.layer.shadowRadius = shadowModel.radius

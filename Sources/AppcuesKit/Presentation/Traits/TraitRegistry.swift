@@ -46,7 +46,8 @@ internal class TraitRegistry {
     func instances(
         for models: [Experience.Trait],
         level: AppcuesExperiencePluginConfiguration.Level,
-        renderContext: RenderContext
+        renderContext: RenderContext,
+        theme: Theme?
     ) -> [AppcuesExperienceTrait] {
         models.compactMap { traitModel in
             traits[traitModel.type]?.init(
@@ -54,6 +55,7 @@ internal class TraitRegistry {
                     traitModel.configDecoder,
                     level: level,
                     renderContext: renderContext,
+                    theme: theme,
                     appcues: appcues
                 )
             )

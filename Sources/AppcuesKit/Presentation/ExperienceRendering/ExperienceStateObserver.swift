@@ -27,6 +27,7 @@ extension Result where Success == ExperienceStateMachine.State, Failure == Exper
         case .success(.failing(let targetState, _)):
             return targetState.currentExperienceData?.instanceID == instanceID
         case let .success(.beginningExperience(experience)),
+            let .success(.loadingTheme(experience, _, _)),
             let .success(.beginningStep(experience, _, _, _)),
             let .success(.renderingStep(experience, _, _, _)),
             let .success(.endingStep(experience, _, _, _)),
@@ -78,6 +79,8 @@ extension ExperienceStateMachine {
             case .success(.idling):
                 break
             case .success(.beginningExperience):
+                break
+            case .success(.loadingTheme):
                 break
             case .success(.beginningStep):
                 break

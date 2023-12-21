@@ -1,13 +1,12 @@
 //
-//  ThemeProvider.swift
+//  Theme.swift
 //  AppcuesKit
 //
-//  Created by Matt on 2023-11-02.
+//  Created by Matt on 2023-12-20.
 //  Copyright © 2023 Appcues. All rights reserved.
 //
 
 import Foundation
-import Combine
 
 internal struct Theme: Decodable {
     let id: UUID
@@ -30,7 +29,6 @@ internal struct Theme: Decodable {
     enum LegacyCodingKeys: CodingKey {
         case theme
     }
-
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -72,6 +70,23 @@ private struct LegacyTheme: Decodable {
     enum GeneralKeys: CodingKey {
         case bodyFont, bodyFontColor, headerFont
     }
+
+    enum PatternsKeys: CodingKey {
+        case modal, tooltip
+    }
+
+    enum PatternTypeKeys: CodingKey {
+        case backgroundColor, color, borderRadius, shadow, backdropColor, backdropOpacity
+    }
+
+    enum ShadowKeys: CodingKey {
+        case blur, color, distance
+    }
+
+    enum DistanceKeys: CodingKey {
+        case x, y
+    }
+
 
     init(from decoder: Decoder) throws {
         let rootContainer = try decoder.container(keyedBy: CodingKeys.self)
@@ -137,6 +152,61 @@ private struct LegacyTheme: Decodable {
             borderWidth: secondaryButtonBorderWidth.pxToNumber()
         )
 
+        let patternsContainer = try jsonContainer.nestedContainer(keyedBy: PatternsKeys.self, forKey: .patterns)
+
+        let modalContainer = try patternsContainer.nestedContainer(keyedBy: PatternTypeKeys.self, forKey: .modal)
+        let tooltipContainer = try patternsContainer.nestedContainer(keyedBy: PatternTypeKeys.self, forKey: .tooltip)
+
+        let patternCornerRadius = try tooltipContainer.decode(String.self, forKey: .borderRadius)
+
+        let shadowContainer = try tooltipContainer.nestedContainer(keyedBy: ShadowKeys.self, forKey: .shadow)
+        let shadowRadius = try shadowContainer.decode(String.self, forKey: .blur)
+        let shadowColor = try shadowContainer.decode(String.self, forKey: .color)
+        let shadowDistanceContainer = try shadowContainer.nestedContainer(keyedBy: DistanceKeys.self, forKey: .distance)
+        let shadowX = try shadowDistanceContainer.decode(String.self, forKey: .x)
+        let shadowY = try shadowDistanceContainer.decode(String.self, forKey: .y)
+
+        let patternShadow: ExperienceComponent.Style.RawShadow?
+
+        if let convertedShadowColor = shadowColor.hslaToHex() {
+            patternShadow = ExperienceComponent.Style.RawShadow(
+                color: ExperienceComponent.Style.DynamicColor(light: convertedShadowColor, dark: nil),
+                radius: shadowRadius.pxToNumber() ?? 0,
+                x: shadowX.pxToNumber() ?? 0,
+                y: shadowY.pxToNumber() ?? 0
+            )
+        } else {
+            patternShadow = nil
+        }
+
+        let backdropColor = try modalContainer.decode(String.self, forKey: .backdropColor)
+        let backdropOpacity = try modalContainer.decode(Double.self, forKey: .backdropOpacity)
+        let backdropOpacityHex = String(format:"%02X", Int(255 * backdropOpacity))
+
+        styles["backdrop"] = ExperienceComponent.Style(
+            backgroundColor: ExperienceComponent.Style.DynamicColor(light: backdropColor + backdropOpacityHex, dark: nil)
+        )
+
+        let modalForegroundColor = try modalContainer.decode(String.self, forKey: .color)
+        let modalBackgroundColor = try modalContainer.decode(String.self, forKey: .backgroundColor)
+
+        styles["modal"] = ExperienceComponent.Style(
+            foregroundColor: ExperienceComponent.Style.DynamicColor(light: modalForegroundColor, dark: nil),
+            backgroundColor: ExperienceComponent.Style.DynamicColor(light: modalBackgroundColor, dark: nil),
+            shadow: patternShadow,
+            cornerRadius: patternCornerRadius.pxToNumber()
+        )
+
+        let tooltipForegroundColor = try tooltipContainer.decode(String.self, forKey: .color)
+        let tooltipBackgroundColor = try tooltipContainer.decode(String.self, forKey: .backgroundColor)
+
+        styles["tooltip"] = ExperienceComponent.Style(
+            foregroundColor: ExperienceComponent.Style.DynamicColor(light: tooltipForegroundColor, dark: nil),
+            backgroundColor: ExperienceComponent.Style.DynamicColor(light: tooltipBackgroundColor, dark: nil),
+            shadow: patternShadow,
+            cornerRadius: patternCornerRadius.pxToNumber()
+        )
+
         self.styles = styles
     }
 }
@@ -151,90 +221,38 @@ extension String {
     func pxToNumber() -> Double? {
         Double(self.dropLast(2))
     }
-}
 
-@available(iOS 13.0, *)
-internal protocol ThemeProviding: AnyObject {
-    func theme(id: String?, completion: @escaping (Result<Theme, Error>) -> Void)
-    func get(themeID: String?) -> AnyPublisher<Theme?, Never>
-}
+    // Convert something like hsla(0,0%,13%,.6) to a hex value
+    func hslaToHex() -> String? {
+        if self == "transparent" { return "#00000000" }
 
-@available(iOS 13.0, *)
-internal class ThemeProvider: ThemeProviding {
+        guard self.hasPrefix("hsla(") else { return nil }
 
-    private let config: Appcues.Config
-    private let networking: Networking
+        let parts = self.dropFirst(5).dropLast(1).split(separator: ",")
 
-    var loadedThemes: [String: Theme] = [:]
-    private var loadingThemes: [String: AnyPublisher<Theme?, Never>] = [:]
+        guard parts.count == 4 else { return nil }
 
-    init(container: DIContainer) {
-        self.config = container.resolve(Appcues.Config.self)
-        self.networking = container.resolve(Networking.self)
+        let a = Int(parts[3]) ?? 1
+
+        guard let h = Double(parts[0].trimmingCharacters(in: .decimalDigits.inverted)),
+              let s = Double(parts[1].trimmingCharacters(in: .decimalDigits.inverted)),
+              let l = Double(parts[2].trimmingCharacters(in: .decimalDigits.inverted)) else { return nil }
+
+        return hslToHex(h, s, l) + String(format:"%02X", Int(255 * a))
     }
 
-    func get(themeID: String?) -> AnyPublisher<Theme?, Never> {
-        print("XXX get theme \(CFAbsoluteTimeGetCurrent())", themeID)
-        guard let themeID = themeID else {
-            return Result.Publisher(nil).eraseToAnyPublisher()
+    private func hslToHex(_ h: Double, _ s: Double, _ l: Double) -> String {
+        let s = s / 100
+        let l = l / 100
+        let a = s * min(l, 1 - l) / 100
+
+        func f(_ n: Double) -> String {
+            let k = (n + h / 30).truncatingRemainder(dividingBy: 12)
+            let color = l - a * max(Swift.min(k - 3, 9 - k, 1), -1)
+            return String(format:"%02X", Int(255 * color))
         }
 
-        if let loadedTheme = loadedThemes[themeID] {
-            print("XXX theme cached! \(CFAbsoluteTimeGetCurrent())", loadedTheme)
-            return Result.Publisher(loadedTheme).eraseToAnyPublisher()
-        }
-
-        if let currentlyFetchingPublisher = loadingThemes[themeID] {
-            return currentlyFetchingPublisher.eraseToAnyPublisher()
-        }
-
-        let publisher = Future<Theme?, Never> { promise in
-            let endpoint = ThemesEndpoint.theme(id: themeID)
-            self.networking.get(from: endpoint, authorization: nil) { [weak self] (result: Result<Theme, Error>) in
-                switch result {
-                case .success(let theme):
-                    print("XXX theme loaded! \(CFAbsoluteTimeGetCurrent())", theme)
-                    self?.loadedThemes[themeID] = theme
-                    promise(.success(theme))
-                case .failure(let error):
-                    print("XXX theme error", error)
-                    promise(.success(nil))
-                }
-                self?.loadingThemes.removeValue(forKey: themeID)
-            }
-        }
-        .receive(on: DispatchQueue.main)
-        .eraseToAnyPublisher()
-
-        loadingThemes[themeID] = publisher
-
-        // Return publisher on main thread to ensure consistency with returning cached data.
-        return publisher
+        return "#\(f(0))\(f(8))\(f(4))";
     }
 
-
-    func theme(id: String?, completion: @escaping (Result<Theme, Error>) -> Void) {
-        guard let id = id else { return }
-
-        if let theme = loadedThemes[id] {
-            completion(.success(theme))
-        } else {
-            load(themeID: id, completion: completion)
-        }
-    }
-
-    func load(themeID: String, completion: @escaping (Result<Theme, Error>) -> Void) {
-        let endpoint = ThemesEndpoint.theme(id: themeID)
-
-        networking.get(from: endpoint, authorization: nil) { [weak self] (result: Result<Theme, Error>) in
-            switch result {
-            case .success(let theme):
-                self?.loadedThemes[themeID] = theme
-                completion(.success(theme))
-            case .failure(let error):
-                self?.config.logger.error("Loading theme %{public}@ failed with error %{public}@", themeID, "\(error)")
-                completion(.failure(error))
-            }
-        }
-    }
 }

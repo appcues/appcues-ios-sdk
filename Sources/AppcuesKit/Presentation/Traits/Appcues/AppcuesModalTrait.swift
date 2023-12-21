@@ -36,12 +36,15 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
 
     private let presentationStyle: PresentationStyle
     private let modalStyle: ExperienceComponent.Style?
+    private let themeStyle: ExperienceComponent.Style?
     private let transition: Transition
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
+
         self.presentationStyle = config.presentationStyle
         self.modalStyle = config.style
+        self.themeStyle = configuration.theme?["modal"]
         self.transition = config.toTransition()
     }
 
@@ -56,15 +59,15 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
 
         if presentationStyle == .dialog {
             return ExperienceWrapperViewController(wrapping: containerController)
-                .configureStyle(modalStyle, transition: transition)
+                .configureStyle(modalStyle, themeStyle: themeStyle, transition: transition)
         }
 
-        if let backgroundColor = UIColor(dynamicColor: modalStyle?.backgroundColor) {
+        if let backgroundColor = UIColor(dynamicColor: modalStyle?.backgroundColor ?? themeStyle?.backgroundColor) {
             containerController.view.backgroundColor = backgroundColor
         }
 
         if #available(iOS 15.0, *), let sheet = containerController.sheetPresentationController {
-            sheet.preferredCornerRadius = CGFloat(modalStyle?.cornerRadius)
+            sheet.preferredCornerRadius = CGFloat(modalStyle?.cornerRadius ?? themeStyle?.cornerRadius)
 
             if presentationStyle == .halfSheet {
                 sheet.detents = [.medium()]
