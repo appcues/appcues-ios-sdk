@@ -131,6 +131,7 @@ platform :ios do
       use_automatic_signing: false,
       code_sign_identity: "iPhone Distribution",
       team_id: ENV["sigh_com.appcues.sdk-example-cocoapods_appstore_team-id"],
+      targets: ["AppcuesCocoapodsExample"],
       bundle_identifier: "com.appcues.sdk-example-cocoapods",
       profile_uuid: ENV["sigh_com.appcues.sdk-example-cocoapods_appstore"],
       path: "Examples/DeveloperCocoapodsExample/AppcuesCocoapodsExample.xcodeproj")
@@ -139,6 +140,7 @@ platform :ios do
         use_automatic_signing: false,
         code_sign_identity: "iPhone Distribution",
         team_id: ENV["sigh_com.appcues.sdk-example-cocoapods_appstore_team-id"],
+        targets: ["NotificationServiceExtension"],
         bundle_identifier: "com.appcues.sdk-example-cocoapods.notification-service",
         profile_uuid: ENV["sigh_com.appcues.sdk-example-cocoapods.notification-service_appstore"],
         path: "Examples/DeveloperCocoapodsExample/AppcuesCocoapodsExample.xcodeproj")
