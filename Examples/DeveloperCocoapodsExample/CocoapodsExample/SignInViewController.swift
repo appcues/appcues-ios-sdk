@@ -14,16 +14,16 @@ enum User {
 
 class SignInViewController: UIViewController {
 
-    @IBOutlet private var userIDTextField: UITextField!
-
     private var pushStatus = "unknown"
+
+    @IBOutlet private var userIDTextField: UITextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // determine push status
         let current = UNUserNotificationCenter.current()
-        current.getNotificationSettings(completionHandler: { (settings) in
+        current.getNotificationSettings { settings in
             if settings.authorizationStatus == .notDetermined {
                 // Notification permission has not been asked yet, go for it!
                 self.pushStatus = "notDetermined"
@@ -34,7 +34,7 @@ class SignInViewController: UIViewController {
                 // Notification permission was already granted
                 self.pushStatus = "authorized"
             }
-        })
+        }
 
         userIDTextField.text = User.currentID
     }

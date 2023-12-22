@@ -85,7 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 
 extension AppDelegate: AppcuesAnalyticsDelegate {
-    func didTrack(analytic: AppcuesKit.AppcuesAnalytic, value: String?, properties: [String : Any]?, isInternal: Bool) {
+    func didTrack(analytic: AppcuesKit.AppcuesAnalytic, value: String?, properties: [String: Any]?, isInternal: Bool) {
         if analytic == .event, value == "request_push" {
             let center = UNUserNotificationCenter.current()
             let options: UNAuthorizationOptions = [.alert, .sound, .badge]
