@@ -16,8 +16,25 @@ class SignInViewController: UIViewController {
 
     @IBOutlet private var userIDTextField: UITextField!
 
+    private var pushStatus = "unknown"
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        // determine push status
+        let current = UNUserNotificationCenter.current()
+        current.getNotificationSettings(completionHandler: { (settings) in
+            if settings.authorizationStatus == .notDetermined {
+                // Notification permission has not been asked yet, go for it!
+                self.pushStatus = "notDetermined"
+            } else if settings.authorizationStatus == .denied {
+                // Notification permission was previously denied, go to settings & privacy to re-enable
+                self.pushStatus = "denied"
+            } else if settings.authorizationStatus == .authorized {
+                // Notification permission was already granted
+                self.pushStatus = "authorized"
+            }
+        })
 
         userIDTextField.text = User.currentID
     }
@@ -30,7 +47,8 @@ class SignInViewController: UIViewController {
 
     @IBAction private func signInTapped(_ sender: UIButton) {
         let userID = userIDTextField.text ?? User.currentID
-        Appcues.shared.identify(userID: userID)
+
+        Appcues.shared.identify(userID: userID, properties: ["pushStatus": pushStatus])
 
         User.currentID = userID
     }

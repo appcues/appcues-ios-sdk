@@ -41,7 +41,7 @@ class EventsViewController: UIViewController {
     }
 
     @IBAction private func buttonThreeTapped(_ sender: UIButton) {
-        Appcues.shared.track(name: "event3")
+        Appcues.shared.track(name: "request_push") // just in case
     }
 
     @IBAction private func debugTapped(_ sender: Any) {

@@ -19,6 +19,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         registerForPush(application)
 
+        Appcues.shared.analyticsDelegate = self
+
         return true
     }
 
@@ -79,12 +81,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         application.registerForRemoteNotifications()
         let center = UNUserNotificationCenter.current()
         center.delegate = self
-        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
-//        if #available(iOS 12.0, *) {
-//          options = UNAuthorizationOptions(rawValue: options.rawValue | UNAuthorizationOptions.provisional.rawValue)
-//        }
-        center.requestAuthorization(options: options) { granted, error in
-            print("Notification authorization, granted: \(granted), error: \(String(describing: error))")
+    }
+}
+
+extension AppDelegate: AppcuesAnalyticsDelegate {
+    func didTrack(analytic: AppcuesKit.AppcuesAnalytic, value: String?, properties: [String : Any]?, isInternal: Bool) {
+        if analytic == .event, value == "request_push" {
+            let center = UNUserNotificationCenter.current()
+            let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+    //        if #available(iOS 12.0, *) {
+    //          options = UNAuthorizationOptions(rawValue: options.rawValue | UNAuthorizationOptions.provisional.rawValue)
+    //        }
+            center.requestAuthorization(options: options) { granted, error in
+                print("Notification authorization, granted: \(granted), error: \(String(describing: error))")
+
+                Appcues.shared.identify(userID: User.currentID, properties: ["pushStatus": granted ? "authorized" : "denied"])
+            }
         }
     }
 }
