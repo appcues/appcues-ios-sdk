@@ -47,7 +47,6 @@ internal struct FailedExperience: Decodable {
             type: type ?? "",
             publishedAt: publishedAt,
             context: context,
-            themeID: nil,
             traits: [],
             steps: [],
             redirectURL: nil,
@@ -145,7 +144,6 @@ internal struct Experience {
     // a millisecond timestamp
     let publishedAt: Int?
     let context: Context?
-    let themeID: String?
     // tags, actions
     // TODO: Handle experience-level actions
     let traits: [Trait]
@@ -168,7 +166,6 @@ extension Experience: Decodable {
         case type
         case publishedAt
         case context
-        case theme
         case traits
         case steps
         case redirectURL = "redirectUrl"
@@ -182,7 +179,6 @@ extension Experience: Decodable {
         type = try container.decode(String.self, forKey: .type)
         publishedAt = try? container.decode(Int.self, forKey: .publishedAt)
         context = try? container.decodeIfPresent(Context.self, forKey: .context)
-        themeID = try? container.decodeIfPresent(String.self, forKey: .theme)
         traits = try container.decode(TraitCollection.self, forKey: .traits).traits
         steps = try container.decode([Step].self, forKey: .steps)
         redirectURL = try? container.decode(URL.self, forKey: .redirectURL)
@@ -232,6 +228,7 @@ extension Experience.Step: Decodable {
         let children: [Child]
         let traits: [Experience.Trait]
         let actions: [String: [Experience.Action]]
+        let themeID: String?
 
         private enum CodingKeys: CodingKey {
             case id
@@ -239,6 +236,7 @@ extension Experience.Step: Decodable {
             case children
             case traits
             case actions
+            case theme
         }
 
         // additional constructor used in tests
@@ -247,13 +245,15 @@ extension Experience.Step: Decodable {
             type: String,
             children: [Child],
             traits: [Experience.Trait],
-            actions: [String: [Experience.Action]]
+            actions: [String: [Experience.Action]],
+            themeID: String?
         ) {
             self.id = id
             self.type = type
             self.children = children
             self.traits = traits
             self.actions = actions
+            self.themeID = themeID
         }
 
         init(from decoder: Decoder) throws {
@@ -263,6 +263,7 @@ extension Experience.Step: Decodable {
             children = try container.decode([Child].self, forKey: .children)
             traits = try container.decode(TraitCollection.self, forKey: .traits).traits
             actions = try container.decode([String: [Experience.Action]].self, forKey: .actions)
+            themeID = try? container.decodeIfPresent(String.self, forKey: .theme)
         }
     }
 

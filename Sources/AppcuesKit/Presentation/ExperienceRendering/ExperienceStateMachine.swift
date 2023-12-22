@@ -279,8 +279,10 @@ extension ExperienceStateMachine {
             experience: ExperienceData,
             stepIndex: Experience.StepIndex
         ) {
-            // TODO: theme per step group
-            let themeID = experience.themeID
+            var themeID: String?
+            if case let .group(stepGroup) = experience.steps[safe: stepIndex.group] {
+                themeID = stepGroup.themeID
+            }
 
             machine.themeProvider.theme(id: themeID) { result in
                 DispatchQueue.main.async {
