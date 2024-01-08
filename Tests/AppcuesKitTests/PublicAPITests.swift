@@ -23,6 +23,7 @@ class PublicAPITests: XCTestCase {
         let config = Appcues.Config(accountID: "12345", applicationID: "abc")
             .logging(true)
             .apiHost(URL(string: "localhost")!)
+            .settingsHost(URL(string: "localhost")!)
             .sessionTimeout(3600)
             .activityStorageMaxSize(25)
             .activityStorageMaxAge(3600)
