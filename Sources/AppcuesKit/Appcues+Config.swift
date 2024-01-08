@@ -25,6 +25,8 @@ public extension Appcues {
 
         var apiHost: URL = NetworkClient.defaultAPIHost
 
+        var settingsHost: URL = NetworkClient.defaultSettingsHost
+
         var urlSession: URLSession = NetworkClient.defaultURLSession
 
         var logger: Logging = OSLog.disabled
@@ -79,6 +81,18 @@ public extension Appcues {
         @objc
         public func apiHost(_ apiHost: URL) -> Self {
             self.apiHost = apiHost
+            return self
+        }
+
+        /// Set the settings host for the configuration.
+        /// - Parameter settingsHost: Domain of the settings host.
+        /// - Returns: The `Configuration` object.
+        ///
+        /// Any path values in the provided `URL` will be discarded.
+        @discardableResult
+        @objc
+        public func settingsHost(_ settingsHost: URL) -> Self {
+            self.settingsHost = settingsHost
             return self
         }
 

@@ -203,7 +203,7 @@ internal class NetworkClient: Networking {
 extension NetworkClient {
     // swiftlint:disable force_unwrapping
     static let defaultAPIHost = URL(string: "https://api.appcues.net")!
-    static let sdkSettingsHost = URL(string: "https://fast.appcues.com")!
+    static let defaultSettingsHost = URL(string: "https://fast.appcues.com")!
     // swiftlint:enable force_unwrapping
 
     static var defaultURLSession: URLSession {
