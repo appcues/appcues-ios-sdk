@@ -45,4 +45,4 @@ A Swift library for sending user properties and events to the Appcues API and re
 - ``AppcuesViewElement``
 
 ### Use Cases
-- <doc:AppcuesKit>
+- <doc:UseCases>
