@@ -20,11 +20,13 @@ A Swift library for sending user properties and events to the Appcues API and re
 - ``Appcues``
 
 ### Navigation
+
 - <doc:Navigation>
 - <doc:UniversalLinking>
 - ``AppcuesNavigationDelegate``
 
 ### Embeds
+
 - <doc:FrameConfiguring>
 - ``AppcuesFrameView``
 - ``AppcuesFrame``
@@ -40,9 +42,13 @@ A Swift library for sending user properties and events to the Appcues API and re
 - ``AppcuesAnalytic``
 
 ### Element Targeting
+
 - ``AppcuesElementTargeting``
 - ``AppcuesElementSelector``
 - ``AppcuesViewElement``
+- ``SwiftUI/View/appcuesView(identifier:)``
+- ``UIKit/UIWindow/isAppcuesWindow``
 
 ### Use Cases
+
 - <doc:UseCases>
