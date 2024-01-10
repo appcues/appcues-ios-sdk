@@ -3,12 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		0B83F9E94137632FE3005F50 /* EmbedTestHarnessViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7668CA3A542361436CA5C3B7 /* EmbedTestHarnessViewController.swift */; };
 		111D1F044CE5C429A13E377B /* Mulish-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D140F36AD3D06536C395A074 /* Mulish-VariableFont_wght.ttf */; };
+		23B54BD171539D75DB26478D /* ScrollingTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F2DFA61ED06BF8D237F254A /* ScrollingTableViewController.swift */; };
 		62B165983718917D2D41BA5C /* Mulish-Italic-VariableFont_wght.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 17D5A01020B551B33B447DC1 /* Mulish-Italic-VariableFont_wght.ttf */; };
 		64EFAB6E2ED72F70B75B98F1 /* EventsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7C790690C785694C7F24F8 /* EventsViewController.swift */; };
 		7013CDD44A5E7E6056595498 /* Lato-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */; };
@@ -21,7 +22,6 @@
 		B3CE09A940E9DD0DF6CA96A4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ED2A2106A39811D89703AE5F /* LaunchScreen.storyboard */; };
 		B8DB7327A11245904C6B908F /* DeepLinkNavigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91C043606EC23556B49010D3 /* DeepLinkNavigator.swift */; };
 		BF24A197BFEAF23D84AC3462 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6901798B6E99F34ACF2F707B /* SceneDelegate.swift */; };
-		C9DB63842B27706900469E05 /* ScrollingTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9DB63832B27706900469E05 /* ScrollingTableViewController.swift */; };
 		DD6A303F8B4B0A8075C32454 /* SignInViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 288554133C93206378D963AB /* SignInViewController.swift */; };
 		EE6124C9BB7FB8ACF18B1503 /* GroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C55D469D39EFF3296C5387 /* GroupViewController.swift */; };
 		F897157F45696443B145C383 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 723869D8744D77D8EC9B55F1 /* ProfileViewController.swift */; };
@@ -31,6 +31,7 @@
 /* Begin PBXFileReference section */
 		05539DC01B30BEB3C8796C56 /* Lato-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Black.ttf"; sourceTree = "<group>"; };
 		17D5A01020B551B33B447DC1 /* Mulish-Italic-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-Italic-VariableFont_wght.ttf"; sourceTree = "<group>"; };
+		20424A7F90B75190FD4D1146 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Main.strings"; sourceTree = "<group>"; };
 		288554133C93206378D963AB /* SignInViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInViewController.swift; sourceTree = "<group>"; };
 		476767533B954304A7121A53 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		6901798B6E99F34ACF2F707B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -41,12 +42,15 @@
 		7A2AD399FBBF5EB8AEBE70BF /* Lato-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Bold.ttf"; sourceTree = "<group>"; };
 		7A540BC606C8E2160FB2B489 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7A931564B0DEB1FE780CD0A2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		85361CF0119362DE96D6591C /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
 		87C55D469D39EFF3296C5387 /* GroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupViewController.swift; sourceTree = "<group>"; };
 		8F18BFFBC809004FCDB520DF /* appcues-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "appcues-ios-sdk"; path = ../..; sourceTree = SOURCE_ROOT; };
+		8F2DFA61ED06BF8D237F254A /* ScrollingTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingTableViewController.swift; sourceTree = "<group>"; };
 		91C043606EC23556B49010D3 /* DeepLinkNavigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkNavigator.swift; sourceTree = "<group>"; };
+		9B3A37A53533FAF07E10D9ED /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		9C8326722CA53EE0F53AA012 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		AF7C790690C785694C7F24F8 /* EventsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventsViewController.swift; sourceTree = "<group>"; };
 		C77616FC1B7BAE52C91F4FBD /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		C9DB63832B27706900469E05 /* ScrollingTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingTableViewController.swift; sourceTree = "<group>"; };
 		D140F36AD3D06536C395A074 /* Mulish-VariableFont_wght.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Mulish-VariableFont_wght.ttf"; sourceTree = "<group>"; };
 		F46FEDAF7B878A4794848F30 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
 		FFC01F919D7C1743A7217373 /* EmbedViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbedViewController.swift; sourceTree = "<group>"; };
@@ -117,8 +121,8 @@
 				8757BA449145145EAF8FE061 /* Main.storyboard */,
 				723869D8744D77D8EC9B55F1 /* ProfileViewController.swift */,
 				6901798B6E99F34ACF2F707B /* SceneDelegate.swift */,
+				8F2DFA61ED06BF8D237F254A /* ScrollingTableViewController.swift */,
 				288554133C93206378D963AB /* SignInViewController.swift */,
-				C9DB63832B27706900469E05 /* ScrollingTableViewController.swift */,
 			);
 			path = SPMExample;
 			sourceTree = "<group>";
@@ -153,15 +157,20 @@
 		130EE114742540DBDB7469B0 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1200;
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
 			};
 			buildConfigurationList = 3307568C9084A060E694F2E4 /* Build configuration list for PBXProject "AppcuesSPMExample" */;
-			compatibilityVersion = "Xcode 11.0";
+			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
 				en,
+				fr,
+				"pt-BR",
 			);
 			mainGroup = 00D57936BE4D8040097BA252;
 			projectDirPath = "";
@@ -224,8 +233,8 @@
 				EE6124C9BB7FB8ACF18B1503 /* GroupViewController.swift in Sources */,
 				F897157F45696443B145C383 /* ProfileViewController.swift in Sources */,
 				BF24A197BFEAF23D84AC3462 /* SceneDelegate.swift in Sources */,
+				23B54BD171539D75DB26478D /* ScrollingTableViewController.swift in Sources */,
 				DD6A303F8B4B0A8075C32454 /* SignInViewController.swift in Sources */,
-				C9DB63842B27706900469E05 /* ScrollingTableViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -236,6 +245,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				C77616FC1B7BAE52C91F4FBD /* Base */,
+				85361CF0119362DE96D6591C /* fr */,
+				20424A7F90B75190FD4D1146 /* pt-BR */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -244,6 +255,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				7A931564B0DEB1FE780CD0A2 /* Base */,
+				9B3A37A53533FAF07E10D9ED /* fr */,
+				9C8326722CA53EE0F53AA012 /* pt-BR */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -255,6 +268,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -354,6 +368,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
