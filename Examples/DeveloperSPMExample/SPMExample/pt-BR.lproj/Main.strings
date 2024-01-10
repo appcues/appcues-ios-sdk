@@ -1,0 +1,195 @@
+
+/* Class = "UIButton"; configuration.title = "Button 1"; ObjectID = "128-rx-mhG"; */
+"128-rx-mhG.configuration.title" = "Button 1 [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "128-rx-mhG"; */
+"128-rx-mhG.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UINavigationItem"; title = "Trigger Events"; ObjectID = "1Wg-Nt-6AG"; */
+"1Wg-Nt-6AG.title" = "Trigger Events [pt-BR]";
+
+/* Class = "UIBarButtonItem"; title = "Debug"; ObjectID = "2EG-CO-a7g"; */
+"2EG-CO-a7g.title" = "Debug [pt-BR]";
+
+/* Class = "UIButton"; accessibilityLabel = "Show UITableView"; ObjectID = "2Eb-Go-11n"; */
+"2Eb-Go-11n.accessibilityLabel" = "Show UITableView [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Show UITableView"; ObjectID = "2Eb-Go-11n"; */
+"2Eb-Go-11n.configuration.title" = "Show UITableView [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "2Eb-Go-11n"; */
+"2Eb-Go-11n.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UINavigationItem"; title = "Update Group"; ObjectID = "2UT-oW-P42"; */
+"2UT-oW-P42.title" = "Update Group [pt-BR]";
+
+/* Class = "UILabel"; text = "Row 4"; ObjectID = "3fR-7G-9iP"; */
+"3fR-7G-9iP.text" = "Row 4 [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Button 3"; ObjectID = "5GK-NN-K0j"; */
+"5GK-NN-K0j.configuration.title" = "Button 3 [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "5GK-NN-K0j"; */
+"5GK-NN-K0j.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UITabBarItem"; title = "Profile"; ObjectID = "6xZ-kX-GMW"; */
+"6xZ-kX-GMW.title" = "Profile [pt-BR]";
+
+/* Class = "UITextField"; accessibilityLabel = "Given Name"; ObjectID = "8Tl-gR-eNQ"; */
+"8Tl-gR-eNQ.accessibilityLabel" = "Given Name [pt-BR]";
+
+/* Class = "UITextField"; placeholder = "Given Name"; ObjectID = "8Tl-gR-eNQ"; */
+"8Tl-gR-eNQ.placeholder" = "Given Name [pt-BR]";
+
+/* Class = "UIButton"; accessibilityLabel = "Event 3"; ObjectID = "9IM-zu-qaP"; */
+"9IM-zu-qaP.accessibilityLabel" = "Event 3 [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Trigger Event 3"; ObjectID = "9IM-zu-qaP"; */
+"9IM-zu-qaP.configuration.title" = "Trigger Event 3 [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "9IM-zu-qaP"; */
+"9IM-zu-qaP.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UILabel"; text = "Row 3"; ObjectID = "D4L-S3-RN8"; */
+"D4L-S3-RN8.text" = "Row 3 [pt-BR]";
+
+/* Class = "UILabel"; text = "Embeds are a low-code pattern, requiring customer application development work to be done to create and expose injectable view areas where Appcues content can reside. This involves creating and registering a special AppcuesFrame view types with the iOS and Android SDKs, and including those views in the customer app layouts. This concept of view embedding is analogous to products like the Google Ads SDKs for mobile display ads. The details of how the embed views are registered with the native SDKs are outside of the scope of this document, which focuses on the data model updates. SDK documentation will cover those other integration topics."; ObjectID = "DZM-Va-fhz"; */
+"DZM-Va-fhz.text" = "Embeds are a low-code pattern, requiring customer application development work to be done to create and expose injectable view areas where Appcues content can reside. This involves creating and registering a special AppcuesFrame view types with the iOS and Android SDKs, and including those views in the customer app layouts. This concept of view embedding is analogous to products like the Google Ads SDKs for mobile display ads. The details of how the embed views are registered with the native SDKs are outside of the scope of this document, which focuses on the data model updates. SDK documentation will cover those other integration topics. [pt-BR]";
+
+/* Class = "UITextField"; accessibilityLabel = "Family Name"; ObjectID = "FMi-kV-XtR"; */
+"FMi-kV-XtR.accessibilityLabel" = "Family Name [pt-BR]";
+
+/* Class = "UITextField"; placeholder = "Family Name"; ObjectID = "FMi-kV-XtR"; */
+"FMi-kV-XtR.placeholder" = "Family Name [pt-BR]";
+
+/* Class = "UIButton"; accessibilityLabel = "Save"; ObjectID = "FzB-Lh-Eb0"; */
+"FzB-Lh-Eb0.accessibilityLabel" = "Save [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Save"; ObjectID = "FzB-Lh-Eb0"; */
+"FzB-Lh-Eb0.configuration.title" = "Save [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "FzB-Lh-Eb0"; */
+"FzB-Lh-Eb0.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UINavigationItem"; title = "Update Profile"; ObjectID = "Hgj-Xj-T4z"; */
+"Hgj-Xj-T4z.title" = "Update Profile [pt-BR]";
+
+/* Class = "UIButton"; accessibilityLabel = "Event 2"; ObjectID = "JIX-16-Osw"; */
+"JIX-16-Osw.accessibilityLabel" = "Event 2 [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Trigger Event 2"; ObjectID = "JIX-16-Osw"; */
+"JIX-16-Osw.configuration.title" = "Trigger Event 2 [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "JIX-16-Osw"; */
+"JIX-16-Osw.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Button 4"; ObjectID = "KMm-1C-RQ9"; */
+"KMm-1C-RQ9.configuration.title" = "Button 4 [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "KMm-1C-RQ9"; */
+"KMm-1C-RQ9.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UILabel"; text = "Row 2"; ObjectID = "KVx-iN-y3l"; */
+"KVx-iN-y3l.text" = "Row 2 [pt-BR]";
+
+/* Class = "UILabel"; text = "Before mobile embeds were supported, the Appcues mobile SDKs could render a single mobile flow at a time, modally as an overlay. These experiences could have had modal or tooltip steps, but the response from the server qualification would return a prioritized list of mobile flows and the SDK would render the highest priority item possible.\n\nWith embeds, this paradigm changes, and a qualification response may contain zero or more mobile embeds that can be rendered simultaneously, as well as zero or more mobile flows, which are handled just like before, rendering a single highest priority item. Mobile embeds and mobile flow pattern types are entirely mutually exclusive, meaning you cannot have tooltip mobile flow steps within an embed experience, for example. However, you can launch a mobile flow from a mobile embed with a button action."; ObjectID = "Kqd-0G-DF3"; */
+"Kqd-0G-DF3.text" = "Before mobile embeds were supported, the Appcues mobile SDKs could render a single mobile flow at a time, modally as an overlay. These experiences could have had modal or tooltip steps, but the response from the server qualification would return a prioritized list of mobile flows and the SDK would render the highest priority item possible.\n\nWith embeds, this paradigm changes, and a qualification response may contain zero or more mobile embeds that can be rendered simultaneously, as well as zero or more mobile flows, which are handled just like before, rendering a single highest priority item. Mobile embeds and mobile flow pattern types are entirely mutually exclusive, meaning you cannot have tooltip mobile flow steps within an embed experience, for example. However, you can launch a mobile flow from a mobile embed with a button action. [pt-BR]";
+
+/* Class = "UITextField"; placeholder = "User ID"; ObjectID = "MFN-Xh-XUq"; */
+"MFN-Xh-XUq.placeholder" = "User ID [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Button 5"; ObjectID = "O08-ET-pWo"; */
+"O08-ET-pWo.configuration.title" = "Button 5 [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "O08-ET-pWo"; */
+"O08-ET-pWo.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UINavigationItem"; title = "Sign In"; ObjectID = "OyU-gs-faF"; */
+"OyU-gs-faF.title" = "Sign In [pt-BR]";
+
+/* Class = "UILabel"; text = "Given Name"; ObjectID = "PT3-vN-rTD"; */
+"PT3-vN-rTD.text" = "Given Name [pt-BR]";
+
+/* Class = "UILabel"; text = "Embedded Experiences, or Embeds for short, are experiences that are injected inline with the customer application views, rather than overlaid on top. Embeds can contain a variety of content. Any type of experience content you could show in a modal step could also be embedded into a non-modal view in the application. This pattern is commonly used for less obtrusive promotions or supplemental content, inline banners or help tips."; ObjectID = "RP0-Wt-Ymd"; */
+"RP0-Wt-Ymd.text" = "Embedded Experiences, or Embeds for short, are experiences that are injected inline with the customer application views, rather than overlaid on top. Embeds can contain a variety of content. Any type of experience content you could show in a modal step could also be embedded into a non-modal view in the application. This pattern is commonly used for less obtrusive promotions or supplemental content, inline banners or help tips. [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Button 2"; ObjectID = "S1Z-iB-CCS"; */
+"S1Z-iB-CCS.configuration.title" = "Button 2 [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "S1Z-iB-CCS"; */
+"S1Z-iB-CCS.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UIBarButtonItem"; title = "Sign Out"; ObjectID = "S22-oi-BH8"; */
+"S22-oi-BH8.title" = "Sign Out [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Show Test Harness Screen"; ObjectID = "SHW-5O-z91"; */
+"SHW-5O-z91.configuration.title" = "Show Test Harness Screen [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "SHW-5O-z91"; */
+"SHW-5O-z91.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UIBarButtonItem"; title = "Skip"; ObjectID = "Ua0-aa-o56"; */
+"Ua0-aa-o56.title" = "Skip [pt-BR]";
+
+/* Class = "UIButton"; accessibilityLabel = "Save"; ObjectID = "UsU-Rf-qFv"; */
+"UsU-Rf-qFv.accessibilityLabel" = "Save [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Save"; ObjectID = "UsU-Rf-qFv"; */
+"UsU-Rf-qFv.configuration.title" = "Save [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "UsU-Rf-qFv"; */
+"UsU-Rf-qFv.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UITabBarItem"; title = "Embed"; ObjectID = "Yd9-oc-M3j"; */
+"Yd9-oc-M3j.title" = "Embed [pt-BR]";
+
+/* Class = "UILabel"; text = "Group"; ObjectID = "aYF-oG-O6J"; */
+"aYF-oG-O6J.text" = "Group [pt-BR]";
+
+/* Class = "UILabel"; text = "Row 5"; ObjectID = "dHs-I8-EMV"; */
+"dHs-I8-EMV.text" = "Row 5 [pt-BR]";
+
+/* Class = "UILabel"; text = "User ID"; ObjectID = "eOt-Jw-1zd"; */
+"eOt-Jw-1zd.text" = "User ID [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Anonymous User"; ObjectID = "gL3-Si-fOx"; */
+"gL3-Si-fOx.configuration.title" = "Anonymous User [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "gL3-Si-fOx"; */
+"gL3-Si-fOx.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UILabel"; text = "Row 1"; ObjectID = "oKw-sL-so8"; */
+"oKw-sL-so8.text" = "Row 1 [pt-BR]";
+
+/* Class = "UITabBarItem"; title = "Group"; ObjectID = "sLb-d9-Lvb"; */
+"sLb-d9-Lvb.title" = "Group [pt-BR]";
+
+/* Class = "UINavigationItem"; title = "Embed Experiences"; ObjectID = "t09-9b-ts7"; */
+"t09-9b-ts7.title" = "Embed Experiences [pt-BR]";
+
+/* Class = "UITextField"; accessibilityLabel = "Group"; ObjectID = "uPt-1p-rg9"; */
+"uPt-1p-rg9.accessibilityLabel" = "Group [pt-BR]";
+
+/* Class = "UINavigationItem"; title = "Scrolling UITableView"; ObjectID = "ujM-Ar-2Iv"; */
+"ujM-Ar-2Iv.title" = "Scrolling UITableView [pt-BR]";
+
+/* Class = "UITabBarItem"; title = "Events"; ObjectID = "uki-uJ-rK0"; */
+"uki-uJ-rK0.title" = "Events [pt-BR]";
+
+/* Class = "UIButton"; accessibilityLabel = "Event 1"; ObjectID = "xsR-1u-kQl"; */
+"xsR-1u-kQl.accessibilityLabel" = "Event 1 [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Trigger Event 1"; ObjectID = "xsR-1u-kQl"; */
+"xsR-1u-kQl.configuration.title" = "Trigger Event 1 [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "xsR-1u-kQl"; */
+"xsR-1u-kQl.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UIButton"; configuration.title = "Sign In"; ObjectID = "xwL-xQ-fl6"; */
+"xwL-xQ-fl6.configuration.title" = "Sign In [pt-BR]";
+
+/* Class = "UIButton"; normalTitle = "Button"; ObjectID = "xwL-xQ-fl6"; */
+"xwL-xQ-fl6.normalTitle" = "Button [pt-BR]";
+
+/* Class = "UILabel"; text = "Family Name"; ObjectID = "yCh-uM-tj0"; */
+"yCh-uM-tj0.text" = "Family Name [pt-BR]";
