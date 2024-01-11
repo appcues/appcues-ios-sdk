@@ -52,7 +52,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/track",
-                    config: AppcuesTrackAction.Config(eventName: "Some event"))
+                    config: AppcuesTrackAction.Config(eventName: "Some event", attributes: nil))
             ],
             level: .step,
             renderContext: .modal,
@@ -98,7 +98,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                 Experience.Action(
                     trigger: "tap",
                     type: "@appcues/track",
-                    config: AppcuesTrackAction.Config(eventName: "Some event"))
+                    config: AppcuesTrackAction.Config(eventName: "Some event", attributes: nil))
             ],
             level: .step,
             renderContext: .modal,

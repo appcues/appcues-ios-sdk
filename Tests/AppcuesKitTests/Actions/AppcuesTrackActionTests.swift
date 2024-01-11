@@ -48,6 +48,39 @@ class AppcuesTrackActionTests: XCTestCase {
         XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(trackCount, 1)
     }
+    
+    func testExecuteWithAttributes() throws {
+        // Arrange
+        var completionCount = 0
+        var trackCount = 0
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            XCTAssertEqual(trackingUpdate.type, .event(name: "My Custom Event", interactive: true))
+            
+            [
+                "boolean": true,
+                "string": "string",
+                "int": 10,
+                "double": 10.5
+            ].verifyPropertiesMatch(trackingUpdate.properties)
+            
+            trackCount += 1
+        }
+        let action = AppcuesTrackAction(appcues: appcues, 
+                                        eventName: "My Custom Event",
+                                        attributes: [
+                                            "boolean": true,
+                                            "string": "string",
+                                            "int": 10,
+                                            "double": 10.5
+                                        ])
+
+        // Act
+        action?.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(trackCount, 1)
+    }
 
     func testExecuteCompletesWithoutAppcuesInstance() throws {
         // Arrange
@@ -67,7 +100,7 @@ extension AppcuesTrackAction {
     convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(appcues: Appcues?, eventName: String) {
-        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesTrackAction.Config(eventName: eventName), appcues: appcues))
+    convenience init?(appcues: Appcues?, eventName: String, attributes: [String: Any]? = nil) {
+        self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesTrackAction.Config(eventName: eventName, attributes: attributes), appcues: appcues))
     }
 }
