@@ -218,7 +218,7 @@ public class Appcues: NSObject {
             return
         }
 
-        experienceLoader.load(experienceID: experienceID, published: true, trigger: .showCall) { result in
+        experienceLoader.load(experienceID: experienceID, published: true, queryItems: [], trigger: .showCall) { result in
             switch result {
             case .success:
                 completion?(true, nil)
