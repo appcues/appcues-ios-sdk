@@ -19,7 +19,13 @@ internal class DebugViewController: UIViewController {
 
     private var debugView = DebugView()
 
-    let mode: DebugMode
+    var mode: DebugMode {
+        didSet {
+            setMode(mode)
+        }
+    }
+    // Reference to child view controller
+    weak var panelViewController: UIViewController?
 
     let viewModel: DebugViewModel
     let logger: DebugLogger
@@ -41,27 +47,41 @@ internal class DebugViewController: UIViewController {
     }
 
     override func loadView() {
-        debugView.floatingView.accessibilityLabel = mode.accessibilityLabel
-        debugView.floatingView.imageView.image = UIImage(asset: mode.imageAsset)
-        debugView.floatingView.delegate = self
         view = debugView
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        if case .debugger = mode {
-            let panelViewController = UIHostingController(rootView: DebugUI.MainPanelView(
+        debugView.floatingView.delegate = self
+
+        setMode(mode)
+    }
+
+    func setMode(_ mode: DebugMode) {
+        debugView.floatingView.accessibilityLabel = mode.accessibilityLabel
+        debugView.floatingView.imageView.image = UIImage(asset: mode.imageAsset)
+
+        // One time setup for debugger mode
+        if panelViewController == nil, case .debugger = mode {
+            let viewController = UIHostingController(rootView: DebugUI.MainPanelView(
                 apiVerifier: apiVerifier,
                 deepLinkVerifier: deepLinkVerifier,
                 viewModel: viewModel
             ).environmentObject(logger))
-            addChild(panelViewController)
-            debugView.panelWrapperView.addSubview(panelViewController.view)
-            panelViewController.didMove(toParent: self)
-            panelViewController.view.pin(to: debugView.panelWrapperView)
+            addChild(viewController)
+            debugView.panelWrapperView.addSubview(viewController.view)
+            viewController.didMove(toParent: self)
+            viewController.view.pin(to: debugView.panelWrapperView)
+            panelViewController = viewController
         }
 
+        if case let .debugger(destination) = mode {
+            viewModel.navigationDestination = destination
+            if destination != nil {
+                open(animated: true)
+            }
+        }
     }
 
     func show(animated: Bool) {

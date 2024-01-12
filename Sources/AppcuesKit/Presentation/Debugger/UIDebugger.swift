@@ -91,6 +91,19 @@ internal class UIDebugger: UIDebugging {
             return
         }
 
+        guard debugViewController?.mode == nil else {
+            // Debugger already open, so just update the mode
+            debugViewController?.mode = mode
+            return
+        }
+
+        // Set up the debugger
+
+        guard let windowScene = UIApplication.shared.activeWindowScenes.first else {
+            config.logger.error("Could not open debugger")
+            return
+        }
+
         let viewModel = DebugViewModel(
             eventPublisher: eventPublisher,
             storage: storage,
@@ -98,35 +111,11 @@ internal class UIDebugger: UIDebugging {
             applicationID: config.applicationID
         )
 
-        defer {
-            if case let .debugger(destination) = mode {
-                viewModel.navigationDestination = destination
-                if destination != nil {
-                    debugViewController?.open(animated: true)
-                }
-            }
-        }
-
-        if let previousMode = debugViewController?.mode {
-            switch (previousMode, mode) {
-            case (.debugger, .screenCapture), (.screenCapture, .debugger):
-                // Debugger already open but in different mode, dismiss it
-                hide()
-            default:
-                // Debugger already open in desired mode
-                return
-            }
-        }
-
-        guard let windowScene = UIApplication.shared.activeWindowScenes.first else {
-            config.logger.error("Could not open debugger")
-            return
-        }
-
         let debugLogger = DebugLogger(previousLogger: config.logger)
         config.logger = debugLogger
 
         analyticsPublisher.register(subscriber: self)
+
         let rootViewController = DebugViewController(
             viewModel: viewModel,
             logger: debugLogger,
@@ -138,7 +127,7 @@ internal class UIDebugger: UIDebugging {
 
         eventPublisher
             .sink { [weak rootViewController] in
-                guard case .debugger = mode else { return }
+                guard case .debugger = rootViewController?.mode else { return }
                 rootViewController?.logFleeting(message: $0.name, symbolName: $0.type.symbolName)
             }
             .store(in: &cancellable)
