@@ -10,7 +10,13 @@ import Foundation
 
 @available(iOS 13.0, *)
 internal protocol ExperienceLoading: AnyObject {
-    func load(experienceID: String, published: Bool, trigger: ExperienceTrigger, completion: ((Result<Void, Error>) -> Void)?)
+    func load(
+        experienceID: String,
+        published: Bool,
+        queryItems: [URLQueryItem],
+        trigger: ExperienceTrigger,
+        completion: ((Result<Void, Error>) -> Void)?
+    )
 }
 
 @available(iOS 13.0, *)
@@ -24,6 +30,7 @@ internal class ExperienceLoader: ExperienceLoading {
 
     /// Store the experience ID loaded (only if previewing) so that it can be refreshed.
     private var lastPreviewExperienceID: String?
+    private var lastPreviewQueryItems: [URLQueryItem]?
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
@@ -35,11 +42,17 @@ internal class ExperienceLoader: ExperienceLoading {
         notificationCenter.addObserver(self, selector: #selector(refreshPreview), name: .shakeToRefresh, object: nil)
     }
 
-    func load(experienceID: String, published: Bool, trigger: ExperienceTrigger, completion: ((Result<Void, Error>) -> Void)?) {
+    func load(
+        experienceID: String,
+        published: Bool,
+        queryItems: [URLQueryItem],
+        trigger: ExperienceTrigger,
+        completion: ((Result<Void, Error>) -> Void)?
+    ) {
 
         let endpoint = published ?
-            APIEndpoint.content(experienceID: experienceID) :
-            APIEndpoint.preview(experienceID: experienceID)
+            APIEndpoint.content(experienceID: experienceID, queryItems: queryItems) :
+            APIEndpoint.preview(experienceID: experienceID, queryItems: queryItems)
 
         networking.get(
             from: endpoint,
@@ -57,6 +70,7 @@ internal class ExperienceLoader: ExperienceLoading {
             }
 
             self?.lastPreviewExperienceID = published ? nil : experienceID
+            self?.lastPreviewQueryItems = published ? nil : queryItems
         }
     }
 
@@ -64,6 +78,6 @@ internal class ExperienceLoader: ExperienceLoading {
     private func refreshPreview(notification: Notification) {
         guard let experienceID = lastPreviewExperienceID else { return }
 
-        load(experienceID: experienceID, published: false, trigger: .preview, completion: nil)
+        load(experienceID: experienceID, published: false, queryItems: lastPreviewQueryItems ?? [], trigger: .preview, completion: nil)
     }
 }

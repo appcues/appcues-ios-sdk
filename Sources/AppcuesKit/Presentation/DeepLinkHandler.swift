@@ -17,8 +17,8 @@ internal protocol DeepLinkHandling: AnyObject {
 internal class DeepLinkHandler: DeepLinkHandling {
 
     enum Action: Hashable {
-        case preview(experienceID: String) // preview for draft content
-        case show(experienceID: String)    // published content
+        case preview(experienceID: String, queryItems: [URLQueryItem]) // preview for draft content
+        case show(experienceID: String, queryItems: [URLQueryItem])    // published content
         case debugger(destination: DebugDestination?)
         case verifyInstall(id: String)
         case captureScreen(token: String)
@@ -28,7 +28,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
             guard isValidScheme, url.host == "sdk" else { return nil }
 
             // supported paths:
-            // appcues-{app_id}://sdk/experience_preview/{experience_id}
+            // appcues-{app_id}://sdk/experience_preview/{experience_id}?locale_id={localeID}
             // appcues-{app_id}://sdk/experience_content/{experience_id}
             // appcues-{app_id}://sdk/debugger
             // appcues-{app_id}://sdk/debugger/fonts
@@ -38,10 +38,10 @@ internal class DeepLinkHandler: DeepLinkHandling {
             let pathTokens = url.path.split(separator: "/").map { String($0) }
 
             if pathTokens.count == 2, pathTokens[0] == "experience_preview" {
-                self = .preview(experienceID: pathTokens[1])
+                self = .preview(experienceID: pathTokens[1], queryItems: url.queryItems)
             } else if pathTokens.count == 2, pathTokens[0] == "experience_content", isSessionActive {
                 // can only show content via deep link when a session is active
-                self = .show(experienceID: pathTokens[1])
+                self = .show(experienceID: pathTokens[1], queryItems: url.queryItems)
             } else if pathTokens.count >= 1, pathTokens[0] == "debugger" {
                 self = .debugger(destination: DebugDestination(pathToken: pathTokens[safe: 1]))
             } else if pathTokens.count == 2, pathTokens[0] == "verify" {
@@ -108,17 +108,19 @@ internal class DeepLinkHandler: DeepLinkHandling {
 
     private func handle(action: Action) {
         switch action {
-        case .preview(let experienceID):
+        case let .preview(experienceID, queryItems):
             container?.resolve(ExperienceLoading.self).load(
                 experienceID: experienceID,
                 published: false,
+                queryItems: queryItems,
                 trigger: .preview,
                 completion: previewCompletion
             )
-        case .show(let experienceID):
+        case let .show(experienceID, queryItems):
             container?.resolve(ExperienceLoading.self).load(
                 experienceID: experienceID,
                 published: true,
+                queryItems: queryItems,
                 trigger: .deepLink,
                 completion: nil
             )
@@ -188,6 +190,11 @@ public extension Appcues {
 }
 
 private extension URL {
+    var queryItems: [URLQueryItem] {
+        URLComponents(url: self, resolvingAgainstBaseURL: false)?
+            .queryItems ?? []
+    }
+
     func queryValue(for name: String) -> String? {
         URLComponents(url: self, resolvingAgainstBaseURL: false)?
             .queryItems?

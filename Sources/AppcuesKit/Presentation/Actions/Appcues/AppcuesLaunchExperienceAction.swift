@@ -53,7 +53,7 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
         // that launches another flow from a button, for example.
         let trigger = self.trigger ?? launchExperienceTrigger(appcues)
 
-        experienceLoading.load(experienceID: experienceID, published: true, trigger: trigger) { _  in
+        experienceLoading.load(experienceID: experienceID, published: true, queryItems: [], trigger: trigger) { _  in
             completion()
         }
     }

@@ -12,8 +12,8 @@ import Foundation
 internal enum APIEndpoint: Endpoint {
     case activity(userID: String)
     case qualify(userID: String)
-    case content(experienceID: String)
-    case preview(experienceID: String)
+    case content(experienceID: String, queryItems: [URLQueryItem])
+    case preview(experienceID: String, queryItems: [URLQueryItem])
     case health
 
     /// URL fragments that that are appended to the `Config.apiHost` to make the URL for a network request.
@@ -25,15 +25,17 @@ internal enum APIEndpoint: Endpoint {
             components.path = "/v1/accounts/\(config.accountID)/users/\(userID)/activity"
         case let .qualify(userID):
             components.path = "/v1/accounts/\(config.accountID)/users/\(userID)/qualify"
-        case let .content(experienceID):
+        case let .content(experienceID, queryItems):
             components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/experience_content/\(experienceID)"
-        case let .preview(experienceID):
+            components.queryItems = queryItems
+        case let .preview(experienceID, queryItems):
             // optionally include the userID, if one exists, to allow for a personalized preview capability
             if storage.userID.isEmpty {
                 components.path = "/v1/accounts/\(config.accountID)/experience_preview/\(experienceID)"
             } else {
                 components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/experience_preview/\(experienceID)"
             }
+            components.queryItems = queryItems
         case .health:
             components.path = "/healthz"
         }
