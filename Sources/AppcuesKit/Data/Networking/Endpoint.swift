@@ -12,8 +12,8 @@ import Foundation
 internal enum APIEndpoint: Endpoint {
     case activity(userID: String)
     case qualify(userID: String)
-    case content(experienceID: String, queryItems: [URLQueryItem])
-    case preview(experienceID: String, queryItems: [URLQueryItem])
+    case content(experienceID: String, queryItems: [URLQueryItem] = [])
+    case preview(experienceID: String, queryItems: [URLQueryItem] = [])
     case health
 
     /// URL fragments that that are appended to the `Config.apiHost` to make the URL for a network request.
