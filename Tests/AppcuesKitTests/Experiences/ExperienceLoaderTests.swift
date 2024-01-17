@@ -39,7 +39,7 @@ class ExperienceLoaderTests: XCTestCase {
         let completionExpectation = expectation(description: "Completion called")
 
         // Act
-        experienceLoader.load(experienceID: "123", published: true, trigger: .showCall) { result in
+        experienceLoader.load(experienceID: "123", published: true, queryItems: [], trigger: .showCall) { result in
             if case .success = result {
                 completionExpectation.fulfill()
             }
@@ -68,7 +68,7 @@ class ExperienceLoaderTests: XCTestCase {
         let completionExpectation = expectation(description: "Completion called")
 
         // Act
-        experienceLoader.load(experienceID: "123", published: false, trigger: .preview) { result in
+        experienceLoader.load(experienceID: "123", published: false, queryItems: [], trigger: .preview) { result in
             if case .success = result {
                 completionExpectation.fulfill()
             }
@@ -87,7 +87,7 @@ class ExperienceLoaderTests: XCTestCase {
         let completionExpectation = expectation(description: "Completion called")
 
         // Act
-        experienceLoader.load(experienceID: "123", published: true, trigger: .showCall) { result in
+        experienceLoader.load(experienceID: "123", published: true, queryItems: [], trigger: .showCall) { result in
             if case .failure = result {
                 completionExpectation.fulfill()
             }
@@ -102,7 +102,7 @@ class ExperienceLoaderTests: XCTestCase {
         let reloadExpectation = expectation(description: "Data loaded called")
 
         // Load the initial preview
-        experienceLoader.load(experienceID: "123", published: false, trigger: .preview, completion: nil)
+        experienceLoader.load(experienceID: "123", published: false, queryItems: [], trigger: .preview, completion: nil)
 
         appcues.networking.onGet = { endpoint, authorization, completion in
             XCTAssertEqual(
@@ -127,9 +127,9 @@ class ExperienceLoaderTests: XCTestCase {
         reloadExpectation.isInverted = true
 
         // Load the initial preview
-        experienceLoader.load(experienceID: "123", published: false, trigger: .preview, completion: nil)
+        experienceLoader.load(experienceID: "123", published: false, queryItems: [], trigger: .preview, completion: nil)
         // Load a published experience
-        experienceLoader.load(experienceID: "abc", published: true, trigger: .preview, completion: nil)
+        experienceLoader.load(experienceID: "abc", published: true, queryItems: [], trigger: .preview, completion: nil)
 
         appcues.networking.onGet = { endpoint, authorization, completion in
             reloadExpectation.fulfill()
