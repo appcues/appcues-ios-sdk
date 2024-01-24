@@ -54,7 +54,7 @@ class ExperienceLoaderTests: XCTestCase {
         appcues.networking.onGet = { endpoint, authorization, completion in
             XCTAssertEqual(
                 endpoint.url(config: self.appcues.config, storage: self.appcues.storage),
-                APIEndpoint.preview(experienceID: "123").url(config: self.appcues.config, storage: self.appcues.storage)
+                APIEndpoint.preview(experienceID: "123", queryItems: [URLQueryItem(name: "query", value: "xyz")]).url(config: self.appcues.config, storage: self.appcues.storage)
             )
             completion(.success(Experience.mock))
         }
@@ -68,7 +68,7 @@ class ExperienceLoaderTests: XCTestCase {
         let completionExpectation = expectation(description: "Completion called")
 
         // Act
-        experienceLoader.load(experienceID: "123", published: false, queryItems: [], trigger: .preview) { result in
+        experienceLoader.load(experienceID: "123", published: false, queryItems: [URLQueryItem(name: "query", value: "xyz")], trigger: .preview) { result in
             if case .success = result {
                 completionExpectation.fulfill()
             }
