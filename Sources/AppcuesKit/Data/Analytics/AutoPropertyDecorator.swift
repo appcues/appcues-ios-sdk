@@ -108,7 +108,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     private func configureApplicationProperties() {
         applicationProperties = [
             "_appId": config.applicationID,
-            "_operatingSystem": "ios",
+            "_operatingSystem": "iOS",
             "_bundlePackageId": Bundle.main.identifier,
             "_appName": Bundle.main.displayName,
             "_appVersion": Bundle.main.version,
