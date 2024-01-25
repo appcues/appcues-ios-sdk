@@ -19,10 +19,10 @@ orbs:
 #        EXECUTORS
 # -------------------------
 executors:
-  xcode_14:
+  xcode_15:
     macos:
-      xcode: 14.3.0
-    resource_class: macos.x86.medium.gen2
+      xcode: 15.1.0
+    resource_class: macos.m1.medium.gen1
     working_directory: /Users/distiller/project
     shell: /bin/bash --login -o pipefail
     environment:
@@ -47,13 +47,13 @@ commands:
       - checkout
       - restore_cache:
           name: Restore gem cache
-          key: 2-gems-{{ checksum "Gemfile.lock" }}
+          key: 3-gems-{{ checksum "Gemfile.lock" }}
       - run:
           name: Install gem dependencies
           command: bundle check || bundle install --deployment --path vendor/bundle
       - save_cache:
           name: Save gem cache
-          key: 2-gems-{{ checksum "Gemfile.lock" }}
+          key: 3-gems-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
       - run:
@@ -61,7 +61,7 @@ commands:
           command: brew install mint
       - restore_cache:
           name: Restore swift build package cache
-          key: 5-mint-{{ checksum "Mintfile" }}
+          key: 6-mint-{{ checksum "Mintfile" }}
       - run:
           name: Install swift build packages
           command: mint bootstrap
@@ -69,7 +69,7 @@ commands:
           no_output_timeout: 30m
       - save_cache:
           name: Save swift build package cache
-          key: 5-mint-{{ checksum "Mintfile" }}
+          key: 6-mint-{{ checksum "Mintfile" }}
           paths:
             - ~/.mint
 
@@ -78,7 +78,7 @@ commands:
 # -------------------------
 jobs:
   deploy_example:
-    executor: xcode_14
+    executor: xcode_15
     steps:
       - install_with_cache
       - run:
