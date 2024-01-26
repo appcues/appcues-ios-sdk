@@ -53,17 +53,17 @@ extension AppcuesTrackAction.Config: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         eventName = try container.decode(String.self, forKey: .eventName)
 
-        if let attributesContainer = try? container.nestedContainer(keyedBy: CodingKeys.self, forKey: .attributes) {
+        if let attributesContainer = try? container.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: .attributes) {
             var dict: [String: Any] = [:]
 
             attributesContainer.allKeys.forEach { key in
-                if let boolValue = try? container.decode(Bool.self, forKey: key) {
+                if let boolValue = try? attributesContainer.decode(Bool.self, forKey: key) {
                     dict[key.stringValue] = boolValue
-                } else if let stringValue = try? container.decode(String.self, forKey: key) {
+                } else if let stringValue = try? attributesContainer.decode(String.self, forKey: key) {
                     dict[key.stringValue] = stringValue
-                } else if let intValue = try? container.decode(Int.self, forKey: key) {
+                } else if let intValue = try? attributesContainer.decode(Int.self, forKey: key) {
                     dict[key.stringValue] = intValue
-                } else if let doubleValue = try? container.decode(Double.self, forKey: key) {
+                } else if let doubleValue = try? attributesContainer.decode(Double.self, forKey: key) {
                     dict[key.stringValue] = doubleValue
                 } else {
                     // not a supported type
