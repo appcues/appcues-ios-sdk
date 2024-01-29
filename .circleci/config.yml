@@ -77,6 +77,17 @@ commands:
 #          JOBS
 # -------------------------
 jobs:
+  additional-branch-validation:
+    executor: xcode_15
+    steps:
+      - install_with_cache
+      - run:
+          name: Compile example apps
+          command: bundle exec fastlane compile_examples
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+          channel: team-mobile-bots
   deploy_example:
     executor: xcode_15
     steps:
@@ -258,6 +269,9 @@ workflows:
       - check-status-of-spec-test-pipeline:
           requires:
             - wait-for-spec-test-pipeline
+          context:
+            - Appcues
+      - additional-branch-validation:
           context:
             - Appcues
 

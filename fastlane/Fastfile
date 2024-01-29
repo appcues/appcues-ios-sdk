@@ -6,9 +6,8 @@ platform :ios do
     setup_circle_ci
   end
 
-  desc "Validate the code in the SDK repo works properly"
-  lane :validate_code do
-    sdk_tests
+  desc "Compile example apps"
+  lane :compile_examples do
     compile_cocoapods_example
     compile_spm_example
   end
