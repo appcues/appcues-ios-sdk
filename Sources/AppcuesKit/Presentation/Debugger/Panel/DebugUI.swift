@@ -309,6 +309,18 @@ internal enum DebugUI {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.trailing)
                 }
+            }.ifLet(value) { view, value in
+                view.contextMenu {
+                    Button {
+                        UIPasteboard.general.string = value
+                    } label: {
+                        HStack {
+                            Text("Copy")
+                            Spacer()
+                            Image(systemName: "doc.on.doc")
+                        }
+                    }
+                }
             }
         }
     }
