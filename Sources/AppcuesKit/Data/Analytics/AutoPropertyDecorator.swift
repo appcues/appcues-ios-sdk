@@ -66,6 +66,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             break
         }
 
+        let now = Date()
+
         var sessionProperties: [String: Any?] = [
             "userId": storage.userID,
             "_isAnonymous": storage.isAnonymous,
@@ -74,7 +76,9 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_sessionRandomizer": sessionRandomizer,
             "_currentScreenTitle": currentScreen,
             "_lastScreenTitle": previousScreen,
-            "_updatedAt": Date(),
+            // _lastSeenAt deprecates _updatedAt which can't be entirely removed since it's used for targeting
+            "_lastSeenAt": now,
+            "_updatedAt": now,
             "_lastContentShownAt": storage.lastContentShownAt,
             "_sessionId": appcues?.sessionID?.appcuesFormatted
         ]
