@@ -75,6 +75,7 @@ class NetworkClientTests: XCTestCase {
         }
         let model = Activity(
             accountID: "00000",
+            appID: "abc",
             sessionID: UUID().appcuesFormatted,
             userID: "test",
             events: [Event(screen: "my screen")])
@@ -103,6 +104,7 @@ class NetworkClientTests: XCTestCase {
         }
         let model = Activity(
             accountID: "00000",
+            appID: "abc",
             sessionID: UUID().appcuesFormatted,
             userID: "test",
             events: [Event(screen: "my screen")])

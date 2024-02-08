@@ -360,6 +360,7 @@ class ActivityProcessorTests: XCTestCase {
     private func generateMockActivity(userID: String, event: Event, userSignature: String? = nil) -> Activity {
         return Activity(
             accountID: "00000",
+            appID: "abc",
             sessionID: UUID().appcuesFormatted,
             userID: userID,
             events: [event],
