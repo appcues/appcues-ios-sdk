@@ -18,6 +18,7 @@ internal struct Activity {
     var profileUpdate: [String: Any]?
     let userID: String
     let accountID: String
+    let appID: String
     var groupID: String?
     var groupUpdate: [String: Any]?
     let userSignature: String?
@@ -25,6 +26,7 @@ internal struct Activity {
 
     internal init(
         accountID: String,
+        appID: String,
         sessionID: String,
         userID: String,
         events: [Event]?,
@@ -35,6 +37,7 @@ internal struct Activity {
         logger: Logging = OSLog.disabled
     ) {
         self.accountID = accountID
+        self.appID = appID
         self.sessionID = sessionID
         self.userID = userID
         self.events = events
@@ -54,6 +57,7 @@ extension Activity: Encodable {
         case profileUpdate = "profile_update"
         case userID = "user_id"
         case accountID = "account_id"
+        case appID = "app_id"
         case sessionID = "session_id"
         case groupID = "group_id"
         case groupUpdate = "group_update"
@@ -64,6 +68,7 @@ extension Activity: Encodable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode("mobile", forKey: .source)
         try container.encode(accountID, forKey: .accountID)
+        try container.encode(appID, forKey: .appID)
         try container.encode(sessionID, forKey: .sessionID)
         try container.encode(userID, forKey: .userID)
         try container.encode(groupID, forKey: .groupID)
