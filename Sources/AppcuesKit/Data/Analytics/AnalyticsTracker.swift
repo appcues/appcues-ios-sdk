@@ -224,6 +224,7 @@ extension Activity {
         case let .event(name, _):
             self.init(
                 accountID: config.accountID,
+                appID: config.applicationID,
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: [Event(name: name, attributes: update.properties, context: update.context, logger: config.logger)],
@@ -235,6 +236,7 @@ extension Activity {
         case let .screen(title):
             self.init(
                 accountID: config.accountID,
+                appID: config.applicationID,
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: [Event(screen: title, attributes: update.properties, context: update.context, logger: config.logger)],
@@ -246,6 +248,7 @@ extension Activity {
         case .profile:
             self.init(
                 accountID: config.accountID,
+                appID: config.applicationID,
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: nil,
@@ -257,6 +260,7 @@ extension Activity {
         case .group:
             self.init(
                 accountID: config.accountID,
+                appID: config.applicationID,
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: nil,
