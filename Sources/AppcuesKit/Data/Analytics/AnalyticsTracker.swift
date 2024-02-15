@@ -228,7 +228,7 @@ extension Activity {
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: [Event(name: name, attributes: update.properties, context: update.context, logger: config.logger)],
-                profileUpdate: update.eventAutoProperties,
+                profileUpdate: update.identityAutoProperties,
                 groupID: storage.groupID,
                 userSignature: storage.userSignature,
                 logger: config.logger
@@ -240,7 +240,7 @@ extension Activity {
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
                 events: [Event(screen: title, attributes: update.properties, context: update.context, logger: config.logger)],
-                profileUpdate: update.eventAutoProperties,
+                profileUpdate: update.identityAutoProperties,
                 groupID: storage.groupID,
                 userSignature: storage.userSignature,
                 logger: config.logger
