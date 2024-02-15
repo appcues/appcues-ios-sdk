@@ -39,6 +39,12 @@ internal struct LoggedEvent: Identifiable {
             .map { ($0.key, String(describing: $0.value)) }
         properties["_identity"] = nil
 
+        // flatten the nested `_device` auto-properties into individual top level items.
+        let deviceAutoProps = (properties["_device"] as? [String: Any] ?? [:])
+            .sortedWithAutoProperties()
+            .map { ($0.key, String(describing: $0.value)) }
+        properties["_device"] = nil
+
         // flatten the nested `_sdkMetrics` properties into individual top level items.
         let metricProps = (properties["_sdkMetrics"] as? [String: Any] ?? [:])
             .sortedWithAutoProperties()
@@ -73,6 +79,10 @@ internal struct LoggedEvent: Identifiable {
 
         if !identityAutoProps.isEmpty {
             groups.append(("Identity Auto-properties", identityAutoProps))
+        }
+
+        if !deviceAutoProps.isEmpty {
+            groups.append(("Device Auto-properties", deviceAutoProps))
         }
 
         if !metricProps.isEmpty {
