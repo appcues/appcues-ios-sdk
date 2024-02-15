@@ -39,10 +39,23 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     }
 
     func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {
+        // Early return for group updates
+        if case let .group(id) = tracking.type {
+            if id == nil {
+                // removing from a group should not have any auto props
+                return tracking
+            } else {
+                // group updates only have this single auto prop, so add that and return early
+                var decorated = tracking
+                decorated.properties = (decorated.properties ?? [:]).merging(["_lastSeenAt": Date()])
+                return decorated
+            }
+        }
 
         var context = self.contextProperties
         var decorated = tracking
 
+        // Update values
         switch tracking.type {
         case let .screen(title):
             previousScreen = currentScreen
@@ -55,20 +68,13 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             sessionLatestUserProperties = [:]
             currentScreen = nil
             previousScreen = nil
-        case .group(nil):
-            // removing from a group should not have any auto props
-            return tracking
-        case .group:
-            // group updates only have this single auto prop, so add that and return early
-            decorated.properties = (decorated.properties ?? [:]).merging(["_lastSeenAt": Date()])
-            return decorated
         default:
             break
         }
 
         let now = Date()
 
-        var sessionProperties: [String: Any?] = [
+        let sessionProperties: [String: Any?] = [
             "userId": storage.userID,
             "_isAnonymous": storage.isAnonymous,
             "_localId": storage.deviceID,
@@ -76,16 +82,13 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_sessionRandomizer": sessionRandomizer,
             "_currentScreenTitle": currentScreen,
             "_lastScreenTitle": previousScreen,
+            "_lastBrowserLanguage": Bundle.main.preferredLocalizations.first,
             // _lastSeenAt deprecates _updatedAt which can't be entirely removed since it's used for targeting
             "_lastSeenAt": now,
             "_updatedAt": now,
             "_lastContentShownAt": storage.lastContentShownAt,
             "_sessionId": appcues?.sessionID?.appcuesFormatted
         ]
-
-        if let bundleLanguageID = Bundle.main.preferredLocalizations.first {
-            sessionProperties["_lastBrowserLanguage"] = bundleLanguageID
-        }
 
         // Note: additional (custom) go first, as they may be overwritten by merged system items
         let merged = config.additionalAutoProperties
@@ -101,7 +104,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             sessionLatestUserProperties = tracking.properties?.compactMapValues { $0 } ?? [:]
         } else {
             // all other events have auto props within attributes._identity
-            decorated.eventAutoProperties = merged
+            decorated.identityAutoProperties = merged
         }
 
         decorated.context = context
@@ -149,7 +152,7 @@ extension UIDevice {
 
 extension TrackingUpdate {
     // events have auto props nested inside an _identity object
-    var eventAutoProperties: [String: Any]? {
+    var identityAutoProperties: [String: Any]? {
         get {
             return properties?["_identity"] as? [String: Any]
         }
