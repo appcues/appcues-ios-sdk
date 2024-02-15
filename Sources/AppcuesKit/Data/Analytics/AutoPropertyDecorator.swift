@@ -22,7 +22,23 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     private let config: Appcues.Config
 
     // these are the fixed values for the duration of the app runtime
-    private var applicationProperties: [String: Any] = [:]
+    private lazy var applicationProperties: [String: Any] = {
+        [
+            "_appId": config.applicationID,
+            "_operatingSystem": "iOS",
+            "_bundlePackageId": Bundle.main.identifier,
+            "_appName": Bundle.main.displayName,
+            "_appVersion": Bundle.main.version,
+            "_appBuild": Bundle.main.build,
+            "_sdkVersion": __appcues_version,
+            "_sdkName": "appcues-ios",
+            "_osVersion": UIDevice.current.systemVersion,
+            "_deviceType": UIDevice.current.userInterfaceIdiom.analyticsName,
+            "_deviceModel": UIDevice.current.modelName
+        ]
+    }()
+
+    var deviceLanguage: String? { Bundle.main.preferredLocalizations.first }
 
     // these may be redundant with _identity auto props in some cases, but backend
     // systems requested that we send in both spots on requests
@@ -35,7 +51,6 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
         self.appcues = container.owner
         self.storage = container.resolve(DataStoring.self)
         self.config = container.resolve(Appcues.Config.self)
-        configureApplicationProperties()
     }
 
     func decorate(_ tracking: TrackingUpdate) -> TrackingUpdate {
@@ -82,7 +97,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_sessionRandomizer": sessionRandomizer,
             "_currentScreenTitle": currentScreen,
             "_lastScreenTitle": previousScreen,
-            "_lastBrowserLanguage": Bundle.main.preferredLocalizations.first,
+            "_lastBrowserLanguage": deviceLanguage,
             // _lastSeenAt deprecates _updatedAt which can't be entirely removed since it's used for targeting
             "_lastSeenAt": now,
             "_updatedAt": now,
@@ -107,25 +122,27 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             decorated.identityAutoProperties = merged
         }
 
+        // TODO: add _device to new events
+        if case .event(Events.Session.sessionStarted.rawValue, _) = tracking.type {
+            decorated.deviceAutoProperties = deviceAutoProperties().merging(applicationProperties)
+        }
+
         decorated.context = context
 
         return decorated
     }
 
-    private func configureApplicationProperties() {
-        applicationProperties = [
-            "_appId": config.applicationID,
-            "_operatingSystem": "iOS",
-            "_bundlePackageId": Bundle.main.identifier,
-            "_appName": Bundle.main.displayName,
-            "_appVersion": Bundle.main.version,
-            "_appBuild": Bundle.main.build,
-            "_sdkVersion": __appcues_version,
-            "_sdkName": "appcues-ios",
-            "_osVersion": UIDevice.current.systemVersion,
-            "_deviceType": UIDevice.current.userInterfaceIdiom.analyticsName,
-            "_deviceModel": UIDevice.current.modelName
+    private func deviceAutoProperties() -> [String: Any] {
+        [
+            "_deviceId": storage.deviceID,
+            "_language": deviceLanguage,
+            // TODO: more properties
+            // _pushToken
+            // _pushSubscriptionStatus
+            // _pushEnabled
+            // _pushEnabledBackground
         ]
+            .compactMapValues { $0 }
     }
 }
 
@@ -162,4 +179,17 @@ extension TrackingUpdate {
             properties = newProps
         }
     }
+
+    // some events have device-related auto props nested inside a _device object
+    var deviceAutoProperties: [String: Any]? {
+        get {
+            return properties?["_device"] as? [String: Any]
+        }
+        set {
+            var newProps = properties ?? [:]
+            newProps["_device"] = newValue
+            properties = newProps
+        }
+    }
+
 }
