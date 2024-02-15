@@ -38,7 +38,8 @@ class AutoPropertyDecoratorTests: XCTestCase {
         let expectedPropertyKeys = ["_identity", "CUSTOM"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
         let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_currentScreenTitle", "_sessionId"]
-        XCTAssertEqual([], Set(try XCTUnwrap(decorated.eventAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
+        XCTAssertEqual([], Set(try XCTUnwrap(decorated.identityAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
+        XCTAssertNil(decorated.deviceAutoProperties)
     }
 
     func testEvent() throws {
@@ -51,10 +52,12 @@ class AutoPropertyDecoratorTests: XCTestCase {
         // Assert
         let expectedContextKeys = ["app_id", "app_version"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.context).keys).symmetricDifference(expectedContextKeys))
-        let expectedPropertyKeys = ["_identity", "CUSTOM"]
+        let expectedPropertyKeys = ["_identity", "_device", "CUSTOM"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
         let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionRandomizer", "_sessionId"]
-        XCTAssertEqual([], Set(try XCTUnwrap(decorated.eventAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
+        XCTAssertEqual([], Set(try XCTUnwrap(decorated.identityAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
+        let expectedEventDeviceAutoPropertyKeys = ["_deviceId", "_language", "_deviceType", "_appBuild", "_appId", "_operatingSystem", "_bundlePackageId", "_deviceModel", "_appVersion", "_sdkVersion", "_osVersion", "_sdkName", "_appName"]
+        XCTAssertEqual([], Set(try XCTUnwrap(decorated.deviceAutoProperties).keys).symmetricDifference(expectedEventDeviceAutoPropertyKeys))
     }
 
     func testProfile() throws {
@@ -69,7 +72,8 @@ class AutoPropertyDecoratorTests: XCTestCase {
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.context).keys).symmetricDifference(expectedContextKeys))
         let expectedPropertyKeys = ["CUSTOM", "userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionId"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
-        XCTAssertNil(decorated.eventAutoProperties)
+        XCTAssertNil(decorated.identityAutoProperties)
+        XCTAssertNil(decorated.deviceAutoProperties)
     }
 
     func testGroup() throws {
@@ -83,7 +87,8 @@ class AutoPropertyDecoratorTests: XCTestCase {
         XCTAssertNil(decorated.context)
         let expectedPropertyKeys = ["CUSTOM", "_lastSeenAt"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
-        XCTAssertNil(decorated.eventAutoProperties)
+        XCTAssertNil(decorated.identityAutoProperties)
+        XCTAssertNil(decorated.deviceAutoProperties)
     }
 
     func testAdditionalAutoProperty() throws {
@@ -101,12 +106,13 @@ class AutoPropertyDecoratorTests: XCTestCase {
 
         // Assert
         let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_currentScreenTitle", "_sessionId", "_myProp"]
-        XCTAssertEqual([], Set(try XCTUnwrap(decorated.eventAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
+        XCTAssertEqual([], Set(try XCTUnwrap(decorated.identityAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
+        XCTAssertNil(decorated.deviceAutoProperties)
 
         // new custom prop
-        XCTAssertEqual(101, (try XCTUnwrap(decorated.eventAutoProperties?["_myProp"])) as? Int)
+        XCTAssertEqual(101, (try XCTUnwrap(decorated.identityAutoProperties?["_myProp"])) as? Int)
         // cannot overwrite this core prop
-        XCTAssertNotEqual("test-name", (try XCTUnwrap(decorated.eventAutoProperties?["_sdkName"])) as? String)
+        XCTAssertNotEqual("test-name", (try XCTUnwrap(decorated.identityAutoProperties?["_sdkName"])) as? String)
     }
 
     func testProfilePropertiesOnSubsequentEvent() throws {
@@ -125,6 +131,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
         let expectedPropertyKeys = ["_identity"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
         let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionId", "PROFILE_PROPERTY"]
-        XCTAssertEqual([], Set(try XCTUnwrap(decorated.eventAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
+        XCTAssertEqual([], Set(try XCTUnwrap(decorated.identityAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
+        XCTAssertNil(decorated.deviceAutoProperties)
     }
 }
