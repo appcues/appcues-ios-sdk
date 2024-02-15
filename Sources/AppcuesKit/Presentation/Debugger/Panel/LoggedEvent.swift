@@ -34,7 +34,7 @@ internal struct LoggedEvent: Identifiable {
         var groups: [(title: String, items: [Pair])] = []
 
         // flatten the nested `_identity` auto-properties into individual top level items.
-        let autoProps = (properties["_identity"] as? [String: Any] ?? [:])
+        let identityAutoProps = (properties["_identity"] as? [String: Any] ?? [:])
             .sortedWithAutoProperties()
             .map { ($0.key, String(describing: $0.value)) }
         properties["_identity"] = nil
@@ -71,8 +71,8 @@ internal struct LoggedEvent: Identifiable {
             groups.append(("Interaction Data: Form Response", formResponse))
         }
 
-        if !autoProps.isEmpty {
-            groups.append(("Identity Auto-properties", autoProps))
+        if !identityAutoProps.isEmpty {
+            groups.append(("Identity Auto-properties", identityAutoProps))
         }
 
         if !metricProps.isEmpty {
