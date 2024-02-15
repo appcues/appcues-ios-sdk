@@ -37,8 +37,8 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
         try dict?.forEach { key, value in
             let codingKey = DynamicCodingKeys(key: key)
 
-            if (key == "_identity" || key == "interactionData" || key == "_sdkMetrics"), let nestedProps = value as? [String: Any] {
-                // "_identity" is a special case - the Appcues auto-properties that supply app/user/session data
+            if Set(["_identity", "_device", "interactionData", "_sdkMetrics"]).contains(key), let nestedProps = value as? [String: Any] {
+                // "_identity" and "_device" are special cases - the Appcues auto-properties that supply app/device/user/session data
                 // "interactionData" is a special case where a nested object is expected
                 // "_sdkMetrics" is a special case - the Experience rendering timing metrics
                 var autopropContainer = self.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: codingKey)
