@@ -118,6 +118,7 @@ class MockStorage: DataStoring {
     var isAnonymous: Bool = false
     var lastContentShownAt: Date?
     var userSignature: String?
+    var pushToken: String?
 }
 
 class MockExperienceLoader: ExperienceLoading {

@@ -244,6 +244,17 @@ class AppcuesTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testSetPushToken() throws {
+        // Arrange
+        let token = "some-token".data(using: .utf8)
+
+        // Act
+        appcues.setPushToken(token)
+
+        // Assert
+        XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
+    }
+
     func testDidHandleURL() throws {
         // Arrange
         appcues.deepLinkHandler.onDidHandleURL = { url -> Bool in
