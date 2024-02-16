@@ -26,6 +26,14 @@
 
 - ``Appcues/show(experienceID:completion:)``
 
+### Embeds
+
+- ``Appcues/register(frameID:for:on:)``
+
+### Push Notifications
+
+- ``Appcues/setPushToken(_:)``
+
 ### Debugging
 
 - <doc:Debugging>
@@ -39,6 +47,7 @@
 - ``Appcues/experienceDelegate``
 - ``Appcues/analyticsDelegate``
 - ``Appcues/navigationDelegate``
+- ``Appcues/elementTargeting``
 
 ### Checking Versions
 
