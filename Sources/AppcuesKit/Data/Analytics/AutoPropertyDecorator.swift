@@ -133,16 +133,23 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     }
 
     private func deviceAutoProperties() -> [String: Any] {
-        [
+        // Explicitly encode null value
+        let pushToken: Any = storage.pushToken ?? NSNull()
+
+        var properties = [
             "_deviceId": storage.deviceID,
-            "_language": deviceLanguage,
+            "_pushToken": pushToken,
             // TODO: more properties
-            // _pushToken
             // _pushSubscriptionStatus
             // _pushEnabled
             // _pushEnabledBackground
         ]
-            .compactMapValues { $0 }
+
+        if let language = deviceLanguage {
+            properties["_language"] = language
+        }
+
+        return properties
     }
 }
 
