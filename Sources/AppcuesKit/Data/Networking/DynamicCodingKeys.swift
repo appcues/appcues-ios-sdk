@@ -63,6 +63,8 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
                     try self.encode(bool, forKey: codingKey)
                 case let date as Date:
                     try self.encode(date, forKey: codingKey)
+                case is NSNull:
+                    try self.encodeNil(forKey: codingKey)
                 default:
                     encodingErrorKeys.append(codingKey.stringValue)
                 }

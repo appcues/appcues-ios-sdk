@@ -232,6 +232,17 @@ public class Appcues: NSObject {
         }
     }
 
+    /// Provide the APNs device token to Appcues.
+    ///
+    /// - Parameter deviceToken: A globally unique token that identifies this device to APNs.
+    ///
+    /// This function is intended to be called from  your `UIApplicationDelegate`'s
+    /// `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` function:
+    @objc
+    public func setPushToken(_ deviceToken: Data?) {
+        storage.pushToken = deviceToken?.map { String(format: "%02x", $0) }.joined()
+    }
+
     /// Register a trait that modifies an `Experience`.
     /// - Parameter trait: Trait to register.
     /// - Returns: Whether the trait was successfully registered.
