@@ -26,6 +26,9 @@ internal protocol DataStoring: AnyObject {
 
     /// Optional, base 64 encoded signature to use as bearer token on API requests from the current user
     var userSignature: String? { get set }
+
+    /// Push token for APNs
+    var pushToken: String? { get set }
 }
 
 internal class Storage: DataStoring {
@@ -37,6 +40,7 @@ internal class Storage: DataStoring {
         case lastContentShownAt
         case groupID
         case userSignature
+        case pushToken
     }
 
     private let config: Appcues.Config
@@ -96,6 +100,15 @@ internal class Storage: DataStoring {
         }
         set {
             write(.userSignature, newValue: newValue)
+        }
+    }
+
+    internal var pushToken: String? {
+        get {
+            return read(.pushToken, defaultValue: nil)
+        }
+        set {
+            write(.pushToken, newValue: newValue)
         }
     }
 
