@@ -71,6 +71,8 @@ class PublicAPITests: XCTestCase {
             print(success, error)
         }
 
+        appcuesInstance.setPushToken(nil)
+
         appcuesInstance.debug()
 
         appcuesInstance.trackScreens()
