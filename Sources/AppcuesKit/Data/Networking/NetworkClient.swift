@@ -131,11 +131,11 @@ internal class NetworkClient: Networking {
         SdkMetrics.requested(requestId)
         let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
             SdkMetrics.responded(requestId)
-            if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
-                let data = String(data: data ?? Data(), encoding: .utf8) ?? ""
+            let url = (response?.url ?? urlRequest.url)?.absoluteString ?? "<unknown>"
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+            let logData = String(data: error?.data ?? data ?? Data.empty, encoding: .utf8) ?? ""
 
-                self?.config.logger.debug("RESPONSE: %{public}d %{public}@\n%{private}@", statusCode, url, data)
-            }
+            self?.config.logger.debug("RESPONSE: %{public}d %{public}@\n%{private}@", statusCode, url, logData)
 
             if let error = error {
                 completion(.failure(error))
@@ -148,6 +148,7 @@ internal class NetworkClient: Networking {
             }
 
             guard let data = data else {
+                completion(.failure(NetworkingError.noData))
                 return
             }
 
@@ -173,9 +174,10 @@ internal class NetworkClient: Networking {
         completion: @escaping (_ result: Result<Void, Error>) -> Void
     ) {
         let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] _, response, error in
-            if let url = response?.url?.absoluteString, let statusCode = (response as? HTTPURLResponse)?.statusCode {
-                self?.config.logger.debug("RESPONSE: %{public}d %{public}@", statusCode, url)
-            }
+            let url = (response?.url ?? urlRequest.url)?.absoluteString ?? "<unknown>"
+            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+
+            self?.config.logger.debug("RESPONSE: %{public}d %{public}@", statusCode, url)
 
             if let error = error {
                 completion(.failure(error))
@@ -238,5 +240,17 @@ extension NetworkClient {
 extension Date {
     var millisecondsSince1970: Double {
         return (self.timeIntervalSince1970 * 1_000.0).rounded()
+    }
+}
+
+private extension Error {
+    var data: Data? {
+        localizedDescription.data(using: .utf8)
+    }
+}
+
+private extension Data {
+    static var empty: Data {
+        "<no data or error>".data(using: .utf8) ?? Data()
     }
 }
