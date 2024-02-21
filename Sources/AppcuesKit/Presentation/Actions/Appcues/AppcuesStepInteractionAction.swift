@@ -53,11 +53,11 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
 
         if let experienceData = experienceRenderer.experienceData(forContext: renderContext),
            let stepIndex = experienceRenderer.stepIndex(forContext: renderContext) {
-            interactionProperties = LifecycleEvent.properties(experienceData, stepIndex).merging(interactionProperties)
+            interactionProperties = Dictionary(propertiesFrom: experienceData, stepIndex: stepIndex).merging(interactionProperties)
         }
 
         analyticsPublisher.publish(TrackingUpdate(
-            type: .event(name: LifecycleEvent.stepInteraction.rawValue, interactive: false),
+            type: .event(name: Events.Experience.stepInteraction.rawValue, interactive: false),
             properties: interactionProperties,
             isInternal: true
         ))

@@ -1,5 +1,5 @@
 //
-//  LifecycleEvent.swift
+//  Dictionary+ExperienceProperties.swift
 //  AppcuesKit
 //
 //  Created by Matt on 2021-11-19.
@@ -8,25 +8,14 @@
 
 import Foundation
 
-internal enum LifecycleEvent: String, CaseIterable {
-    case stepSeen = "appcues:v2:step_seen"
-    case stepInteraction = "appcues:v2:step_interaction"
-    case stepCompleted = "appcues:v2:step_completed"
-    case stepError = "appcues:v2:step_error"
-    case stepRecovered = "appcues:v2:step_recovered"
-    case experienceStarted = "appcues:v2:experience_started"
-    case experienceCompleted = "appcues:v2:experience_completed"
-    case experienceDismissed = "appcues:v2:experience_dismissed"
-    case experienceError = "appcues:v2:experience_error"
-    case experienceRecovered = "appcues:v2:experience_recovered"
-
+extension Dictionary where Key == String, Value == Any {
     /// Map experience model to a general property dictionary.
     @available(iOS 13.0, *)
-    static func properties(
-        _ experience: ExperienceData,
-        _ stepIndex: Experience.StepIndex? = nil,
-        error: ErrorBody? = nil
-    ) -> [String: Any] {
+    init(
+        propertiesFrom experience: ExperienceData,
+        stepIndex: Experience.StepIndex? = nil,
+        error: Events.Experience.ErrorBody? = nil
+    ) {
         var properties: [String: Any] = [
             "experienceId": experience.id.appcuesFormatted,
             "experienceName": experience.name,
@@ -63,11 +52,11 @@ internal enum LifecycleEvent: String, CaseIterable {
             properties["errorId"] = error.id.appcuesFormatted
         }
 
-        return properties
+        self = properties
     }
 }
 
-extension LifecycleEvent {
+extension Events.Experience {
     struct ErrorBody: ExpressibleByStringInterpolation {
         let message: String?
         let id: UUID
@@ -77,7 +66,7 @@ extension LifecycleEvent {
             self.id = id
         }
 
-        // Conveniently init with `"message"` or `"\(messageVar)"` instead of `ExperienceLifecycleEvent.Error(message: messageVar)`.
+        // Conveniently init with `"message"` or `"\(messageVar)"` instead of `Events.Experience.ErrorBody(message: messageVar)`.
         init(stringLiteral value: String) {
             message = value
             id = UUID.create()

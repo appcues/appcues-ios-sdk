@@ -9,7 +9,7 @@
 import Foundation
 
 internal struct StructuredLifecycleProperties: Equatable {
-    let type: LifecycleEvent
+    let type: Events.Experience
     let experienceID: UUID
     let experienceName: String
     let experienceInstanceID: UUID
@@ -21,7 +21,7 @@ internal struct StructuredLifecycleProperties: Equatable {
     let message: String?
 
     init?(update: TrackingUpdate) {
-        guard let type = LifecycleEvent(trackingType: update.type) else { return nil }
+        guard let type = Events.Experience(trackingType: update.type) else { return nil }
 
         guard let experienceID = UUID(uuidString: update.properties?["experienceId"] as? String ?? ""),
               let experienceName = update.properties?["experienceName"] as? String,
@@ -43,7 +43,7 @@ internal struct StructuredLifecycleProperties: Equatable {
     }
 
     init(
-        type: LifecycleEvent,
+        type: Events.Experience,
         experienceID: UUID,
         experienceName: String,
         experienceInstanceID: UUID,
@@ -65,7 +65,7 @@ internal struct StructuredLifecycleProperties: Equatable {
     }
 }
 
-private extension LifecycleEvent {
+private extension Events.Experience {
     init?(trackingType: TrackingUpdate.TrackingType) {
         if case .event(let name, _) = trackingType, let val = Self(rawValue: name) {
             self = val

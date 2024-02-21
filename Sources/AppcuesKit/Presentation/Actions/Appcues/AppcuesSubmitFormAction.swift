@@ -43,11 +43,12 @@ internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActio
               let stepIndex = experienceRenderer.stepIndex(forContext: renderContext),
               let stepState = experienceData.state(for: stepIndex) else { return }
 
-        let interactionProperties = LifecycleEvent.properties(experienceData, stepIndex).merging([
-            "interactionType": "Form Submitted",
-            // Passing the actual StepState model is safe because of specific handling in `encodeSkippingInvalid`.
-            "interactionData": [ "formResponse": stepState ]
-        ])
+        let interactionProperties = Dictionary(propertiesFrom: experienceData, stepIndex: stepIndex)
+            .merging([
+                "interactionType": "Form Submitted",
+                // Passing the actual StepState model is safe because of specific handling in `encodeSkippingInvalid`.
+                "interactionData": [ "formResponse": stepState ]
+            ])
 
         analyticsPublisher.publish(TrackingUpdate(
             type: .profile(interactive: false),
@@ -56,7 +57,7 @@ internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActio
         ))
 
         analyticsPublisher.publish(TrackingUpdate(
-            type: .event(name: LifecycleEvent.stepInteraction.rawValue, interactive: false),
+            type: .event(name: Events.Experience.stepInteraction.rawValue, interactive: false),
             properties: interactionProperties,
             isInternal: true
         ))

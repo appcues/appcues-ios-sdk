@@ -40,7 +40,7 @@ internal struct TrackingUpdate {
     var policy: Policy {
         switch type {
         case let .event(name, interactive):
-            if name == SessionEvents.sessionStarted.rawValue {
+            if name == Events.Session.sessionStarted.rawValue {
                 // session_started is a special case, which is allowed to batch with the identify()
                 // that often is directly associated with it, and potentially a group()
                 return .flushThenSend(waitForBatch: true)

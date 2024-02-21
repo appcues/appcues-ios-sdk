@@ -56,7 +56,7 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
                 // immediately track session started before any subsequent analytics
                 decorateAndPublish(
                     TrackingUpdate(
-                        type: .event(name: SessionEvents.sessionStarted.rawValue, interactive: true),
+                        type: .event(name: Events.Session.sessionStarted.rawValue, interactive: true),
                         properties: nil,
                         isInternal: true
                     )
