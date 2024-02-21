@@ -122,9 +122,13 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             decorated.identityAutoProperties = merged
         }
 
-        // TODO: add _device to new events
-        if case .event(Events.Session.sessionStarted.rawValue, _) = tracking.type {
+        switch tracking.type {
+            case .event(Events.Session.sessionStarted.rawValue, _),
+                .event(Events.Device.deviceUpdated.rawValue, _),
+                .event(Events.Device.deviceUnregistered.rawValue, _):
             decorated.deviceAutoProperties = deviceAutoProperties().merging(applicationProperties)
+        default:
+            break
         }
 
         decorated.context = context

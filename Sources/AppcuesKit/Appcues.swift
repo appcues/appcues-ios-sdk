@@ -162,6 +162,11 @@ public class Appcues: NSObject {
     /// Clears out the current user in this session. Can be used when the user logs out of your application.
     @objc
     public func reset() {
+        analyticsPublisher.publish(TrackingUpdate(
+            type: .event(name: Events.Device.deviceUnregistered.rawValue, interactive: false),
+            isInternal: true
+        ))
+
         sessionMonitor.reset()
 
         storage.userID = ""
@@ -237,6 +242,13 @@ public class Appcues: NSObject {
     @objc
     public func setPushToken(_ deviceToken: Data?) {
         storage.pushToken = deviceToken?.map { String(format: "%02x", $0) }.joined()
+
+        if sessionID != nil {
+            analyticsPublisher.publish(TrackingUpdate(
+                type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: false),
+                isInternal: true
+            ))
+        }
     }
 
     /// Register a trait that modifies an `Experience`.
