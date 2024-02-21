@@ -17,12 +17,6 @@ internal protocol SessionMonitoring: AnyObject {
     func reset()
 }
 
-internal enum SessionEvents: String, CaseIterable {
-    case sessionStarted = "appcues:session_started"
-
-    static var allNames: [String] { allCases.map { $0.rawValue } }
-}
-
 internal class SessionMonitor: SessionMonitoring {
 
     private weak var appcues: Appcues?

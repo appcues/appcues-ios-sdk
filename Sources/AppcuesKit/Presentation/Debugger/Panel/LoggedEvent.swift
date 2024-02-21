@@ -87,10 +87,10 @@ internal struct LoggedEvent: Identifiable {
         self.properties = update.properties
 
         switch update.type {
-        case let .event(name, _) where SessionEvents.allNames.contains(name):
+        case let .event(name, _) where Events.Session(rawValue: name) != nil:
             self.type = .session
             self.name = name.prettifiedEventName
-        case let .event(name, _) where name.starts(with: "appcues:v2:"):
+        case let .event(name, _) where Events.Experience(rawValue: name) != nil:
             self.type = .experience
             self.name = name.prettifiedEventName
         case let .event(name, _):

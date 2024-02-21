@@ -84,27 +84,27 @@ extension ExperienceStateMachine {
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: true)):
                 storage.lastContentShownAt = Date()
                 let metrics = SdkMetrics.trackRender(experience.requestID)
-                let experienceStartProps = LifecycleEvent.properties(experience).merging(metrics)
-                trackLifecycleEvent(.experienceStarted, experienceStartProps)
+                let experienceStartProps = Dictionary(propertiesFrom: experience).merging(metrics)
+                track(experienceEvent: .experienceStarted, properties: experienceStartProps)
                 // optionally track the recovery from a render error, if it is now rendering
                 trackStepRecovery(ifErrorOn: experience, stepIndex: stepIndex)
-                trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
+                track(experienceEvent: .stepSeen, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex))
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
-                trackLifecycleEvent(.stepSeen, LifecycleEvent.properties(experience, stepIndex))
+                track(experienceEvent: .stepSeen, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex))
             case let .success(.endingStep(experience, stepIndex, _, markComplete)):
                 if markComplete {
-                    trackLifecycleEvent(.stepCompleted, LifecycleEvent.properties(experience, stepIndex))
+                    track(experienceEvent: .stepCompleted, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex))
                 }
             case let .success(.endingExperience(experience, stepIndex, markComplete)):
                 if markComplete {
-                    trackLifecycleEvent(.experienceCompleted, LifecycleEvent.properties(experience))
+                    track(experienceEvent: .experienceCompleted, properties: Dictionary(propertiesFrom: experience))
                 } else {
-                    trackLifecycleEvent(.experienceDismissed, LifecycleEvent.properties(experience, stepIndex))
+                    track(experienceEvent: .experienceDismissed, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex))
                 }
             case .success(.failing):
                 break
             case let .failure(.experience(experience, message)):
-                trackLifecycleEvent(.experienceError, LifecycleEvent.properties(experience, error: "\(message)"))
+                track(experienceEvent: .experienceError, properties: Dictionary(propertiesFrom: experience, error: "\(message)"))
             case let .failure(.step(experience, stepIndex, message, recoverable)):
                 trackStepError(experience: experience, stepIndex: stepIndex, message: message, recoverable: recoverable)
             case .failure(.noTransition):
@@ -117,7 +117,7 @@ extension ExperienceStateMachine {
             return false
         }
 
-        private func trackLifecycleEvent(_ name: LifecycleEvent, _ properties: [String: Any]) {
+        private func track(experienceEvent name: Events.Experience, properties: [String: Any]) {
             analyticsPublisher.publish(TrackingUpdate(
                 type: .event(name: name.rawValue, interactive: false),
                 properties: properties,
@@ -135,24 +135,24 @@ extension ExperienceStateMachine {
             if recoverable {
                 experience.recoverableErrorID = errorID
             }
-            let errorProperties = LifecycleEvent.properties(
-                experience,
-                stepIndex,
-                error: LifecycleEvent.ErrorBody(message: message, id: errorID)
+            let errorProperties = Dictionary(
+                propertiesFrom: experience,
+                stepIndex: stepIndex,
+                error: Events.Experience.ErrorBody(message: message, id: errorID)
             )
-            trackLifecycleEvent(.stepError, errorProperties)
+            track(experienceEvent: .stepError, properties: errorProperties)
         }
 
         private func trackStepRecovery(ifErrorOn experience: ExperienceData, stepIndex: Experience.StepIndex) {
             // only track a recovery if we had previously captured a render error for this experience
             guard let errorID = experience.recoverableErrorID else { return }
 
-            let errorProperties = LifecycleEvent.properties(
-                experience,
-                stepIndex,
-                error: LifecycleEvent.ErrorBody(message: nil, id: errorID)
+            let errorProperties = Dictionary(
+                propertiesFrom: experience,
+                stepIndex: stepIndex,
+                error: Events.Experience.ErrorBody(message: nil, id: errorID)
             )
-            trackLifecycleEvent(.stepRecovered, errorProperties)
+            track(experienceEvent: .stepRecovered, properties: errorProperties)
             experience.recoverableErrorID = nil
         }
 
@@ -161,15 +161,21 @@ extension ExperienceStateMachine {
 
             let errorID = UUID.create()
             experience.recoverableErrorID = errorID
-            let errorProperties = LifecycleEvent.properties(experience, error: LifecycleEvent.ErrorBody(message: message, id: errorID))
-            trackLifecycleEvent(.experienceError, errorProperties)
+            let errorProperties = Dictionary(
+                propertiesFrom: experience,
+                error: Events.Experience.ErrorBody(message: message, id: errorID)
+            )
+            track(experienceEvent: .experienceError, properties: errorProperties)
         }
 
         func trackErrorRecovery(ifErrorOn experience: ExperienceData) {
             guard experience.published, let errorID = experience.recoverableErrorID else { return }
 
-            let errorProperties = LifecycleEvent.properties(experience, error: LifecycleEvent.ErrorBody(message: nil, id: errorID))
-            trackLifecycleEvent(.experienceRecovered, errorProperties)
+            let errorProperties = Dictionary(
+                propertiesFrom: experience,
+                error: Events.Experience.ErrorBody(message: nil, id: errorID)
+            )
+            track(experienceEvent: .experienceRecovered, properties: errorProperties)
             experience.recoverableErrorID = nil
         }
 
