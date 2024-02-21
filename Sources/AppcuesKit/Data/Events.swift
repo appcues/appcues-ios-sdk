@@ -13,6 +13,11 @@ internal enum Events {
         case sessionStarted = "appcues:session_started"
     }
 
+    enum Device: String {
+        case deviceUpdated = "appcues:device_updated"
+        case deviceUnregistered = "appcues:device_unregistered"
+    }
+
     enum Experience: String {
         case stepSeen = "appcues:v2:step_seen"
         case stepInteraction = "appcues:v2:step_interaction"
