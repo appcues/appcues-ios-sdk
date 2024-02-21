@@ -47,13 +47,13 @@ class AppcuesTests: XCTestCase {
         appcues.screen(title: "My test page") // not tracked
         appcues.anonymous()                   // tracked 2 - session start + user
         appcues.screen(title: "My test page") // tracked 1 - screen
-        appcues.reset()                       // stop tracking
+        appcues.reset()                       // tracked 1 - device unregister and stop tracking
         appcues.screen(title: "My test page") // not tracked
         appcues.identify(userID: "a-user-id") // tracked 2 - session start + user
         appcues.screen(title: "My test page") // tracked 1 - screen
 
         // Assert
-        XCTAssertEqual(6, subscriber.trackedUpdates)
+        XCTAssertEqual(7, subscriber.trackedUpdates)
     }
 
     func testAnonymousUserIdPrefix() throws {
@@ -252,6 +252,25 @@ class AppcuesTests: XCTestCase {
         appcues.setPushToken(token)
 
         // Assert
+        XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
+    }
+
+    func testSetPushTokenActiveSession() throws {
+        // Arrange
+        appcues.sessionID = UUID()
+        let token = "some-token".data(using: .utf8)
+        let eventExpectation = expectation(description: "Device event logged")
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            XCTAssertEqual(trackingUpdate.type, .event(name: Events.Device.deviceUpdated.rawValue, interactive: false))
+            XCTAssertNil(trackingUpdate.properties)
+            eventExpectation.fulfill()
+        }
+
+        // Act
+        appcues.setPushToken(token)
+
+        // Assert
+        waitForExpectations(timeout: 1)
         XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
     }
 
