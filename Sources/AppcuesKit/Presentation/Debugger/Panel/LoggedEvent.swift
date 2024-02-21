@@ -103,6 +103,9 @@ internal struct LoggedEvent: Identifiable {
         case let .event(name, _) where Events.Experience(rawValue: name) != nil:
             self.type = .experience
             self.name = name.prettifiedEventName
+        case let .event(name, _) where Events.Device(rawValue: name) != nil:
+            self.type = .device
+            self.name = name.prettifiedEventName
         case let .event(name, _):
             self.type = .custom
             self.name = name
@@ -130,6 +133,7 @@ extension LoggedEvent {
         case group
         case session
         case experience
+        case device
 
         var description: String {
             switch self {
@@ -139,6 +143,7 @@ extension LoggedEvent {
             case .group: return "Group"
             case .session: return "Session"
             case .experience: return "Experience"
+            case .device: return "Device"
             }
         }
 
@@ -150,6 +155,7 @@ extension LoggedEvent {
             case .group: return "person.3"
             case .session: return "clock.arrow.2.circlepath"
             case .experience: return "arrow.right.square"
+            case .device: return "iphone"
             }
         }
     }
