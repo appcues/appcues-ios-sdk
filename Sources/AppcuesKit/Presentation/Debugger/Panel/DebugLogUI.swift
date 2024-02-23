@@ -29,6 +29,7 @@ internal enum DebugLogUI {
                 }
             }
             .navigationBarTitle("", displayMode: .inline)
+            .navigationBarItems(trailing: ShareButton(text: logger.stringEncoded()))
         }
     }
 
@@ -50,9 +51,21 @@ internal enum DebugLogUI {
                 .padding()
             }
             .navigationBarTitle("", displayMode: .inline)
-            .navigationBarItems(trailing: Button("Copy Log") {
-                UIPasteboard.general.string = log.message
-            })
+            .navigationBarItems(trailing: ShareButton(text: log.message))
+        }
+    }
+
+    private struct ShareButton: View {
+        let text: String
+
+        var body: some View {
+            if #available(iOS 16.0, *) {
+                ShareLink(item: text)
+            } else {
+                Button("Copy Log") {
+                    UIPasteboard.general.string = text
+                }
+            }
         }
     }
 }
