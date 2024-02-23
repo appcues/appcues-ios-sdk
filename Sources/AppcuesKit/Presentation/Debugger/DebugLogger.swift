@@ -18,6 +18,17 @@ internal class DebugLogger: ObservableObject, Logging {
         self.previousLogger = previousLogger
     }
 
+    func stringEncoded() -> String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.dateEncodingStrategy = .iso8601
+        guard let encoded = try? encoder.encode(log.reversed()) else {
+            return "Encoding error"
+        }
+
+        return String(data: encoded, encoding: .utf8) ?? "Error"
+    }
+
     func debug(_ message: StaticString, _ args: CVarArg...) {
         previousLogger?.debug(message, args)
         log(message, type: .debug, args)
@@ -64,14 +75,27 @@ internal class DebugLogger: ObservableObject, Logging {
 
 @available(iOS 13.0, *)
 extension DebugLogger {
-    struct Log: Identifiable {
+    struct Log: Identifiable, Encodable {
         let id = UUID()
         let timestamp = Date()
         let level: Level
         let message: String
+        
+        enum CodingKeys: CodingKey {
+            case timestamp, level, message
+        }
+        
+        // Skip encoding id since the value is meaningless
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            
+            try container.encode(self.timestamp, forKey: .timestamp)
+            try container.encode(self.level, forKey: .level)
+            try container.encode(self.message, forKey: .message)
+        }
     }
 
-    enum Level: CaseIterable {
+    enum Level: String, Encodable, CaseIterable {
         case debug, info, log, error, fault
 
         var description: String {
