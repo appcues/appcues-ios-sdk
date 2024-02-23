@@ -50,17 +50,17 @@ internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActio
                 "interactionData": [ "formResponse": stepState ]
             ])
 
-        analyticsPublisher.publish(TrackingUpdate(
+        analyticsPublisher.conditionallyPublish(TrackingUpdate(
             type: .profile(interactive: false),
             properties: stepState.formattedAsProfileUpdate(),
             isInternal: true
-        ))
+        ), shouldPublish: experienceData.published)
 
-        analyticsPublisher.publish(TrackingUpdate(
+        analyticsPublisher.conditionallyPublish(TrackingUpdate(
             type: .event(name: Events.Experience.stepInteraction.rawValue, interactive: false),
             properties: interactionProperties,
             isInternal: true
-        ))
+        ), shouldPublish: experienceData.published)
     }
 
     // If the form state is invalid, remove this action and all subsequent.

@@ -51,16 +51,19 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
             ]
         ]
 
+        var shouldPublish = true
+
         if let experienceData = experienceRenderer.experienceData(forContext: renderContext),
            let stepIndex = experienceRenderer.stepIndex(forContext: renderContext) {
             interactionProperties = Dictionary(propertiesFrom: experienceData, stepIndex: stepIndex).merging(interactionProperties)
+            shouldPublish = experienceData.published
         }
 
-        analyticsPublisher.publish(TrackingUpdate(
+        analyticsPublisher.conditionallyPublish(TrackingUpdate(
             type: .event(name: Events.Experience.stepInteraction.rawValue, interactive: false),
             properties: interactionProperties,
             isInternal: true
-        ))
+        ), shouldPublish: shouldPublish)
 
         completion()
     }
