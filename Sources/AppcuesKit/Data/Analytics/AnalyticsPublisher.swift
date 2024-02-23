@@ -10,6 +10,7 @@ import Foundation
 
 internal protocol AnalyticsPublishing: AnyObject {
     func publish(_ update: TrackingUpdate)
+    func log(_ update: TrackingUpdate)
 
     func register(subscriber: AnalyticsSubscribing)
     func remove(subscriber: AnalyticsSubscribing)
@@ -54,13 +55,12 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
         if !isSessionActive || sessionMonitor.isSessionExpired {
             if sessionMonitor.start() {
                 // immediately track session started before any subsequent analytics
-                decorateAndPublish(
-                    TrackingUpdate(
-                        type: .event(name: Events.Session.sessionStarted.rawValue, interactive: true),
-                        properties: nil,
-                        isInternal: true
-                    )
+                let sessionUpdate = TrackingUpdate(
+                    type: .event(name: Events.Session.sessionStarted.rawValue, interactive: true),
+                    properties: nil,
+                    isInternal: true
                 )
+                notifySubscribers(decorate(sessionUpdate))
             } else {
                 // no session could be started (no user) and we cannot
                 // track anything
@@ -71,10 +71,34 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
             sessionMonitor.updateLastActivity()
         }
 
-        decorateAndPublish(update)
+        notifySubscribers(decorate(update))
     }
 
-    private func decorateAndPublish(_ update: TrackingUpdate) {
+    func log(_ update: TrackingUpdate) {
+        guard let logger = appcues?.config.logger else { return }
+
+        let update = decorate(update)
+
+        let name: String
+        switch update.type {
+        case let .event(eventName, _):
+            name = eventName
+        case let .screen(title):
+            name = "Screen (\(title))"
+        case .profile:
+            name = "Profile Update"
+        case .group:
+            name = "Group Update"
+        }
+
+        let event = Event(name: name, attributes: update.properties, context: update.context)
+
+        if let data = try? NetworkClient.encoder.encode(event), let string = String(data: data, encoding: .utf8) {
+            logger.debug("UNPUBLISHED ANALYTIC:\n%{private}@", string)
+        }
+    }
+
+    private func decorate(_ update: TrackingUpdate) -> TrackingUpdate {
         var update = update
 
         // Apply decorations, removing any decorators that have been released from memory.
@@ -82,6 +106,11 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
             update = $0.value?.decorate(update) ?? update
             return $0.value == nil
         }
+
+        return update
+    }
+
+    private func notifySubscribers(_ update: TrackingUpdate) {
 
         // Call subscribers, removing any subscribers that have been released from memory.
         subscribers.removeAll {
@@ -106,6 +135,16 @@ private extension AnalyticsPublisher {
 }
 
 extension AnalyticsPublishing {
+    // This is an extension method so that the logic is testable instead of being mocked.
+    /// Redirect unpublished updates to the SDK logger.
+    func conditionallyPublish(_ update: TrackingUpdate, shouldPublish: Bool) {
+        if shouldPublish {
+            publish(update)
+        } else {
+            log(update)
+        }
+    }
+
     func screen(title: String) {
         publish(TrackingUpdate(type: .screen(title), isInternal: true))
     }

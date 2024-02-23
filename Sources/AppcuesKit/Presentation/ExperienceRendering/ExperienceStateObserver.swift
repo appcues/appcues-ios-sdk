@@ -69,11 +69,6 @@ extension ExperienceStateMachine {
         }
 
         func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
-            guard result.shouldTrack else {
-                // Always continue observing
-                return false
-            }
-
             switch result {
             case .success(.idling):
                 break
@@ -85,26 +80,26 @@ extension ExperienceStateMachine {
                 storage.lastContentShownAt = Date()
                 let metrics = SdkMetrics.trackRender(experience.requestID)
                 let experienceStartProps = Dictionary(propertiesFrom: experience).merging(metrics)
-                track(experienceEvent: .experienceStarted, properties: experienceStartProps)
+                track(experienceEvent: .experienceStarted, properties: experienceStartProps, shouldPublish: result.shouldPublish)
                 // optionally track the recovery from a render error, if it is now rendering
                 trackStepRecovery(ifErrorOn: experience, stepIndex: stepIndex)
-                track(experienceEvent: .stepSeen, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex))
+                track(experienceEvent: .stepSeen, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex), shouldPublish: result.shouldPublish)
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
-                track(experienceEvent: .stepSeen, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex))
+                track(experienceEvent: .stepSeen, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex), shouldPublish: result.shouldPublish)
             case let .success(.endingStep(experience, stepIndex, _, markComplete)):
                 if markComplete {
-                    track(experienceEvent: .stepCompleted, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex))
+                    track(experienceEvent: .stepCompleted, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex), shouldPublish: result.shouldPublish)
                 }
             case let .success(.endingExperience(experience, stepIndex, markComplete)):
                 if markComplete {
-                    track(experienceEvent: .experienceCompleted, properties: Dictionary(propertiesFrom: experience))
+                    track(experienceEvent: .experienceCompleted, properties: Dictionary(propertiesFrom: experience), shouldPublish: result.shouldPublish)
                 } else {
-                    track(experienceEvent: .experienceDismissed, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex))
+                    track(experienceEvent: .experienceDismissed, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex), shouldPublish: result.shouldPublish)
                 }
             case .success(.failing):
                 break
             case let .failure(.experience(experience, message)):
-                track(experienceEvent: .experienceError, properties: Dictionary(propertiesFrom: experience, error: "\(message)"))
+                track(experienceEvent: .experienceError, properties: Dictionary(propertiesFrom: experience, error: "\(message)"), shouldPublish: result.shouldPublish)
             case let .failure(.step(experience, stepIndex, message, recoverable)):
                 trackStepError(experience: experience, stepIndex: stepIndex, message: message, recoverable: recoverable)
             case .failure(.noTransition):
@@ -117,12 +112,12 @@ extension ExperienceStateMachine {
             return false
         }
 
-        private func track(experienceEvent name: Events.Experience, properties: [String: Any]) {
-            analyticsPublisher.publish(TrackingUpdate(
+        private func track(experienceEvent name: Events.Experience, properties: [String: Any], shouldPublish: Bool) {
+            analyticsPublisher.conditionallyPublish(TrackingUpdate(
                 type: .event(name: name.rawValue, interactive: false),
                 properties: properties,
                 isInternal: true
-            ))
+            ), shouldPublish: shouldPublish)
         }
 
         private func trackStepError(experience: ExperienceData, stepIndex: Experience.StepIndex, message: String, recoverable: Bool) {
@@ -140,7 +135,7 @@ extension ExperienceStateMachine {
                 stepIndex: stepIndex,
                 error: Events.Experience.ErrorBody(message: message, id: errorID)
             )
-            track(experienceEvent: .stepError, properties: errorProperties)
+            track(experienceEvent: .stepError, properties: errorProperties, shouldPublish: experience.published)
         }
 
         private func trackStepRecovery(ifErrorOn experience: ExperienceData, stepIndex: Experience.StepIndex) {
@@ -152,7 +147,7 @@ extension ExperienceStateMachine {
                 stepIndex: stepIndex,
                 error: Events.Experience.ErrorBody(message: nil, id: errorID)
             )
-            track(experienceEvent: .stepRecovered, properties: errorProperties)
+            track(experienceEvent: .stepRecovered, properties: errorProperties, shouldPublish: experience.published)
             experience.recoverableErrorID = nil
         }
 
@@ -165,7 +160,7 @@ extension ExperienceStateMachine {
                 propertiesFrom: experience,
                 error: Events.Experience.ErrorBody(message: message, id: errorID)
             )
-            track(experienceEvent: .experienceError, properties: errorProperties)
+            track(experienceEvent: .experienceError, properties: errorProperties, shouldPublish: experience.published)
         }
 
         func trackErrorRecovery(ifErrorOn experience: ExperienceData) {
@@ -175,7 +170,7 @@ extension ExperienceStateMachine {
                 propertiesFrom: experience,
                 error: Events.Experience.ErrorBody(message: nil, id: errorID)
             )
-            track(experienceEvent: .experienceRecovered, properties: errorProperties)
+            track(experienceEvent: .experienceRecovered, properties: errorProperties, shouldPublish: experience.published)
             experience.recoverableErrorID = nil
         }
 
@@ -184,19 +179,19 @@ extension ExperienceStateMachine {
 
 @available(iOS 13.0, *)
 private extension ExperienceStateObserver.StateResult {
-    var shouldTrack: Bool {
+    var shouldPublish: Bool {
         switch self {
         case let .success(state):
             return state.currentExperienceData?.published ?? false
         case let .failure(error):
-            return error.shouldTrack
+            return error.shouldPublish
         }
     }
 }
 
 @available(iOS 13.0, *)
 private extension ExperienceStateMachine.ExperienceError {
-    var shouldTrack: Bool {
+    var shouldPublish: Bool {
         switch self {
         case .noTransition:
             return false
