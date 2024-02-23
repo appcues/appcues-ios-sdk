@@ -28,6 +28,45 @@ class AppcuesStepInteractionActionTests: XCTestCase {
         XCTAssertNil(failedAction)
     }
 
+    func testExecuteUnpublishedExperience() throws {
+        // Arrange
+        var completionCount = 0
+        var loggedUpdates: [TrackingUpdate] = []
+
+        appcues.experienceRenderer.onExperienceData = { _ in
+            ExperienceData.mockWithForm(defaultValue: nil, published: false)
+        }
+        appcues.experienceRenderer.onStepIndex = { _ in
+            .initial
+        }
+
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            XCTFail("unexpected analytics event")
+        }
+        appcues.analyticsPublisher.onLog = { trackingUpdate in
+            loggedUpdates.append(trackingUpdate)
+        }
+
+
+        let action = AppcuesStepInteractionAction(
+            appcues: appcues,
+            renderContext: .modal,
+            interactionType: "Button Tapped",
+            viewDescription: "My Button",
+            category: "link",
+            destination: "https://appcues.com"
+        )
+
+        // Act
+        action.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(loggedUpdates.count, 1)
+
+        XCTAssertEqual(loggedUpdates[0].type, .event(name: "appcues:v2:step_interaction", interactive: false))
+    }
+
     func testNextStep() throws {
         // Arrange
         var mostRecentUpdate: TrackingUpdate?
