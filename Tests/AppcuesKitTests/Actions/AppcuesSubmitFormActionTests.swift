@@ -93,10 +93,43 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         ].verifyPropertiesMatch(updates[1].properties)
     }
 
+
+    func testExecuteUnpublishedExperience() throws {
+        // Arrange
+        var completionCount = 0
+        var loggedUpdates: [TrackingUpdate] = []
+
+        appcues.experienceRenderer.onExperienceData = { _ in
+            ExperienceData.mockWithForm(defaultValue: nil, published: false)
+        }
+        appcues.experienceRenderer.onStepIndex = { _ in
+            .initial
+        }
+
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            XCTFail("unexpected analytics event")
+        }
+        appcues.analyticsPublisher.onLog = { trackingUpdate in
+            loggedUpdates.append(trackingUpdate)
+        }
+
+
+        let action = AppcuesSubmitFormAction(appcues: appcues)
+
+        // Act
+        action?.execute(completion: { completionCount += 1 })
+
+        // Assert
+        XCTAssertEqual(completionCount, 1)
+        XCTAssertEqual(loggedUpdates.count, 2)
+
+        XCTAssertEqual(loggedUpdates[0].type, .profile(interactive: false))
+        XCTAssertEqual(loggedUpdates[1].type, .event(name: "appcues:v2:step_interaction", interactive: false))
+    }
+
     func testExecuteEarlyReturn() throws {
         // Arrange
         var completionCount = 0
-        var updates: [TrackingUpdate] = []
 
         appcues.experienceRenderer.onExperienceData = { _ in
             ExperienceData.mockWithForm(defaultValue: nil)
@@ -117,7 +150,6 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(completionCount, 1)
-        XCTAssertEqual(updates.count, 0)
     }
 
     func testExecuteCompletesWithoutAppcuesInstance() throws {
