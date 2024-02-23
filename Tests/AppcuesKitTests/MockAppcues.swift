@@ -85,6 +85,11 @@ class MockAnalyticsPublisher: AnalyticsPublishing {
         onPublish?(update)
     }
 
+    var onLog: ((TrackingUpdate) -> Void)?
+    func log(_ update: TrackingUpdate) {
+        onLog?(update)
+    }
+
     var onRegisterSubscriber: ((AnalyticsSubscribing) -> Void)?
     func register(subscriber: AnalyticsSubscribing) {
         onRegisterSubscriber?(subscriber)
