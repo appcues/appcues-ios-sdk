@@ -22,6 +22,7 @@ class AnalyticsPublisherTests: XCTestCase {
         appcues.sessionID = UUID()
         analyticsPublisher = AnalyticsPublisher(container: appcues.container)
     }
+
     func testRegisterDecorator() throws {
         // Arrange
         let decorator = Mocks.TestDecorator()
@@ -98,6 +99,30 @@ class AnalyticsPublisherTests: XCTestCase {
 
         // Assert
         XCTAssertNil(weakSubscriber)
+    }
+
+    func testConditionalPublishFalse() throws {
+        // Arrange
+        let subscriber = Mocks.TestSubscriber()
+
+        // Act
+        analyticsPublisher.register(subscriber: subscriber)
+        analyticsPublisher.conditionallyPublish(TrackingUpdate(type: .event(name: "custom event", interactive: true), isInternal: false), shouldPublish: false)
+
+        // Assert
+        XCTAssertEqual(0, subscriber.trackedUpdates)
+    }
+
+    func testConditionalPublishTrue() throws {
+        // Arrange
+        let subscriber = Mocks.TestSubscriber()
+
+        // Act
+        analyticsPublisher.register(subscriber: subscriber)
+        analyticsPublisher.conditionallyPublish(TrackingUpdate(type: .event(name: "custom event", interactive: true), isInternal: false), shouldPublish: true)
+
+        // Assert
+        XCTAssertEqual(1, subscriber.trackedUpdates)
     }
 
 }
