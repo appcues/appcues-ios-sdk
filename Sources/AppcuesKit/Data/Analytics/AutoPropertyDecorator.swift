@@ -104,7 +104,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_lastSeenAt": now,
             "_updatedAt": now,
             "_lastContentShownAt": storage.lastContentShownAt,
-            "_sessionId": appcues?.sessionID?.appcuesFormatted
+            "_sessionId": appcues?.sessionID?.appcuesFormatted,
+            "_pushPrimerEligible": pushMonitor.pushPrimerEligible
         ]
 
         // Note: additional (custom) go first, as they may be overwritten by merged system items
