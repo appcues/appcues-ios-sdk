@@ -350,6 +350,7 @@ public class Appcues: NSObject {
         container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
         container.registerLazy(ActivityStoring.self, initializer: ActivityFileStorage.init)
         container.registerLazy(AnalyticsBroadcaster.self, initializer: AnalyticsBroadcaster.init)
+        container.registerLazy(PushMonitoring.self, initializer: PushMonitor.init)
 
         if #available(iOS 13.0, *) {
             container.registerLazy(DeepLinkHandling.self, initializer: DeepLinkHandler.init)
