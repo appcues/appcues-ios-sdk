@@ -11,6 +11,9 @@ import UIKit
 internal protocol PushMonitoring: AnyObject {
     var pushEnabled: Bool { get }
     var pushBackgroundEnabled: Bool { get }
+    var pushPrimerEligible: Bool { get }
+
+    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?)
 }
 
 internal class PushMonitor: PushMonitoring {
@@ -25,6 +28,10 @@ internal class PushMonitor: PushMonitoring {
 
     var pushBackgroundEnabled: Bool {
         storage.pushToken != nil
+    }
+
+    var pushPrimerEligible: Bool {
+        pushAuthorizationStatus == .notDetermined
     }
 
     init(container: DIContainer) {
@@ -45,14 +52,18 @@ internal class PushMonitor: PushMonitoring {
         refreshPushStatus()
     }
 
-    private func refreshPushStatus() {
+    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)? = nil) {
         // Skip call to UNUserNotificationCenter.current() in tests to avoid crashing in package tests
         #if DEBUG
-        guard ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil else { return }
+        guard ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil else {
+            completion?(pushAuthorizationStatus)
+            return
+        }
         #endif
 
         UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
             self?.pushAuthorizationStatus = settings.authorizationStatus
+            completion?(settings.authorizationStatus)
         }
     }
 
