@@ -19,6 +19,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
 
     private weak var appcues: Appcues?
     private let storage: DataStoring
+    private let pushMonitor: PushMonitoring
     private let config: Appcues.Config
 
     // these are the fixed values for the duration of the app runtime
@@ -50,6 +51,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
     init(container: DIContainer) {
         self.appcues = container.owner
         self.storage = container.resolve(DataStoring.self)
+        self.pushMonitor = container.resolve(PushMonitoring.self)
         self.config = container.resolve(Appcues.Config.self)
     }
 
@@ -123,7 +125,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
         }
 
         switch tracking.type {
-            case .event(Events.Session.sessionStarted.rawValue, _),
+        case .event(Events.Session.sessionStarted.rawValue, _),
                 .event(Events.Device.deviceUpdated.rawValue, _),
                 .event(Events.Device.deviceUnregistered.rawValue, _):
             decorated.deviceAutoProperties = deviceAutoProperties().merging(applicationProperties)
@@ -143,10 +145,10 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
         var properties = [
             "_deviceId": storage.deviceID,
             "_pushToken": pushToken,
+            "_pushEnabled": pushMonitor.pushEnabled,
+            "_pushEnabledBackground": pushMonitor.pushBackgroundEnabled,
             // TODO: more properties
             // _pushSubscriptionStatus
-            // _pushEnabled
-            // _pushEnabledBackground
         ]
 
         if let language = deviceLanguage {
