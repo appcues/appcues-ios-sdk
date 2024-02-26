@@ -28,6 +28,7 @@ class MockAppcues: Appcues {
         container.register(ActivityProcessing.self, value: activityProcessor)
         container.register(ActivityStoring.self, value: activityStorage)
         container.register(AnalyticsTracking.self, value: analyticsTracker)
+        container.register(PushMonitoring.self, value: pushMonitor)
 
         if #available(iOS 13.0, *) {
             container.register(DeepLinkHandling.self, value: deepLinkHandler)
@@ -62,6 +63,7 @@ class MockAppcues: Appcues {
     var activityStorage = MockActivityStorage()
     var networking = MockNetworking()
     var analyticsTracker = MockAnalyticsTracker()
+    var pushMonitor = MockPushMonitor()
 
     // must wrap in @available since MockExperienceRenderer has a stored property with
     // type ExperienceData in it, which is 13+
@@ -364,4 +366,9 @@ class MockAnalyticsTracker: AnalyticsTracking {
     func flush() {
         onFlush?()
     }
+}
+
+class MockPushMonitor: PushMonitoring {
+    var pushEnabled: Bool = false
+    var pushBackgroundEnabled: Bool = false
 }
