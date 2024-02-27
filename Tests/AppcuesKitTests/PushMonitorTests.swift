@@ -28,6 +28,7 @@ class PushMonitorTests: XCTestCase {
         // Assert
         XCTAssertFalse(pushMonitor.pushEnabled)
         XCTAssertFalse(pushMonitor.pushBackgroundEnabled)
+        XCTAssertFalse(pushMonitor.pushPrimerEligible)
     }
 
     func testNoTokenAuthorized() throws {
@@ -38,6 +39,7 @@ class PushMonitorTests: XCTestCase {
         // Assert
         XCTAssertFalse(pushMonitor.pushEnabled)
         XCTAssertFalse(pushMonitor.pushBackgroundEnabled)
+        XCTAssertFalse(pushMonitor.pushPrimerEligible)
     }
 
     func testTokenNotAuthorized() throws {
@@ -48,6 +50,7 @@ class PushMonitorTests: XCTestCase {
         // Assert
         XCTAssertFalse(pushMonitor.pushEnabled)
         XCTAssertTrue(pushMonitor.pushBackgroundEnabled)
+        XCTAssertFalse(pushMonitor.pushPrimerEligible)
     }
 
     func testTokenAuthorized() throws {
@@ -58,6 +61,17 @@ class PushMonitorTests: XCTestCase {
         // Assert
         XCTAssertTrue(pushMonitor.pushEnabled)
         XCTAssertTrue(pushMonitor.pushBackgroundEnabled)
+        XCTAssertFalse(pushMonitor.pushPrimerEligible)
+    }
+
+    func testPrimerEligible() throws {
+        appcues.storage.pushToken = "<some-token>"
+        pushMonitor.mockPushStatus(.notDetermined)
+
+        // Assert
+        XCTAssertFalse(pushMonitor.pushEnabled)
+        XCTAssertTrue(pushMonitor.pushBackgroundEnabled)
+        XCTAssertTrue(pushMonitor.pushPrimerEligible)
     }
 
 }
