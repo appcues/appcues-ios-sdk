@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UserNotifications
 @testable import AppcuesKit
 
 class MockAppcues: Appcues {
@@ -371,4 +372,12 @@ class MockAnalyticsTracker: AnalyticsTracking {
 class MockPushMonitor: PushMonitoring {
     var pushEnabled: Bool = false
     var pushBackgroundEnabled: Bool = false
+    var pushPrimerEligible: Bool = false
+
+    var onRefreshPushStatus: (() -> Void)?
+    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?) {
+        onRefreshPushStatus?()
+        completion?(.notDetermined)
+    }
+
 }
