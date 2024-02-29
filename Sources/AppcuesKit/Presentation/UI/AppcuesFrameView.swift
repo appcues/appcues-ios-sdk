@@ -106,7 +106,8 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
             isHidden = true
             parentViewController?.unembedChildViewController(experienceController)
             configureConstraints(isEmpty: true)
-            completion?()
+            // Complete async so that experienceController.viewDidDisappear gets called before the state machine moves to .idling
+            DispatchQueue.main.async { completion?() }
         case .fade:
             UIView.animate(
                 withDuration: 0.3,
@@ -117,7 +118,8 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
                     self.isHidden = true
                     self.parentViewController?.unembedChildViewController(experienceController)
                     self.configureConstraints(isEmpty: true)
-                    completion?()
+                    // Complete async so that experienceController.viewDidDisappear gets called before the state machine moves to .idling
+                    DispatchQueue.main.async { completion?() }
                 }
             )
         }
