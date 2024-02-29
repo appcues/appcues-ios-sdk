@@ -96,7 +96,7 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
 
     func containerWillAppear() {
         switch state {
-        case let .beginningStep(_, _, package, isFirst) where isFirst && package.wrapperController.isBeingPresented:
+        case let .beginningStep(_, _, package, isFirst) where isFirst && package.wrapperController.isAppearing:
             experienceWillAppear()
         default:
             break
@@ -105,7 +105,7 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
 
     func containerDidAppear() {
         switch state {
-        case let .beginningStep(_, _, package, isFirst) where isFirst && package.wrapperController.isBeingPresented:
+        case let .beginningStep(_, _, package, isFirst) where isFirst && package.wrapperController.isAppearing:
             experienceDidAppear()
         default:
             break
@@ -116,8 +116,7 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
         switch state {
         case .endingExperience:
             experienceWillDisappear()
-        case let .renderingStep(_, _, package, _)
-            where package.wrapperController.isBeingDismissed || package.wrapperController.isMovingFromParent:
+        case let .renderingStep(_, _, package, _) where package.wrapperController.isDisappearing:
             experienceWillDisappear()
         default:
             break
@@ -128,8 +127,7 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
         switch state {
         case .endingExperience:
             experienceDidDisappear()
-        case let .renderingStep(_, _, package, _)
-            where package.wrapperController.isBeingDismissed || package.wrapperController.isMovingFromParent:
+        case let .renderingStep(_, _, package, _) where package.wrapperController.isDisappearing:
             experienceDidDisappear()
             // Update state in response to UI changes that have happened already (a call to UIViewController.dismiss).
             try? transition(.endExperience(markComplete: false))
@@ -194,6 +192,11 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
         clientControllerDelegate?.experienceDidDisappear()
         clientAppcuesDelegate?.experienceDidDisappear()
     }
+}
+
+private extension UIViewController {
+    var isAppearing: Bool { isBeingPresented || isMovingToParent }
+    var isDisappearing: Bool { isBeingDismissed || isMovingFromParent }
 }
 
 // MARK: - State Machine Types
