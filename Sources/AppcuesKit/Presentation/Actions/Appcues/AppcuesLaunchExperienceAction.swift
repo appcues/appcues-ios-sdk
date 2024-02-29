@@ -17,27 +17,26 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
     static let type = "@appcues/launch-experience"
 
     private weak var appcues: Appcues?
-    private let renderContext: RenderContext
 
     let experienceID: String
-    private let trigger: ExperienceTrigger?
+    private let trigger: ExperienceTrigger
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         self.appcues = configuration.appcues
-        self.renderContext = configuration.renderContext
 
         guard let config = configuration.decode(Config.self) else { return nil }
         self.experienceID = config.experienceID
-        self.trigger = nil
+
+        // Trigger is the current experienceID
+        let renderContext = configuration.renderContext
+        let experienceRendering = appcues?.container.resolve(ExperienceRendering.self)
+        let currentExperienceID = experienceRendering?.experienceData(forContext: renderContext)?.id
+        self.trigger = .launchExperienceAction(fromExperienceID: currentExperienceID)
     }
 
-    init(appcues: Appcues?, renderContext: RenderContext, experienceID: String, trigger: ExperienceTrigger) {
+    init(appcues: Appcues?, experienceID: String, trigger: ExperienceTrigger) {
         self.appcues = appcues
-        self.renderContext = renderContext
         self.experienceID = experienceID
-
-        // This is used when a flow is triggered as a post flow action from another flow.
-        // The trigger value is set during the StateMachine processing of the post-flow actions.
         self.trigger = trigger
     }
 
@@ -47,20 +46,8 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
         }
 
         let experienceLoading = appcues.container.resolve(ExperienceLoading.self)
-
-        // If no trigger value is passed in, we know it was not triggered by a post-flow action
-        // and we can use the standard `.launchExperienceAction` case, for a normal link within a flow
-        // that launches another flow from a button, for example.
-        let trigger = self.trigger ?? launchExperienceTrigger(appcues)
-
         experienceLoading.load(experienceID: experienceID, published: true, queryItems: [], trigger: trigger) { _  in
             completion()
         }
-    }
-
-    private func launchExperienceTrigger(_ appcues: Appcues) -> ExperienceTrigger {
-        let experienceRendering = appcues.container.resolve(ExperienceRendering.self)
-        let currentExperienceId = experienceRendering.experienceData(forContext: renderContext)?.id
-        return .launchExperienceAction(fromExperienceID: currentExperienceId)
     }
 }

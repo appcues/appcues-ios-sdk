@@ -210,7 +210,6 @@ extension Experience {
             if let nextContentID = nextContentID {
                 actions.append(AppcuesLaunchExperienceAction(
                     appcues: appcues,
-                    renderContext: self.renderContext,
                     experienceID: nextContentID,
                     trigger: .experienceCompletionAction(fromExperienceID: self.id)
                 ))
