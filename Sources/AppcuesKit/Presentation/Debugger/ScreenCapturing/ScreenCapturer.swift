@@ -74,6 +74,11 @@ internal class ScreenCapturer {
                     let toast = DebugToast(message: .screenCaptureSuccess(displayName: capture.displayName), style: .success)
                     captureUI.showToast(toast)
                 }
+            case .failure(NetworkingError.nonSuccessfulStatusCode(400)):
+                DispatchQueue.main.async {
+                    let toast = DebugToast(message: .captureSessionExpired, style: .failure, duration: 6.0)
+                    captureUI.showToast(toast)
+                }
             case .failure:
                 DispatchQueue.main.async {
                     let toast = DebugToast(message: .screenUploadFailure, style: .failure, duration: 6.0) {

@@ -18,6 +18,7 @@ internal struct DebugToast {
         case screenCaptureSuccess(displayName: String)
         case screenCaptureFailure
         case screenUploadFailure
+        case captureSessionExpired
         case custom(text: String)
     }
 
