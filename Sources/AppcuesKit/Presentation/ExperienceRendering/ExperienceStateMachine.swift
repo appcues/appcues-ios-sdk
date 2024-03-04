@@ -24,6 +24,8 @@ internal class ExperienceStateMachine {
         }
     }
 
+    weak var clientAppcuesPresentationDelegate: AppcuesPresentationDelegate?
+
     weak var clientAppcuesDelegate: AppcuesExperienceDelegate?
     weak var clientControllerDelegate: AppcuesExperienceDelegate?
 
@@ -96,8 +98,8 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
 
     func containerWillAppear() {
         switch state {
-        case let .beginningStep(_, _, package, isFirst) where isFirst && package.wrapperController.isAppearing:
-            experienceWillAppear()
+        case let .beginningStep(experience, _, package, isFirst) where isFirst && package.wrapperController.isAppearing:
+            experienceWillAppear(experience: experience)
         default:
             break
         }
@@ -105,8 +107,8 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
 
     func containerDidAppear() {
         switch state {
-        case let .beginningStep(_, _, package, isFirst) where isFirst && package.wrapperController.isAppearing:
-            experienceDidAppear()
+        case let .beginningStep(experience, _, package, isFirst) where isFirst && package.wrapperController.isAppearing:
+            experienceDidAppear(experience: experience)
         default:
             break
         }
@@ -114,10 +116,10 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
 
     func containerWillDisappear() {
         switch state {
-        case .endingExperience:
-            experienceWillDisappear()
-        case let .renderingStep(_, _, package, _) where package.wrapperController.isDisappearing:
-            experienceWillDisappear()
+        case let .endingExperience(experience, _, _):
+            experienceWillDisappear(experience: experience)
+        case let .renderingStep(experience, _, package, _) where package.wrapperController.isDisappearing:
+            experienceWillDisappear(experience: experience)
         default:
             break
         }
@@ -125,10 +127,10 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
 
     func containerDidDisappear() {
         switch state {
-        case .endingExperience:
-            experienceDidDisappear()
-        case let .renderingStep(_, _, package, _) where package.wrapperController.isDisappearing:
-            experienceDidDisappear()
+        case let .endingExperience(experience, _, _):
+            experienceDidDisappear(experience: experience)
+        case let .renderingStep(experience, _, package, _) where package.wrapperController.isDisappearing:
+            experienceDidDisappear(experience: experience)
             // Update state in response to UI changes that have happened already (a call to UIViewController.dismiss).
             try? transition(.endExperience(markComplete: false))
         default:
@@ -159,7 +161,7 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
 
     // MARK: Experience Lifecycle
 
-    func canDisplay(experience: Experience) -> Bool {
+    func canDisplay(experience: ExperienceData) -> Bool {
         let id = experience.id.uuidString
 
         if let delegate = clientControllerDelegate, !delegate.canDisplayExperience(experienceID: id) {
@@ -170,27 +172,35 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
             return false
         }
 
+        if let delegate = clientAppcuesPresentationDelegate, !delegate.canDisplayExperience(metadata: experience.delegateMetadata()) {
+            return false
+        }
+
         return true
     }
 
-    private func experienceWillAppear() {
+    private func experienceWillAppear(experience: ExperienceData) {
         clientControllerDelegate?.experienceWillAppear()
         clientAppcuesDelegate?.experienceWillAppear()
+        clientAppcuesPresentationDelegate?.experienceWillAppear(metadata: experience.delegateMetadata())
     }
 
-    private func experienceDidAppear() {
+    private func experienceDidAppear(experience: ExperienceData) {
         clientControllerDelegate?.experienceDidAppear()
         clientAppcuesDelegate?.experienceDidAppear()
+        clientAppcuesPresentationDelegate?.experienceDidAppear(metadata: experience.delegateMetadata())
     }
 
-    private func experienceWillDisappear() {
+    private func experienceWillDisappear(experience: ExperienceData) {
         clientControllerDelegate?.experienceWillDisappear()
         clientAppcuesDelegate?.experienceWillDisappear()
+        clientAppcuesPresentationDelegate?.experienceWillDisappear(metadata: experience.delegateMetadata())
     }
 
-    private func experienceDidDisappear() {
+    private func experienceDidDisappear(experience: ExperienceData) {
         clientControllerDelegate?.experienceDidDisappear()
         clientAppcuesDelegate?.experienceDidDisappear()
+        clientAppcuesPresentationDelegate?.experienceDidDisappear(metadata: experience.delegateMetadata())
     }
 }
 
@@ -276,7 +286,7 @@ extension ExperienceStateMachine {
             isRecovering: Bool
         ) {
             machine.clientControllerDelegate = UIApplication.shared.topViewController() as? AppcuesExperienceDelegate
-            guard machine.canDisplay(experience: experience.model) else {
+            guard machine.canDisplay(experience: experience) else {
                 try? machine.transition(
                     .reportError(
                         error: .step(experience, stepIndex, "Step blocked by app"),

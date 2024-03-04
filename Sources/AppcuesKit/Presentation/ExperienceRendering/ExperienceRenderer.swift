@@ -25,6 +25,15 @@ internal enum RenderContext: Hashable, CustomStringConvertible {
     case modal
     case embed(frameID: String)
 
+    var id: String {
+        switch self {
+        case .modal:
+            return "modal"
+        case .embed(let frameID):
+            return frameID
+        }
+    }
+
     var description: String {
         switch self {
         case .modal:
@@ -194,6 +203,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         }
 
         analyticsObserver.trackErrorRecovery(ifErrorOn: experience)
+        stateMachine.clientAppcuesPresentationDelegate = appcues?.presentationDelegate
         stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
         stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
             switch result {

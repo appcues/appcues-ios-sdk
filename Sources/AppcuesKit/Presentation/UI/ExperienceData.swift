@@ -57,6 +57,14 @@ internal class ExperienceData {
         return state(for: stepID)
     }
 
+    func delegateMetadata() -> AppcuesPresentationMetadata {
+        AppcuesPresentationMetadata(
+            id: model.id.appcuesFormatted,
+            name: model.name,
+            renderContext: model.renderContext.id
+        )
+    }
+
     subscript<T>(dynamicMember keyPath: KeyPath<Experience, T>) -> T {
         return model[keyPath: keyPath]
     }
