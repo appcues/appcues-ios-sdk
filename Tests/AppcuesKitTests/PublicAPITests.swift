@@ -35,6 +35,9 @@ class PublicAPITests: XCTestCase {
 
         let appcuesInstance = Appcues(config: config)
 
+        let presentationDelegate = SamplePresentationDelegate()
+        appcuesInstance.presentationDelegate = presentationDelegate
+
         let experienceDelegate = SampleExperienceDelegate()
         appcuesInstance.experienceDelegate = experienceDelegate
 
@@ -80,6 +83,7 @@ class PublicAPITests: XCTestCase {
 
         let frameView = AppcuesFrameView(frame: .zero)
         appcuesInstance.register(frameID: "frame1", for: frameView, on: UIViewController())
+        frameView.presentationDelegate = presentationDelegate
 
         if #available(iOS 13.0, *) {
             let frame = AppcuesFrame(appcues: appcuesInstance, frameID: "frame1")
@@ -111,6 +115,30 @@ class SampleElementTargeting: AppcuesElementTargeting {
 
     func inflateSelector(from properties: [String : String]) -> AppcuesElementSelector? {
         return AppcuesElementSelector()
+    }
+}
+
+class SamplePresentationDelegate: AppcuesPresentationDelegate {
+    func canDisplayExperience(metadata: AppcuesPresentationMetadata) -> Bool {
+        true
+    }
+    
+    func experienceWillAppear(metadata: AppcuesPresentationMetadata) {
+        let id = metadata.id
+        let name = metadata.name
+        let renderContext = metadata.renderContext
+    }
+    
+    func experienceDidAppear(metadata: AppcuesPresentationMetadata) {
+        // no-op
+    }
+    
+    func experienceWillDisappear(metadata: AppcuesPresentationMetadata) {
+        // no-op
+    }
+    
+    func experienceDidDisappear(metadata: AppcuesPresentationMetadata) {
+        // no-op
     }
 }
 
