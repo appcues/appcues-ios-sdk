@@ -9,6 +9,7 @@
 import Foundation
 
 /// A set of methods that allow you to control and respond to Appcues experiences being displayed changes in your app.
+/// Using ``AppcuesPresentationDelegate`` is preferred because it provides additional context about the experience being  presented.
 @objc
 public protocol AppcuesExperienceDelegate: AnyObject {
     /// Asks the delegate for permission to display the Appcues experience.
