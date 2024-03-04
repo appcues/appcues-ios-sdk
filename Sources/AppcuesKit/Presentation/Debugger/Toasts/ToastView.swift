@@ -135,6 +135,16 @@ extension DebugToast.Message {
                 .font: UIFont.systemFont(ofSize: 14, weight: .bold),
                 .foregroundColor: UIColor.white
             ])
+        case .captureSessionExpired:
+            let message = NSMutableAttributedString(string: "Upload failed due to expired session.", attributes: [
+                .font: UIFont.systemFont(ofSize: 14, weight: .bold),
+                .foregroundColor: UIColor.white
+            ])
+            message.append(NSAttributedString(string: "\nPlease restart the screen capture flow from the Mobile Builder.", attributes: [
+                .font: UIFont.systemFont(ofSize: 14, weight: .regular),
+                .foregroundColor: UIColor.white
+            ]))
+            return message
         case .custom(let text):
             return NSAttributedString(string: text, attributes: [
                 .font: UIFont.systemFont(ofSize: 14, weight: .bold),
