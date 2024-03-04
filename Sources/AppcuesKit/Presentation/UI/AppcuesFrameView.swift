@@ -16,6 +16,24 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
         case fade
     }
 
+    /// The delegate object that manages and observes presentations in this embed frame.
+    public weak var presentationDelegate: AppcuesPresentationDelegate? {
+        get {
+            if #available(iOS 13.0, *) {
+                return stateMachine?.clientControllerPresentationDelegate
+            } else {
+                return nil
+            }
+        }
+        set {
+            if #available(iOS 13.0, *) {
+                stateMachine?.clientControllerPresentationDelegate = newValue
+            } else {
+                // no-op
+            }
+        }
+    }
+
     // Managed by the StateMachineDirectory
     internal var renderContext: RenderContext?
 

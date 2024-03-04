@@ -25,6 +25,7 @@ internal class ExperienceStateMachine {
     }
 
     weak var clientAppcuesPresentationDelegate: AppcuesPresentationDelegate?
+    weak var clientControllerPresentationDelegate: AppcuesPresentationDelegate?
 
     weak var clientAppcuesDelegate: AppcuesExperienceDelegate?
     weak var clientControllerDelegate: AppcuesExperienceDelegate?
@@ -172,6 +173,10 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
             return false
         }
 
+        if let delegate = clientControllerPresentationDelegate, !delegate.canDisplayExperience(metadata: experience.delegateMetadata()) {
+            return false
+        }
+
         if let delegate = clientAppcuesPresentationDelegate, !delegate.canDisplayExperience(metadata: experience.delegateMetadata()) {
             return false
         }
@@ -182,24 +187,28 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
     private func experienceWillAppear(experience: ExperienceData) {
         clientControllerDelegate?.experienceWillAppear()
         clientAppcuesDelegate?.experienceWillAppear()
+        clientControllerPresentationDelegate?.experienceWillAppear(metadata: experience.delegateMetadata())
         clientAppcuesPresentationDelegate?.experienceWillAppear(metadata: experience.delegateMetadata())
     }
 
     private func experienceDidAppear(experience: ExperienceData) {
         clientControllerDelegate?.experienceDidAppear()
         clientAppcuesDelegate?.experienceDidAppear()
+        clientControllerPresentationDelegate?.experienceDidAppear(metadata: experience.delegateMetadata())
         clientAppcuesPresentationDelegate?.experienceDidAppear(metadata: experience.delegateMetadata())
     }
 
     private func experienceWillDisappear(experience: ExperienceData) {
         clientControllerDelegate?.experienceWillDisappear()
         clientAppcuesDelegate?.experienceWillDisappear()
+        clientControllerPresentationDelegate?.experienceWillDisappear(metadata: experience.delegateMetadata())
         clientAppcuesPresentationDelegate?.experienceWillDisappear(metadata: experience.delegateMetadata())
     }
 
     private func experienceDidDisappear(experience: ExperienceData) {
         clientControllerDelegate?.experienceDidDisappear()
         clientAppcuesDelegate?.experienceDidDisappear()
+        clientControllerPresentationDelegate?.experienceDidDisappear(metadata: experience.delegateMetadata())
         clientAppcuesPresentationDelegate?.experienceDidDisappear(metadata: experience.delegateMetadata())
     }
 }
