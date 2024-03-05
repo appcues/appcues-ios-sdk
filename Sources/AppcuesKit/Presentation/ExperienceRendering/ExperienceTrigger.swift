@@ -12,6 +12,7 @@ internal enum ExperienceTrigger: Equatable {
     case qualification(reason: QualifyResponse.QualificationReason?)
     case experienceCompletionAction(fromExperienceID: UUID?)
     case launchExperienceAction(fromExperienceID: UUID?)
+    case push
     case showCall
     case deepLink
     case preview
@@ -24,7 +25,7 @@ internal enum ExperienceTrigger: Equatable {
         switch self {
         case .qualification:
             return false
-        case .experienceCompletionAction, .launchExperienceAction, .showCall, .deepLink, .preview:
+        case .experienceCompletionAction, .launchExperienceAction, .push, .showCall, .deepLink, .preview:
             return true
         }
     }
