@@ -380,4 +380,12 @@ class MockPushMonitor: PushMonitoring {
         completion?(.notDetermined)
     }
 
+    var onDidReceiveNotification: (([AnyHashable: Any]) -> Bool)?
+    func didReceiveNotification(userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) -> Bool {
+        let result = onDidReceiveNotification?(userInfo) ?? false
+        if result {
+            completionHandler()
+        }
+        return result
+    }
 }
