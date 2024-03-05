@@ -14,10 +14,14 @@ internal protocol PushMonitoring: AnyObject {
     var pushPrimerEligible: Bool { get }
 
     func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?)
+
+    // Using `userInfo` as a parameter to be able to mock notification data.
+    func didReceiveNotification(userInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) -> Bool
 }
 
 internal class PushMonitor: PushMonitoring {
 
+    private weak var appcues: Appcues?
     private let storage: DataStoring
 
     private var pushAuthorizationStatus: UNAuthorizationStatus = .notDetermined
@@ -35,6 +39,7 @@ internal class PushMonitor: PushMonitoring {
     }
 
     init(container: DIContainer) {
+        self.appcues = container.owner
         self.storage = container.resolve(DataStoring.self)
 
         refreshPushStatus()
@@ -65,6 +70,58 @@ internal class PushMonitor: PushMonitoring {
             self?.pushAuthorizationStatus = settings.authorizationStatus
             completion?(settings.authorizationStatus)
         }
+    }
+
+    // `completionHandler` should be called iff the function returns true.
+    func didReceiveNotification(userInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) -> Bool {
+        guard let parsedNotification = ParsedNotification(userInfo: userInfo) else {
+            // Not an Appcues push
+            return false
+        }
+
+        guard let appcues = appcues else {
+            return false
+        }
+
+        // If there's a user ID mismatch, don't do anything with the notification
+        guard parsedNotification.userID == storage.userID else {
+            completionHandler()
+            return true
+        }
+
+        // If no session, start one for the user in the notification
+        if !appcues.isActive {
+            storage.userID = parsedNotification.userID
+            storage.isAnonymous = false
+        }
+
+        let analyticsPublisher = appcues.container.resolve(AnalyticsPublishing.self)
+        analyticsPublisher.publish(TrackingUpdate(
+            type: .event(name: Events.Push.pushOpened.rawValue, interactive: false),
+            properties: [
+                "notification_id": parsedNotification.notificationID
+            ],
+            isInternal: true
+        ))
+
+        if #available(iOS 13.0, *) {
+            var actions: [AppcuesExperienceAction] = []
+
+            if let deepLinkURL = parsedNotification.deepLinkURL {
+                actions.append(AppcuesLinkAction(appcues: appcues, url: deepLinkURL))
+            }
+
+            if let experienceID = parsedNotification.experienceID {
+                actions.append(AppcuesLaunchExperienceAction(appcues: appcues, experienceID: experienceID, trigger: .push))
+            }
+
+            let actionRegistry = appcues.container.resolve(ActionRegistry.self)
+            actionRegistry.enqueue(actionInstances: actions, completion: completionHandler)
+        } else {
+            completionHandler()
+        }
+
+        return true
     }
 
     #if DEBUG
