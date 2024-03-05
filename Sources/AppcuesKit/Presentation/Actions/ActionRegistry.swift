@@ -81,6 +81,12 @@ internal class ActionRegistry {
         execute(transformQueue(actionInstances), completion: completion)
     }
 
+    /// Enqueue the action instances.
+    /// This version is used for push action handlers.
+    func enqueue(actionInstances: [AppcuesExperienceAction], completion: @escaping () -> Void) {
+        execute(transformQueue(actionInstances), completion: completion)
+    }
+
     /// Enqueue the action instances generated from a factory function to be executed.
     /// This version is used for post-completion actions on an experience.
     func enqueue(actionFactory: (Appcues?) -> [AppcuesExperienceAction]) {
