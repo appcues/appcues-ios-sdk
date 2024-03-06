@@ -61,7 +61,9 @@ internal class ExperienceData {
         AppcuesPresentationMetadata(
             id: model.id.appcuesFormatted,
             name: model.name,
-            renderContext: model.renderContext.id
+            isOverlay: model.renderContext == .modal,
+            isEmbed: model.renderContext != .modal,
+            frameID: model.renderContext.frameID
         )
     }
 
