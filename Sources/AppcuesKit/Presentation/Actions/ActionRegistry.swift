@@ -34,6 +34,7 @@ internal class ActionRegistry {
         register(action: AppcuesSubmitFormAction.self)
         register(action: AppcuesRequestReviewAction.self)
         register(action: AppcuesDelayAction.self)
+        register(action: AppcuesRequestPushAction.self)
     }
 
     @discardableResult
