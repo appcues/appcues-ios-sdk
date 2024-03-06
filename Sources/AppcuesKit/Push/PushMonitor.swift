@@ -83,16 +83,10 @@ internal class PushMonitor: PushMonitoring {
             return false
         }
 
-        // If there's a user ID mismatch, don't do anything with the notification
-        guard parsedNotification.userID == storage.userID else {
+        // If there's no active session or a user ID mismatch, don't do anything with the notification
+        guard appcues.isActive && parsedNotification.userID == storage.userID else {
             completionHandler()
             return true
-        }
-
-        // If no session, start one for the user in the notification
-        if !appcues.isActive {
-            storage.userID = parsedNotification.userID
-            storage.isAnonymous = false
         }
 
         let analyticsPublisher = appcues.container.resolve(AnalyticsPublishing.self)
