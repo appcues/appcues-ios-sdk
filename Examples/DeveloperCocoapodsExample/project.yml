@@ -15,6 +15,7 @@ targets:
     entitlements:
       path: AppcuesCocoapodsExample.entitlements
       properties:
+        aps-environment: development
         com.apple.developer.associated-domains:
           - applinks:appcues-mobile-links.netlify.app
     postbuildScripts:
