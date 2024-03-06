@@ -209,12 +209,10 @@ class PushMonitorTests: XCTestCase {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.appcuesPush
 
-        let analyticsExpectation = expectation(description: "push open event")
         let completionExpectation = expectation(description: "completion called")
 
         appcues.analyticsPublisher.onPublish = { update in
-            XCTAssertEqual(update.type, .event(name: Events.Push.pushOpened.rawValue, interactive: false))
-            analyticsExpectation.fulfill()
+            XCTFail("no push opened analytic expected")
         }
 
         let completion = {
