@@ -99,8 +99,12 @@ internal class PushMonitor: PushMonitoring {
         analyticsPublisher.publish(TrackingUpdate(
             type: .event(name: Events.Push.pushOpened.rawValue, interactive: false),
             properties: [
-                "notification_id": parsedNotification.notificationID
-            ],
+                "notification_id": parsedNotification.notificationID,
+                "workflow_id": parsedNotification.workflowID,
+                "workflow_task_id": parsedNotification.workflowTaskID,
+                "transaction_id": parsedNotification.transactionID,
+                "device_id": storage.deviceID
+            ].compactMapValues { $0 },
             isInternal: true
         ))
 
