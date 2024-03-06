@@ -108,8 +108,12 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
 
     func containerDidAppear() {
         switch state {
-        case let .beginningStep(experience, _, package, isFirst) where isFirst && package.wrapperController.isAppearing:
-            experienceDidAppear(experience: experience)
+        case let .beginningStep(experience, _, package, isFirst) where package.wrapperController.isAppearing:
+            if isFirst {
+                experienceDidAppear(experience: experience)
+            } else {
+                experienceStepDidChange(experience: experience)
+            }
         default:
             break
         }
@@ -149,12 +153,14 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
                 state = .beginningStep(experience, stepIndex, package, isFirst: false)
                 state = .renderingStep(experience, newStepIndex, package, isFirst: false)
             }
+            experienceStepDidChange(experience: experience)
         case let .endingStep(experience, _, package, _):
             let targetStepId = package.steps[newPageIndex].id
             if let newStepIndex = experience.stepIndex(for: targetStepId) {
                 state = .beginningStep(experience, newStepIndex, package, isFirst: false)
                 state = .renderingStep(experience, newStepIndex, package, isFirst: false)
             }
+            experienceStepDidChange(experience: experience)
         default:
             break
         }
@@ -196,6 +202,11 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
         clientAppcuesDelegate?.experienceDidAppear()
         clientControllerPresentationDelegate?.experienceDidAppear(metadata: experience.delegateMetadata())
         clientAppcuesPresentationDelegate?.experienceDidAppear(metadata: experience.delegateMetadata())
+    }
+
+    private func experienceStepDidChange(experience: ExperienceData) {
+        clientControllerPresentationDelegate?.experienceStepDidChange(metadata: experience.delegateMetadata())
+        clientAppcuesPresentationDelegate?.experienceStepDidChange(metadata: experience.delegateMetadata())
     }
 
     private func experienceWillDisappear(experience: ExperienceData) {

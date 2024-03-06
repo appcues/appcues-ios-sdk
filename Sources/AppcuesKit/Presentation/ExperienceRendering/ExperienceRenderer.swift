@@ -25,10 +25,10 @@ internal enum RenderContext: Hashable, CustomStringConvertible {
     case modal
     case embed(frameID: String)
 
-    var id: String {
+    var frameID: String? {
         switch self {
         case .modal:
-            return "modal"
+            return nil
         case .embed(let frameID):
             return frameID
         }
