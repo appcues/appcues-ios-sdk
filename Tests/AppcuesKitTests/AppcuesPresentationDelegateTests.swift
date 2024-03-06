@@ -39,7 +39,9 @@ final class AppcuesPresentationDelegateTests: XCTestCase {
         delegate.experienceWillAppear = { metadata in
             XCTAssertEqual(metadata.id, "54b7ec71-cdaf-4697-affa-f3abd672b3cf")
             XCTAssertEqual(metadata.name, "Mock embedded experience")
-            XCTAssertEqual(metadata.renderContext, "some-frame")
+            XCTAssertFalse(metadata.isOverlay)
+            XCTAssertTrue(metadata.isEmbed)
+            XCTAssertEqual(metadata.frameID, "some-frame")
             willAppearExpectation.fulfill()
         }
 
@@ -47,7 +49,9 @@ final class AppcuesPresentationDelegateTests: XCTestCase {
         delegate.experienceDidAppear = { metadata in
             XCTAssertEqual(metadata.id, "54b7ec71-cdaf-4697-affa-f3abd672b3cf")
             XCTAssertEqual(metadata.name, "Mock embedded experience")
-            XCTAssertEqual(metadata.renderContext, "some-frame")
+            XCTAssertFalse(metadata.isOverlay)
+            XCTAssertTrue(metadata.isEmbed)
+            XCTAssertEqual(metadata.frameID, "some-frame")
             didAppearExpectation.fulfill()
         }
 
@@ -63,7 +67,7 @@ final class AppcuesPresentationDelegateTests: XCTestCase {
     func testDelegateDisappear() throws {
         // Arrange
         let delegate = MockAppcuesPresentationDelegate()
-        let experience = ExperienceData.mockEmbed(frameID: "some-frame", trigger: .qualification(reason: .screenView))
+        let experience = ExperienceData.mock
         let package = experience.package(onPresent: {}, onDismiss: {})
         let stateMachine = ExperienceStateMachine(
             container: appcues.container,
@@ -76,16 +80,20 @@ final class AppcuesPresentationDelegateTests: XCTestCase {
         let willDisappearExpectation = expectation(description: "experienceWillDisappear called")
         delegate.experienceWillDisappear = { metadata in
             XCTAssertEqual(metadata.id, "54b7ec71-cdaf-4697-affa-f3abd672b3cf")
-            XCTAssertEqual(metadata.name, "Mock embedded experience")
-            XCTAssertEqual(metadata.renderContext, "some-frame")
+            XCTAssertEqual(metadata.name, "Mock Experience: Group with 3 steps, Single step")
+            XCTAssertTrue(metadata.isOverlay)
+            XCTAssertFalse(metadata.isEmbed)
+            XCTAssertNil(metadata.frameID)
             willDisappearExpectation.fulfill()
         }
 
         let didDisappearExpectation = expectation(description: "experienceDidDisappear called")
         delegate.experienceDidDisappear = { metadata in
             XCTAssertEqual(metadata.id, "54b7ec71-cdaf-4697-affa-f3abd672b3cf")
-            XCTAssertEqual(metadata.name, "Mock embedded experience")
-            XCTAssertEqual(metadata.renderContext, "some-frame")
+            XCTAssertEqual(metadata.name, "Mock Experience: Group with 3 steps, Single step")
+            XCTAssertTrue(metadata.isOverlay)
+            XCTAssertFalse(metadata.isEmbed)
+            XCTAssertNil(metadata.frameID)
             didDisappearExpectation.fulfill()
         }
 
@@ -112,6 +120,11 @@ private class MockAppcuesPresentationDelegate: AppcuesPresentationDelegate {
     var experienceDidAppear: ((AppcuesPresentationMetadata) -> Void)?
     func experienceDidAppear(metadata: AppcuesPresentationMetadata) {
         experienceDidAppear?(metadata)
+    }
+
+    var experienceStepDidChange: ((AppcuesPresentationMetadata) -> Void)?
+    func experienceStepDidChange(metadata: AppcuesKit.AppcuesPresentationMetadata) {
+        experienceStepDidChange?(metadata)
     }
 
     var experienceWillDisappear: ((AppcuesPresentationMetadata) -> Void)?

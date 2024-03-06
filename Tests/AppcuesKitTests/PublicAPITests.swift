@@ -126,13 +126,19 @@ class SamplePresentationDelegate: AppcuesPresentationDelegate {
     func experienceWillAppear(metadata: AppcuesPresentationMetadata) {
         let id = metadata.id
         let name = metadata.name
-        let renderContext = metadata.renderContext
+        let isOverlay = metadata.isOverlay
+        let isEmbed = metadata.isEmbed
+        let frameID = metadata.frameID
     }
     
     func experienceDidAppear(metadata: AppcuesPresentationMetadata) {
         // no-op
     }
-    
+
+    func experienceStepDidChange(metadata: AppcuesPresentationMetadata) {
+        // no-op
+    }
+
     func experienceWillDisappear(metadata: AppcuesPresentationMetadata) {
         // no-op
     }
