@@ -31,27 +31,7 @@ internal struct AppcuesOptionSelect: View {
                 }
             }
 
-            switch (model.selectMode, model.displayFormat) {
-            case (.single, .picker):
-                Picker(model.label.text, selection: stepState.formBinding(for: model.id)) {
-                    ForEach(model.options) { option in
-                        option.content.view
-                            .tag(option.value)
-                    }
-                }
-            case (.single, .nps):
-                NPSView(model: model)
-            case (_, .horizontalList):
-                HStack(alignment: model.controlPosition?.verticalAlignment ?? .center, spacing: 0) {
-                    items
-                }
-            case (_, .verticalList),
-                // fallbacks
-                (_, .none), (.multi, .picker), (.multi, .nps):
-                VStack(alignment: model.controlPosition?.horizontalAlignment ?? .center, spacing: 0) {
-                    items
-                }
-            }
+            control
 
             if stepState.shouldShowError(for: model.id), let errorLabel = model.errorLabel {
                 HStack {
@@ -69,7 +49,31 @@ internal struct AppcuesOptionSelect: View {
         .applyAllAppcues(style)
     }
 
-    @ViewBuilder var items: some View {
+    @ViewBuilder private var control: some View {
+        switch (model.selectMode, model.displayFormat) {
+        case (.single, .picker):
+            Picker(model.label.text, selection: stepState.formBinding(for: model.id)) {
+                ForEach(model.options) { option in
+                    option.content.view
+                        .tag(option.value)
+                }
+            }
+        case (.single, .nps):
+            NPSView(model: model)
+        case (_, .horizontalList):
+            HStack(alignment: model.controlPosition?.verticalAlignment ?? .center, spacing: 0) {
+                items
+            }
+        case (_, .verticalList),
+            // fallbacks
+            (_, .none), (.multi, .picker), (.multi, .nps):
+            VStack(alignment: model.controlPosition?.horizontalAlignment ?? .center, spacing: 0) {
+                items
+            }
+        }
+    }
+
+    @ViewBuilder private var items: some View {
         let primaryColor = stepState.shouldShowError(for: model.id) ? Color(dynamicColor: model.errorLabel?.style?.foregroundColor) : nil
 
         ForEach(model.options) { option in

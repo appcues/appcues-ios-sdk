@@ -18,7 +18,13 @@ internal struct Event {
     let attributes: [String: Any]?
     let context: [String: Any]?
 
-    init(name: String, timestamp: Date = Date(), attributes: [String: Any]? = nil, context: [String: Any]? = nil, logger: Logging = OSLog.disabled) {
+    init(
+        name: String,
+        timestamp: Date = Date(),
+        attributes: [String: Any]? = nil,
+        context: [String: Any]? = nil,
+        logger: Logging = OSLog.disabled
+    ) {
         self.name = name
         self.timestamp = timestamp
         self.attributes = attributes

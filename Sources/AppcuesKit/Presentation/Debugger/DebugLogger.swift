@@ -80,15 +80,15 @@ extension DebugLogger {
         let timestamp = Date()
         let level: Level
         let message: String
-        
+
         enum CodingKeys: CodingKey {
             case timestamp, level, message
         }
-        
+
         // Skip encoding id since the value is meaningless
         func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
-            
+
             try container.encode(self.timestamp, forKey: .timestamp)
             try container.encode(self.level, forKey: .level)
             try container.encode(self.message, forKey: .message)

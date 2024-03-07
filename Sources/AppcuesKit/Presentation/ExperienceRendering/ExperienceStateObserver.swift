@@ -68,6 +68,7 @@ extension ExperienceStateMachine {
             self.storage = container.resolve(DataStoring.self)
         }
 
+        // swiftlint:disable:next function_body_length
         func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
             switch result {
             case .success(.idling):
@@ -80,26 +81,54 @@ extension ExperienceStateMachine {
                 storage.lastContentShownAt = Date()
                 let metrics = SdkMetrics.trackRender(experience.requestID)
                 let experienceStartProps = Dictionary(propertiesFrom: experience).merging(metrics)
-                track(experienceEvent: .experienceStarted, properties: experienceStartProps, shouldPublish: result.shouldPublish)
+                track(
+                    experienceEvent: .experienceStarted,
+                    properties: experienceStartProps,
+                    shouldPublish: result.shouldPublish
+                )
                 // optionally track the recovery from a render error, if it is now rendering
                 trackStepRecovery(ifErrorOn: experience, stepIndex: stepIndex)
-                track(experienceEvent: .stepSeen, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex), shouldPublish: result.shouldPublish)
+                track(
+                    experienceEvent: .stepSeen,
+                    properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex),
+                    shouldPublish: result.shouldPublish
+                )
             case let .success(.renderingStep(experience, stepIndex, _, isFirst: false)):
-                track(experienceEvent: .stepSeen, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex), shouldPublish: result.shouldPublish)
+                track(
+                    experienceEvent: .stepSeen,
+                    properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex),
+                    shouldPublish: result.shouldPublish
+                )
             case let .success(.endingStep(experience, stepIndex, _, markComplete)):
                 if markComplete {
-                    track(experienceEvent: .stepCompleted, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex), shouldPublish: result.shouldPublish)
+                    track(
+                        experienceEvent: .stepCompleted,
+                        properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex),
+                        shouldPublish: result.shouldPublish
+                    )
                 }
             case let .success(.endingExperience(experience, stepIndex, markComplete)):
                 if markComplete {
-                    track(experienceEvent: .experienceCompleted, properties: Dictionary(propertiesFrom: experience), shouldPublish: result.shouldPublish)
+                    track(
+                        experienceEvent: .experienceCompleted,
+                        properties: Dictionary(propertiesFrom: experience),
+                        shouldPublish: result.shouldPublish
+                    )
                 } else {
-                    track(experienceEvent: .experienceDismissed, properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex), shouldPublish: result.shouldPublish)
+                    track(
+                        experienceEvent: .experienceDismissed,
+                        properties: Dictionary(propertiesFrom: experience, stepIndex: stepIndex),
+                        shouldPublish: result.shouldPublish
+                    )
                 }
             case .success(.failing):
                 break
             case let .failure(.experience(experience, message)):
-                track(experienceEvent: .experienceError, properties: Dictionary(propertiesFrom: experience, error: "\(message)"), shouldPublish: result.shouldPublish)
+                track(
+                    experienceEvent: .experienceError,
+                    properties: Dictionary(propertiesFrom: experience, error: "\(message)"),
+                    shouldPublish: result.shouldPublish
+                )
             case let .failure(.step(experience, stepIndex, message, recoverable)):
                 trackStepError(experience: experience, stepIndex: stepIndex, message: message, recoverable: recoverable)
             case .failure(.noTransition):

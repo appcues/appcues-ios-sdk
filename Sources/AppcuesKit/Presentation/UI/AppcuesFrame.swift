@@ -66,7 +66,6 @@ extension AppcuesFrame {
                 return
             }
 
-
             // Add frame margins to the calculated size. Need to do this because the margins must be set on the FrameView,
             // not the UIViewController it contains which manages the preferredContentSize
             let margins = frameView.directionalLayoutMargins

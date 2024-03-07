@@ -27,7 +27,14 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
         return nil
     }
 
-    init(appcues: Appcues?, renderContext: RenderContext, interactionType: String, viewDescription: String, category: String, destination: String) {
+    init(
+        appcues: Appcues?,
+        renderContext: RenderContext,
+        interactionType: String,
+        viewDescription: String,
+        category: String,
+        destination: String
+    ) {
         self.appcues = appcues
         self.renderContext = renderContext
         self.interactionType = interactionType
