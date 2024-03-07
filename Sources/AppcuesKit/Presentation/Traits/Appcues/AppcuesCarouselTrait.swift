@@ -254,7 +254,8 @@ extension AppcuesCarouselTrait {
                 collectionView.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
                 collectionView.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
                 // this is required so the dialogView has an initial non-zero height, after which it can start sizing to the content.
-                collectionView.layoutMarginsGuide.bottomAnchor.constraint(greaterThanOrEqualTo: collectionView.layoutMarginsGuide.topAnchor, constant: 1),
+                collectionView.layoutMarginsGuide.bottomAnchor
+                    .constraint(greaterThanOrEqualTo: collectionView.layoutMarginsGuide.topAnchor, constant: 1),
                 // this has a non-required priority so the previous height constraint can take effect
                 bottomConstraint
             ])
