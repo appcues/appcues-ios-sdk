@@ -42,10 +42,12 @@ internal class AppcuesLinkAction: AppcuesExperienceAction {
 
     func execute(completion: @escaping ActionRegistry.Completion) {
         guard let appcues = appcues else { return completion() }
+        let logger = appcues.config.logger
 
         // If a delegate is provided from the host application, preference is to use it for
         // handling navigation and invoking the completion handler.
         if let delegate = appcues.navigationDelegate {
+            logger.info("@appcues/link: AppcuesNavigationDelegate opening %{private}@", url.absoluteString)
             delegate.navigate(to: url, openExternally: openExternally) { _ in completion() }
             return
         }
@@ -66,16 +68,20 @@ internal class AppcuesLinkAction: AppcuesExperienceAction {
             && urlOpener.open(potentialUniversalLink: url)
 
             if successfullyHandledUniversalLink {
+                logger.info("@appcues/link: universal link opened %{private}@", url.absoluteString)
                 completion()
             } else {
                 if openExternally {
+                    logger.info("@appcues/link: external link opening %{private}@", url.absoluteString)
                     urlOpener.open(url, options: [:]) { _ in completion() }
                 } else {
+                    logger.info("@appcues/link: in-app link opening %{private}@", url.absoluteString)
                     urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true, completion: completion)
                 }
             }
         } else {
             // Scheme link
+            logger.info("@appcues/link: scheme link opening %{private}@", url.absoluteString)
             urlOpener.open(url, options: [:]) { _ in completion() }
         }
     }
