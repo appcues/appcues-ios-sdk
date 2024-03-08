@@ -31,12 +31,21 @@ internal class DebugViewController: UIViewController {
     let logger: DebugLogger
     let apiVerifier: APIVerifier
     let deepLinkVerifier: DeepLinkVerifier
+    let pushVerifier: PushVerifier
 
-    init(viewModel: DebugViewModel, logger: DebugLogger, apiVerifier: APIVerifier, deepLinkVerifier: DeepLinkVerifier, mode: DebugMode) {
+    init(
+        viewModel: DebugViewModel,
+        logger: DebugLogger,
+        apiVerifier: APIVerifier,
+        deepLinkVerifier: DeepLinkVerifier,
+        pushVerifier: PushVerifier,
+        mode: DebugMode
+    ) {
         self.viewModel = viewModel
         self.logger = logger
         self.apiVerifier = apiVerifier
         self.deepLinkVerifier = deepLinkVerifier
+        self.pushVerifier = pushVerifier
         self.mode = mode
         super.init(nibName: nil, bundle: nil)
     }
@@ -67,6 +76,7 @@ internal class DebugViewController: UIViewController {
             let viewController = UIHostingController(rootView: DebugUI.MainPanelView(
                 apiVerifier: apiVerifier,
                 deepLinkVerifier: deepLinkVerifier,
+                pushVerifier: pushVerifier,
                 viewModel: viewModel
             ).environmentObject(logger))
             addChild(viewController)
