@@ -9,6 +9,7 @@
 import UIKit
 
 internal protocol PushMonitoring: AnyObject {
+    var pushAuthorizationStatus: UNAuthorizationStatus { get }
     var pushEnabled: Bool { get }
     var pushBackgroundEnabled: Bool { get }
     var pushPrimerEligible: Bool { get }
@@ -24,7 +25,7 @@ internal class PushMonitor: PushMonitoring {
     private weak var appcues: Appcues?
     private let storage: DataStoring
 
-    private var pushAuthorizationStatus: UNAuthorizationStatus = .notDetermined
+    private(set) var pushAuthorizationStatus: UNAuthorizationStatus = .notDetermined
 
     var pushEnabled: Bool {
         pushAuthorizationStatus == .authorized && storage.pushToken != nil
@@ -81,6 +82,16 @@ internal class PushMonitor: PushMonitoring {
 
         guard let appcues = appcues else {
             return false
+        }
+
+        guard !parsedNotification.isInternal else {
+            // This is a synthetic notification response from PushVerifier.
+            if #available(iOS 13.0, *) {
+                let pushVerifier = appcues.container.resolve(PushVerifier.self)
+                pushVerifier.receivedVerification(token: parsedNotification.notificationID)
+            }
+            completionHandler()
+            return true
         }
 
         // If there's no active session or a user ID mismatch, don't do anything with the notification
