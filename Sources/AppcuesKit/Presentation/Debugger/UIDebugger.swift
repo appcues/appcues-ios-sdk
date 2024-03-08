@@ -54,6 +54,7 @@ internal class UIDebugger: UIDebugging {
     private let notificationCenter: NotificationCenter
     private let analyticsPublisher: AnalyticsPublishing
     private let networking: Networking
+    private let pushVerifier: PushVerifier
 
     private let subject = PassthroughSubject<LoggedEvent, Never>()
     var eventPublisher: AnyPublisher<LoggedEvent, Never> { subject.eraseToAnyPublisher() }
@@ -69,6 +70,7 @@ internal class UIDebugger: UIDebugging {
         self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
         self.notificationCenter = container.resolve(NotificationCenter.self)
         self.networking = container.resolve(Networking.self)
+        self.pushVerifier = container.resolve(PushVerifier.self)
 
         self.screenCapturer = ScreenCapturer(
             config: config,
@@ -121,6 +123,7 @@ internal class UIDebugger: UIDebugging {
             logger: debugLogger,
             apiVerifier: APIVerifier(networking: networking),
             deepLinkVerifier: DeepLinkVerifier(applicationID: config.applicationID),
+            pushVerifier: pushVerifier,
             mode: mode
         )
         rootViewController.delegate = self
