@@ -14,6 +14,7 @@ internal enum DebugUI {
     struct MainPanelView: View {
         let apiVerifier: APIVerifier
         let deepLinkVerifier: DeepLinkVerifier
+        let pushVerifier: PushVerifier
 
         @ObservedObject var viewModel: DebugViewModel
 
@@ -23,6 +24,7 @@ internal enum DebugUI {
                 InstalledRow(accountID: viewModel.accountID, applicationID: viewModel.applicationID)
                 ConnectedRow(apiVerifier: apiVerifier)
                 DeepLinkRow(deepLinkVerifier: deepLinkVerifier)
+                PushRow(pushVerifier: pushVerifier)
                 ScreensRow(isTrackingScreens: viewModel.trackingPages)
                 UserRow(currentUserID: viewModel.currentUserID, isAnonymous: viewModel.isAnonymous)
                 GroupRow(currentGroupID: viewModel.currentGroupID)
@@ -139,6 +141,26 @@ internal enum DebugUI {
                 .foregroundColor(.secondary)
             }
             .onReceive(deepLinkVerifier.publisher) {
+                statusItem = $0
+            }
+        }
+    }
+
+    struct PushRow: View {
+        let pushVerifier: PushVerifier
+
+        @State var statusItem = StatusItem(status: .pending, title: "Push Notifications Configured")
+
+        var body: some View {
+            ListItemRowView(item: statusItem) {
+                Button {
+                    pushVerifier.verifyPush()
+                } label: {
+                    Image(systemName: "arrow.triangle.2.circlepath").imageScale(.small)
+                }
+                .foregroundColor(.secondary)
+            }
+            .onReceive(pushVerifier.publisher) {
                 statusItem = $0
             }
         }
