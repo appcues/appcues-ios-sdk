@@ -358,6 +358,7 @@ public class Appcues: NSObject {
         container.registerLazy(PushMonitoring.self, initializer: PushMonitor.init)
 
         if #available(iOS 13.0, *) {
+            container.registerLazy(PushVerifier.self, initializer: PushVerifier.init)
             container.registerLazy(DeepLinkHandling.self, initializer: DeepLinkHandler.init)
             container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
             container.registerLazy(ExperienceLoading.self, initializer: ExperienceLoader.init)
