@@ -20,6 +20,7 @@ internal struct ParsedNotification {
     let attachmentURL: URL?
     let attachmentType: String?
     let isTest: Bool
+    let isInternal: Bool
 
     init?(userInfo: [AnyHashable: Any]) {
         guard let accountID = userInfo["appcues_account_id"] as? String,
@@ -42,5 +43,6 @@ internal struct ParsedNotification {
             .flatMap { URL(string: $0) }
         self.attachmentType = userInfo["appcues_attachment_type"] as? String
         self.isTest = userInfo["appcues_test"] as? Bool ?? false
+        self.isInternal = userInfo["_appcues_internal"] as? Bool ?? false
     }
 }
