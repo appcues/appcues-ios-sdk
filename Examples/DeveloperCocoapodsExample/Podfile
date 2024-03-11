@@ -7,6 +7,10 @@ target 'AppcuesCocoapodsExample' do
     pod 'Appcues', :path => '../../Appcues.podspec'
 end
 
+target 'NotificationServiceExtension' do
+    pod 'AppcuesNotificationService', :path => '../../AppcuesNotificationService.podspec'
+end
+
 post_install do |installer|
     installer.pods_project.targets.each do |target|
         if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
