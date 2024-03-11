@@ -374,10 +374,11 @@ class MockPushMonitor: PushMonitoring {
     var pushBackgroundEnabled: Bool = false
     var pushPrimerEligible: Bool = false
 
+    var pushAuthorizationStatus: UNAuthorizationStatus = .notDetermined
     var onRefreshPushStatus: (() -> Void)?
     func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?) {
         onRefreshPushStatus?()
-        completion?(.notDetermined)
+        completion?(pushAuthorizationStatus)
     }
 
     var onDidReceiveNotification: (([AnyHashable: Any]) -> Bool)?
