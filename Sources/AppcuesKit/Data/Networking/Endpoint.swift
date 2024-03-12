@@ -14,6 +14,7 @@ internal enum APIEndpoint: Endpoint {
     case qualify(userID: String)
     case content(experienceID: String, queryItems: [URLQueryItem] = [])
     case preview(experienceID: String, queryItems: [URLQueryItem] = [])
+    case pushTest
     case health
 
     /// URL fragments that that are appended to the `Config.apiHost` to make the URL for a network request.
@@ -36,6 +37,8 @@ internal enum APIEndpoint: Endpoint {
                 components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/experience_preview/\(experienceID)"
             }
             components.queryItems = queryItems
+        case .pushTest:
+            components.path = "/v1/accounts/\(config.accountID)/push_notification_test"
         case .health:
             components.path = "/healthz"
         }
