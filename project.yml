@@ -54,7 +54,22 @@ targets:
       script: xcrun --sdk macosx mint run swiftgen config run
     postbuildScripts:
     - name: SwiftLint
-      script: 'xcrun --sdk macosx mint run swiftlint ./Sources'
+      script: 'xcrun --sdk macosx mint run swiftlint ./Sources/AppcuesKit'
+  AppcuesNotificationService:
+    type: framework
+    platform: iOS
+    settings:
+      base:
+        MARKETING_VERSION: 0.1.0
+        GENERATE_INFOPLIST_FILE: 'YES'
+        PRODUCT_BUNDLE_IDENTIFIER: com.appcues.notification-service
+        BUILD_LIBRARY_FOR_DISTRIBUTION: 'YES'
+    sources:
+    - path: Sources/AppcuesNotificationService
+      buildPhase: sources
+    postbuildScripts:
+    - name: SwiftLint
+      script: 'xcrun --sdk macosx mint run swiftlint ./Sources/AppcuesNotificationService'
   AppcuesKitTests:
     dependencies:
     - target: AppcuesKit
