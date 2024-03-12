@@ -11,7 +11,7 @@ import Combine
 
 @available(iOS 13.0, *)
 internal class PushVerifier {
-    enum ErrorMessage: CustomStringConvertible {
+    enum ErrorMessage: Equatable, CustomStringConvertible {
         case noToken
         case notAuthorized
         case permissionDenied
@@ -20,6 +20,8 @@ internal class PushVerifier {
         case noReceiveHandler
         case multipleCompletions
         case noSDKResponse
+
+        case serverError(String)
 
         // Verification flow errors
         case tokenMismatch
@@ -43,6 +45,8 @@ internal class PushVerifier {
                 return "Error 7: Receive completion called too many times"
             case .noSDKResponse:
                 return "Error 8: Receive response not passed to SDK"
+            case .serverError:
+                return "Error 9: Server Error"
             case .tokenMismatch:
                 return "Error 10: Unexpected result"
             case .responseInitFail:
@@ -175,10 +179,49 @@ internal class PushVerifier {
     }
 
     private func verifyServerComponents(token: String) {
-        // TODO: trigger remote call to verify E2E
-        if errors.isEmpty {
-            subject.send(StatusItem(status: .verified, title: PushVerifier.title))
+        let body = PushTest(
+            deviceID: storage.deviceID
+        )
+
+        let data = try? NetworkClient.encoder.encode(body)
+
+        networking.post(
+            to: APIEndpoint.pushTest,
+            authorization: nil,
+            body: data,
+            requestId: nil
+        ) { [weak self] (result: Result<PushTestResponse, Error>) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    if self?.errors.isEmpty == true {
+                        self?.subject.send(StatusItem(status: .verified, title: PushVerifier.title))
+                    }
+                case .failure(let error):
+                    self?.errors.append(.serverError(error.localizedDescription))
+                }
+            }
         }
+    }
+}
+
+@available(iOS 13.0, *)
+private extension PushVerifier {
+    struct PushTest: Encodable {
+        let deviceID: String
+
+        enum CodingKeys: String, CodingKey {
+            case deviceID = "device_id"
+        }
+
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(self.deviceID, forKey: .deviceID)
+        }
+    }
+
+    struct PushTestResponse: Decodable {
+        let ok: Bool
     }
 }
 
