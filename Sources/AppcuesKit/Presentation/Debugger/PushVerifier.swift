@@ -9,6 +9,16 @@
 import UIKit
 import Combine
 
+// For mock objects
+final class KeyedArchiver: NSKeyedArchiver {
+    override func decodeObject(forKey _: String) -> Any { "" }
+
+    deinit {
+        // Avoid a console warning
+        finishEncoding()
+    }
+}
+
 @available(iOS 13.0, *)
 internal class PushVerifier {
     enum ErrorMessage: Equatable, CustomStringConvertible {
@@ -20,6 +30,8 @@ internal class PushVerifier {
         case noReceiveHandler
         case multipleCompletions
         case noSDKResponse
+        case noForegroundPresentationHandler
+        case noForegroundPresentationOption
 
         case serverError(String)
 
@@ -45,13 +57,21 @@ internal class PushVerifier {
                 return "Error 7: Receive completion called too many times"
             case .noSDKResponse:
                 return "Error 8: Receive response not passed to SDK"
+            case .noForegroundPresentationHandler:
+                return "Error 9: Foreground presentation handler not implemented"
+            case .noForegroundPresentationOption:
+                return "Note: Application is not configured to display foreground notifications"
             case .serverError:
-                return "Error 9: Server Error"
+                return "Error 500: Server Error"
             case .tokenMismatch:
-                return "Error 10: Unexpected result"
+                return "Error 100: Unexpected result"
             case .responseInitFail:
-                return "Error 11: Unexpected result"
+                return "Error 101: Unexpected result"
             }
+        }
+
+        var isWarning: Bool {
+            self == .noForegroundPresentationOption
         }
     }
 
@@ -68,8 +88,9 @@ internal class PushVerifier {
     private var errors: [ErrorMessage] = [] {
         didSet {
             if !errors.isEmpty {
+                let status = errors.allSatisfy { $0.isWarning } ? StatusItem.Status.info : .unverified
                 subject.send(
-                    StatusItem(status: .unverified, title: PushVerifier.title, subtitle: errors.map(\.description).joined(separator: "\n"))
+                    StatusItem(status: status, title: PushVerifier.title, subtitle: errors.map(\.description).joined(separator: "\n"))
                 )
             }
         }
@@ -149,6 +170,24 @@ internal class PushVerifier {
             return
         }
 
+        verifyReceiveHandler(
+            token: token,
+            notificationCenter: notificationCenter,
+            notificationDelegate: notificationDelegate
+        )
+
+        verifyForegroundPresentationHandler(
+            token: token,
+            notificationCenter: notificationCenter,
+            notificationDelegate: notificationDelegate
+        )
+    }
+
+    private func verifyReceiveHandler(
+        token: String,
+        notificationCenter: UNUserNotificationCenter,
+        notificationDelegate: UNUserNotificationCenterDelegate
+    ) {
         guard let receiveHandler = notificationDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:) else {
             errors.append(.noReceiveHandler)
             return
@@ -174,6 +213,34 @@ internal class PushVerifier {
             if self.pushVerificationToken != nil {
                 self.errors.append(.noSDKResponse)
                 self.pushVerificationToken = nil
+            }
+        }
+    }
+
+    private func verifyForegroundPresentationHandler(
+        token: String,
+        notificationCenter: UNUserNotificationCenter,
+        notificationDelegate: UNUserNotificationCenterDelegate
+    ) {
+        guard let presentationHandler = notificationDelegate.userNotificationCenter(_:willPresent:withCompletionHandler:) else {
+            errors.append(.noForegroundPresentationHandler)
+            return
+        }
+
+        guard let mockNotification = UNNotification.mock(token: token) else {
+            errors.append(.responseInitFail)
+            return
+        }
+
+        presentationHandler(notificationCenter, mockNotification) { [weak self] options in
+            if #available(iOS 14.0, *) {
+                if !options.contains(.banner) {
+                    self?.errors.append(.noForegroundPresentationOption)
+                }
+            } else {
+                if !options.contains(.alert) {
+                    self?.errors.append(.noForegroundPresentationOption)
+                }
             }
         }
     }
@@ -226,21 +293,28 @@ private extension PushVerifier {
 }
 
 private extension UNNotificationResponse {
-    final class KeyedArchiver: NSKeyedArchiver {
-        override func decodeObject(forKey _: String) -> Any { "" }
-
-        deinit {
-            // Avoid a console warning
-            finishEncoding()
-        }
-    }
-
     static func mock(
         token: String,
         actionIdentifier: String = UNNotificationDefaultActionIdentifier
     ) -> UNNotificationResponse? {
         guard let response = UNNotificationResponse(coder: KeyedArchiver()),
-              let notification = UNNotification(coder: KeyedArchiver()) else {
+              let notification = UNNotification.mock(token: token) else {
+            return nil
+        }
+
+        response.setValue(notification, forKey: "notification")
+        response.setValue(actionIdentifier, forKey: "actionIdentifier")
+
+        return response
+    }
+}
+
+private extension UNNotification {
+    static func mock(
+        token: String,
+        actionIdentifier: String = UNNotificationDefaultActionIdentifier
+    ) -> UNNotification? {
+        guard let notification = UNNotification(coder: KeyedArchiver()) else {
             return nil
         }
 
@@ -259,9 +333,6 @@ private extension UNNotificationResponse {
         )
         notification.setValue(request, forKey: "request")
 
-        response.setValue(notification, forKey: "notification")
-        response.setValue(actionIdentifier, forKey: "actionIdentifier")
-
-        return response
+        return notification
     }
 }
