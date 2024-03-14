@@ -13,9 +13,16 @@ internal enum DebugLogUI {
     struct LoggerView: View {
         @EnvironmentObject var logger: DebugLogger
 
+        @State private var searchText = ""
+
+        var filteredLog: [DebugLogger.Log] {
+            guard !searchText.isEmpty else { return logger.log }
+            return logger.log.filter { $0.message.localizedCaseInsensitiveContains(searchText) }
+        }
+
         var body: some View {
             List {
-                ForEach(logger.log.suffix(20).reversed()) { log in
+                ForEach(filteredLog.suffix(20).reversed()) { log in
                     NavigationLink(destination: DetailView(log: log)) {
                         VStack(alignment: .leading) {
                             Text("\(log.level.description): \(log.timestamp.description)")
@@ -28,6 +35,7 @@ internal enum DebugLogUI {
                     }
                 }
             }
+            .searchableCompatible(text: $searchText)
             .navigationBarTitle("", displayMode: .inline)
             .navigationBarItems(trailing: ShareButton(text: logger.stringEncoded()))
         }
