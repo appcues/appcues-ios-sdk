@@ -23,6 +23,7 @@ internal protocol PushMonitoring: AnyObject {
 internal class PushMonitor: PushMonitoring {
 
     private weak var appcues: Appcues?
+    private let config: Appcues.Config
     private let storage: DataStoring
 
     private(set) var pushAuthorizationStatus: UNAuthorizationStatus = .notDetermined
@@ -41,6 +42,7 @@ internal class PushMonitor: PushMonitoring {
 
     init(container: DIContainer) {
         self.appcues = container.owner
+        self.config = container.resolve(Appcues.Config.self)
         self.storage = container.resolve(DataStoring.self)
 
         refreshPushStatus()
@@ -75,6 +77,8 @@ internal class PushMonitor: PushMonitoring {
 
     // `completionHandler` should be called iff the function returns true.
     func didReceiveNotification(userInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) -> Bool {
+        config.logger.info("Push response received:\n%{private}@", userInfo.description)
+
         guard let parsedNotification = ParsedNotification(userInfo: userInfo) else {
             // Not an Appcues push
             return false
