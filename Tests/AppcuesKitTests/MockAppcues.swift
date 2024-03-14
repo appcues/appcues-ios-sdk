@@ -381,9 +381,9 @@ class MockPushMonitor: PushMonitoring {
         completion?(pushAuthorizationStatus)
     }
 
-    var onDidReceiveNotification: (([AnyHashable: Any]) -> Bool)?
-    func didReceiveNotification(userInfo: [AnyHashable : Any], completionHandler: @escaping () -> Void) -> Bool {
-        let result = onDidReceiveNotification?(userInfo) ?? false
+    var onDidReceiveNotification: ((UNNotificationResponse) -> Bool)?
+    func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool {
+        let result = onDidReceiveNotification?(response) ?? false
         if result {
             completionHandler()
         }
