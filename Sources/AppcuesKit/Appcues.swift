@@ -337,8 +337,7 @@ public class Appcues: NSObject {
     }
 
     public func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool {
-        let userInfo = response.notification.request.content.userInfo
-        return container.resolve(PushMonitoring.self).didReceiveNotification(userInfo: userInfo, completionHandler: completionHandler)
+        return container.resolve(PushMonitoring.self).didReceiveNotification(response: response, completionHandler: completionHandler)
     }
 
     func initializeContainer() {
