@@ -16,8 +16,7 @@ internal protocol PushMonitoring: AnyObject {
 
     func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?)
 
-    // Using `userInfo` as a parameter to be able to mock notification data.
-    func didReceiveNotification(userInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) -> Bool
+    func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool
 }
 
 internal class PushMonitor: PushMonitoring {
@@ -76,7 +75,9 @@ internal class PushMonitor: PushMonitoring {
     }
 
     // `completionHandler` should be called iff the function returns true.
-    func didReceiveNotification(userInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) -> Bool {
+    func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool {
+        let userInfo = response.notification.request.content.userInfo
+
         config.logger.info("Push response received:\n%{private}@", userInfo.description)
 
         guard let parsedNotification = ParsedNotification(userInfo: userInfo) else {
