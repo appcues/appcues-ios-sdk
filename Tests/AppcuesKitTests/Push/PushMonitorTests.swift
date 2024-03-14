@@ -79,6 +79,7 @@ class PushMonitorTests: XCTestCase {
     func testReceiveActiveSession() throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.appcuesPush
+        let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
         let analyticsExpectation = expectation(description: "push open event")
         let completionExpectation = expectation(description: "completion called")
@@ -96,7 +97,7 @@ class PushMonitorTests: XCTestCase {
         appcues.sessionID = UUID()
 
         // Act
-        let result = pushMonitor.didReceiveNotification(userInfo: userInfo, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
 
         // Assert
         waitForExpectations(timeout: 1.0)
@@ -108,6 +109,7 @@ class PushMonitorTests: XCTestCase {
         var userInfo = Dictionary<AnyHashable, Any>.appcuesPush
         userInfo["appcues_deep_link_url"] = "app://some-link"
         userInfo["appcues_experience_id"] = "<some-experience>"
+        let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
         let analyticsExpectation = expectation(description: "push open event")
         let linkCompletionExpectation = expectation(description: "link opened")
@@ -142,7 +144,7 @@ class PushMonitorTests: XCTestCase {
         appcues.sessionID = UUID()
 
         // Act
-        let result = pushMonitor.didReceiveNotification(userInfo: userInfo, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
 
         // Assert
         waitForExpectations(timeout: 1.0)
@@ -152,13 +154,14 @@ class PushMonitorTests: XCTestCase {
     func testReceiveMalformed() throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.basicPush
+        let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
         let completion = {
             XCTFail("completion should not be called")
         }
 
         // Act
-        let result = pushMonitor.didReceiveNotification(userInfo: userInfo, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
 
         // Assert
         XCTAssertFalse(result)
@@ -167,6 +170,7 @@ class PushMonitorTests: XCTestCase {
     func testReceiveNoAppcues() throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.appcuesPush
+        let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
         let completion = {
             XCTFail("completion should not be called")
@@ -174,7 +178,7 @@ class PushMonitorTests: XCTestCase {
         appcues = nil
 
         // Act
-        let result = pushMonitor.didReceiveNotification(userInfo: userInfo, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
 
         // Assert
         XCTAssertFalse(result)
@@ -183,6 +187,7 @@ class PushMonitorTests: XCTestCase {
     func testReceiveUserIdMismatch() throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.appcuesPush
+        let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
         let completionExpectation = expectation(description: "completion called")
 
@@ -198,7 +203,7 @@ class PushMonitorTests: XCTestCase {
         appcues.sessionID = UUID()
 
         // Act
-        let result = pushMonitor.didReceiveNotification(userInfo: userInfo, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
 
         // Assert
         waitForExpectations(timeout: 1.0)
@@ -208,6 +213,7 @@ class PushMonitorTests: XCTestCase {
     func testReceiveNoSession() throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.appcuesPush
+        let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
         let completionExpectation = expectation(description: "completion called")
 
@@ -223,7 +229,7 @@ class PushMonitorTests: XCTestCase {
         appcues.sessionID = nil
 
         // Act
-        let result = pushMonitor.didReceiveNotification(userInfo: userInfo, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
 
         // Assert
         waitForExpectations(timeout: 1.0)
@@ -268,5 +274,41 @@ private class MockNavigationDelegate: AppcuesNavigationDelegate {
     func navigate(to url: URL, openExternally: Bool, completion: @escaping (Bool) -> Void) {
         onNavigate?(url, openExternally)
         completion(true)
+    }
+}
+
+private extension UNNotificationResponse {
+    final class KeyedArchiver: NSKeyedArchiver {
+        override func decodeObject(forKey _: String) -> Any { "" }
+
+        deinit {
+            // Avoid a console warning
+            finishEncoding()
+        }
+    }
+
+    static func mock(
+        userInfo: [AnyHashable: Any],
+        actionIdentifier: String = UNNotificationDefaultActionIdentifier
+    ) -> UNNotificationResponse? {
+        guard let response = UNNotificationResponse(coder: KeyedArchiver()),
+              let notification = UNNotification(coder: KeyedArchiver()) else {
+            return nil
+        }
+
+        let content = UNMutableNotificationContent()
+        content.userInfo = userInfo
+
+        let request = UNNotificationRequest(
+            identifier: "",
+            content: content,
+            trigger: nil
+        )
+        notification.setValue(request, forKey: "request")
+
+        response.setValue(notification, forKey: "notification")
+        response.setValue(actionIdentifier, forKey: "actionIdentifier")
+
+        return response
     }
 }
