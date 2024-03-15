@@ -32,14 +32,7 @@ internal class AppcuesRequestPushAction: AppcuesExperienceAction {
             }
 
             let pushMonitor = appcues.container.resolve(PushMonitoring.self)
-            let analyticsPublisher = appcues.container.resolve(AnalyticsPublishing.self)
-
-            pushMonitor.refreshPushStatus { _ in
-                analyticsPublisher.publish(TrackingUpdate(
-                    type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: false),
-                    isInternal: true
-                ))
-
+            pushMonitor.refreshPushStatus(publishChange: true) { _ in
                 completion()
             }
         }
