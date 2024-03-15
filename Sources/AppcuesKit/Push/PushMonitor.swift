@@ -14,7 +14,7 @@ internal protocol PushMonitoring: AnyObject {
     var pushBackgroundEnabled: Bool { get }
     var pushPrimerEligible: Bool { get }
 
-    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?)
+    func refreshPushStatus(publishChange: Bool, completion: ((UNAuthorizationStatus) -> Void)?)
 
     func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool
 }
@@ -24,6 +24,7 @@ internal class PushMonitor: PushMonitoring {
     private weak var appcues: Appcues?
     private let config: Appcues.Config
     private let storage: DataStoring
+    private let analyticsPublisher: AnalyticsPublishing
 
     private(set) var pushAuthorizationStatus: UNAuthorizationStatus = .notDetermined
 
@@ -43,8 +44,9 @@ internal class PushMonitor: PushMonitoring {
         self.appcues = container.owner
         self.config = container.resolve(Appcues.Config.self)
         self.storage = container.resolve(DataStoring.self)
+        self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
 
-        refreshPushStatus()
+        refreshPushStatus(publishChange: false)
 
         NotificationCenter.default.addObserver(
             self,
@@ -56,10 +58,10 @@ internal class PushMonitor: PushMonitoring {
 
     @objc
     private func applicationWillEnterForeground(notification: Notification) {
-        refreshPushStatus()
+        refreshPushStatus(publishChange: true)
     }
 
-    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)? = nil) {
+    func refreshPushStatus(publishChange: Bool, completion: ((UNAuthorizationStatus) -> Void)? = nil) {
         // Skip call to UNUserNotificationCenter.current() in tests to avoid crashing in package tests
         #if DEBUG
         guard ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil else {
@@ -69,7 +71,16 @@ internal class PushMonitor: PushMonitoring {
         #endif
 
         UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
+            let shouldPublish = publishChange && self?.pushAuthorizationStatus != settings.authorizationStatus
             self?.pushAuthorizationStatus = settings.authorizationStatus
+
+            if shouldPublish {
+                self?.analyticsPublisher.publish(TrackingUpdate(
+                    type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: false),
+                    isInternal: true
+                ))
+            }
+
             completion?(settings.authorizationStatus)
         }
     }
