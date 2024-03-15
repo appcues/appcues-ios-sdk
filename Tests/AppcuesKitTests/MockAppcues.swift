@@ -389,4 +389,11 @@ class MockPushMonitor: PushMonitoring {
         }
         return result
     }
+
+    var onAttemptDeferredNotificationResponse: (() -> Void)?
+    func attemptDeferredNotificationResponse() -> Bool {
+        onAttemptDeferredNotificationResponse?()
+        return false
+    }
+
 }
