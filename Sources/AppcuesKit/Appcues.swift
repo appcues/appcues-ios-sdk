@@ -400,6 +400,9 @@ public class Appcues: NSObject {
         storage.isAnonymous = isAnonymous
         storage.userSignature = properties?.removeValue(forKey: "appcues:user_id_signature") as? String
         analyticsPublisher.publish(TrackingUpdate(type: .profile(interactive: true), properties: properties, isInternal: false))
+
+        let pushMonitor = container.resolve(PushMonitoring.self)
+        pushMonitor.attemptDeferredNotificationResponse()
     }
 }
 
