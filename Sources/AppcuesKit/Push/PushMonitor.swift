@@ -17,6 +17,8 @@ internal protocol PushMonitoring: AnyObject {
     func refreshPushStatus(publishChange: Bool, completion: ((UNAuthorizationStatus) -> Void)?)
 
     func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool
+    @discardableResult
+    func attemptDeferredNotificationResponse() -> Bool
 }
 
 internal class PushMonitor: PushMonitoring {
@@ -39,6 +41,8 @@ internal class PushMonitor: PushMonitoring {
     var pushPrimerEligible: Bool {
         pushAuthorizationStatus == .notDetermined
     }
+
+    private var deferredNotification: ParsedNotification?
 
     init(container: DIContainer) {
         self.appcues = container.owner
@@ -110,13 +114,52 @@ internal class PushMonitor: PushMonitoring {
             return true
         }
 
-        // If there's no active session or a user ID mismatch, don't do anything with the notification
-        guard appcues.isActive && parsedNotification.userID == storage.userID else {
+        // If there's no active session store the notification for potential handling after the next user is identified
+        guard appcues.isActive else {
+            deferredNotification = parsedNotification
+
             completionHandler()
             return true
         }
 
-        let analyticsPublisher = appcues.container.resolve(AnalyticsPublishing.self)
+        // If there's an active session and a user ID mismatch, don't do anything with the notification
+        guard parsedNotification.userID == storage.userID else {
+            completionHandler()
+            return true
+        }
+
+        executeNotificationResponse(
+            appcues: appcues,
+            parsedNotification: parsedNotification,
+            completionHandler: completionHandler
+        )
+
+        return true
+    }
+
+    @discardableResult
+    func attemptDeferredNotificationResponse() -> Bool {
+        guard let parsedNotification = deferredNotification, let appcues = appcues else { return false }
+
+        defer {
+            deferredNotification = nil
+        }
+
+        guard parsedNotification.userID == storage.userID else {
+            config.logger.info("Deferred notification response skipped")
+            return false
+        }
+
+        executeNotificationResponse(appcues: appcues, parsedNotification: parsedNotification) {}
+
+        return true
+    }
+
+    private func executeNotificationResponse(
+        appcues: Appcues,
+        parsedNotification: ParsedNotification,
+        completionHandler: @escaping () -> Void
+    ) {
         analyticsPublisher.publish(TrackingUpdate(
             type: .event(name: Events.Push.pushOpened.rawValue, interactive: false),
             properties: [
@@ -145,8 +188,6 @@ internal class PushMonitor: PushMonitoring {
         } else {
             completionHandler()
         }
-
-        return true
     }
 
     #if DEBUG
