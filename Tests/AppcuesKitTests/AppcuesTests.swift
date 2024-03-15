@@ -92,6 +92,18 @@ class AppcuesTests: XCTestCase {
         XCTAssertNil(appcues.storage.userSignature)
     }
 
+    func testIdentifyTriggersDeferredPush() throws {
+        // Arrange
+        var deferredPushAttempts = 0
+        appcues.pushMonitor.onAttemptDeferredNotificationResponse = { deferredPushAttempts += 1 }
+
+        // Act
+        appcues.identify(userID: "test-user")
+
+        // Assert
+        XCTAssertEqual(deferredPushAttempts, 1)
+    }
+
     func testReset() throws {
         // Act
         appcues.identify(userID: "test-user", properties: ["foo": 100])
