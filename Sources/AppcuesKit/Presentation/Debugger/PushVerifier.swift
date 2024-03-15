@@ -10,7 +10,7 @@ import UIKit
 import Combine
 
 // For mock objects
-final class KeyedArchiver: NSKeyedArchiver {
+private final class KeyedArchiver: NSKeyedArchiver {
     override func decodeObject(forKey _: String) -> Any { "" }
 
     deinit {
@@ -136,7 +136,7 @@ internal class PushVerifier {
     private func requestPush() {
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         UNUserNotificationCenter.current().requestAuthorization(options: options) { _, _ in
-            self.pushMonitor.refreshPushStatus { _ in
+            self.pushMonitor.refreshPushStatus(publishChange: false) { _ in
                 DispatchQueue.main.async {
                     self.verifyPush()
                 }
