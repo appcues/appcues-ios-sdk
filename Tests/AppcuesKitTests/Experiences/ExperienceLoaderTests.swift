@@ -142,4 +142,25 @@ class ExperienceLoaderTests: XCTestCase {
         // Assert
         waitForExpectations(timeout: 1)
     }
+
+    func testPushRequestEncode() throws {
+        // Arrange
+        let model = PushRequest(
+            deviceID: "<device-id>",
+            queryItems: [
+                URLQueryItem(name: "locale_id", value: "<some-id>"),
+                URLQueryItem(name: "test", value: nil), // expected to be skipped
+                URLQueryItem(name: "device_id", value: "BAD") // expected to be overwritten
+            ]
+        )
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+
+        // Act
+        let encoded = try encoder.encode(model)
+
+        // Assert
+        XCTAssertEqual(String(data: encoded, encoding: .utf8), "{\"device_id\":\"<device-id>\",\"locale_id\":\"<some-id>\"}")
+    }
 }
