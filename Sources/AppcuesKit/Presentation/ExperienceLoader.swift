@@ -17,6 +17,13 @@ internal protocol ExperienceLoading: AnyObject {
         trigger: ExperienceTrigger,
         completion: ((Result<Void, Error>) -> Void)?
     )
+
+    func loadPush(
+        id: String,
+        published: Bool,
+        queryItems: [URLQueryItem],
+        completion: ((Result<Void, Error>) -> Void)?
+    )
 }
 
 @available(iOS 13.0, *)
@@ -71,6 +78,38 @@ internal class ExperienceLoader: ExperienceLoading {
 
             self?.lastPreviewExperienceID = published ? nil : experienceID
             self?.lastPreviewQueryItems = published ? nil : queryItems
+        }
+    }
+
+    func loadPush(
+        id: String,
+        published: Bool,
+        queryItems: [URLQueryItem],
+        completion: ((Result<Void, Error>) -> Void)?
+    ) {
+        let endpoint = published ?
+            APIEndpoint.pushContent(id: id) :
+            APIEndpoint.pushPreview(id: id)
+
+        let body = PushRequest(
+            deviceID: storage.deviceID,
+            queryItems: queryItems
+        )
+
+        let data = try? NetworkClient.encoder.encode(body)
+
+        networking.post(
+            to: endpoint,
+            authorization: Authorization(bearerToken: storage.userSignature),
+            body: data
+        ) { [weak self] (result: Result<Void, Error>) in
+            switch result {
+            case .success(let experience):
+                break
+            case .failure(let error):
+                self?.config.logger.error("Loading push %{public}@ failed with error %{public}@", id, "\(error)")
+                completion?(.failure(error))
+            }
         }
     }
 

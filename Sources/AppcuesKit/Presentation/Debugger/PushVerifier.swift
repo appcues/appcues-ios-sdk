@@ -246,7 +246,7 @@ internal class PushVerifier {
     }
 
     private func verifyServerComponents(token: String) {
-        let body = PushTest(
+        let body = PushRequest(
             deviceID: storage.deviceID
         )
 
@@ -274,19 +274,6 @@ internal class PushVerifier {
 
 @available(iOS 13.0, *)
 private extension PushVerifier {
-    struct PushTest: Encodable {
-        let deviceID: String
-
-        enum CodingKeys: String, CodingKey {
-            case deviceID = "device_id"
-        }
-
-        func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(self.deviceID, forKey: .deviceID)
-        }
-    }
-
     struct PushTestResponse: Decodable {
         let ok: Bool
     }
