@@ -14,6 +14,8 @@ internal enum APIEndpoint: Endpoint {
     case qualify(userID: String)
     case content(experienceID: String, queryItems: [URLQueryItem] = [])
     case preview(experienceID: String, queryItems: [URLQueryItem] = [])
+    case pushContent(id: String)
+    case pushPreview(id: String)
     case pushTest
     case health
 
@@ -37,6 +39,10 @@ internal enum APIEndpoint: Endpoint {
                 components.path = "/v1/accounts/\(config.accountID)/users/\(storage.userID)/experience_preview/\(experienceID)"
             }
             components.queryItems = queryItems
+        case let .pushContent(id):
+            components.path = "/v1/accounts/\(config.accountID)/push_notification/\(id)/send"
+        case let .pushPreview(id):
+            components.path = "/v1/accounts/\(config.accountID)/push_notification/\(id)/preview"
         case .pushTest:
             components.path = "/v1/accounts/\(config.accountID)/push_notification_test"
         case .health:
