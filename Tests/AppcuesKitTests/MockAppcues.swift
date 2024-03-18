@@ -136,6 +136,16 @@ class MockExperienceLoader: ExperienceLoading {
     ){
         onLoad?(experienceID, published, trigger, completion)
     }
+
+    var onLoadPush: ((String, Bool, [URLQueryItem], ((Result<Void, Error>) -> Void)?) -> Void)?
+    func loadPush(
+        id: String,
+        published: Bool,
+        queryItems: [URLQueryItem],
+        completion: ((Result<Void, Error>) -> Void)?
+    ) {
+        onLoadPush?(id, published, queryItems, completion)
+    }
 }
 
 @available(iOS 13.0, *) // due to reference to ExperienceData
