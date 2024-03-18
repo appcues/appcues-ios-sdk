@@ -27,6 +27,12 @@ class DeepLinkHandlerTests: XCTestCase {
         XCTAssertNotNil(DeepLinkHandler.Action(url: URL(string: "appcues-abc://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true, applicationID: "abc"))
         XCTAssertNil(DeepLinkHandler.Action(url: URL(string: "appcues-abc://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: false, applicationID: "abc"))
 
+        XCTAssertNotNil(DeepLinkHandler.Action(url: URL(string: "appcues-abc://sdk/push_preview/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true, applicationID: "abc"))
+        XCTAssertNotNil(DeepLinkHandler.Action(url: URL(string: "appcues-abc://sdk/push_preview/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: false, applicationID: "abc"))
+
+        XCTAssertNotNil(DeepLinkHandler.Action(url: URL(string: "appcues-abc://sdk/push_content/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true, applicationID: "abc"))
+        XCTAssertNotNil(DeepLinkHandler.Action(url: URL(string: "appcues-abc://sdk/push_content/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: false, applicationID: "abc"))
+
         XCTAssertNotNil(DeepLinkHandler.Action(url: URL(string: "appcues-abc://sdk/debugger")!, isSessionActive: true, applicationID: "abc"))
         XCTAssertNotNil(DeepLinkHandler.Action(url: URL(string: "appcues-abc://sdk/debugger")!, isSessionActive: false, applicationID: "abc"))
 
@@ -107,6 +113,50 @@ class DeepLinkHandlerTests: XCTestCase {
         // Act
         let handled = deepLinkHandler.didHandleURL(url)
         NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
+
+        // Assert
+        XCTAssertTrue(handled)
+        XCTAssertTrue(loaderCalled)
+    }
+
+    func testHandlePushPreview() throws {
+        // Arrange
+        deepLinkHandler.topControllerGetting = MockTopControllerGetting()
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/push_preview/f0edab83-5257-47a5-81fc-80389d14905b?key=value"))
+
+        var loaderCalled = false
+        appcues.experienceLoader.onLoadPush = { id, published, queryItems, completion in
+            XCTAssertEqual(id, "f0edab83-5257-47a5-81fc-80389d14905b")
+            XCTAssertEqual(queryItems, [URLQueryItem(name: "key", value: "value")])
+            XCTAssertFalse(published)
+            loaderCalled = true
+            completion?(.success(()))
+        }
+
+        // Act
+        let handled = deepLinkHandler.didHandleURL(url)
+
+        // Assert
+        XCTAssertTrue(handled)
+        XCTAssertTrue(loaderCalled)
+    }
+
+    func testHandlePushContent() throws {
+        // Arrange
+        deepLinkHandler.topControllerGetting = MockTopControllerGetting()
+        let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/push_content/f0edab83-5257-47a5-81fc-80389d14905b"))
+
+        var loaderCalled = false
+        appcues.experienceLoader.onLoadPush = { id, published, queryItems, completion in
+            XCTAssertEqual(id, "f0edab83-5257-47a5-81fc-80389d14905b")
+            XCTAssertEqual(queryItems.count, 0)
+            XCTAssertTrue(published)
+            loaderCalled = true
+            completion?(.success(()))
+        }
+
+        // Act
+        let handled = deepLinkHandler.didHandleURL(url)
 
         // Assert
         XCTAssertTrue(handled)
