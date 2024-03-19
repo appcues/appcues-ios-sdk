@@ -45,8 +45,8 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
             return completion()
         }
 
-        let experienceLoading = appcues.container.resolve(ExperienceLoading.self)
-        experienceLoading.load(experienceID: experienceID, published: true, queryItems: [], trigger: trigger) { _  in
+        let contentLoader = appcues.container.resolve(ContentLoading.self)
+        contentLoader.load(experienceID: experienceID, published: true, queryItems: [], trigger: trigger) { _  in
             completion()
         }
     }
