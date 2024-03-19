@@ -194,7 +194,7 @@ class AppcuesTests: XCTestCase {
         appcues.sessionID = UUID()
         var completionCount = 0
         var experienceShownCount = 0
-        appcues.experienceLoader.onLoad = { experienceID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
             XCTAssertEqual(true, published)
             XCTAssertEqual("1234", experienceID)
             guard case .showCall = trigger else { return XCTFail() }
@@ -219,7 +219,7 @@ class AppcuesTests: XCTestCase {
         appcues.sessionID = nil
         var completionCount = 0
         var experienceShownCount = 0
-        appcues.experienceLoader.onLoad = { experienceID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
             experienceShownCount += 1
             completion?(.failure(AppcuesError.noActiveSession))
         }
@@ -319,7 +319,7 @@ class AppcuesTests: XCTestCase {
         weak var weakActivityStoring = appcues?.container.resolve(ActivityStoring.self)
         weak var weakDeepLinkHandling = appcues?.container.resolve(DeepLinkHandling.self)
         weak var weakUIDebugging = appcues?.container.resolve(UIDebugging.self)
-        weak var weakExperienceLoading = appcues?.container.resolve(ExperienceLoading.self)
+        weak var weakContentLoading = appcues?.container.resolve(ContentLoading.self)
         weak var weakExperienceRendering = appcues?.container.resolve(ExperienceRendering.self)
         weak var weakTraitRegistry = appcues?.container.resolve(TraitRegistry.self)
         weak var weakActionRegistry = appcues?.container.resolve(ActionRegistry.self)
@@ -338,7 +338,7 @@ class AppcuesTests: XCTestCase {
         XCTAssertNotNil(weakActivityStoring)
         XCTAssertNotNil(weakDeepLinkHandling)
         XCTAssertNotNil(weakUIDebugging)
-        XCTAssertNotNil(weakExperienceLoading)
+        XCTAssertNotNil(weakContentLoading)
         XCTAssertNotNil(weakExperienceRendering)
         XCTAssertNotNil(weakTraitRegistry)
         XCTAssertNotNil(weakActionRegistry)
@@ -361,7 +361,7 @@ class AppcuesTests: XCTestCase {
         XCTAssertNil(weakActivityStoring)
         XCTAssertNil(weakDeepLinkHandling)
         XCTAssertNil(weakUIDebugging)
-        XCTAssertNil(weakExperienceLoading)
+        XCTAssertNil(weakContentLoading)
         XCTAssertNil(weakExperienceRendering)
         XCTAssertNil(weakTraitRegistry)
         XCTAssertNil(weakActionRegistry)

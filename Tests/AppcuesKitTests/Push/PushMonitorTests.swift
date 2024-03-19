@@ -128,7 +128,7 @@ class PushMonitorTests: XCTestCase {
             linkCompletionExpectation.fulfill()
         }
 
-        appcues.experienceLoader.onLoad = { experienceID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
             XCTAssertEqual(experienceID, "<some-experience>")
             XCTAssertTrue(published)
             XCTAssertEqual(trigger, .push)
@@ -274,7 +274,7 @@ class PushMonitorTests: XCTestCase {
             linkCompletionExpectation.fulfill()
         }
 
-        appcues.experienceLoader.onLoad = { experienceID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
             XCTAssertEqual(experienceID, "<some-experience>")
             XCTAssertTrue(published)
             XCTAssertEqual(trigger, .push)

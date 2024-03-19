@@ -121,7 +121,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
     private func handle(action: Action) {
         switch action {
         case let .preview(experienceID, queryItems):
-            container?.resolve(ExperienceLoading.self).load(
+            container?.resolve(ContentLoading.self).load(
                 experienceID: experienceID,
                 published: false,
                 queryItems: queryItems,
@@ -129,7 +129,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
                 completion: previewCompletion
             )
         case let .show(experienceID, queryItems):
-            container?.resolve(ExperienceLoading.self).load(
+            container?.resolve(ContentLoading.self).load(
                 experienceID: experienceID,
                 published: true,
                 queryItems: queryItems,
@@ -137,14 +137,14 @@ internal class DeepLinkHandler: DeepLinkHandling {
                 completion: nil
             )
         case let .pushPreview(id, queryItems):
-            container?.resolve(ExperienceLoading.self).loadPush(
+            container?.resolve(ContentLoading.self).loadPush(
                 id: id,
                 published: false,
                 queryItems: queryItems,
                 completion: nil
             )
         case let .pushContent(id):
-            container?.resolve(ExperienceLoading.self).loadPush(
+            container?.resolve(ContentLoading.self).loadPush(
                 id: id,
                 published: true,
                 queryItems: [],
