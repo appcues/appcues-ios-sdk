@@ -58,14 +58,14 @@ public class Appcues: NSObject {
         return _actionRegistry as! ActionRegistry
     }
 
-    private var _experienceLoader: Any?
+    private var _contentLoader: Any?
     @available(iOS 13.0, *)
-    private var experienceLoader: ExperienceLoading {
-        if _experienceLoader == nil {
-            _experienceLoader = container.resolve(ExperienceLoading.self)
+    private var contentLoader: ContentLoading {
+        if _contentLoader == nil {
+            _contentLoader = container.resolve(ContentLoading.self)
         }
         // swiftlint:disable:next force_cast
-        return _experienceLoader as! ExperienceLoading
+        return _contentLoader as! ContentLoading
     }
 
     private lazy var notificationCenter = container.resolve(NotificationCenter.self)
@@ -227,7 +227,7 @@ public class Appcues: NSObject {
             return
         }
 
-        experienceLoader.load(experienceID: experienceID, published: true, queryItems: [], trigger: .showCall) { result in
+        contentLoader.load(experienceID: experienceID, published: true, queryItems: [], trigger: .showCall) { result in
             switch result {
             case .success:
                 completion?(true, nil)
@@ -360,7 +360,7 @@ public class Appcues: NSObject {
             container.registerLazy(PushVerifier.self, initializer: PushVerifier.init)
             container.registerLazy(DeepLinkHandling.self, initializer: DeepLinkHandler.init)
             container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
-            container.registerLazy(ExperienceLoading.self, initializer: ExperienceLoader.init)
+            container.registerLazy(ContentLoading.self, initializer: ContentLoader.init)
             container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
             container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
             container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
