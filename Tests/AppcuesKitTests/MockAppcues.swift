@@ -34,7 +34,7 @@ class MockAppcues: Appcues {
         if #available(iOS 13.0, *) {
             container.register(DeepLinkHandling.self, value: deepLinkHandler)
             container.register(UIDebugging.self, value: debugger)
-            container.register(ExperienceLoading.self, value: experienceLoader)
+            container.register(ContentLoading.self, value: contentLoader)
             container.register(ExperienceRendering.self, value: MockExperienceRenderer())
             container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
             container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
@@ -56,7 +56,7 @@ class MockAppcues: Appcues {
 
     var analyticsPublisher = MockAnalyticsPublisher()
     var storage = MockStorage()
-    var experienceLoader = MockExperienceLoader()
+    var contentLoader = MockContentLoader()
     var sessionMonitor = MockSessionMonitor()
     var activityProcessor = MockActivityProcessor()
     var debugger = MockDebugger()
@@ -124,7 +124,7 @@ class MockStorage: DataStoring {
     var pushToken: String?
 }
 
-class MockExperienceLoader: ExperienceLoading {
+class MockContentLoader: ContentLoading {
 
     var onLoad: ((String, Bool, ExperienceTrigger, ((Result<Void, Error>) -> Void)?) -> Void)?
     func load(
