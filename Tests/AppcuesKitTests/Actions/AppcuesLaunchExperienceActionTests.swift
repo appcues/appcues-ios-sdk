@@ -35,7 +35,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
         // Arrange
         var completionCount = 0
         var loadCount = 0
-        appcues.experienceLoader.onLoad = { contentID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { contentID, published, trigger, completion in
             XCTAssertEqual(contentID, "123")
             guard case .launchExperienceAction = trigger else { return XCTFail() }
             loadCount += 1
@@ -55,7 +55,7 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
         // Arrange
         var completionCount = 0
         var loadCount = 0
-        appcues.experienceLoader.onLoad = { contentID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { contentID, published, trigger, completion in
             XCTAssertEqual(contentID, "123")
             guard case .launchExperienceAction = trigger else { return XCTFail() }
             loadCount += 1
