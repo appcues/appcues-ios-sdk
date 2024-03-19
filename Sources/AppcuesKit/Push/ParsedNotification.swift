@@ -42,7 +42,7 @@ internal struct ParsedNotification {
         self.attachmentURL = (userInfo["appcues_attachment_url"] as? String)
             .flatMap { URL(string: $0) }
         self.attachmentType = userInfo["appcues_attachment_type"] as? String
-        self.isTest = userInfo["appcues_test"] as? Bool ?? false
+        self.isTest = userInfo["appcues_test"] != nil
         self.isInternal = userInfo["_appcues_internal"] as? Bool ?? false
     }
 }
