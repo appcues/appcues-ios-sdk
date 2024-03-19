@@ -236,6 +236,33 @@ class PushMonitorTests: XCTestCase {
         XCTAssertTrue(result)
     }
 
+    func testReceiveTestPush() throws {
+        // Arrange
+        var userInfo = Dictionary<AnyHashable, Any>.appcuesPush
+        userInfo["appcues_test"] = "true"
+        let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
+
+        let completionExpectation = expectation(description: "completion called")
+
+        appcues.analyticsPublisher.onPublish = { update in
+            XCTFail("no push opened analytic expected for test push")
+        }
+
+        let completion = {
+            completionExpectation.fulfill()
+        }
+
+        appcues.storage.userID = "default-00000"
+        appcues.sessionID = UUID()
+
+        // Act
+        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+
+        // Assert
+        waitForExpectations(timeout: 1.0)
+        XCTAssertTrue(result)
+    }
+
     func testDeferredHandlingMatchingUser() throws {
         // Arrange
         var userInfo = Dictionary<AnyHashable, Any>.appcuesPush
