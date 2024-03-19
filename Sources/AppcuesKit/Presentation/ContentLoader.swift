@@ -1,5 +1,5 @@
 //
-//  ExperienceLoader.swift
+//  ContentLoader.swift
 //  AppcuesKit
 //
 //  Created by James Ellis on 10/28/21.
@@ -9,7 +9,7 @@
 import Foundation
 
 @available(iOS 13.0, *)
-internal protocol ExperienceLoading: AnyObject {
+internal protocol ContentLoading: AnyObject {
     func load(
         experienceID: String,
         published: Bool,
@@ -27,7 +27,7 @@ internal protocol ExperienceLoading: AnyObject {
 }
 
 @available(iOS 13.0, *)
-internal class ExperienceLoader: ExperienceLoading {
+internal class ContentLoader: ContentLoading {
 
     private let config: Appcues.Config
     private let storage: DataStoring

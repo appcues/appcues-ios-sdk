@@ -222,7 +222,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let action: Action = .endExperience(markComplete: true)
         let stateMachine = givenState(is: initialState)
 
-        appcues.experienceLoader.onLoad = { contentID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { contentID, published, trigger, completion in
             XCTAssertEqual(contentID, ExperienceData.mock.nextContentID)
             XCTAssertTrue(published)
             nextContentLoadedExpectation.fulfill()
@@ -251,7 +251,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let action: Action = .endExperience(markComplete: false)
         let stateMachine = givenState(is: initialState)
 
-        appcues.experienceLoader.onLoad = { contentID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { contentID, published, trigger, completion in
             XCTFail("no next content should be shown")
         }
 
