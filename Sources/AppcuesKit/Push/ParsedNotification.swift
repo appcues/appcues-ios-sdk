@@ -18,7 +18,6 @@ internal struct ParsedNotification {
     let deepLinkURL: URL?
     let experienceID: String?
     let attachmentURL: URL?
-    let attachmentType: String?
     let isTest: Bool
     let isInternal: Bool
 
@@ -41,7 +40,6 @@ internal struct ParsedNotification {
         self.experienceID = userInfo["appcues_experience_id"] as? String
         self.attachmentURL = (userInfo["appcues_attachment_url"] as? String)
             .flatMap { URL(string: $0) }
-        self.attachmentType = userInfo["appcues_attachment_type"] as? String
         self.isTest = userInfo["appcues_test"] != nil
         self.isInternal = userInfo["_appcues_internal"] as? Bool ?? false
     }

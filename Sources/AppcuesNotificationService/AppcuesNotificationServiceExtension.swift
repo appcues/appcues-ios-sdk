@@ -7,6 +7,8 @@
 //
 
 import UserNotifications
+import UniformTypeIdentifiers
+import CoreServices
 
 /// `UNNotificationServiceExtension` subclass that implements Appcues functionality.
 ///
@@ -28,11 +30,9 @@ open class AppcuesNotificationServiceExtension: UNNotificationServiceExtension {
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
-        if let attachment = request.attachment {
-            bestAttemptContent?.attachments = [attachment]
+        if let bestAttemptContent = bestAttemptContent {
+            processAttachment(bestAttemptContent, contentHandler)
         }
-
-        contentHandler(bestAttemptContent ?? request.content)
     }
 
     override public func serviceExtensionTimeWillExpire() {
@@ -42,32 +42,57 @@ open class AppcuesNotificationServiceExtension: UNNotificationServiceExtension {
             contentHandler(bestAttemptContent)
         }
     }
-}
 
-extension UNNotificationRequest {
-    var attachment: UNNotificationAttachment? {
+    func processAttachment(_ content: UNMutableNotificationContent, _ contentHandler: @escaping (UNNotificationContent) -> Void) {
         guard let attachment = content.userInfo["appcues_attachment_url"] as? String,
-              let attachmentType = content.userInfo["appcues_attachment_type"] as? String,
-              let attachmentURL = URL(string: attachment),
-              let imageData = try? Data(contentsOf: attachmentURL) else {
-            return nil
+              let attachmentURL = URL(string: attachment) else {
+            contentHandler(content)
+            return
         }
-        return try? UNNotificationAttachment(data: imageData, dataType: attachmentType, options: nil)
+
+        let dataTask = URLSession.shared.downloadTask(with: attachmentURL) { url, response, error in
+            guard let downloadedURL = url, error == nil else {
+                contentHandler(content)
+                return
+            }
+
+            let temporaryFolderURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            let imageFileIdentifier = UUID().uuidString
+            let fileType = response?.fileType ?? "tmp"
+
+            let tmpFileURL = temporaryFolderURL
+                .appendingPathComponent(imageFileIdentifier)
+                .appendingPathExtension(fileType)
+
+            do {
+                try FileManager.default.moveItem(at: downloadedURL, to: tmpFileURL)
+                let attachment = try UNNotificationAttachment(identifier: imageFileIdentifier, url: tmpFileURL)
+                content.attachments = [attachment]
+            } catch {
+                print(error)
+            }
+
+            contentHandler(content)
+        }
+
+        dataTask.resume()
     }
 }
 
-extension UNNotificationAttachment {
-    convenience init(data: Data, dataType: String, options: [NSObject: AnyObject]?) throws {
-        let temporaryFolderName = ProcessInfo.processInfo.globallyUniqueString
-        let temporaryFolderURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(temporaryFolderName, isDirectory: true)
+extension URLResponse {
+    var fileType: String? {
+        guard let mimeType = self.mimeType else {
+            return self.url?.pathExtension
+        }
 
-        try FileManager.default.createDirectory(at: temporaryFolderURL, withIntermediateDirectories: true, attributes: nil)
-
-        let imageFileIdentifier = UUID().uuidString + "." + dataType
-        let fileURL = temporaryFolderURL.appendingPathComponent(imageFileIdentifier)
-
-        try data.write(to: fileURL)
-
-        try self.init(identifier: imageFileIdentifier, url: fileURL, options: options)
+        if #available(iOS 14.0, *) {
+            return UTType(mimeType: mimeType)?.preferredFilenameExtension
+        } else {
+            guard let mimeUTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, mimeType as CFString, nil)?.takeUnretainedValue(),
+                  let extUTI = UTTypeCopyPreferredTagWithClass(mimeUTI, kUTTagClassFilenameExtension)
+                    
+            else { return nil }
+            return extUTI.takeUnretainedValue() as String
+        }
     }
 }
