@@ -95,7 +95,9 @@ internal class PushMonitor: PushMonitoring {
 
         config.logger.info("Push response received:\n%{private}@", userInfo.description)
 
-        guard let parsedNotification = ParsedNotification(userInfo: userInfo) else {
+        guard let parsedNotification = ParsedNotification(userInfo: userInfo),
+              parsedNotification.accountID == config.accountID,
+              parsedNotification.applicationID == config.applicationID else {
             // Not an Appcues push
             return false
         }
