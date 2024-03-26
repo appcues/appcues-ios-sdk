@@ -15,7 +15,7 @@ class PushMonitorTests: XCTestCase {
     var appcues: MockAppcues!
 
     override func setUp() {
-        let config = Appcues.Config(accountID: "00000", applicationID: "abc")
+        let config = Appcues.Config(accountID: "00000", applicationID: "<app-id>")
         appcues = MockAppcues(config: config)
         pushMonitor = PushMonitor(container: appcues.container)
     }
@@ -380,7 +380,8 @@ extension Dictionary where Key == AnyHashable, Value == Any {
                     "body": "Notification from appcues"
                 ]
             ],
-            "appcues_account_id": "103523",
+            "appcues_account_id": "00000",
+            "appcues_app_id": "<app-id>",
             "appcues_user_id": "default-00000",
             "appcues_notification_id": "DEADBEEF-0000-0000-0000-000000000001",
             "appcues_workflow_id": "DEADBEEF-0000-0000-0000-000000000002",
