@@ -10,6 +10,7 @@ import Foundation
 
 internal struct ParsedNotification {
     let accountID: String
+    let applicationID: String
     let userID: String
     let notificationID: String
     let workflowID: String?
@@ -23,12 +24,14 @@ internal struct ParsedNotification {
 
     init?(userInfo: [AnyHashable: Any]) {
         guard let accountID = userInfo["appcues_account_id"] as? String,
-        let userID = userInfo["appcues_user_id"] as? String,
-        let notificationID = userInfo["appcues_notification_id"] as? String else {
+              let applicationID = userInfo["appcues_app_id"] as? String,
+              let userID = userInfo["appcues_user_id"] as? String,
+              let notificationID = userInfo["appcues_notification_id"] as? String else {
             return nil
         }
 
         self.accountID = accountID
+        self.applicationID = applicationID
         self.userID = userID
         self.notificationID = notificationID
 
