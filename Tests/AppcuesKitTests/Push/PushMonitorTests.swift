@@ -385,8 +385,7 @@ extension Dictionary where Key == AnyHashable, Value == Any {
             "appcues_user_id": "default-00000",
             "appcues_notification_id": "DEADBEEF-0000-0000-0000-000000000001",
             "appcues_workflow_id": "DEADBEEF-0000-0000-0000-000000000002",
-            "appcues_workflow_task_id": "DEADBEEF-0000-0000-0000-000000000003",
-            "appcues_transaction_id": "DEADBEEF-0000-0000-0000-000000000004"
+            "appcues_workflow_task_id": "DEADBEEF-0000-0000-0000-000000000003"
         ]
     }
 }
