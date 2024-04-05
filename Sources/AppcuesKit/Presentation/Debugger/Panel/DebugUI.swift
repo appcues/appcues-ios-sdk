@@ -149,7 +149,7 @@ internal enum DebugUI {
     struct PushRow: View {
         let pushVerifier: PushVerifier
 
-        @State var statusItem = StatusItem(status: .pending, title: "Push Notifications Configured")
+        @State var statusItem = StatusItem(status: .pending, title: "Push Notifications Configured", subtitle: "Tap to check configuration")
 
         var body: some View {
             ListItemRowView(item: statusItem) {
