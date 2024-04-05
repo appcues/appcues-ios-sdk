@@ -46,7 +46,7 @@ internal class PushVerifier {
             case .notAuthorized:
                 return "Error 2: Notification permissions not requested"
             case .permissionDenied:
-                return "Error 3: Notification permissions denied"
+                return "Error 3: Notification permissions denied. Tap to open system settings"
             case .unexpectedStatus:
                 return "Error 4: Unexpected notification permission status"
             case .noNotificationDelegate:
@@ -114,6 +114,12 @@ internal class PushVerifier {
         if errors.contains(.notAuthorized) {
             errors = []
             requestPush()
+            return
+        }
+
+        if errors.contains(.permissionDenied), let settingsURL = URL(string: "app-settings://") {
+            errors = []
+            UIApplication.shared.open(settingsURL)
             return
         }
 
