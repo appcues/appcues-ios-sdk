@@ -193,7 +193,7 @@ internal class PushVerifier {
             return
         }
 
-        guard let mockResponse = UNNotificationResponse.mock(token: token) else {
+        guard let mockResponse = UNNotificationResponse.mock(token: token, config: config) else {
             errors.append(.responseInitFail)
             return
         }
@@ -227,7 +227,7 @@ internal class PushVerifier {
             return
         }
 
-        guard let mockNotification = UNNotification.mock(token: token) else {
+        guard let mockNotification = UNNotification.mock(token: token, config: config) else {
             errors.append(.responseInitFail)
             return
         }
@@ -282,10 +282,11 @@ private extension PushVerifier {
 private extension UNNotificationResponse {
     static func mock(
         token: String,
+        config: Appcues.Config,
         actionIdentifier: String = UNNotificationDefaultActionIdentifier
     ) -> UNNotificationResponse? {
         guard let response = UNNotificationResponse(coder: KeyedArchiver()),
-              let notification = UNNotification.mock(token: token) else {
+              let notification = UNNotification.mock(token: token, config: config) else {
             return nil
         }
 
@@ -299,6 +300,7 @@ private extension UNNotificationResponse {
 private extension UNNotification {
     static func mock(
         token: String,
+        config: Appcues.Config,
         actionIdentifier: String = UNNotificationDefaultActionIdentifier
     ) -> UNNotification? {
         guard let notification = UNNotification(coder: KeyedArchiver()) else {
@@ -308,7 +310,8 @@ private extension UNNotification {
         let content = UNMutableNotificationContent()
         content.userInfo = [
             "_appcues_internal": true,
-            "appcues_account_id": "",
+            "appcues_account_id": config.accountID,
+            "appcues_app_id": config.applicationID,
             "appcues_user_id": "",
             "appcues_notification_id": token
         ]
