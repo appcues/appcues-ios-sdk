@@ -25,7 +25,8 @@ internal class DebugUIWindow: UIWindow {
     }
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        guard let hitView = super.hitTest(point, with: event), hitView != self else {
+        guard let rootView = rootViewController?.view,
+              let hitView = rootView.hitTest(convert(point, to: rootView), with: event) else {
             return nil
         }
 
