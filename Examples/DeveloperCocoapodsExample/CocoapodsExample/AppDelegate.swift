@@ -17,8 +17,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         // Override point for customization after application launch.
 
-        setupPush(application: application)
-        
+        // Automatically configure for push notifications
+        Appcues.shared.enableAutomaticPushConfig()
+
+        // Or, manually configure for push notifications
+        // setupPush(application: application)
+
         return true
     }
 
