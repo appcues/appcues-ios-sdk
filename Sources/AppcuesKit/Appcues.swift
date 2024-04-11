@@ -245,14 +245,8 @@ public class Appcues: NSObject {
     /// `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` function:
     @objc
     public func setPushToken(_ deviceToken: Data?) {
-        storage.pushToken = deviceToken?.map { String(format: "%02x", $0) }.joined()
-
-        if sessionID != nil {
-            analyticsPublisher.publish(TrackingUpdate(
-                type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: false),
-                isInternal: true
-            ))
-        }
+        let pushMonitor = container.resolve(PushMonitoring.self)
+        pushMonitor.setPushToken(deviceToken)
     }
 
     /// Register a trait that modifies an `Experience`.
@@ -316,6 +310,25 @@ public class Appcues: NSObject {
         // resolving will init UIKitScreenTracking, which sets up the swizzling of
         // UIViewController for automatic screen tracking
         _ = container.resolve(UIKitScreenTracker.self)
+    }
+
+    /// Enables automatic push notification management.
+    ///
+    /// This should be called in `UIApplicationDelegate.application(_:didFinishLaunchingWithOptions:)` to ensure no incoming notifications are missed.
+    ///
+    /// The following will automatically be handled:
+    /// 1. Calling `UIApplication.registerForRemoteNotifications()`
+    /// 2. Implementing `UIApplicationDelegate.application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`
+    /// to call ``setPushToken(_:)``
+    /// 3. Ensuring `UNUserNotificationCenter.current().delegate` is set
+    /// 4. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:)`
+    /// to call ``didReceiveNotification(response:completionHandler:)``
+    /// 5. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:willPresent:withCompletionHandler:)`
+    /// to show notification while the app is in the foreground
+    @objc
+    public func enableAutomaticPushConfig() {
+        let pushMonitor = container.resolve(PushMonitoring.self)
+        pushMonitor.configureAutomatically()
     }
 
     /// Verifies if an incoming URL is intended for the Appcues SDK.
