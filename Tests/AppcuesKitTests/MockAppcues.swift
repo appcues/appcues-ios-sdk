@@ -385,6 +385,17 @@ class MockPushMonitor: PushMonitoring {
     var pushPrimerEligible: Bool = false
 
     var pushAuthorizationStatus: UNAuthorizationStatus = .notDetermined
+
+    var onConfigureAutomatically: (() -> Void)?
+    func configureAutomatically() {
+        onConfigureAutomatically?()
+    }
+
+    var onSetPushToken: ((Data?) -> Void)?
+    func setPushToken(_ deviceToken: Data?) {
+        onSetPushToken?(deviceToken)
+    }
+
     var onRefreshPushStatus: ((Bool) -> Void)?
     func refreshPushStatus(publishChange: Bool, completion: ((UNAuthorizationStatus) -> Void)?) {
         onRefreshPushStatus?(publishChange)

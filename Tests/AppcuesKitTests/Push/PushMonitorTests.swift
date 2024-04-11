@@ -74,6 +74,37 @@ class PushMonitorTests: XCTestCase {
         XCTAssertTrue(pushMonitor.pushPrimerEligible)
     }
 
+    // MARK: Set Token
+    func testSetPushToken() throws {
+        // Arrange
+        let token = "some-token".data(using: .utf8)
+
+        // Act
+        pushMonitor.setPushToken(token)
+
+        // Assert
+        XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
+    }
+
+    func testSetPushTokenActiveSession() throws {
+        // Arrange
+        appcues.sessionID = UUID()
+        let token = "some-token".data(using: .utf8)
+        let eventExpectation = expectation(description: "Device event logged")
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            XCTAssertEqual(trackingUpdate.type, .event(name: Events.Device.deviceUpdated.rawValue, interactive: false))
+            XCTAssertNil(trackingUpdate.properties)
+            eventExpectation.fulfill()
+        }
+
+        // Act
+        pushMonitor.setPushToken(token)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
+    }
+
     // MARK: Receive Handler
 
     func testReceiveActiveSession() throws {
