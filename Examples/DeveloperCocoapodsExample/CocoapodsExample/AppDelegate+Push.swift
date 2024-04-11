@@ -5,6 +5,9 @@
 //  Created by Matt on 2024-03-06.
 //
 
+// Disabled in favor of automatic configuration
+
+/*
 import Foundation
 import UserNotifications
 import AppcuesKit
@@ -49,3 +52,4 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
 }
+*/
