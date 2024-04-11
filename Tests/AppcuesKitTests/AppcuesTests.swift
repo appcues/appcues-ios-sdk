@@ -260,22 +260,10 @@ class AppcuesTests: XCTestCase {
         // Arrange
         let token = "some-token".data(using: .utf8)
 
-        // Act
-        appcues.setPushToken(token)
-
-        // Assert
-        XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
-    }
-
-    func testSetPushTokenActiveSession() throws {
-        // Arrange
-        appcues.sessionID = UUID()
-        let token = "some-token".data(using: .utf8)
-        let eventExpectation = expectation(description: "Device event logged")
-        appcues.analyticsPublisher.onPublish = { trackingUpdate in
-            XCTAssertEqual(trackingUpdate.type, .event(name: Events.Device.deviceUpdated.rawValue, interactive: false))
-            XCTAssertNil(trackingUpdate.properties)
-            eventExpectation.fulfill()
+        let setExpectation = expectation(description: "Token set")
+        appcues.pushMonitor.onSetPushToken = {
+            XCTAssertEqual($0, token)
+            setExpectation.fulfill()
         }
 
         // Act
@@ -283,7 +271,6 @@ class AppcuesTests: XCTestCase {
 
         // Assert
         waitForExpectations(timeout: 1)
-        XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
     }
 
     func testDidHandleURL() throws {
