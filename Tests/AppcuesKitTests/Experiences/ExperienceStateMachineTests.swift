@@ -578,6 +578,74 @@ class ExperienceStateMachineTests: XCTestCase {
         )
     }
 
+    func test_stateIsIdling_whenStartStepFails_transitionsToIdling() throws {
+        // Arrange
+        let presentThrowExpectation = expectation(description: "Experience presented attempt")
+        let experience = ExperienceData.mock
+        appcues.traitComposer.onPackage = { _, stepIndex in
+            return experience.package(
+                onPresent: {
+                    presentThrowExpectation.fulfill()
+                    throw AppcuesTraitError(description: "present fail", recoverable: false)
+                },
+                onDismiss: { /* nothing */ }
+            )
+        }
+
+        let initialState: State = .idling
+        let action: Action = .startExperience(experience)
+        let stateMachine = givenState(is: initialState)
+
+        // Act
+        try stateMachine.transition(action)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(
+            stateMachine.state,
+            .idling
+        )
+    }
+
+    // This is the error case where something like a carousel swipe or paging dot interaction trigger a step change
+    func test_stateIsRenderingStep_whenPageChangeFails_transitionsToIdling() throws {
+        // Arrange
+        let presentExpectation = expectation(description: "Experience presented")
+        let dismissExpectation = expectation(description: "Experience dismissed")
+        let experience = ExperienceData.mock
+        let package: ExperiencePackage = experience.package(
+            onPresent: { presentExpectation.fulfill() },
+            onDismiss: { dismissExpectation.fulfill() },
+            stepDecorator: { _, prev in
+                // succeed the first time when presenting, then fail on the step change
+                if prev != nil {
+                    throw AppcuesTraitError(description: "decorate fail", recoverable: false)
+                }
+            }
+        )
+        appcues.traitComposer.onPackage = { _, stepIndex in
+            return package
+        }
+
+        let initialState: State = .idling
+        let action: Action = .startExperience(experience)
+        let stateMachine = givenState(is: initialState)
+
+        // Act
+        // Need to do a proper transition instead of initialState so the pageMonitor observer is actually added
+        try stateMachine.transition(action)
+        wait(for: [presentExpectation], timeout: 1)
+
+        package.pageMonitor.set(currentPage: 1)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(
+            stateMachine.state,
+            .idling
+        )
+    }
+
     func test_stateIsRenderingStep_whenStartStepPackageFails_transitionsToIdling() throws {
         // Arrange
         let experience = ExperienceData.mock
@@ -600,7 +668,6 @@ class ExperienceStateMachineTests: XCTestCase {
             .idling
         )
     }
-
 
     func test_stateIsRenderingStep_whenStartExperience_noTransition() throws {
         // Arrange
