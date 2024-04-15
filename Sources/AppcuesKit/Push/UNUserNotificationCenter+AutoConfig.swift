@@ -9,63 +9,9 @@
 import Foundation
 import UserNotifications
 
+// This is a placeholder delegate implementation in case there's no UNUserNotificationCenter.delegate set in the app
 internal class AppcuesUNUserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
     static var shared = AppcuesUNUserNotificationCenterDelegate()
-
-    // This is an array to support the (rare) case of multiple SDK instances supporting push
-    private var pushMonitors: [WeakPushMonitoring] = []
-
-    func register(observer: PushMonitoring) {
-        pushMonitors.append(WeakPushMonitoring(observer))
-    }
-
-    func remove(observer: PushMonitoring) {
-        pushMonitors.removeAll { $0.value === observer }
-    }
-
-    func didRegister(deviceToken: Data) {
-        // Pass device token to all observing PushMonitor instances
-        pushMonitors.forEach { weakPushMonitor in
-            if let pushMonitor = weakPushMonitor.value {
-                pushMonitor.setPushToken(deviceToken)
-            }
-        }
-    }
-
-    // Shared instance is called from the swizzled method
-    func didReceive(
-        _ response: UNNotificationResponse,
-        withCompletionHandler completionHandler: @escaping () -> Void
-    ) {
-        // Stop at the first PushMonitor that successfully handles the notification
-        _ = pushMonitors.first { weakPushMonitor in
-            if let pushMonitor = weakPushMonitor.value {
-                return pushMonitor.didReceiveNotification(response: response, completionHandler: completionHandler)
-            }
-            return false
-        }
-    }
-
-    // Shared instance is called from the swizzled method
-    func willPresent(
-        _ parsedNotification: ParsedNotification,
-        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-    ) {
-        // Behavior for all Appcues notification
-        if #available(iOS 14.0, *) {
-            completionHandler([.banner, .list])
-        } else {
-            completionHandler(.alert)
-        }
-    }
-}
-
-extension AppcuesUNUserNotificationCenterDelegate {
-    class WeakPushMonitoring {
-        weak var value: PushMonitoring?
-
-        init (_ wrapping: PushMonitoring) { self.value = wrapping }
-    }
 }
 
 extension UNUserNotificationCenter {
@@ -145,7 +91,7 @@ extension UNUserNotificationCenter {
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         if ParsedNotification(userInfo: response.notification.request.content.userInfo) != nil {
-            AppcuesUNUserNotificationCenterDelegate.shared.didReceive(response, withCompletionHandler: completionHandler)
+            PushAutoConfig.didReceive(response, withCompletionHandler: completionHandler)
         } else {
             // Not an Appcues push, so pass to the original implementation
             appcues__userNotificationCenterDidReceive(center, didReceive: response, withCompletionHandler: completionHandler)
@@ -159,7 +105,7 @@ extension UNUserNotificationCenter {
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         if let parsedNotification = ParsedNotification(userInfo: notification.request.content.userInfo) {
-            AppcuesUNUserNotificationCenterDelegate.shared.willPresent(parsedNotification, withCompletionHandler: completionHandler)
+            PushAutoConfig.willPresent(parsedNotification, withCompletionHandler: completionHandler)
         } else {
             // Not an Appcues push, so pass to the original implementation
             appcues__userNotificationCenterWillPresent(center, willPresent: notification, withCompletionHandler: completionHandler)

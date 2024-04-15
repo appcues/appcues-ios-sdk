@@ -99,6 +99,25 @@ public class Appcues: NSObject {
         config.logger.info("Appcues SDK %{public}@ initialized", version())
     }
 
+    /// Enables automatic push notification management.
+    ///
+    /// This should be called in `UIApplicationDelegate.application(_:didFinishLaunchingWithOptions:)`
+    /// to ensure no incoming notifications are missed.
+    ///
+    /// The following will automatically be handled:
+    /// 1. Calling `UIApplication.registerForRemoteNotifications()`
+    /// 2. Implementing `UIApplicationDelegate.application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`
+    /// to call ``setPushToken(_:)``
+    /// 3. Ensuring `UNUserNotificationCenter.current().delegate` is set
+    /// 4. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:)`
+    /// to call ``didReceiveNotification(response:completionHandler:)``
+    /// 5. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:willPresent:withCompletionHandler:)`
+    /// to show notification while the app is in the foreground
+    @objc
+    public static func enableAutomaticPushConfig() {
+        PushAutoConfig.configureAutomatically()
+    }
+
     /// Get the current version of the Appcues SDK.
     /// - Returns: Current version of the Appcues SDK.
     @objc(sdkVersion)
@@ -310,25 +329,6 @@ public class Appcues: NSObject {
         // resolving will init UIKitScreenTracking, which sets up the swizzling of
         // UIViewController for automatic screen tracking
         _ = container.resolve(UIKitScreenTracker.self)
-    }
-
-    /// Enables automatic push notification management.
-    ///
-    /// This should be called in `UIApplicationDelegate.application(_:didFinishLaunchingWithOptions:)` to ensure no incoming notifications are missed.
-    ///
-    /// The following will automatically be handled:
-    /// 1. Calling `UIApplication.registerForRemoteNotifications()`
-    /// 2. Implementing `UIApplicationDelegate.application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`
-    /// to call ``setPushToken(_:)``
-    /// 3. Ensuring `UNUserNotificationCenter.current().delegate` is set
-    /// 4. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:)`
-    /// to call ``didReceiveNotification(response:completionHandler:)``
-    /// 5. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:willPresent:withCompletionHandler:)`
-    /// to show notification while the app is in the foreground
-    @objc
-    public func enableAutomaticPushConfig() {
-        let pushMonitor = container.resolve(PushMonitoring.self)
-        pushMonitor.configureAutomatically()
     }
 
     /// Verifies if an incoming URL is intended for the Appcues SDK.
