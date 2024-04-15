@@ -212,12 +212,16 @@ extension ExperienceData {
         package(onPresent: { presentExpectation?.fulfill() }, onDismiss: { dismissExpectation?.fulfill()} )
     }
 
-    func package(onPresent: @escaping (() -> Void), onDismiss: @escaping (() -> Void)) -> ExperiencePackage {
+    func package(
+        onPresent: @escaping (() throws -> Void),
+        onDismiss: @escaping (() -> Void),
+        stepDecorator: ((Int, Int?) throws -> Void)? = nil
+    ) -> ExperiencePackage {
         let pageMonitor = AppcuesExperiencePageMonitor(numberOfPages: 1, currentPage: 0)
         let containerController = Mocks.ContainerViewController(stepControllers: [UIViewController()], pageMonitor: pageMonitor)
         return ExperiencePackage(
             traitInstances: [],
-            stepDecoratingTraitUpdater: { new, prev in },
+            stepDecoratingTraitUpdater: { new, prev in try stepDecorator?(new, prev) },
             steps: self.steps[0].items,
             containerController: containerController,
             wrapperController: containerController,
@@ -227,7 +231,7 @@ extension ExperienceData {
                 containerController.eventHandler?.containerWillAppear()
                 containerController.eventHandler?.containerDidAppear()
                 containerController.mockIsBeingPresented = false
-                onPresent()
+                try onPresent()
                 $0?()
             },
             dismisser: {
