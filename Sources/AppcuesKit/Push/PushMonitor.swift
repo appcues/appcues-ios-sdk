@@ -14,8 +14,6 @@ internal protocol PushMonitoring: AnyObject {
     var pushBackgroundEnabled: Bool { get }
     var pushPrimerEligible: Bool { get }
 
-    func configureAutomatically()
-
     func setPushToken(_ deviceToken: Data?)
 
     func refreshPushStatus(publishChange: Bool, completion: ((UNAuthorizationStatus) -> Void)?)
@@ -31,10 +29,6 @@ internal class PushMonitor: PushMonitoring {
     private let config: Appcues.Config
     private let storage: DataStoring
     private let analyticsPublisher: AnalyticsPublishing
-
-    // Store this value to know if we need to remove the notification center observer.
-    // Calling remove every time would result in inadvertently initializing the shared instance.
-    private var configuredAutomatically = false
 
     private(set) var pushAuthorizationStatus: UNAuthorizationStatus = .notDetermined
 
@@ -66,21 +60,13 @@ internal class PushMonitor: PushMonitoring {
             name: UIApplication.willEnterForegroundNotification,
             object: nil
         )
+
+        PushAutoConfig.register(observer: self)
     }
 
     @objc
     private func applicationWillEnterForeground(notification: Notification) {
         refreshPushStatus(publishChange: true)
-    }
-
-    func configureAutomatically() {
-        UIApplication.swizzleDidRegisterForDeviceToken()
-        UIApplication.shared.registerForRemoteNotifications()
-
-        UNUserNotificationCenter.swizzleNotificationCenterGetDelegate()
-        AppcuesUNUserNotificationCenterDelegate.shared.register(observer: self)
-
-        configuredAutomatically = true
     }
 
     func setPushToken(_ deviceToken: Data?) {
@@ -229,8 +215,6 @@ internal class PushMonitor: PushMonitoring {
     #endif
 
     deinit {
-        if configuredAutomatically {
-            AppcuesUNUserNotificationCenterDelegate.shared.remove(observer: self)
-        }
+        PushAutoConfig.remove(observer: self)
     }
 }
