@@ -35,10 +35,12 @@ extension UIApplication {
         _ application: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
-        AppcuesUNUserNotificationCenterDelegate.shared.didRegister(deviceToken: deviceToken)
+        PushAutoConfig.didRegister(deviceToken: deviceToken)
 
         // Also call the original implementation
-        appcues__applicationDidRegisterForRemoteNotificationsWithDeviceToken(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
-
+        appcues__applicationDidRegisterForRemoteNotificationsWithDeviceToken(
+            application,
+            didRegisterForRemoteNotificationsWithDeviceToken: deviceToken
+        )
     }
 }
