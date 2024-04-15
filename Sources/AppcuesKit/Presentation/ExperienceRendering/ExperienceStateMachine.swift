@@ -89,6 +89,22 @@ internal class ExperienceStateMachine {
     func removeAnalyticsObserver() {
         stateObservers = stateObservers.filter { !($0 is AnalyticsObserver) }
     }
+
+    func handlePresentationError(
+        _ error: Error,
+        experience: ExperienceData,
+        stepIndex: Experience.StepIndex,
+        package: ExperiencePackage
+    ) {
+        let recoverable = (error as? AppcuesTraitError)?.recoverable ?? false
+        let retryEffect: ExperienceStateMachine.SideEffect? = recoverable ? .retryPresentation(experience, stepIndex, package) : nil
+        try? transition(
+            .reportError(
+                error: .step(experience, stepIndex, "\(error)", recoverable: recoverable),
+                retryEffect: retryEffect
+            )
+        )
+    }
 }
 
 // MARK: - AppcuesExperienceContainerEventHandler
@@ -327,7 +343,7 @@ extension ExperienceStateMachine {
                     } catch {
                         // Report a fatal error and dismiss the experience
                         let errorIndex = Experience.StepIndex(group: stepIndex.group, item: newIndex)
-                        handlePresentationError(error, machine: machine, experience: experience, stepIndex: errorIndex, package: package)
+                        machine.handlePresentationError(error, experience: experience, stepIndex: errorIndex, package: package)
                         package.dismisser({})
                     }
                 }
@@ -365,26 +381,9 @@ extension ExperienceStateMachine {
                 SdkMetrics.renderStart(experience.requestID)
 
                 presentStep { error in
-                    handlePresentationError(error, machine: machine, experience: experience, stepIndex: stepIndex, package: package)
+                    machine.handlePresentationError(error, experience: experience, stepIndex: stepIndex, package: package)
                 }
             }
-        }
-
-        private func handlePresentationError(
-            _ error: Error,
-            machine: ExperienceStateMachine,
-            experience: ExperienceData,
-            stepIndex: Experience.StepIndex,
-            package: ExperiencePackage
-        ) {
-            let recoverable = (error as? AppcuesTraitError)?.recoverable ?? false
-            let retryEffect: ExperienceStateMachine.SideEffect? = recoverable ? .retryPresentation(experience, stepIndex, package) : nil
-            try? machine.transition(
-                .reportError(
-                    error: .step(experience, stepIndex, "\(error)", recoverable: recoverable),
-                    retryEffect: retryEffect
-                )
-            )
         }
     }
 }
