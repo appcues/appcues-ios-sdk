@@ -13,7 +13,9 @@ internal struct ParsedNotification {
     let applicationID: String
     let userID: String
     let notificationID: String
+    let notificationVersion: Int?
     let workflowID: String?
+    let workflowVersion: Int?
     let workflowTaskID: String?
     let deepLinkURL: URL?
     let experienceID: String?
@@ -34,7 +36,9 @@ internal struct ParsedNotification {
         self.userID = userID
         self.notificationID = notificationID
 
+        self.notificationVersion = userInfo["appcues_notification_version"] as? Int
         self.workflowID = userInfo["appcues_workflow_id"] as? String
+        self.workflowVersion = userInfo["appcues_workflow_version"] as? Int
         self.workflowTaskID = userInfo["appcues_workflow_task_id"] as? String
         self.deepLinkURL = (userInfo["appcues_deep_link_url"] as? String)
             .flatMap { URL(string: $0) }
