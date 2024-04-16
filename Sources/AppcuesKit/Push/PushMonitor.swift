@@ -163,14 +163,17 @@ internal class PushMonitor: PushMonitoring {
         completionHandler: @escaping () -> Void
     ) {
         if !parsedNotification.isTest {
+            let properties: [String: Any?] = [
+                "notification_id": parsedNotification.notificationID,
+                "notification_version": parsedNotification.notificationVersion,
+                "workflow_id": parsedNotification.workflowID,
+                "workflow_version": parsedNotification.workflowVersion,
+                "workflow_task_id": parsedNotification.workflowTaskID,
+                "device_id": storage.deviceID
+            ]
             analyticsPublisher.publish(TrackingUpdate(
                 type: .event(name: Events.Push.pushOpened.rawValue, interactive: false),
-                properties: [
-                    "notification_id": parsedNotification.notificationID,
-                    "workflow_id": parsedNotification.workflowID,
-                    "workflow_task_id": parsedNotification.workflowTaskID,
-                    "device_id": storage.deviceID
-                ].compactMapValues { $0 },
+                properties: properties.compactMapValues { $0 },
                 isInternal: true
             ))
         }
