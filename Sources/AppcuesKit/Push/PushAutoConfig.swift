@@ -12,8 +12,26 @@ internal enum PushAutoConfig {
     // This is an array to support the (rare) case of multiple SDK instances supporting push
     private static var pushMonitors: [WeakPushMonitoring] = []
 
+    private static var receivedToken: Data?
+    private static var receivedUnhandledResponse: UNNotificationResponse?
+
     static func register(observer: PushMonitoring) {
         pushMonitors.append(WeakPushMonitoring(observer))
+
+        // If a push token was obtained before the instance was registered, set it
+        if let receivedToken = receivedToken {
+            observer.setPushToken(receivedToken)
+        }
+
+        // If an Appcues push notification was opened and unhandled before the instance was registered,
+        // see if this new instance can handle it
+        if let response = receivedUnhandledResponse {
+            // swiftlint:disable:next trailing_closure
+            let didHandle = observer.didReceiveNotification(response: response, completionHandler: {})
+            if didHandle {
+                receivedUnhandledResponse = nil
+            }
+        }
     }
 
     static func remove(observer: PushMonitoring) {
@@ -28,6 +46,9 @@ internal enum PushAutoConfig {
     }
 
     static func didRegister(deviceToken: Data) {
+        // Save device token for any future PushMonitor instances
+        receivedToken = deviceToken
+
         // Pass device token to all observing PushMonitor instances
         pushMonitors.forEach { weakPushMonitor in
             if let pushMonitor = weakPushMonitor.value {
@@ -42,12 +63,15 @@ internal enum PushAutoConfig {
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         // Stop at the first PushMonitor that successfully handles the notification
-        _ = pushMonitors.first { weakPushMonitor in
-            if let pushMonitor = weakPushMonitor.value {
-                return pushMonitor.didReceiveNotification(response: response, completionHandler: completionHandler)
-            }
-            return false
+        let didHandleResponse = pushMonitors.contains { weakPushMonitor in
+            guard let pushMonitor = weakPushMonitor.value else { return false }
+
+            return pushMonitor.didReceiveNotification(response: response, completionHandler: completionHandler)
         }
+
+        // Save unhandled response for any future PushMonitor instances
+        // (or clear the existing value if a newer response was handled)
+        receivedUnhandledResponse = !didHandleResponse ? response : nil
     }
 
     // Shared instance is called from the swizzled method
