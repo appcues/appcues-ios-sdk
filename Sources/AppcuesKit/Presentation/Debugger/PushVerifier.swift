@@ -130,10 +130,12 @@ internal class PushVerifier {
     }
 
     func receivedVerification(token: String) {
-        if token == pushVerificationToken {
-            verifyServerComponents(token: token)
-        } else {
+        if token != pushVerificationToken {
             errors.append(.tokenMismatch)
+        }
+
+        if errors.isEmpty {
+            verifyServerComponents(token: token)
         }
 
         pushVerificationToken = nil
