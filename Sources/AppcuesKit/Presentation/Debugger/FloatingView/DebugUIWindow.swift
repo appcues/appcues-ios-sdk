@@ -25,8 +25,14 @@ internal class DebugUIWindow: UIWindow {
     }
 
     override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-        guard let rootView = rootViewController?.view,
-              let hitView = rootView.hitTest(convert(point, to: rootView), with: event) else {
+        guard let hitView = super.hitTest(point, with: event), hitView != self else {
+            return nil
+        }
+
+        // On iPad, there is a system view that wraps the rootView that can capture hits,
+        // and we need to ignore that view to allow interaction with the underlying app
+        // while the debug window is overlayed.
+        if let rootView = rootViewController?.view, hitView.subviews.first == rootView {
             return nil
         }
 
