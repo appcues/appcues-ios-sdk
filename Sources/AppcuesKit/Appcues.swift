@@ -415,6 +415,17 @@ public class Appcues: NSObject {
         storage.userSignature = properties?.removeValue(forKey: "appcues:user_id_signature") as? String
         analyticsPublisher.publish(TrackingUpdate(type: .profile(interactive: true), properties: properties, isInternal: false))
 
+        // Track a device update on re-identify of the same user, since these will not trigger a new
+        // session start, but they do allow a force update of any device props that may have changed
+        // outside of the SDK in the application, i.e. push permission.
+        // This is interactive: true so it gets batched together with the identify in a single request
+        if !userChanged {
+            analyticsPublisher.publish(TrackingUpdate(
+                type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: true),
+                isInternal: true
+            ))
+        }
+
         let pushMonitor = container.resolve(PushMonitoring.self)
         pushMonitor.attemptDeferredNotificationResponse()
     }

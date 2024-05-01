@@ -104,6 +104,44 @@ class AppcuesTests: XCTestCase {
         XCTAssertEqual(deferredPushAttempts, 1)
     }
 
+    func testIdentifySameUserTriggersDeviceUpdate() throws {
+        // Arrange
+        let deviceUpdateExpectation = expectation(description: "Device updated")
+        appcues.analyticsPublisher.onPublish = { update in
+            if case .event("appcues:device_updated", true) = update.type {
+                deviceUpdateExpectation.fulfill()
+            }
+        }
+        appcues.storage.userID = "test-user"
+
+        // Act
+        appcues.identify(userID: "test-user") // re-identify
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testIdentifyNewUserDoesNotTriggerDeviceUpdate() throws {
+        // no device update here since the new user will trigger a new session_started
+        // event with device props
+
+        // Arrange
+        let deviceUpdateExpectation = expectation(description: "Device updated")
+        deviceUpdateExpectation.isInverted = true
+        appcues.analyticsPublisher.onPublish = { update in
+            if case .event("appcues:device_updated", true) = update.type {
+                deviceUpdateExpectation.fulfill()
+            }
+        }
+        appcues.storage.userID = "test-user"
+
+        // Act
+        appcues.identify(userID: "different-user")
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
     func testReset() throws {
         // Act
         appcues.identify(userID: "test-user", properties: ["foo": 100])
