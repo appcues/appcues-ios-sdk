@@ -187,6 +187,7 @@ public class Appcues: NSObject {
     public func reset() {
         analyticsPublisher.publish(TrackingUpdate(
             type: .event(name: Events.Device.deviceUnregistered.rawValue, interactive: false),
+            properties: ["reason": "sdk_reset"],
             isInternal: true
         ))
 
