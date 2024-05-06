@@ -104,8 +104,8 @@ internal class ContentLoader: ContentLoading {
             body: data
         ) { [weak self] (result: Result<Void, Error>) in
             switch result {
-            case .success(let experience):
-                break
+            case .success:
+                completion?(.success(()))
             case .failure(let error):
                 self?.config.logger.error("Loading push %{public}@ failed with error %{public}@", id, "\(error)")
                 completion?(.failure(error))
