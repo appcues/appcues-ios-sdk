@@ -173,11 +173,12 @@ internal class NetworkClient: Networking {
         _ urlRequest: URLRequest,
         completion: @escaping (_ result: Result<Void, Error>) -> Void
     ) {
-        let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] _, response, error in
+        let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
             let url = (response?.url ?? urlRequest.url)?.absoluteString ?? "<unknown>"
             let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+            let logData = String(data: error?.data ?? data ?? Data.empty, encoding: .utf8) ?? ""
 
-            self?.config.logger.debug("RESPONSE: %{public}d %{public}@", statusCode, url)
+            self?.config.logger.debug("RESPONSE: %{public}d %{public}@\n%{private}@", statusCode, url, logData)
 
             if let error = error {
                 completion(.failure(error))
