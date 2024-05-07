@@ -74,7 +74,7 @@ internal class PushMonitor: PushMonitoring {
 
         if appcues?.sessionID != nil {
             analyticsPublisher.publish(TrackingUpdate(
-                type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: false),
+                type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: true),
                 isInternal: true
             ))
         }
@@ -95,7 +95,7 @@ internal class PushMonitor: PushMonitoring {
 
             if shouldPublish {
                 self?.analyticsPublisher.publish(TrackingUpdate(
-                    type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: false),
+                    type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: true),
                     isInternal: true
                 ))
             }
