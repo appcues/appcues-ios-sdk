@@ -126,7 +126,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
                 published: false,
                 queryItems: queryItems,
                 trigger: .preview,
-                completion: previewCompletion
+                completion: experiencePreviewCompletion
             )
         case let .show(experienceID, queryItems):
             container?.resolve(ContentLoading.self).load(
@@ -141,7 +141,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
                 id: id,
                 published: false,
                 queryItems: queryItems,
-                completion: nil
+                completion: pushPreviewCompletion
             )
         case let .pushContent(id):
             container?.resolve(ContentLoading.self).loadPush(
@@ -159,7 +159,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
         }
     }
 
-    private func previewCompletion(_ result: Result<Void, Error>) {
+    private func experiencePreviewCompletion(_ result: Result<Void, Error>) {
         guard case let .failure(error) = result else {
             return
         }
@@ -177,6 +177,25 @@ internal class DeepLinkHandler: DeepLinkHandling {
             message = "Preview of \(experience.name) failed: \(errorMessage)"
         default:
             message = "Mobile flow preview failed."
+        }
+
+        let toast = DebugToast(message: .custom(text: message), style: .failure)
+        container?.resolve(UIDebugging.self).showToast(toast)
+    }
+
+    private func pushPreviewCompletion(_ result: Result<Void, Error>) {
+        guard case let .failure(error) = result else {
+            return
+        }
+
+        let message: String
+        switch error {
+        case NetworkingError.nonSuccessfulStatusCode(404):
+            message = "Push notification not found."
+        case is NetworkingError:
+            message = "Error loading push notification preview."
+        default:
+            message = "Push notification preview failed."
         }
 
         let toast = DebugToast(message: .custom(text: message), style: .failure)
