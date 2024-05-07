@@ -92,7 +92,7 @@ class PushMonitorTests: XCTestCase {
         let token = "some-token".data(using: .utf8)
         let eventExpectation = expectation(description: "Device event logged")
         appcues.analyticsPublisher.onPublish = { trackingUpdate in
-            XCTAssertEqual(trackingUpdate.type, .event(name: Events.Device.deviceUpdated.rawValue, interactive: false))
+            XCTAssertEqual(trackingUpdate.type, .event(name: Events.Device.deviceUpdated.rawValue, interactive: true))
             XCTAssertNil(trackingUpdate.properties)
             eventExpectation.fulfill()
         }
