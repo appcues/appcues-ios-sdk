@@ -10,6 +10,7 @@ import UIKit
 
 internal protocol PushMonitoring: AnyObject {
     var pushAuthorizationStatus: UNAuthorizationStatus { get }
+    var pushEnvironment: PushEnvironment { get }
     var pushEnabled: Bool { get }
     var pushBackgroundEnabled: Bool { get }
     var pushPrimerEligible: Bool { get }
@@ -32,6 +33,8 @@ internal class PushMonitor: PushMonitoring {
 
     private(set) var pushAuthorizationStatus: UNAuthorizationStatus = .notDetermined
 
+    private(set) var pushEnvironment: PushEnvironment = .unknown(.notComputed)
+
     var pushEnabled: Bool {
         pushAuthorizationStatus == .authorized && storage.pushToken != nil
     }
@@ -53,6 +56,7 @@ internal class PushMonitor: PushMonitoring {
         self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
 
         refreshPushStatus(publishChange: false)
+        getPushEnvironment()
 
         NotificationCenter.default.addObserver(
             self,
@@ -208,6 +212,12 @@ internal class PushMonitor: PushMonitoring {
             actionRegistry.enqueue(actionInstances: actions, completion: completionHandler)
         } else {
             completionHandler()
+        }
+    }
+
+    private func getPushEnvironment() {
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            self?.pushEnvironment = UIDevice.current.pushEnvironment()
         }
     }
 
