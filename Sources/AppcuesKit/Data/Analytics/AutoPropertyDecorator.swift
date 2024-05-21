@@ -148,8 +148,7 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_pushToken": pushToken,
             "_pushEnabled": pushMonitor.pushEnabled,
             "_pushEnabledBackground": pushMonitor.pushBackgroundEnabled,
-            // TODO: more properties
-            // _pushSubscriptionStatus
+            "_pushEnvironment": pushMonitor.pushEnvironment.environmentValue
         ]
 
         if let language = deviceLanguage {
