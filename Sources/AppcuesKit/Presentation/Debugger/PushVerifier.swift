@@ -22,6 +22,7 @@ private final class KeyedArchiver: NSKeyedArchiver {
 @available(iOS 13.0, *)
 internal class PushVerifier {
     enum ErrorMessage: Equatable, CustomStringConvertible {
+        case noPushEnvironment(String)
         case noToken
         case notAuthorized
         case permissionDenied
@@ -41,6 +42,8 @@ internal class PushVerifier {
 
         var description: String {
             switch self {
+            case .noPushEnvironment(let error):
+                return "Error 0: Could not determine push environment\n(\(error))"
             case .noToken:
                 return "Error 1: No push token registered with Appcues"
             case .notAuthorized:
@@ -153,6 +156,10 @@ internal class PushVerifier {
     }
 
     private func verifyDeviceConfiguration() {
+        if case .unknown(let reason) = pushMonitor.pushEnvironment {
+            errors.append(.noPushEnvironment(reason.description))
+        }
+
         if storage.pushToken == nil {
             errors.append(.noToken)
         }
