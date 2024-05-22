@@ -380,6 +380,7 @@ class MockAnalyticsTracker: AnalyticsTracking {
 }
 
 class MockPushMonitor: PushMonitoring {
+    var pushEnvironment: AppcuesKit.PushEnvironment = .development
     var pushEnabled: Bool = false
     var pushBackgroundEnabled: Bool = false
     var pushPrimerEligible: Bool = false
