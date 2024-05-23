@@ -37,12 +37,11 @@ internal enum PushEnvironment {
         }
     }
 
-    var environmentValue: String {
-        // The environment to request from the backend must be "development" or "production".
-        // If we haven't been able to determine the environment, default to "production".
+    var environmentValue: String? {
         switch self {
         case .development: return "development"
-        case .unknown, .production: return "production"
+        case .production: return "production"
+        case .unknown: return nil
         }
     }
 
