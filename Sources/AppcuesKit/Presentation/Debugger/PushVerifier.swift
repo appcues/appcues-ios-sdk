@@ -34,7 +34,7 @@ internal class PushVerifier {
         case noForegroundPresentationHandler
         case noForegroundPresentationOption
 
-        case serverError(String)
+        case serverError(Int, String?)
 
         // Verification flow errors
         case tokenMismatch
@@ -64,8 +64,8 @@ internal class PushVerifier {
                 return "Error 9: Foreground presentation handler not implemented"
             case .noForegroundPresentationOption:
                 return "Note: Application is not configured to display foreground notifications"
-            case .serverError:
-                return "Error 500: Server Error"
+            case let .serverError(statusCode, error):
+                return "Error \(statusCode): \(error ?? "Unexpected server error")"
             case .tokenMismatch:
                 return "Error 100: Unexpected result"
             case .responseInitFail:
@@ -280,7 +280,16 @@ internal class PushVerifier {
                         self?.subject.send(StatusItem(status: .verified, title: PushVerifier.title))
                     }
                 case .failure(let error):
-                    self?.errors.append(.serverError(error.localizedDescription))
+                    switch error {
+                    case let NetworkingError.nonSuccessfulStatusCode(statusCode, data?):
+                        if let errorModel = try? NetworkClient.decoder.decode(PushTestError.self, from: data) {
+                            self?.errors.append(.serverError(statusCode, errorModel.error))
+                        } else {
+                            self?.errors.append(.serverError(statusCode, nil))
+                        }
+                    default:
+                        self?.errors.append(.serverError(0, nil))
+                    }
                 }
             }
         }
@@ -291,6 +300,10 @@ internal class PushVerifier {
 private extension PushVerifier {
     struct PushTestResponse: Decodable {
         let ok: Bool
+    }
+
+    struct PushTestError: Decodable {
+        let error: String
     }
 }
 
