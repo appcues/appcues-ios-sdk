@@ -95,7 +95,7 @@ class ScreenCapturerTests: XCTestCase {
         // Step 1
         networking.onGet = { endpoint, authorization, completion in
             guard case SettingsEndpoint.settings = endpoint else { return XCTFail("Unexpected GET request") }
-            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500)))
+            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
         }
 
         // Simulate trigger the interaction to submit
@@ -128,7 +128,7 @@ class ScreenCapturerTests: XCTestCase {
         // Step 2
         networking.onPost = { endpoint, authorization, data, requestID, completion in
             guard case CustomerAPIEndpoint.preSignedImageUpload = endpoint else { return XCTFail("Unexpected POST request") }
-            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500)))
+            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
         }
 
         // Simulate trigger the interaction to submit
@@ -170,7 +170,7 @@ class ScreenCapturerTests: XCTestCase {
         networking.onPutEmptyResponse = { endpoint, authorization, data, contentType, completion in
             switch endpoint {
             case is URLEndpoint:
-                completion(.failure(NetworkingError.nonSuccessfulStatusCode(500)))
+                completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
             default:
                 XCTFail("Unexpected PUT request")
             }
@@ -224,7 +224,7 @@ class ScreenCapturerTests: XCTestCase {
         // Step 4
         networking.onPostEmptyResponse = { endpoint, authorization, data, completion in
             guard case CustomerAPIEndpoint.screenCapture = endpoint else { return XCTFail("Unexpected POST request") }
-            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500)))
+            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
         }
 
         // Simulate trigger the interaction to submit
