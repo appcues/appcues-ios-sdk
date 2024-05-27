@@ -168,7 +168,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
         switch error {
         case let ExperienceRendererError.renderDeferred(context, experience):
             message = "Please navigate to the screen with \(context.description) to preview \(experience.name)."
-        case NetworkingError.nonSuccessfulStatusCode(404):
+        case NetworkingError.nonSuccessfulStatusCode(404, _):
             message = "Mobile flow not found."
         case is NetworkingError:
             message = "Error loading mobile flow preview."
@@ -190,7 +190,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
 
         let message: String
         switch error {
-        case NetworkingError.nonSuccessfulStatusCode(404):
+        case NetworkingError.nonSuccessfulStatusCode(404, _):
             message = "Push notification not found."
         case is NetworkingError:
             message = "Error loading push notification preview."
