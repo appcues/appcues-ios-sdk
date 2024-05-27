@@ -143,7 +143,7 @@ internal class NetworkClient: Networking {
             }
 
             if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
-                completion(.failure(NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode)))
+                completion(.failure(NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode, data)))
                 return
             }
 
@@ -186,7 +186,7 @@ internal class NetworkClient: Networking {
             }
 
             if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
-                completion(.failure(NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode)))
+                completion(.failure(NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode, data)))
                 return
             }
 
