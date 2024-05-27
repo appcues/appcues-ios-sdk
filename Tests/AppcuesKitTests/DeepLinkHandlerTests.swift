@@ -56,7 +56,7 @@ class DeepLinkHandlerTests: XCTestCase {
             XCTAssertFalse(published)
             guard case .preview = trigger else { return XCTFail() }
             loaderCalled = true
-            completion?(.failure(NetworkingError.nonSuccessfulStatusCode(404)))
+            completion?(.failure(NetworkingError.nonSuccessfulStatusCode(404, nil)))
         }
 
         var toastShown = false

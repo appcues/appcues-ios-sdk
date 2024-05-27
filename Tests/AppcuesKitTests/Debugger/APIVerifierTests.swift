@@ -66,7 +66,7 @@ class APIVerifierTests: XCTestCase {
             .store(in: &cancellables)
 
         networking.onGet = { endpoint, _, completion in
-            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500)))
+            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
         }
 
         // Act
