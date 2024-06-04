@@ -34,7 +34,7 @@ internal protocol DataStoring: AnyObject {
 internal class Storage: DataStoring {
 
     private enum Key: String {
-        case deviceID
+        case deviceIDv2
         case userID
         case isAnonymous
         case lastContentShownAt
@@ -51,10 +51,10 @@ internal class Storage: DataStoring {
 
     internal var deviceID: String {
         get {
-            return read(.deviceID, defaultValue: "")
+            return read(.deviceIDv2, defaultValue: "")
         }
         set {
-            write(.deviceID, newValue: newValue)
+            write(.deviceIDv2, newValue: newValue)
         }
     }
 
@@ -114,7 +114,17 @@ internal class Storage: DataStoring {
 
     init(container: DIContainer) {
         self.config = container.resolve(Appcues.Config.self)
-        self.deviceID = UIDevice.identifier
+
+        if self.deviceID.isEmpty {
+            // set the device ID once upon first install
+
+            // note: we cannot use UIDevice.current.identifierForVendor
+            // for this use case, as we need each app install to have a unique
+            // device_id in the Appcues system (even if from same vendor),
+            // to be able to correctly target push notification content to the
+            // correct devices
+            self.deviceID = UUID().appcuesFormatted
+        }
     }
 
     private func read<T>(_ key: Key, defaultValue: T) -> T {
