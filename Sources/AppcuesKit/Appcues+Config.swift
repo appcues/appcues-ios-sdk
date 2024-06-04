@@ -32,7 +32,7 @@ public extension Appcues {
         var logger: Logging = OSLog.disabled
 
         var anonymousIDFactory: () -> String = {
-            UIDevice.identifier
+            (UIDevice.current.identifierForVendor ?? UUID()).appcuesFormatted
         }
 
         var sessionTimeout: UInt = 300 // 5 minutes by default
