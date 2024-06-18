@@ -17,7 +17,7 @@ internal protocol PushMonitoring: AnyObject {
 
     func setPushToken(_ deviceToken: Data?)
 
-    func refreshPushStatus(publishChange: Bool, completion: ((UNAuthorizationStatus) -> Void)?)
+    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?)
 
     func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool
     @discardableResult
@@ -55,7 +55,7 @@ internal class PushMonitor: PushMonitoring {
         self.storage = container.resolve(DataStoring.self)
         self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
 
-        refreshPushStatus(publishChange: false)
+        refreshPushStatus()
         getPushEnvironment()
 
         NotificationCenter.default.addObserver(
@@ -70,13 +70,15 @@ internal class PushMonitor: PushMonitoring {
 
     @objc
     private func applicationWillEnterForeground(notification: Notification) {
-        refreshPushStatus(publishChange: true)
+        refreshPushStatus()
     }
 
     func setPushToken(_ deviceToken: Data?) {
-        storage.pushToken = deviceToken?.map { String(format: "%02x", $0) }.joined()
+        let newToken = deviceToken?.map { String(format: "%02x", $0) }.joined()
+        let shouldPublish = storage.pushToken != newToken
+        storage.pushToken = newToken
 
-        if appcues?.sessionID != nil {
+        if appcues?.sessionID != nil && shouldPublish {
             analyticsPublisher.publish(TrackingUpdate(
                 type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: true),
                 isInternal: true
@@ -84,7 +86,7 @@ internal class PushMonitor: PushMonitoring {
         }
     }
 
-    func refreshPushStatus(publishChange: Bool, completion: ((UNAuthorizationStatus) -> Void)? = nil) {
+    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)? = nil) {
         // Skip call to UNUserNotificationCenter.current() in tests to avoid crashing in package tests
         #if DEBUG
         guard ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil else {
@@ -94,7 +96,7 @@ internal class PushMonitor: PushMonitoring {
         #endif
 
         UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
-            let shouldPublish = publishChange && self?.pushAuthorizationStatus != settings.authorizationStatus
+            let shouldPublish = self?.appcues?.sessionID != nil && self?.pushAuthorizationStatus != settings.authorizationStatus
             self?.pushAuthorizationStatus = settings.authorizationStatus
 
             if shouldPublish {
