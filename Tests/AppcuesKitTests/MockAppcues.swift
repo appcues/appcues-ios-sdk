@@ -397,9 +397,9 @@ class MockPushMonitor: PushMonitoring {
         onSetPushToken?(deviceToken)
     }
 
-    var onRefreshPushStatus: ((Bool) -> Void)?
-    func refreshPushStatus(publishChange: Bool, completion: ((UNAuthorizationStatus) -> Void)?) {
-        onRefreshPushStatus?(publishChange)
+    var onRefreshPushStatus: (() -> Void)?
+    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?) {
+        onRefreshPushStatus?()
         completion?(pushAuthorizationStatus)
     }
 
