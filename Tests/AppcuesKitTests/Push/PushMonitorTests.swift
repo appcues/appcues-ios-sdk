@@ -105,6 +105,24 @@ class PushMonitorTests: XCTestCase {
         XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
     }
 
+    func testSetPushTokenNoAnalyticsWhenSameValue() throws {
+        // Arrange
+        appcues.storage.pushToken = "736f6d652d746f6b656e"
+        appcues.sessionID = UUID()
+        let token = "some-token".data(using: .utf8)
+        let eventExpectation = expectation(description: "Device event logged")
+        eventExpectation.isInverted = true
+        appcues.analyticsPublisher.onPublish = { trackingUpdate in
+            eventExpectation.fulfill()
+        }
+
+        // Act
+        pushMonitor.setPushToken(token)
+
+        // Assert
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
+    }
     // MARK: Receive Handler
 
     func testReceiveActiveSession() throws {
