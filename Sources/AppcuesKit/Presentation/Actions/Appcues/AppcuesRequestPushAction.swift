@@ -32,7 +32,7 @@ internal class AppcuesRequestPushAction: AppcuesExperienceAction {
             }
 
             let pushMonitor = appcues.container.resolve(PushMonitoring.self)
-            pushMonitor.refreshPushStatus(publishChange: true) { _ in
+            pushMonitor.refreshPushStatus { _ in
                 completion()
             }
         }

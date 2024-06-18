@@ -147,7 +147,7 @@ internal class PushVerifier {
     private func requestPush() {
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         UNUserNotificationCenter.current().requestAuthorization(options: options) { _, _ in
-            self.pushMonitor.refreshPushStatus(publishChange: true) { _ in
+            self.pushMonitor.refreshPushStatus { _ in
                 DispatchQueue.main.async {
                     self.verifyPush()
                 }
