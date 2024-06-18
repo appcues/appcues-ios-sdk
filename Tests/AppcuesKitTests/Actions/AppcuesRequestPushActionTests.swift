@@ -33,8 +33,7 @@ class AppcuesRequestPushActionTests: XCTestCase {
         var completionCount = 0
         let action = AppcuesRequestPushAction(appcues: appcues)
 
-        appcues.pushMonitor.onRefreshPushStatus = { shouldPublish in
-            XCTAssertTrue(shouldPublish)
+        appcues.pushMonitor.onRefreshPushStatus = {
             refreshCount += 1
         }
 
