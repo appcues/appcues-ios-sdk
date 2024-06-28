@@ -27,7 +27,7 @@ internal indirect enum ExperienceComponent {
     case embed(EmbedModel)
     case optionSelect(OptionSelectModel)
     case textInput(TextInputModel)
-    case customEmbed(CustomEmbedModel)
+    case customFrame(CustomFrameModel)
 
     subscript<T>(dynamicMember keyPath: KeyPath<ComponentModel, T>) -> T {
         switch self {
@@ -40,7 +40,7 @@ internal indirect enum ExperienceComponent {
         case .embed(let model): return model[keyPath: keyPath]
         case .optionSelect(let model): return model[keyPath: keyPath]
         case .textInput(let model): return model[keyPath: keyPath]
-        case .customEmbed(let model): return model[keyPath: keyPath]
+        case .customFrame(let model): return model[keyPath: keyPath]
         }
     }
 }
@@ -82,8 +82,8 @@ extension ExperienceComponent: Decodable {
             self = .optionSelect(try modelContainer.decode(OptionSelectModel.self))
         case "textInput":
             self = .textInput(try modelContainer.decode(TextInputModel.self))
-        case "customEmbed":
-            self = .customEmbed(try modelContainer.decode(CustomEmbedModel.self))
+        case "customFrame":
+            self = .customFrame(try modelContainer.decode(CustomFrameModel.self))
         default:
             let context = DecodingError.Context(codingPath: container.codingPath, debugDescription: "unknown type '\(type)'")
             throw DecodingError.valueNotFound(Self.self, context)
@@ -283,7 +283,7 @@ extension ExperienceComponent {
         var textDescription: String? { label.textDescription }
     }
 
-    struct CustomEmbedModel: ComponentModel {
+    struct CustomFrameModel: ComponentModel {
         let id: UUID
 
         let identifier: String
@@ -377,7 +377,7 @@ extension ExperienceComponent.Style {
     }
 }
 
-extension ExperienceComponent.CustomEmbedModel: Decodable {
+extension ExperienceComponent.CustomFrameModel: Decodable {
     private enum CodingKeys: CodingKey {
         case id, identifier, style, config
     }

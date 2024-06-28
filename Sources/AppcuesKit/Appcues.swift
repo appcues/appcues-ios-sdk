@@ -277,12 +277,12 @@ public class Appcues: NSObject {
     /// Register a view that can be rendered in an `Experience`.
     /// - Parameters:
     ///   - embed: View name
-    ///   - type: View type
-    public func register(embed: String, type: AppcuesEmbedView.Type) {
-        // NOTE: this can't be @objc because the AppcuesEmbedView protocol inherits from UIView
+    ///   - type: View controller type
+    public func registerCustomFrame(identifier: String, type: AppcuesCustomFrameViewController.Type) {
+        // NOTE: this can't be @objc because the AppcuesCustomFrameView protocol inherits from UIView
         guard #available(iOS 13.0, *) else { return }
 
-        container.resolve(CustomEmbedRegistry.self).register(embed: embed, type: type)
+        container.resolve(CustomFrameRegistry.self).register(frame: identifier, type: type)
     }
 
     /// Launches the Appcues debugger over your app's UI.
@@ -346,7 +346,7 @@ public class Appcues: NSObject {
             container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
             container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
             container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
-            container.registerLazy(CustomEmbedRegistry.self, initializer: CustomEmbedRegistry.init)
+            container.registerLazy(CustomFrameRegistry.self, initializer: CustomFrameRegistry.init)
             container.registerLazy(TraitComposing.self, initializer: TraitComposer.init)
         }
 

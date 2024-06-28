@@ -20,13 +20,13 @@ internal class ExperienceStepViewModel: ObservableObject {
     let enableTextScaling: Bool
     private let actions: [UUID: [Experience.Action]]
     private let actionRegistry: ActionRegistry?
-    private let customEmbedRegistry: CustomEmbedRegistry?
+    private let customFrameRegistry: CustomFrameRegistry?
     private let renderContext: RenderContext
 
     init(
         step: Experience.Step.Child,
         actionRegistry: ActionRegistry,
-        customEmbedRegistry: CustomEmbedRegistry,
+        customFrameRegistry: CustomFrameRegistry,
         renderContext: RenderContext,
         config: Appcues.Config?
     ) {
@@ -37,7 +37,7 @@ internal class ExperienceStepViewModel: ObservableObject {
             dict[uuidKey] = item.value
         }
         self.actionRegistry = actionRegistry
-        self.customEmbedRegistry = customEmbedRegistry
+        self.customFrameRegistry = customFrameRegistry
         self.renderContext = renderContext
         self.enableTextScaling = config?.enableTextScaling ?? false
     }
@@ -57,7 +57,7 @@ internal class ExperienceStepViewModel: ObservableObject {
         )
         self.actions = [:]
         self.actionRegistry = nil
-        self.customEmbedRegistry = nil
+        self.customFrameRegistry = nil
         self.renderContext = renderContext
         self.enableTextScaling = false
     }
@@ -77,8 +77,8 @@ internal class ExperienceStepViewModel: ObservableObject {
         Dictionary(grouping: actions[id] ?? []) { ActionType(rawValue: $0.trigger) }
     }
 
-    func embed(for model: ExperienceComponent.CustomEmbedModel) -> (AppcuesEmbedView.Type, AppcuesExperiencePluginConfiguration)? {
-        return customEmbedRegistry?.embed(for: model, renderContext: renderContext)
+    func embed(for model: ExperienceComponent.CustomFrameModel) -> (AppcuesCustomFrameViewController.Type, AppcuesExperiencePluginConfiguration)? {
+        return customFrameRegistry?.embed(for: model, renderContext: renderContext)
     }
 }
 
@@ -89,7 +89,7 @@ extension ExperienceComponent {
         var components: [UUID: ExperienceData.FormItem] = [:]
 
         switch self {
-        case .text, .button, .image, .spacer, .embed, .customEmbed:
+        case .text, .button, .image, .spacer, .embed, .customFrame:
             break
         case .stack(let model):
             model.items.forEach {
