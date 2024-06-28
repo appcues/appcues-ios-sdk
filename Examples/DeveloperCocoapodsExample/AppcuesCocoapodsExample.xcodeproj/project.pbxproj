@@ -22,6 +22,8 @@
 		A245C61F75A6DAA8985A6772 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10C713E67205D9507CE2DC80 /* AppDelegate.swift */; };
 		A5CE7AE8513C052690838416 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */; };
 		B62E50722A74862AEBD2DE44 /* ScrollingTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F518475589397A213D89DA /* ScrollingTableViewController.swift */; };
+		C92447842C2C686500427E7B /* CountdownViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C92447832C2C686500427E7B /* CountdownViewController.swift */; };
+		C92447862C2DE1E500427E7B /* VideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C92447852C2DE1E500427E7B /* VideoViewController.swift */; };
 		CCD458B6662FC0AC5C80CAFF /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 384497BA35A275E793B475C1 /* ProfileViewController.swift */; };
 		CD156254F042866368E77CC3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 024025AF9E2E0D38C368A6AC /* Main.storyboard */; };
 		DBE453F2B40A01B4818CB84E /* Lato-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C47ABB97FE784624C32E96D7 /* Lato-Bold.ttf */; };
@@ -48,6 +50,8 @@
 		A3F518475589397A213D89DA /* ScrollingTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrollingTableViewController.swift; sourceTree = "<group>"; };
 		AAD7ED9DCA5972361B3F5E67 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C47ABB97FE784624C32E96D7 /* Lato-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Bold.ttf"; sourceTree = "<group>"; };
+		C92447832C2C686500427E7B /* CountdownViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownViewController.swift; sourceTree = "<group>"; };
+		C92447852C2DE1E500427E7B /* VideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewController.swift; sourceTree = "<group>"; };
 		C955845E2B4F322F00371B62 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		C955845F2B4F323000371B62 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
 		C95584602B4F323500371B62 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
@@ -108,6 +112,8 @@
 				25B8CDCE5B93FC3FE0FEB574 /* SceneDelegate.swift */,
 				A3F518475589397A213D89DA /* ScrollingTableViewController.swift */,
 				8663BEDD1883CC408AA4A302 /* SignInViewController.swift */,
+				C92447832C2C686500427E7B /* CountdownViewController.swift */,
+				C92447852C2DE1E500427E7B /* VideoViewController.swift */,
 			);
 			path = CocoapodsExample;
 			sourceTree = "<group>";
@@ -149,7 +155,6 @@
 				126280A64491198327F9902A /* [CP] Check Pods Manifest.lock */,
 				39C4F25C30C2C38F00378FED /* Sources */,
 				4B41B1A9E3D52747D92B7344 /* Resources */,
-				6D4DB9FBC4445D937FD94125 /* SwiftLint */,
 				4A946992014BEB023C4C02C2 /* Frameworks */,
 				3C6DE1DA29976BDF2C8850F2 /* [CP] Embed Pods Frameworks */,
 			);
@@ -249,24 +254,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AppcuesCocoapodsExample/Pods-AppcuesCocoapodsExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		6D4DB9FBC4445D937FD94125 /* SwiftLint */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = SwiftLint;
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "if which mint >/dev/null; then\nxcrun --sdk macosx mint run swiftlint@0.50.3\nelse\necho \"warning: Mint not installed, install from https://github.com/yonaskolb/Mint\"\nfi ";
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -274,7 +261,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C92447842C2C686500427E7B /* CountdownViewController.swift in Sources */,
 				A245C61F75A6DAA8985A6772 /* AppDelegate.swift in Sources */,
+				C92447862C2DE1E500427E7B /* VideoViewController.swift in Sources */,
 				68E596FD295BCC69F06AF0B4 /* DeepLinkNavigator.swift in Sources */,
 				622C6559F57A6A19F18D46C4 /* EmbedTestHarnessViewController.swift in Sources */,
 				8F7329B0046118A1DFA8B58D /* EmbedViewController.swift in Sources */,

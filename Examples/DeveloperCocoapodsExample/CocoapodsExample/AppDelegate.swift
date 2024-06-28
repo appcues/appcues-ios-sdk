@@ -17,6 +17,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         // Override point for customization after application launch.
 
+        Appcues.shared.registerCustomFrame(identifier: "video", type: VideoViewController.self)
+        if #available(iOS 14.0, *) {
+            Appcues.shared.registerCustomFrame(identifier: "countdown", type: CountdownViewController.self)
+        }
+
         return true
     }
 
