@@ -35,7 +35,7 @@ public struct AppcuesFrame: UIViewControllerRepresentable {
 
 @available(iOS 13.0, *)
 extension AppcuesFrame {
-    class AppcuesFrameVC: UIViewController {
+    final class AppcuesFrameVC: UIViewController {
         lazy var frameView = AppcuesFrameView()
 
         override func loadView() {

@@ -9,35 +9,36 @@
 import SwiftUI
 
 @available(iOS 13.0, *)
-internal struct CustomEmbedRepresentable: UIViewRepresentable {
-    private let type: AppcuesEmbedView.Type
+internal struct CustomFrameRepresentable: UIViewControllerRepresentable {
+    private let type: AppcuesCustomFrameViewController.Type
     private let configuration: AppcuesExperiencePluginConfiguration
 
-    init?(on viewModel: ExperienceStepViewModel, for model: ExperienceComponent.CustomEmbedModel) {
+    init?(on viewModel: ExperienceStepViewModel, for model: ExperienceComponent.CustomFrameModel) {
         guard let (type, configuration) = viewModel.embed(for: model) else { return nil }
         self.type = type
         self.configuration = configuration
     }
 
-    func makeUIView(context: Context) -> UIView {
-        type.init(configuration: configuration)
+    func makeUIViewController(context: Context) -> UIViewController {
+        let viewController = type.init(configuration: configuration)
+        return viewController ?? UIViewController()
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         // no-op
     }
 }
 
 @available(iOS 13.0, *)
-internal struct CustomEmbed: View {
-    let model: ExperienceComponent.CustomEmbedModel
+internal struct CustomFrame: View {
+    let model: ExperienceComponent.CustomFrameModel
 
     @EnvironmentObject var viewModel: ExperienceStepViewModel
 
     var body: some View {
         let style = AppcuesStyle(from: model.style)
 
-        CustomEmbedRepresentable(on: viewModel, for: model)
+        CustomFrameRepresentable(on: viewModel, for: model)
             .setupActions(on: viewModel, for: model)
             .applyAllAppcues(style)
     }
@@ -65,8 +66,8 @@ extension ExperienceComponent {
             AnyView(AppcuesTextInput(model: model))
         case .optionSelect(let model):
             AnyView(AppcuesOptionSelect(model: model))
-        case .customEmbed(let model):
-            AnyView(CustomEmbed(model: model))
+        case .customFrame(let model):
+            AnyView(CustomFrame(model: model))
         case .spacer(let model):
             AnyView(Spacer(minLength: CGFloat(model.spacing)))
         }
