@@ -72,6 +72,7 @@ extension UNUserNotificationCenter {
     ) {
         // this gives swizzling something to replace, if the existing delegate doesn't already
         // implement this function.
+        completionHandler()
     }
 
     @objc
@@ -82,6 +83,7 @@ extension UNUserNotificationCenter {
     ) {
         // this gives swizzling something to replace, if the existing delegate doesn't already
         // implement this function.
+        completionHandler([])
     }
 
     @objc
