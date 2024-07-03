@@ -66,12 +66,20 @@ internal enum PushAutoConfig {
         let didHandleResponse = pushMonitors.contains { weakPushMonitor in
             guard let pushMonitor = weakPushMonitor.value else { return false }
 
+            // `completionHandler` is executed iff this returns true
             return pushMonitor.didReceiveNotification(response: response, completionHandler: completionHandler)
         }
 
-        // Save unhandled response for any future PushMonitor instances
-        // (or clear the existing value if a newer response was handled)
-        receivedUnhandledResponse = !didHandleResponse ? response : nil
+        if didHandleResponse {
+            // Clear the existing value if a newer response was handled
+            receivedUnhandledResponse = nil
+        } else {
+            // Save unhandled response for any future PushMonitor instances
+            receivedUnhandledResponse = response
+            // Completion block has yet to be called because no PushMonitor instance has handled it
+            // The block must be called by all paths of this function, so call it now
+            completionHandler()
+        }
     }
 
     // Shared instance is called from the swizzled method
