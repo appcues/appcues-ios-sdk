@@ -29,6 +29,7 @@ internal class TraitRegistry {
         register(trait: AppcuesTargetElementTrait.self)
         register(trait: AppcuesBackdropKeyholeTrait.self)
         register(trait: AppcuesTargetInteractionTrait.self)
+        register(trait: AppcuesEffectsTrait.self)
         register(trait: AppcuesEmbeddedTrait.self)
     }
 
