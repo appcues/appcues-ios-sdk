@@ -5,6 +5,14 @@
         @Image(source: banner.png, alt: "AppcuesKit")
     }
     
+    @Chapter(name: "Manual Push Notifications") {
+        The Appcues iOS SDK supports receiving push notification so you can reach your users whenever the moment is right.
+        
+        @Image(source: PushNotifications, alt: "Push Notifications")
+        
+        @TutorialReference(tutorial: "doc:PushNotificationsTutorial")
+    }
+
     @Chapter(name: "Permission Primers") {
         A permission primer is a contextual modal that provides additional context about why your app will request permission to use a protected device capability like the camera or microphone.
 
