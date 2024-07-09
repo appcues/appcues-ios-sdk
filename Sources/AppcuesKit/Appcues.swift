@@ -263,6 +263,9 @@ public class Appcues: NSObject {
     ///
     /// This function is intended to be called from  your `UIApplicationDelegate`'s
     /// `application(_:didRegisterForRemoteNotificationsWithDeviceToken:)` function:
+    /// ```swift
+    /// <#appcuesInstance#>.setPushToken(deviceToken)
+    /// ```
     @objc
     public func setPushToken(_ deviceToken: Data?) {
         let pushMonitor = container.resolve(PushMonitoring.self)
@@ -350,6 +353,26 @@ public class Appcues: NSObject {
         return container.resolve(DeepLinkHandling.self).didHandleURL(url)
     }
 
+    /// Verifies if a user's response to a delivered notification is handled by the Appcues SDK.
+    /// - Parameters:
+    ///   - response: The user’s response to the notification.
+    ///   - completionHandler: The block to execute when you have finished processing the user’s response.
+    /// - Returns: `true` if Appcues successfully processed the user's response.
+    ///
+    /// If the notification is an Appcues push notification, this function may launch an experience or otherwise alter the UI state.
+    ///
+    /// If `true` is returned, Appcues will execute the `completionHandler` block.
+    /// Otherwise you should execute the block when you finish processing the user's response.
+    ///
+    /// This function is intended to be called added at the top of your
+    /// `UNUserNotificationCenterDelegate`'s `userNotificationCenter(_:didReceive:withCompletionHandler:)` function:
+    /// ```swift
+    /// if <#appcuesInstance#>.didReceiveNotification(response: response, completionHandler: completionHandler) {
+    ///     return
+    /// }
+    /// // App logic here
+    /// completionHandler()
+    /// ```
     public func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool {
         return container.resolve(PushMonitoring.self).didReceiveNotification(response: response, completionHandler: completionHandler)
     }

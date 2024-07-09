@@ -38,6 +38,10 @@ Tap the row to re-check the connection status.
 
 Tap to check status. Shows a checkmark if the Appcues deep link is properly configured. See <doc:URLSchemeConfiguring> for information about error messages.
 
+### Push Notification Configuration Status
+
+Tap to check status and send a test push notification. Shows a checkmark if Appcues push notifications are properly configured. See <doc:PushNotificationsDebugging> for information about error messages.
+
 ### Screen Tracking Status
 
 Shows a checkmark if a screen event has been observed since the debugger was launched. You may need to navigate to another screen in your app for the debugger to observe a screen event.
