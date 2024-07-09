@@ -32,7 +32,12 @@
 
 ### Push Notifications
 
+- <doc:PushNotificationsRich>
+- <doc:PushNotificationsDebugging>
+- <doc:PushNotificationsManually>
+- ``Appcues/enableAutomaticPushConfig()``
 - ``Appcues/setPushToken(_:)``
+- ``Appcues/didReceiveNotification(response:completionHandler:)``
 
 ### Debugging
 
@@ -44,6 +49,7 @@
 
 ### Customizing and Extending
 
+- ``Appcues/presentationDelegate``
 - ``Appcues/experienceDelegate``
 - ``Appcues/analyticsDelegate``
 - ``Appcues/navigationDelegate``
