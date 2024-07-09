@@ -1,0 +1,71 @@
+@Tutorial(time: 30) {
+    @Intro(title: "Manually Adding Support for Push Notifications") {
+        This tutorial manually configures push notifications for an app.
+        
+        > Tip: Automatic configuration is the quickest and simplest way to configure push notifications and is recommended for most customers. Refer to <doc:PushNotifications> for automatic configuration instructions.
+    }
+    
+    
+    @Section(title: "Configure Appcues Studio") {
+        @ContentAndMedia {
+            It is recommended to have [configured your iOS push settings in Appcues Studio](https://docs.appcues.com/en_US/push-notifications/push-notification-settings) before configuring push notifications in your app to allow you quickly test your configuration end to end.
+        }
+        
+        @Steps {
+            @Step {
+                Upload the APNs Key file for your app in Appcues Studio.
+                
+                @Image(source: PushManually-01-01.png, alt: "Audience targeting settings")
+            }
+
+        }
+    }
+
+    @Section(title: "In-app configuration") {
+        @ContentAndMedia {
+            Configure your app to allow push notifications.
+        }
+        
+        @Steps {
+            @Step {
+                In Xcode, navigate to the Signing & Capabilities section of your main app target and add the Push Notifications capability.
+                
+                This will update your .entitlements file with an `aps-environment` value.
+                
+                @Code(name: "AppName.entitlements", file: PushManually-02-01.entitlements, previousFile: PushManually-02-01-0.entitlements)
+            }
+            
+            @Step {
+                Register for push notifications.
+                
+                This requests an APNs token.
+                
+                @Code(name: "AppDelegate.swift", file: PushManually-02-02.swift, previousFile: PushManually-02-02-0.swift)
+            }
+            
+            @Step {
+                Set the push token for Appcues by calling ``Appcues/setPushToken(_:)`` from `UIApplicationDelegate.application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`.
+                                
+                @Code(name: "AppDelegate.swift", file: PushManually-02-03.swift, previousFile: PushManually-02-02.swift)
+            }
+            
+            @Step {
+                Update your `AppDelegate` to conform to the `UNUserNotificationCenterDelegate` protocol and assign the delegate.
+                                                
+                @Code(name: "AppDelegate.swift", file: PushManually-02-04.swift, previousFile: PushManually-02-03.swift)
+            }
+            
+            @Step {
+                Implement `userNotificationCenter(_:didReceive:withCompletionHandler:)` and pass the received notification response to ``Appcues/didReceiveNotification(response:completionHandler:)``.
+                                
+                @Code(name: "AppDelegate.swift", file: PushManually-02-05.swift, previousFile: PushManually-02-04.swift)
+            }
+            
+            @Step {
+                Configure handling of push notifications received while your app is in the foreground by implementing `userNotificationCenter(_:willPresent:withCompletionHandler:)`.
+                
+                @Code(name: "AppDelegate.swift", file: PushManually-02-06.swift, previousFile: PushManually-02-05.swift)
+            }
+        }
+    }
+}
