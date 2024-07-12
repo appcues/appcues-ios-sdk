@@ -23,6 +23,20 @@ extension Dictionary where Key == String, Value == Any {
             "experienceInstanceId": experience.instanceID.appcuesFormatted
         ]
 
+        if let trigger = experience.trigger.property {
+            properties["trigger"] = trigger
+        }
+
+        switch experience.trigger {
+        case let .launchExperienceAction(experienceID),
+            let .experienceCompletionAction(experienceID):
+            properties["fromExperienceId"] = experienceID?.appcuesFormatted
+        case let .pushNotification(notificationID):
+            properties["pushNotificationId"] = notificationID
+        default:
+            break
+        }
+
         if let localeName = experience.context?.localeName {
             properties["localeName"] = localeName
         }
