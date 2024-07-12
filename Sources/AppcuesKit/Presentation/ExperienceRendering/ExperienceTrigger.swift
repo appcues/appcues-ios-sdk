@@ -12,7 +12,7 @@ internal enum ExperienceTrigger: Equatable {
     case qualification(reason: QualifyResponse.QualificationReason?)
     case experienceCompletionAction(fromExperienceID: UUID?)
     case launchExperienceAction(fromExperienceID: UUID?)
-    case push
+    case pushNotification(notificationID: String)
     case showCall
     case deepLink
     case preview
@@ -25,8 +25,20 @@ internal enum ExperienceTrigger: Equatable {
         switch self {
         case .qualification:
             return false
-        case .experienceCompletionAction, .launchExperienceAction, .push, .showCall, .deepLink, .preview:
+        case .experienceCompletionAction, .launchExperienceAction, .pushNotification, .showCall, .deepLink, .preview:
             return true
+        }
+    }
+
+    var property: String? {
+        switch self {
+        case .qualification(let reason): return reason?.rawValue
+        case .experienceCompletionAction: return "experience_completion_action"
+        case .launchExperienceAction: return "launch_action"
+        case .pushNotification: return "push_notification"
+        case .showCall: return "show_call"
+        case .deepLink: return "deep_link"
+        case .preview: return nil
         }
     }
 }
