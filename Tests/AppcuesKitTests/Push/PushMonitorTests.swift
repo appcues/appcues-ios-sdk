@@ -180,7 +180,7 @@ class PushMonitorTests: XCTestCase {
         appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
             XCTAssertEqual(experienceID, "<some-experience>")
             XCTAssertTrue(published)
-            XCTAssertEqual(trigger, .push)
+            XCTAssertEqual(trigger, .pushNotification(notificationID: "DEADBEEF-0000-0000-0000-000000000001"))
             loadCompletionExpectation.fulfill()
             completion?(.success(()))
         }
@@ -353,7 +353,7 @@ class PushMonitorTests: XCTestCase {
         appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
             XCTAssertEqual(experienceID, "<some-experience>")
             XCTAssertTrue(published)
-            XCTAssertEqual(trigger, .push)
+            XCTAssertEqual(trigger, .pushNotification(notificationID: "DEADBEEF-0000-0000-0000-000000000001"))
             loadCompletionExpectation.fulfill()
             completion?(.success(()))
         }
