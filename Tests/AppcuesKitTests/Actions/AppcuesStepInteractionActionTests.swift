@@ -113,6 +113,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
             "experienceName": experience.name,
             "experienceType": experience.type,
             "experienceInstanceId": experience.instanceID.appcuesFormatted,
+            "trigger": "show_call",
             "localeName": try XCTUnwrap(experience.context?.localeName),
             "localeId": try XCTUnwrap(experience.context?.localeId),
             "stepId": experience.steps[0].items[0].id.appcuesFormatted,
