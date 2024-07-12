@@ -84,6 +84,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             "stepType": "modal",
             "stepId": "6cf396f6-1f01-4449-9e38-7e845f5316c0",
             "stepIndex": "0,0",
+            "trigger": "show_call",
             "interactionType": "Form Submitted",
             "interactionData": [
                 "formResponse": ExperienceData.StepState(formItems: [
