@@ -69,9 +69,9 @@ private extension AppcuesEffectsTrait {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
             self.presentationStyle = try container.decode(PresentationStyle.self, forKey: .presentationStyle)
-            self.duration = (try container.decodeIfPresent(Int.self, forKey: .duration)) ?? 2000
+            self.duration = (try container.decodeIfPresent(Int.self, forKey: .duration)) ?? 2_000
             self.intensity = (try container.decodeIfPresent(Double.self, forKey: .intensity)) ?? 1
-            self.style = (try container.decodeIfPresent(EffectStyle.self, forKey: AppcuesEffectsTrait.Config.CodingKeys.style)) ?? EffectStyle(colors: nil)
+            self.style = (try container.decodeIfPresent(EffectStyle.self, forKey: .style)) ?? EffectStyle(colors: nil)
         }
     }
 
@@ -97,7 +97,7 @@ private extension AppcuesEffectsTrait {
                 defer {
                     UIGraphicsEndImageContext()
                 }
-                
+
                 guard let context = UIGraphicsGetCurrentContext() else { return nil }
                 context.setFillColor(UIColor.white.cgColor)
 
@@ -124,7 +124,7 @@ private extension AppcuesEffectsTrait {
         }()
 
         init(config: Config) {
-            self.duration = Double(config.duration) / 1000
+            self.duration = Double(config.duration) / 1_000
             self.intensity = config.intensity
             self.colors = (config.style.colors ?? ["#5C5CFF", "#20E0D6", "#FF5290"]).compactMap { UIColor(hex: $0) }
             super.init(frame: .zero)
