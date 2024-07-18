@@ -17,7 +17,7 @@ internal protocol TopControllerGetting {
 internal protocol URLOpening {
     var universalLinkHostAllowList: [String]? { get }
 
-    func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey: Any], completionHandler: ((Bool) -> Void)?)
+    func open(_ url: URL, completionHandler: @escaping (() -> Void))
     func open(potentialUniversalLink: URL) -> Bool
 }
 
@@ -89,6 +89,10 @@ extension UIApplication: TopControllerGetting {
 extension UIApplication: URLOpening {
     var universalLinkHostAllowList: [String]? {
         Bundle.main.object(forInfoDictionaryKey: "AppcuesUniversalLinkHostAllowList") as? [String]
+    }
+
+    func open(_ url: URL, completionHandler: @escaping (() -> Void)) {
+        open(url, options: [:]) { _ in completionHandler() }
     }
 
     func open(potentialUniversalLink url: URL) -> Bool {

@@ -73,7 +73,7 @@ internal class AppcuesLinkAction: AppcuesExperienceAction {
             } else {
                 if openExternally {
                     logger.info("@appcues/link: external link opening %{private}@", url.absoluteString)
-                    urlOpener.open(url, options: [:]) { _ in completion() }
+                    urlOpener.open(url, completionHandler: completion)
                 } else {
                     logger.info("@appcues/link: in-app link opening %{private}@", url.absoluteString)
                     urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true, completion: completion)
@@ -82,7 +82,7 @@ internal class AppcuesLinkAction: AppcuesExperienceAction {
         } else {
             // Scheme link
             logger.info("@appcues/link: scheme link opening %{private}@", url.absoluteString)
-            urlOpener.open(url, options: [:]) { _ in completion() }
+            urlOpener.open(url, completionHandler: completion)
         }
     }
 
