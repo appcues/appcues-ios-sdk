@@ -293,9 +293,9 @@ extension AppcuesLinkActionTests {
         var universalLinkHostAllowList: [String]?
 
         var onOpen: ((URL) -> Void)?
-        func open(_ url: URL, options: [UIApplication.OpenExternalURLOptionsKey : Any], completionHandler: ((Bool) -> Void)?) {
+        func open(_ url: URL, completionHandler: @escaping (() -> Void)) {
             onOpen?(url)
-            completionHandler?(true)
+            completionHandler()
         }
 
         var onUniversalOpen: ((URL) -> Bool)?
