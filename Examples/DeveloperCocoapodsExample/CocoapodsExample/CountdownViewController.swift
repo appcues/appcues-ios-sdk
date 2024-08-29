@@ -6,22 +6,33 @@
 //
 
 import UIKit
-import AppcuesKit
 import SwiftUI
+import AppcuesKit
 
 @available(iOS 14.0, *)
-class CountdownViewController: UIViewController, AppcuesCustomFrameViewController {
+extension CountdownViewController: AppcuesCustomFrameViewController {
     struct Config: Decodable {
         let endDate: String
         let tintColor: String?
     }
 
-    let config: Config
-
-    required init?(configuration: AppcuesKit.AppcuesExperiencePluginConfiguration) {
+    convenience init?(configuration: AppcuesKit.AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
-        self.config = config
+        self.init(
+            endDate: ISO8601DateFormatter().date(from: config.endDate) ?? Date(),
+            tintColor: UIColor(hex: config.tintColor) ?? .black
+        )
+    }
+}
 
+@available(iOS 14.0, *)
+final class CountdownViewController: UIViewController {
+    let endDate: Date
+    let tintColor: UIColor
+
+    init(endDate: Date, tintColor: UIColor) {
+        self.endDate = endDate
+        self.tintColor = tintColor
         super.init(nibName: nil, bundle: nil)
         setup()
     }
@@ -36,8 +47,7 @@ class CountdownViewController: UIViewController, AppcuesCustomFrameViewControlle
     }
 
     func setup() {
-        let tintColor = UIColor(hex: config.tintColor) ?? .black
-        let viewController = UIHostingController(rootView: CountdownTimerView(endDate: config.endDate, tintColor: tintColor))
+        let viewController = UIHostingController(rootView: CountdownTimerView(endDate: endDate, tintColor: tintColor))
 
         let swiftuiView = viewController.view!
         swiftuiView.translatesAutoresizingMaskIntoConstraints = false
@@ -70,7 +80,7 @@ struct CountdownTimerView: View {
         viewModel.hasCountdownCompleted
     }
 
-    init(endDate: String, tintColor: UIColor) {
+    init(endDate: Date, tintColor: UIColor) {
         if #available(iOS 15.0, *) {
             self.tintColor = Color(uiColor: tintColor)
         } else {
@@ -145,9 +155,8 @@ class CountdownTimerViewModel: ObservableObject {
         Date() > endDate
     }
 
-    init(endDate: String) {
-        let dateFormatter = ISO8601DateFormatter()
-        self.endDate = dateFormatter.date(from: endDate) ?? Date()
+    init(endDate: Date) {
+        self.endDate = endDate
         updateTimer()
     }
 
