@@ -69,12 +69,6 @@ then
 	exit 1
 fi
 
-if [ -n "$(git status --porcelain)" ]
-then
-  echo "There are uncommited changes. Please commit and create a pull request or stash them.";
-  exit 1
-fi
-
 versionFile="./Sources/AppcuesKit/Version.swift"
 
 # get last line in Version.swift
@@ -149,12 +143,3 @@ gh release upload $newVersion AppcuesKit.xcframework.zip
 # push the updated podspec
 # the version tag need to validate the podspec should have been created above
 pod trunk push Appcues.podspec
-
-# if the new version has a '-' in it, then it's a pre-release version (eg 1.0.0-rc.1, 1.0.0-beta.1, 1.0.0-alpha.1)
-if [[ "$newVersion" == *-* ]]
-then
-	echo "Pre-release version. No docs deployed."
-else
-	# compile the docs for the new version and deploy to GitHub pages
-	./fastlane/docs.sh
-fi
