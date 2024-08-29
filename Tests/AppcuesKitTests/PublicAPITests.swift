@@ -32,6 +32,7 @@ class PublicAPITests: XCTestCase {
             .additionalAutoProperties(["test": "value"])
             .enableUniversalLinks(true)
             .enableTextScaling(true)
+            .enableStepRecoveryObserver(true)
 
         let appcuesInstance = Appcues(config: config)
 
