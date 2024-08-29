@@ -196,7 +196,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
             // we always add an analytics observer, it will internally filter out unpublished flows (builder previews)
             stateMachine.addObserver(analyticsObserver)
 
-            if experience.renderContext == .modal {
+            if experience.renderContext == .modal && config.enableStepRecoveryObserver {
                 // add recovery observer - on recoverable step errors, initiate recovery and retry
                 stateMachine.addObserver(stepRecoveryObserver)
             }

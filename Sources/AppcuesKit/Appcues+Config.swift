@@ -50,6 +50,8 @@ public extension Appcues {
 
         var enableTextScaling = false
 
+        var enableStepRecoveryObserver = true
+
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
         /// - Parameter applicationID: Appcues Application ID - a string containing a UUID,
@@ -206,6 +208,22 @@ public extension Appcues {
         @objc
         public func enableTextScaling(_ enabled: Bool) -> Self {
             self.enableTextScaling = enabled
+            return self
+        }
+
+        /// Set the step recovery observation preference for the configuration.
+        ///
+        /// When this option is enabled, Appcues will detect recoverable step errors and attempt to retry when scroll changes
+        /// are observed. Observation uses method swizzling on `UIScrollView`.
+        ///
+        /// The default value for this configuration is `true`.
+        ///
+        /// - Parameter enabled: Whether step recovery observation is enabled.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        @objc
+        public func enableStepRecoveryObserver(_ enabled: Bool) -> Self {
+            self.enableStepRecoveryObserver = enabled
             return self
         }
     }
