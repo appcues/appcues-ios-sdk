@@ -207,7 +207,11 @@ internal class PushMonitor: PushMonitoring {
             }
 
             if let experienceID = parsedNotification.experienceID {
-                actions.append(AppcuesLaunchExperienceAction(appcues: appcues, experienceID: experienceID, trigger: .pushNotification(notificationID: parsedNotification.notificationID)))
+                actions.append(AppcuesLaunchExperienceAction(
+                    appcues: appcues,
+                    experienceID: experienceID,
+                    trigger: .pushNotification(notificationID: parsedNotification.notificationID)
+                ))
             }
 
             let actionRegistry = appcues.container.resolve(ActionRegistry.self)
