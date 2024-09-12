@@ -185,8 +185,8 @@ internal class PushMonitor: PushMonitoring {
     ) {
         if !parsedNotification.isTest {
             let properties: [String: Any?] = [
-                "notification_id": parsedNotification.notificationID,
-                "notification_version": parsedNotification.notificationVersion,
+                "push_notification_id": parsedNotification.notificationID,
+                "push_notification_version": parsedNotification.notificationVersion,
                 "workflow_id": parsedNotification.workflowID,
                 "workflow_version": parsedNotification.workflowVersion,
                 "workflow_task_id": parsedNotification.workflowTaskID,
