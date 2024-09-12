@@ -82,8 +82,8 @@ private extension URL {
         return self
     }
 
-    /// Converts a URL like https://res.cloudinary.com/xyz/image/upload/v123/000/abc.svg to
-    /// https://res.cloudinary.com/xyz/image/upload/h_600,c_scale/v123/000/abc.png
+    /// Converts a URL like https://images.appcues.com/image/upload/v123/000/abc.svg to
+    /// https://images.appcues.com/image/upload/h_600,c_scale/v123/000/abc.png
     private func transformSVG(components: URLComponents?, width: Double? = nil, height: Double? = nil) -> URL? {
         guard var components = components else { return self }
 
@@ -95,16 +95,27 @@ private extension URL {
         // Scale the png to the right size so it appears crisp like a vector would.
         let scale: CGFloat = UIScreen.main.scale
         var parts = components.path.split(separator: "/")
-        if parts.count == 6, parts[2] == "upload" {
+
+        let insertIndex: Int?
+        if parts.count == 5, parts[1] == "upload" {
+            insertIndex = 2
+        } else if parts.count == 6, parts[2] == "upload" {
+            // backwards compatibility for res.cloudinary.com urls
+            insertIndex = 3
+        } else {
+            insertIndex = nil
+        }
+
+        if let insertIndex = insertIndex {
             if let width = width {
                 // An integer scale value represents a fixed pixel size.
-                parts.insert("w_\(Int(width * scale)),c_scale", at: 3)
+                parts.insert("w_\(Int(width * scale)),c_scale", at: insertIndex)
             } else if let height = height {
-                parts.insert("h_\(Int(height * scale)),c_scale", at: 3)
+                parts.insert("h_\(Int(height * scale)),c_scale", at: insertIndex)
             } else {
                 // If no fixed size, scale the default SVG size by the screen density.
                 // A decimal scale value represents a percentage.
-                parts.insert("w_\(scale),c_scale", at: 3)
+                parts.insert("w_\(scale),c_scale", at: insertIndex)
             }
         }
         components.path = "/" + parts.joined(separator: "/")
