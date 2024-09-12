@@ -167,6 +167,15 @@ class PushMonitorTests: XCTestCase {
 
         appcues.analyticsPublisher.onPublish = { update in
             XCTAssertEqual(update.type, .event(name: Events.Push.pushOpened.rawValue, interactive: false))
+            [
+                "push_notification_id": "DEADBEEF-0000-0000-0000-000000000001",
+                "push_notification_version": 123,
+                "workflow_id": "DEADBEEF-0000-0000-0000-000000000002",
+                "workflow_version": 456,
+                "workflow_task_id": "DEADBEEF-0000-0000-0000-000000000003",
+                "device_id": "device-id"
+            ].verifyPropertiesMatch(update.properties)
+
             analyticsExpectation.fulfill()
         }
 
@@ -433,8 +442,10 @@ extension Dictionary where Key == AnyHashable, Value == Any {
             "appcues_app_id": "<app-id>",
             "appcues_user_id": "default-00000",
             "appcues_notification_id": "DEADBEEF-0000-0000-0000-000000000001",
+            "appcues_notification_version": 123,
             "appcues_workflow_id": "DEADBEEF-0000-0000-0000-000000000002",
-            "appcues_workflow_task_id": "DEADBEEF-0000-0000-0000-000000000003"
+            "appcues_workflow_task_id": "DEADBEEF-0000-0000-0000-000000000003",
+            "appcues_workflow_version": 456,
         ]
     }
 }
