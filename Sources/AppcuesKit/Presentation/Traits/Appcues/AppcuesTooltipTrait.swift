@@ -23,6 +23,8 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
+    let modalContextManager = ModalContextManager()
+
     let tooltipStyle: ExperienceComponent.Style?
     let hidePointer: Bool
     let pointerSize: CGSize
@@ -80,14 +82,10 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
     }
 
     func present(viewController: UIViewController, completion: (() -> Void)?) throws {
-        guard let topViewController = UIApplication.shared.topViewController() else {
-            throw AppcuesTraitError(description: "No top VC found")
-        }
-
-        topViewController.present(viewController, animated: true, completion: completion)
+        try modalContextManager.present(viewController: viewController, completion: completion)
     }
 
     func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        viewController.dismiss(animated: true, completion: completion)
+        modalContextManager.remove(viewController: viewController, completion: completion)
     }
 }
