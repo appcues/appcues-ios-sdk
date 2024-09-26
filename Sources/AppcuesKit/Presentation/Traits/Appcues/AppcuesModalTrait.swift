@@ -34,6 +34,8 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 
+    let modalContextManager = ModalContextManager()
+
     private let presentationStyle: PresentationStyle
     private let modalStyle: ExperienceComponent.Style?
     private let transition: Transition
@@ -79,15 +81,15 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
     }
 
     func present(viewController: UIViewController, completion: (() -> Void)?) throws {
-        guard let topViewController = UIApplication.shared.topViewController() else {
-            throw AppcuesTraitError(description: "No top VC found")
-        }
-
-        topViewController.present(viewController, animated: true, completion: completion)
+        try modalContextManager.present(
+            viewController: viewController,
+            useSameWindow: presentationStyle.useSameWindow,
+            completion: completion
+        )
     }
 
     func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        viewController.dismiss(animated: true, completion: completion)
+        modalContextManager.remove(viewController: viewController, completion: completion)
     }
 }
 
@@ -109,6 +111,15 @@ extension AppcuesModalTrait {
                 return .formSheet
             case .halfSheet:
                 return .formSheet
+            }
+        }
+
+        var useSameWindow: Bool {
+            switch self {
+            case .full, .dialog:
+                return false
+            case .sheet, .halfSheet:
+                return true
             }
         }
     }
