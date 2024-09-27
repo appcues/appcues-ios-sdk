@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import SwiftUI
 
 @available(iOS 13.0, *)
 internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>: UIViewController, UIViewControllerTransitioningDelegate {
@@ -14,6 +15,11 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
     lazy var bodyView = BodyView()
 
     private let experienceContainerViewController: UIViewController
+
+    // Values for pan gesture handling
+    private var allowedEdges: Set<DragDirection.Edge> = []
+    private var initialOffset: CGPoint = .zero
+    private var initialCenter: CGPoint = .zero
 
     // Only set for bottom-aligned modals. Need access to the constant value for keyboard avoidance.
     var bottomConstraint: NSLayoutConstraint?
@@ -80,6 +86,15 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
             transitioningDelegate = self
             let animator = ExperienceWrapperSlideAnimator(view: bodyView, edge: edge)
             slideAnimationController = animator
+
+            allowedEdges = DragDirection.allowedEdges(
+                horizontalAlignment: HorizontalAlignment(string: style?.horizontalAlignment) ?? .center,
+                verticalAlignment: VerticalAlignment(string: style?.verticalAlignment) ?? .center
+            )
+
+            let panRecognizer = UIPanGestureRecognizer()
+            panRecognizer.addTarget(self, action: #selector(slideoutPanned(recognizer:)))
+            bodyView.contentWrapperView.addGestureRecognizer(panRecognizer)
         }
 
         return self
@@ -178,6 +193,78 @@ internal class ExperienceWrapperViewController<BodyView: ExperienceWrapperView>:
                 }
             }
         }
+    }
+
+    @objc
+    private func slideoutPanned(recognizer: UIPanGestureRecognizer) {
+        guard let panView = recognizer.view else { return }
+
+        let canDragToDismiss = !experienceContainerViewController.isModalInPresentation
+        let allowedEdges = canDragToDismiss ? self.allowedEdges : []
+
+        let touchPoint = recognizer.location(in: view)
+
+        switch recognizer.state {
+        case .began:
+            initialCenter = panView.center
+            initialOffset = CGPoint(
+                x: touchPoint.x - panView.center.x,
+                y: touchPoint.y - panView.center.y
+            )
+        case .changed:
+            let dragCenter = CGPoint(
+                x: touchPoint.x - initialOffset.x,
+                y: touchPoint.y - initialOffset.y
+            )
+
+            panView.center = DragDirection(initial: initialCenter, new: dragCenter)
+                .newPoint(allowedEdges: allowedEdges)
+        case .ended, .cancelled:
+            let gestureVelocity = recognizer.velocity(in: view)
+            let adjustedVelocity = DragDirection(initial: .zero, new: gestureVelocity)
+                .newPoint(allowedEdges: allowedEdges)
+
+            let projectedCenter = CGPoint(
+                x: panView.center.x + project(initialVelocity: adjustedVelocity.x),
+                y: panView.center.y + project(initialVelocity: adjustedVelocity.y)
+            )
+
+            let isSufficientToDismiss = DragDirection(initial: initialCenter, new: projectedCenter)
+                .isSufficientToDismiss(allowedEdges: allowedEdges, size: panView.bounds, bounds: bodyView.bounds)
+
+            let finalCenter = isSufficientToDismiss ? projectedCenter : initialCenter
+            let relativeInitialVelocity = CGVector(
+                dx: relativeVelocity(forVelocity: adjustedVelocity.x, from: panView.center.x, to: finalCenter.x),
+                dy: relativeVelocity(forVelocity: adjustedVelocity.y, from: panView.center.y, to: finalCenter.y)
+            )
+            let timingParameters = UISpringTimingParameters(damping: 1, response: 0.4, initialVelocity: relativeInitialVelocity)
+            let animator = UIViewPropertyAnimator(duration: 0, timingParameters: timingParameters)
+            animator.addAnimations {
+                panView.center = finalCenter
+
+                if isSufficientToDismiss {
+                    self.bodyView.backdropView.alpha = 0
+                }
+            }
+            if isSufficientToDismiss {
+                animator.addCompletion { _ in
+                    self.dismiss(animated: false)
+                }
+            }
+            animator.startAnimation()
+        default: break
+        }
+    }
+
+    /// Distance traveled after decelerating to zero velocity at a constant rate.
+    private func project(initialVelocity: CGFloat, decelerationRate: CGFloat = UIScrollView.DecelerationRate.normal.rawValue) -> CGFloat {
+        return (initialVelocity / 1_000) * decelerationRate / (1 - decelerationRate)
+    }
+
+    /// Calculates the relative velocity needed for the initial velocity of the animation.
+    private func relativeVelocity(forVelocity velocity: CGFloat, from currentValue: CGFloat, to targetValue: CGFloat) -> CGFloat {
+        guard currentValue - targetValue != 0 else { return 0 }
+        return velocity / (targetValue - currentValue)
     }
 
     func animationController(
