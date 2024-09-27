@@ -51,8 +51,8 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
             self.view = closeButton
         }
 
-        // Allow interactive dismissal
-        containerController.isModalInPresentation = false
+        // Allow interactive dismissal if the backdrop is configured to be dismissable
+        containerController.isModalInPresentation = ignoreBackdropTap
     }
 
     func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
