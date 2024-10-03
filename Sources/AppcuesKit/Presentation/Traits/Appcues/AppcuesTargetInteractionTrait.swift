@@ -66,7 +66,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     }
 
     private func handle(backdropView: UIView, metadata: AppcuesTraitMetadata) {
-        guard var newTarget: CGRect = metadata["targetRectangle"] else {
+        guard var newTarget: CGRect = metadata["targetRectangle"], metadata["backdropBackgroundColor"] != nil else {
             targetView.removeFromSuperview()
             return
         }

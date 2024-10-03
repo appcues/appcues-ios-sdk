@@ -9,11 +9,11 @@
 import UIKit
 
 @available(iOS 13.0, *)
-internal class ExperienceWrapperView: UIView {
+internal class ExperienceWrapperView: HitTestingOverrideUIView {
 
     var preferredContentSize: CGSize?
 
-    let backdropView = UIView()
+    let backdropView = HitTestingOverrideUIView(overrideApproach: .ignoreSelf)
 
     let contentWrapperView: UIView = {
         // contentWrapperView can take a tooltip shape mask, so ignore hits outside that shape when it's set.
@@ -27,7 +27,7 @@ internal class ExperienceWrapperView: UIView {
     let shadowWrappingView: UIView = HitTestingOverrideUIView(overrideApproach: .ignoreSelf)
 
     required init() {
-        super.init(frame: .zero)
+        super.init(overrideApproach: .ignoreSelf)
 
         backgroundColor = .clear
 
