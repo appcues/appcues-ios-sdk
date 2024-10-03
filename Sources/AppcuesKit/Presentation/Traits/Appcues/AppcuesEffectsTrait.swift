@@ -32,6 +32,7 @@ internal class AppcuesEffectsTrait: AppcuesBackdropDecoratingTrait {
             effectView = confettiView
         }
 
+        effectView.isUserInteractionEnabled = false
         backdropView.addSubview(effectView)
         effectView.pin(to: backdropView)
         self.effectView = effectView
