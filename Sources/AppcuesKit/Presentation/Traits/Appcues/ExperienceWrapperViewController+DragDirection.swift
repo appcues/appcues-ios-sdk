@@ -37,8 +37,7 @@ extension ExperienceWrapperViewController {
                 return [.right]
             case (_, .top):
                 return [.up]
-            case (_, .bottom),
-                (.center, .center):
+            case (_, .bottom):
                 return [.down]
             default:
                 return []
