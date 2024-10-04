@@ -722,7 +722,6 @@ With embeds, this paradigm changes, and a qualification response may contain zer
                                         <buttonConfiguration key="configuration" style="tinted" title="Trigger Event 3"/>
                                         <connections>
                                             <action selector="buttonThreeTapped:" destination="IV4-7k-Qev" eventType="touchUpInside" id="CgE-x1-GH2"/>
-                                            <action selector="buttonTwoTapped:" destination="IV4-7k-Qev" eventType="touchUpInside" id="Mrc-oW-IJA"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" tag="1003" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2Eb-Go-11n">
