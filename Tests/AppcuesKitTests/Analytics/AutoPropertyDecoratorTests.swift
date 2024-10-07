@@ -37,7 +37,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.context).keys).symmetricDifference(expectedContextKeys))
         let expectedPropertyKeys = ["_identity", "CUSTOM"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
-        let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_currentScreenTitle", "_sessionId", "_pushPrimerEligible"]
+        let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_timezoneOffset", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_currentScreenTitle", "_sessionId", "_pushPrimerEligible"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.identityAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
         XCTAssertNil(decorated.deviceAutoProperties)
     }
@@ -54,9 +54,9 @@ class AutoPropertyDecoratorTests: XCTestCase {
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.context).keys).symmetricDifference(expectedContextKeys))
         let expectedPropertyKeys = ["_identity", "_device", "CUSTOM"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
-        let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionRandomizer", "_sessionId", "_pushPrimerEligible"]
+        let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_timezoneOffset", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionRandomizer", "_sessionId", "_pushPrimerEligible"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.identityAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
-        let expectedEventDeviceAutoPropertyKeys = ["_deviceId", "_language", "_pushToken", "_pushEnabledBackground", "_pushEnabled", "_pushEnvironment", "_deviceType", "_appBuild", "_appId", "_operatingSystem", "_bundlePackageId", "_deviceModel", "_appVersion", "_sdkVersion", "_osVersion", "_sdkName", "_appName"]
+        let expectedEventDeviceAutoPropertyKeys = ["_deviceId", "_language", "_pushToken", "_pushEnabledBackground", "_pushEnabled", "_pushEnvironment", "_deviceType", "_appBuild", "_appId", "_operatingSystem", "_bundlePackageId", "_deviceModel", "_timezoneOffset", "_appVersion", "_sdkVersion", "_osVersion", "_sdkName", "_appName"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.deviceAutoProperties).keys).symmetricDifference(expectedEventDeviceAutoPropertyKeys))
     }
 
@@ -70,7 +70,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
         // Assert
         let expectedContextKeys = ["app_id", "app_version"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.context).keys).symmetricDifference(expectedContextKeys))
-        let expectedPropertyKeys = ["CUSTOM", "userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionId", "_pushPrimerEligible"]
+        let expectedPropertyKeys = ["CUSTOM", "userId",  "_deviceModel", "_timezoneOffset", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionId", "_pushPrimerEligible"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
         XCTAssertNil(decorated.identityAutoProperties)
         XCTAssertNil(decorated.deviceAutoProperties)
@@ -105,7 +105,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
         let decorated = decorator.decorate(update)
 
         // Assert
-        let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_currentScreenTitle", "_sessionId", "_pushPrimerEligible", "_myProp"]
+        let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_timezoneOffset", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_currentScreenTitle", "_sessionId", "_pushPrimerEligible", "_myProp"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.identityAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
         XCTAssertNil(decorated.deviceAutoProperties)
 
@@ -130,7 +130,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.context).keys).symmetricDifference(expectedContextKeys))
         let expectedPropertyKeys = ["_identity"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.properties).keys).symmetricDifference(expectedPropertyKeys))
-        let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionId", "_pushPrimerEligible", "PROFILE_PROPERTY"]
+        let expectedEventAutoPropertyKeys = ["userId",  "_deviceModel", "_timezoneOffset", "_bundlePackageId", "_lastBrowserLanguage", "_localId", "_appName", "_lastSeenAt", "_updatedAt", "_sdkVersion", "_osVersion", "_operatingSystem", "_deviceType", "_appVersion", "_isAnonymous", "_appBuild", "_sdkName", "_appId", "_sessionPageviews", "_sessionId", "_pushPrimerEligible", "PROFILE_PROPERTY"]
         XCTAssertEqual([], Set(try XCTUnwrap(decorated.identityAutoProperties).keys).symmetricDifference(expectedEventAutoPropertyKeys))
         XCTAssertNil(decorated.deviceAutoProperties)
     }
