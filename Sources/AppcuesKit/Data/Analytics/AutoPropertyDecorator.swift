@@ -35,7 +35,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_sdkName": "appcues-ios",
             "_osVersion": UIDevice.current.systemVersion,
             "_deviceType": UIDevice.current.userInterfaceIdiom.analyticsName,
-            "_deviceModel": UIDevice.current.modelName
+            "_deviceModel": UIDevice.current.modelName,
+            "_timezoneOffset": TimeZone.current.minutesFromGMT()
         ]
     }()
 
@@ -180,6 +181,12 @@ extension UIDevice {
             guard let value = element.value as? Int8, value != 0 else { return }
             identifier += String(UnicodeScalar(UInt8(value)))
         }
+    }
+}
+
+extension TimeZone {
+    func minutesFromGMT() -> Int {
+        TimeZone.current.secondsFromGMT() / 60
     }
 }
 
