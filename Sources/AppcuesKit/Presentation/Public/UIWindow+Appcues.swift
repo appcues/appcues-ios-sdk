@@ -16,7 +16,7 @@ public extension UIWindow {
     /// that are overlaid on top of the application, when capturing screen layout information.
     var isAppcuesWindow: Bool {
         if #available(iOS 13.0, *) {
-            return self is DebugUIWindow
+            return self is DebugUIWindow || self is ModalContextManager.AppcuesUIWindow
         } else {
             return false
         }
