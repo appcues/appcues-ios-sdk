@@ -43,6 +43,11 @@ internal class AppcuesTraitMetadata: NSObject {
     }
 
     /// Accesses the value associated with the given key for reading.
+    internal subscript(isSet key: String) -> Bool {
+        newData[key] != nil
+    }
+
+    /// Accesses the value associated with the given key for reading.
     internal subscript<T>(_ key: String) -> T? {
         newData[key] as? T
     }
