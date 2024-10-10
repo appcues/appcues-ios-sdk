@@ -11,6 +11,8 @@ import UIKit
 @available(iOS 13.0, *)
 internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
+        // swiftlint:disable:next discouraged_optional_boolean
+        let enablePassThrough: Bool?
         let actions: [Experience.Action]?
     }
 
@@ -26,15 +28,11 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     private weak var appcues: Appcues?
     private let renderContext: RenderContext
 
+    private let enablePassThrough: Bool
     private let tapActions: [Experience.Action]
     private let longPressActions: [Experience.Action]
 
-    private lazy var targetView: UIView = {
-        let view = HitTestingOverrideUIView(overrideApproach: .applyMask)
-        view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapTarget)))
-        view.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(didLongPressTarget)))
-        return view
-    }()
+    private lazy var targetView = TargetView(trait: self)
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         self.appcues = configuration.appcues
@@ -43,6 +41,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
         let config = configuration.decode(Config.self)
         let actions = config?.actions ?? []
 
+        enablePassThrough = config?.enablePassThrough ?? false
         tapActions = actions.filter { ActionType(rawValue: $0.trigger) == .tap }
         longPressActions = actions.filter { ActionType(rawValue: $0.trigger) == .longPress }
     }
@@ -131,5 +130,90 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
         let shapeMaskLayer = CAShapeLayer()
         shapeMaskLayer.path = keyholeBezierPath.cgPath
         return shapeMaskLayer
+    }
+}
+
+@available(iOS 13.0, *)
+extension AppcuesTargetInteractionTrait {
+    class TargetView: UIView {
+        private weak var appWindow: UIWindow?
+        private weak var trait: AppcuesTargetInteractionTrait?
+
+        private lazy var tapRecognizer: UITapGestureRecognizer = {
+            let recognizer = UITapGestureRecognizer(target: self, action: #selector(didTapInApp(recognizer:)))
+            recognizer.cancelsTouchesInView = false
+            return recognizer
+        }()
+
+        private lazy var longPressRecognizer: UILongPressGestureRecognizer = {
+            let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPressInApp(recognizer:)))
+            recognizer.cancelsTouchesInView = false
+            return recognizer
+        }()
+
+        init(trait: AppcuesTargetInteractionTrait) {
+            self.trait = trait
+
+            super.init(frame: .zero)
+
+            if trait.enablePassThrough {
+                self.appWindow = UIApplication.shared.windows.first { !$0.isAppcuesWindow }
+            } else {
+                self.addGestureRecognizer(tapRecognizer)
+                self.addGestureRecognizer(longPressRecognizer)
+            }
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func willMove(toSuperview newSuperview: UIView?) {
+            super.willMove(toSuperview: newSuperview)
+
+            if newSuperview == nil {
+                // Be sure to remove the gesture recognizers when the view is removed
+                // in case they're still attached to an app view
+                tapRecognizer.view?.removeGestureRecognizer(tapRecognizer)
+                longPressRecognizer.view?.removeGestureRecognizer(longPressRecognizer)
+            }
+        }
+
+        override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+            guard let maskPath = (layer.mask as? CAShapeLayer)?.path else { return nil }
+
+            guard maskPath.contains(point) else {
+                // Ignore hits outside of the masked area
+                return nil
+            }
+
+            if let appWindow = appWindow {
+                // Pass through and find tapped view in underlying app
+                let appWindowPoint = appWindow.convert(point, from: self.window)
+                let appWindowHitView = appWindow.hitTest(appWindowPoint, with: event)
+                appWindowHitView?.addGestureRecognizer(tapRecognizer)
+                appWindowHitView?.addGestureRecognizer(longPressRecognizer)
+                return appWindowHitView
+            } else {
+                return self
+            }
+        }
+
+        @objc
+        private func didTapInApp(recognizer: UITapGestureRecognizer) {
+            if recognizer.view != self {
+                recognizer.view?.removeGestureRecognizer(recognizer)
+            }
+            trait?.didTapTarget()
+        }
+
+        @objc
+        private func didLongPressInApp(recognizer: UILongPressGestureRecognizer) {
+            if recognizer.view != self {
+                recognizer.view?.removeGestureRecognizer(recognizer)
+            }
+            trait?.didLongPressTarget()
+        }
     }
 }
