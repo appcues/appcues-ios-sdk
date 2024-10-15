@@ -135,19 +135,21 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
 
 @available(iOS 13.0, *)
 extension AppcuesTargetInteractionTrait {
-    class TargetView: UIView {
+    class TargetView: UIView, UIGestureRecognizerDelegate {
         private weak var appWindow: UIWindow?
         private weak var trait: AppcuesTargetInteractionTrait?
 
         private lazy var tapRecognizer: UITapGestureRecognizer = {
             let recognizer = UITapGestureRecognizer(target: self, action: #selector(didTapInApp(recognizer:)))
             recognizer.cancelsTouchesInView = false
+            recognizer.delegate = self
             return recognizer
         }()
 
         private lazy var longPressRecognizer: UILongPressGestureRecognizer = {
             let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(didLongPressInApp(recognizer:)))
             recognizer.cancelsTouchesInView = false
+            recognizer.delegate = self
             return recognizer
         }()
 
@@ -198,6 +200,10 @@ extension AppcuesTargetInteractionTrait {
             } else {
                 return self
             }
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+            true
         }
 
         @objc
