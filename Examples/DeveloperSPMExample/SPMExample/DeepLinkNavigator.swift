@@ -135,7 +135,7 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
         }
 
         guard let windowScene = scene as? UIWindowScene,
-            let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+            let window = windowScene.windows.first(where: { !$0.isAppcuesWindow }),
             let origin = AppScreen(rootController: window.rootViewController)
         else {
             // cannot find the screen information to navigate, fail navigation
