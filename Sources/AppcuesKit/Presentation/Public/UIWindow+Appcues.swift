@@ -22,3 +22,9 @@ public extension UIWindow {
         }
     }
 }
+
+extension UIApplication {
+    var appWindow: UIWindow? {
+        windows.first { !$0.isAppcuesWindow }
+    }
+}
