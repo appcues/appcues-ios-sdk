@@ -43,17 +43,20 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
     }
 
     func decorate(backdropView: UIView) throws {
-        // Determine if the selector can be resolved to a view, failing the step if not.
-        let targetRect = try calculateRect()
-        // The first decorate call on the first step in a group will have a nil window because the views aren't added yet,
-        // so skip setting a targetRectangle until we have proper bounds. The change handler below will take care of that.
-        if backdropView.window != nil {
-            metadataDelegate?.set([
-                "contentPreferredPosition": config.contentPreferredPosition,
-                "contentDistanceFromTarget": CGFloat(config.contentDistanceFromTarget ?? 0),
-                "targetRectangle": targetRect
-            ])
-        }
+        // TODO: HELP!!
+//        if backdropView.window != nil {
+//            Task {
+//                // Determine if the selector can be resolved to a view, failing the step if not.
+//                let targetRect = try await calculateRect()
+//                // The first decorate call on the first step in a group will have a nil window because the views aren't added yet,
+//                // so skip setting a targetRectangle until we have proper bounds. The change handler below will take care of that.
+//                metadataDelegate?.set([
+//                    "contentPreferredPosition": config.contentPreferredPosition,
+//                    "contentDistanceFromTarget": CGFloat(config.contentDistanceFromTarget ?? 0),
+//                    "targetRectangle": targetRect
+//                ])
+//            }
+//        }
 
         // Monitor the backdrop bounds to recalculate target-element position on changes.
         backdropView.insertSubview(frameObserverView, at: 0)
@@ -63,7 +66,7 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
 
         frameObserverView.onChange = { [weak self] _ in
             // this observer will ignore selector errors and use last known position on failure
-            if let targetRectangle = try? self?.calculateRect() {
+            if let targetRectangle = try? await self?.calculateRect() {
                 self?.metadataDelegate?.set([
                     "contentPreferredPosition": self?.config.contentPreferredPosition,
                     "contentDistanceFromTarget": CGFloat(self?.config.contentDistanceFromTarget ?? 0),
@@ -82,12 +85,12 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
         frameObserverView.onChange = nil
     }
 
-    private func calculateRect() throws -> CGRect {
-        let view = try viewMatchingSelector()
+    private func calculateRect() async throws -> CGRect {
+        let view = try await viewMatchingSelector()
         return CGRect(x: view.x, y: view.y, width: view.width, height: view.height)
     }
 
-    private func viewMatchingSelector() throws -> AppcuesViewElement {
+    private func viewMatchingSelector() async throws -> AppcuesViewElement {
 
         let strategy = Appcues.elementTargeting
 
@@ -95,7 +98,7 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
             throw AppcuesTraitError(description: "Invalid selector \(config.selector)")
         }
 
-        guard let weightedViews = strategy.findMatches(for: selector) else {
+        guard let weightedViews = await strategy.findMatches(for: selector) else {
             throw AppcuesTraitError(
                 description: "Could not read application layout information",
                 retryMilliseconds: retryMilliseconds

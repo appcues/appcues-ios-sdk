@@ -16,7 +16,7 @@ public protocol AppcuesElementTargeting {
     /// Capture the layout hierarchy in the currently rendered screen of the application.
     /// - Returns: Root view element for the current screen, or `nil` if not available. The view element
     ///            contains sub-views recursively in the `children` property.
-    func captureLayout() -> AppcuesViewElement?
+    func captureLayout() async -> AppcuesViewElement?
 
     /// Create and return a selector implementation from configuration properties.
     /// - Parameter properties: Key-value collection of properties to identify a given view element.
@@ -28,7 +28,7 @@ public protocol AppcuesElementTargeting {
 internal extension AppcuesElementTargeting {
     // Default implementation that looks at the current view capture and finds any matches.
     // Used during targeted element experiences to find the position in the UI for the experience.
-    func findMatches(for selector: AppcuesElementSelector) -> [(view: AppcuesViewElement, weight: Int)]? {
-        return captureLayout()?.viewsMatchingSelector(selector)
+    func findMatches(for selector: AppcuesElementSelector) async -> [(view: AppcuesViewElement, weight: Int)]? {
+        return await captureLayout()?.viewsMatchingSelector(selector)
     }
 }

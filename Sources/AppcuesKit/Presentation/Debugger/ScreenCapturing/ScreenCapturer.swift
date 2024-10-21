@@ -34,34 +34,36 @@ internal class ScreenCapturer {
             return
         }
 
-        guard let window = window,
-              let screenshot = window.screenshot(),
-              let layout = Appcues.elementTargeting.captureLayout() else {
-            let toast = DebugToast(message: .screenCaptureFailure, style: .failure)
-            captureUI.showToast(toast)
-            return
-        }
+        Task { @MainActor in
+            guard let window = window,
+                  let screenshot = window.screenshot(),
+                  let layout = await Appcues.elementTargeting.captureLayout() else {
+                let toast = DebugToast(message: .screenCaptureFailure, style: .failure)
+                captureUI.showToast(toast)
+                return
+            }
 
-        let timestamp = Date()
-        var capture = Capture(
-            appId: config.applicationID,
-            displayName: window.screenCaptureDisplayName(),
-            screenshotImageUrl: nil,
-            layout: layout,
-            metadata: Capture.Metadata(insets: Capture.Insets(window.safeAreaInsets)),
-            timestamp: timestamp,
-            screenshot: screenshot
-        )
+            let timestamp = Date()
+            var capture = Capture(
+                appId: config.applicationID,
+                displayName: window.screenCaptureDisplayName(),
+                screenshotImageUrl: nil,
+                layout: layout,
+                metadata: Capture.Metadata(insets: Capture.Insets(window.safeAreaInsets)),
+                timestamp: timestamp,
+                screenshot: screenshot
+            )
 
-        captureUI.showConfirmation(screen: capture) { [weak self] result in
-            guard let self = self else { return }
+            captureUI.showConfirmation(screen: capture) { [weak self] result in
+                guard let self = self else { return }
 
-            if case let .success(name) = result {
-                // get updated name
-                capture.displayName = name
+                if case let .success(name) = result {
+                    // get updated name
+                    capture.displayName = name
 
-                // save the screen into the account/app
-                self.saveScreen(captureUI: captureUI, capture: capture, authorization: authorization)
+                    // save the screen into the account/app
+                    self.saveScreen(captureUI: captureUI, capture: capture, authorization: authorization)
+                }
             }
         }
     }

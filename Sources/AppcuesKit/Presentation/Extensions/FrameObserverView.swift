@@ -8,9 +8,10 @@
 
 import UIKit
 
+@available(iOS 13.0, *)
 internal class FrameObserverView: UIView {
     private var oldBounds: CGRect = .zero
-    var onChange: ((_ bounds: CGRect) -> Void)?
+    var onChange: (@MainActor (_ bounds: CGRect) async -> Void)?
 
     init() {
         super.init(frame: .zero)
@@ -25,7 +26,9 @@ internal class FrameObserverView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         if oldBounds != bounds {
-            onChange?(bounds)
+            Task { @MainActor in
+                await onChange?(bounds)
+            }
         }
         oldBounds = bounds
     }

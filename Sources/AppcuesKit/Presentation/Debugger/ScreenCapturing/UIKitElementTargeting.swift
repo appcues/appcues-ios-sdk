@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WebKit
 
 // UIKit selector implementation that uses accessibilityIdentifier,
 // accessibilityLabel, and tag data from the underlying UIView to identify elements.
@@ -130,9 +131,9 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
     // Inject a window for testing purposes
     var window: UIWindow?
 
-    func captureLayout() -> AppcuesViewElement? {
-        let captureWindow = (window ?? UIApplication.shared.windows.first { !$0.isAppcuesWindow })
-        return captureWindow?.asViewElement()
+    func captureLayout() async -> AppcuesViewElement? {
+        let captureWindow = await UIApplication.shared.appWindow
+        return await (window ?? captureWindow)?.asViewElement()
     }
 
     func inflateSelector(from properties: [String: String]) -> AppcuesElementSelector? {
@@ -161,11 +162,11 @@ internal extension UIView {
         )
     }
 
-    func asViewElement() -> AppcuesViewElement? {
-        return self.asViewElement(in: self.bounds, safeAreaInsets: self.safeAreaInsets, autoTag: nil)
+    func asViewElement() async -> AppcuesViewElement? {
+        return await self.asViewElement(in: self.bounds, safeAreaInsets: self.safeAreaInsets, autoTag: nil)
     }
 
-    private func asViewElement(in bounds: CGRect, safeAreaInsets: UIEdgeInsets, autoTag: String?) -> AppcuesViewElement? {
+    private func asViewElement(in bounds: CGRect, safeAreaInsets: UIEdgeInsets, autoTag: String?) async -> AppcuesViewElement? {
         let absolutePosition = self.convert(self.bounds, to: nil)
 
         // discard views that are not visible in the screenshot image
@@ -180,16 +181,22 @@ internal extension UIView {
 
         var tabCount = 0
 
-        let children: [AppcuesViewElement] = self.subviews.compactMap { subview -> AppcuesViewElement? in
-            // discard hidden views and subviews within
-            guard !subview.isHidden else { return nil }
-            var childTabIndex: Int?
-            if subview.displayType == "UITabBarButton" {
-                tabCount += 1
-                childTabIndex = tabCount - 1
+        let children: [AppcuesViewElement]
+
+        if let webView = self as? WKWebView {
+            children = await webViewChildren(webView, positionAdjustment: absolutePosition.inset(by: childInsets))
+        } else {
+            children = await self.subviews.asyncCompactMap { subview -> AppcuesViewElement? in
+                // discard hidden views and subviews within
+                guard !subview.isHidden else { return nil }
+                var childTabIndex: Int?
+                if subview.displayType == "UITabBarButton" {
+                    tabCount += 1
+                    childTabIndex = tabCount - 1
+                }
+                let childAutoTag = getAutoTag(tabIndex: childTabIndex)
+                return await subview.asViewElement(in: bounds, safeAreaInsets: childInsets, autoTag: childAutoTag)
             }
-            let childAutoTag = getAutoTag(tabIndex: childTabIndex)
-            return subview.asViewElement(in: bounds, safeAreaInsets: childInsets, autoTag: childAutoTag)
         }
 
         // find the rect of the visible area of the view within the safe area
@@ -223,10 +230,78 @@ internal extension UIView {
     private func getAutoTag(tabIndex: Int?) -> String? {
         return tabIndex.flatMap { "tab[\($0)]" }
     }
+
+    private func webViewChildren(_ webView: WKWebView, positionAdjustment: CGRect) async -> [AppcuesViewElement] {
+        let script = """
+        [...document.querySelectorAll('button')].map (el => {
+            const { x, y, width, height } = el.getBoundingClientRect();
+            return {
+                x,
+                y,
+                width,
+                height,
+                selector: `html-${el.id}`,
+            }
+        });
+        """
+
+        let response = try? await webView.evaluateJavaScript(script)
+
+        guard let objects = response as? [Dictionary<String, Any>] else { return [] }
+
+        return objects.map { element in
+            AppcuesViewElement(
+                x: positionAdjustment.minX + (element["x"] as? CGFloat ?? 0),
+                y: positionAdjustment.minY + (element["y"] as? CGFloat ?? 0),
+                width: element["width"] as? CGFloat ?? 0,
+                height: element["height"] as? CGFloat ?? 0,
+                type: "htmlNode",
+                selector: UIKitElementSelector(
+                    appcuesID: element["selector"] as? String,
+                    accessibilityIdentifier: nil,
+                    accessibilityLabel: nil,
+                    tag: nil
+                ),
+                children: nil
+            )
+        }
+    }
 }
 
 private extension Optional where Wrapped == String {
     func emptyToNil() -> String? {
         self.flatMap { $0.isEmpty ? nil : $0 }
+    }
+}
+
+public extension Sequence {
+    /// Transform the sequence into an array of new values using
+    /// an async closure that returns optional values. Only the
+    /// non-`nil` return values will be included in the new array.
+    ///
+    /// The closure calls will be performed in order, by waiting for
+    /// each call to complete before proceeding with the next one. If
+    /// any of the closure calls throw an error, then the iteration
+    /// will be terminated and the error rethrown.
+    ///
+    /// - parameter transform: The transform to run on each element.
+    /// - returns: The transformed values as an array. The order of
+    ///   the transformed values will match the original sequence,
+    ///   except for the values that were transformed into `nil`.
+    /// - throws: Rethrows any error thrown by the passed closure.
+    func asyncCompactMap<T>(
+        _ transform: (Element) async throws -> T?
+    ) async rethrows -> [T] {
+        var values = [T]()
+
+        for element in self {
+            guard let value = try await transform(element) else {
+                continue
+            }
+
+            values.append(value)
+        }
+
+        return values
     }
 }
