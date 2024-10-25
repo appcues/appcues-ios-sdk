@@ -18,6 +18,14 @@ internal struct CustomComponentData {
 internal class CustomComponentRegistry {
     private var registeredComponents: [String: AppcuesCustomComponentViewController.Type] = [:]
 
+    var componentDebugInfo: [(identifier: String, debuggableConfig: [String: Any]?)] {
+        registeredComponents
+            .map { key, value in
+                (key, value.debugConfig)
+            }
+            .sorted { $0.0 < $1.0 }
+    }
+
     init() {}
 
     func registerCustomComponent(identifier: String, type: AppcuesCustomComponentViewController.Type) {

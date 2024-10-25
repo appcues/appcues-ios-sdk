@@ -54,6 +54,9 @@ internal enum DebugUI {
                         NavigationLink(destination: DebugFontUI.FontListView(), isActive: $viewModel.navigationDestinationIsFonts) {
                             Text("Available Fonts")
                         }
+                        NavigationLink(destination: DebugPluginUI.PluginListView(), isActive: $viewModel.navigationDestinationIsPlugins) {
+                            Text("Plugins")
+                        }
                         NavigationLink(destination: DebugLogUI.LoggerView()) {
                             Text("Detailed Log")
                         }

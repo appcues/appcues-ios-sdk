@@ -21,6 +21,10 @@ internal class DebugViewModel: ObservableObject {
         get { navigationDestination == .fonts }
         set { navigationDestination = newValue ? .fonts : nil }
     }
+    var navigationDestinationIsPlugins: Bool {
+        get { navigationDestination == .plugins }
+        set { navigationDestination = newValue ? .plugins : nil }
+    }
 
     private var events: [LoggedEvent] = []
 
