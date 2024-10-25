@@ -10,4 +10,11 @@ import UIKit
 
 public protocol AppcuesCustomComponentViewController: UIViewController {
     init?(configuration: AppcuesExperiencePluginConfiguration, actionController: AppcuesExperienceActions)
+
+    static var debugConfig: [String: Any]? { get }
+}
+
+// Default value to make `debugConfig` optional
+public extension AppcuesCustomComponentViewController {
+    static var debugConfig: [String: Any]? { nil }
 }

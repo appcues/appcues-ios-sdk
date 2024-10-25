@@ -27,10 +27,12 @@ internal protocol ScreenCaptureUI {
 internal enum DebugDestination {
     /// Font list screen
     case fonts
+    case plugins
 
     init?(pathToken: String?) {
         switch pathToken {
         case "fonts": self = .fonts
+        case "plugins": self = .plugins
         default: return nil
         }
     }
