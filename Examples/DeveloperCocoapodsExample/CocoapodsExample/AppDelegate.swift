@@ -23,6 +23,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Or, manually configure for push notifications
         // setupPush(application: application)
 
+        Appcues.registerCustomComponent(identifier: "liveStream", type: LiveStreamViewController.self)
+
         return true
     }
 
