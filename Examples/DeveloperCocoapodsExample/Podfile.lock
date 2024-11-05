@@ -1,6 +1,6 @@
 PODS:
-  - Appcues (3.1.9)
-  - AppcuesNotificationService (0.1.0)
+  - Appcues (4.2.0)
+  - AppcuesNotificationService (4.2.0)
 
 DEPENDENCIES:
   - Appcues (from `../../Appcues.podspec`)
@@ -13,9 +13,9 @@ EXTERNAL SOURCES:
     :path: "../../AppcuesNotificationService.podspec"
 
 SPEC CHECKSUMS:
-  Appcues: 58ee609e4cff59090b20e8b251bc4ad2a5cc8cf0
-  AppcuesNotificationService: f7f11e9b156c50106b64b11f55eb0e02586198bd
+  Appcues: 0d2ccd7577dbf1b5e6c65d33630d6058abf1640e
+  AppcuesNotificationService: 0cebce4f4417b31881ee21e080a39d1a30fd3126
 
 PODFILE CHECKSUM: 24c643e3c9c013c74f5d561608aa37768cb0c43e
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2

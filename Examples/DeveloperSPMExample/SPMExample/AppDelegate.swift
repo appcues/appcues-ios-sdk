@@ -17,6 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         // Override point for customization after application launch.
 
+        Appcues.registerCustomComponent(identifier: "video", type: LiveStreamViewController.self)
+
         return true
     }
 
