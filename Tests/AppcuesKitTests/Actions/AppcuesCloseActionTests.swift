@@ -21,10 +21,12 @@ class AppcuesCloseActionTests: XCTestCase {
     func testInit() throws {
         // Act
         let action = AppcuesCloseAction(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
+        let directInitAction = AppcuesCloseAction(appcues: appcues, renderContext: .modal, markComplete: true)
 
         // Assert
         XCTAssertEqual(AppcuesCloseAction.type, "@appcues/close")
         XCTAssertNotNil(action)
+        XCTAssertNotNil(directInitAction)
     }
 
     func testExecute() throws {

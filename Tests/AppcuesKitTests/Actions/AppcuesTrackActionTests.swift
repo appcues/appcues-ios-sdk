@@ -20,13 +20,15 @@ class AppcuesTrackActionTests: XCTestCase {
 
     func testInit() throws {
         // Act
-        let action = AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event")
+        let action = AppcuesTrackAction(fromDecoderWith: appcues, eventName: "My Custom Event")
+        let directInitAction = AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event")
         let failedAction = AppcuesTrackAction(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
 
         // Assert
         XCTAssertEqual(AppcuesTrackAction.type, "@appcues/track")
         XCTAssertNotNil(action)
         XCTAssertEqual(action?.eventName, "My Custom Event")
+        XCTAssertNotNil(directInitAction)
         XCTAssertNil(failedAction)
     }
 
@@ -39,7 +41,7 @@ class AppcuesTrackActionTests: XCTestCase {
             XCTAssertNil(trackingUpdate.properties)
             trackCount += 1
         }
-        let action = AppcuesTrackAction(appcues: appcues, eventName: "My Custom Event")
+        let action = AppcuesTrackAction(fromDecoderWith: appcues, eventName: "My Custom Event")
 
         // Act
         action?.execute(completion: { completionCount += 1 })
@@ -65,7 +67,7 @@ class AppcuesTrackActionTests: XCTestCase {
             
             trackCount += 1
         }
-        let action = AppcuesTrackAction(appcues: appcues, 
+        let action = AppcuesTrackAction(fromDecoderWith: appcues,
                                         eventName: "My Custom Event",
                                         attributes: [
                                             "boolean": true,
@@ -100,7 +102,7 @@ extension AppcuesTrackAction {
     convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
     }
-    convenience init?(appcues: Appcues?, eventName: String, attributes: [String: Any]? = nil) {
+    convenience init?(fromDecoderWith appcues: Appcues?, eventName: String, attributes: [String: Any]? = nil) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(AppcuesTrackAction.Config(eventName: eventName, attributes: attributes), appcues: appcues))
     }
 }

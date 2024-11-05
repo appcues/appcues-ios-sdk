@@ -44,6 +44,7 @@ class AppcuesContinueActionTests: XCTestCase {
                 appcues: appcues
             )
         )
+        let directInitAction = AppcuesContinueAction(appcues: appcues, renderContext: .modal, stepReference: .offset(1))
 
         // Assert
         XCTAssertEqual(AppcuesContinueAction.type, "@appcues/continue")
@@ -51,6 +52,7 @@ class AppcuesContinueActionTests: XCTestCase {
         XCTAssertNotNil(offsetAction)
         XCTAssertNotNil(stepIDAction)
         XCTAssertNotNil(defaultAction)
+        XCTAssertNotNil(directInitAction)
 
         guard case .index(1) = indexAction?.stepReference else { return XCTFail() }
         guard case .offset(-1) = offsetAction?.stepReference else { return XCTFail() }
