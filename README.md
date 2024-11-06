@@ -28,6 +28,7 @@ The SDK is a Swift library for sending user properties and events to the Appcues
     - [Tracking Screens and Events](#tracking-screens-and-events)
     - [Anchored Tooltips](#anchored-tooltips)
     - [Embedded Experiences](#embedded-experiences)
+    - [Custom Components](#custom-components)
   - [📝 Documentation](#-documentation)
   - [🎬 Examples](#-examples)
   - [👷 Contributing](#-contributing)
@@ -134,6 +135,10 @@ Anchored tooltips use element targeting to point directly at specific views in y
 ### Embedded Experiences
 
 Add `AppcuesFrameView` instances in your application layouts to support embedded experience content, with a non-modal presentation. For more information about how to configure your application layouts to use frame views, refer to the guide on [Configuring an Appcues Frame](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/frameconfiguring).
+
+### Custom Components
+
+Implement `AppcuesCustomComponentViewController` instances and register them with Appcues to take advantage of building your own components and using them in experiences. For more information refer to the guide on [Configuring an AppcuesCustomComponentView](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/customcomponentconfiguring)
 
 Refer to the full [Getting Started Guide](https://appcues.github.io/appcues-ios-sdk/documentation/appcueskit/gettingstarted) for more details.
 
