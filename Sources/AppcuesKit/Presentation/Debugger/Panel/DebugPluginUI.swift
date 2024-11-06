@@ -110,7 +110,11 @@ private extension DebugPluginUI {
 
     class DebugExperienceViewModel: ExperienceStepViewModel {
         static let renderContext = RenderContext.embed(frameID: "PLUGIN_DEBUG")
-        let debugActions = DebugAppcuesExperienceActions(appcues: nil, renderContext: DebugExperienceViewModel.renderContext, identifier: "")
+        let debugActions = DebugAppcuesExperienceActions(
+            appcues: nil,
+            renderContext: DebugExperienceViewModel.renderContext,
+            identifier: ""
+        )
 
         init() {
             super.init(renderContext: DebugExperienceViewModel.renderContext, appcues: nil)
