@@ -5,6 +5,16 @@ options:
   deploymentTarget:
     iOS: 13.0
   groupSortPosition: top
+schemes:
+  AppcuesSPMExample:
+    build:
+      targets:
+        AppcuesSPMExample:
+        - running
+        - testing
+        - profiling
+        - analyzing
+        - archiving
 targets:
   AppcuesSPMExample:
     type: application

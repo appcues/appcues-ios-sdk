@@ -6,6 +6,16 @@ options:
     iOS: 13.0
   postGenCommand: pod install
   groupSortPosition: top
+schemes:
+  AppcuesCocoapodsExample:
+    build:
+      targets:
+        AppcuesCocoapodsExample:
+        - running
+        - testing
+        - profiling
+        - analyzing
+        - archiving
 targets:
   AppcuesCocoapodsExample:
     type: application
