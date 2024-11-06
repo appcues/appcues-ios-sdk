@@ -313,7 +313,7 @@ private extension UNNotificationResponse {
         config: Appcues.Config,
         actionIdentifier: String = UNNotificationDefaultActionIdentifier
     ) -> UNNotificationResponse? {
-        guard let response = UNNotificationResponse(coder: KeyedArchiver()),
+        guard let response = UNNotificationResponse(coder: KeyedArchiver(requiringSecureCoding: false)),
               let notification = UNNotification.mock(token: token, config: config) else {
             return nil
         }
@@ -331,7 +331,7 @@ private extension UNNotification {
         config: Appcues.Config,
         actionIdentifier: String = UNNotificationDefaultActionIdentifier
     ) -> UNNotification? {
-        guard let notification = UNNotification(coder: KeyedArchiver()) else {
+        guard let notification = UNNotification(coder: KeyedArchiver(requiringSecureCoding: false)) else {
             return nil
         }
 
