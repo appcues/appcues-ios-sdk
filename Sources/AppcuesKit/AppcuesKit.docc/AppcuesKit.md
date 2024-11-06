@@ -52,6 +52,13 @@ A Swift library for sending user properties and events to the Appcues API and re
 - ``SwiftUI/View/appcuesView(identifier:)``
 - ``UIKit/UIWindow/isAppcuesWindow``
 
+### Custom Components
+
+- <doc:CustomComponentConfiguring>
+- ``AppcuesCustomComponentViewController``
+- ``AppcuesExperienceActions``
+- ``AppcuesExperiencePluginConfiguration``
+
 ### Use Cases
 
 - <doc:UseCases>

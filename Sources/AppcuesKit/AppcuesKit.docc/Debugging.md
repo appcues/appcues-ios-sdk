@@ -62,6 +62,20 @@ If there is an experience currently showing in your app, the debugger will the n
 
 If an experience fails to show, the debugger will note it with "Content Omitted" and the error message describing why the experience was not presented.
 
+## Finding Additional Information
+
+### Available Fonts
+
+This page lists the fonts installed in the application that are available for use from the Appcues Mobile Builder.
+
+### Plugins
+
+This page lists plugins that are registered with the Appcues SDK.
+
+### Detailed Log
+
+This page shows network traffic and other internal details for in-depth debugging.
+
 ## Inspecting Events
 
 The Recent Events section of the debugger shows the list of all events that have passed through the Appcues SDK, with the most recent events at the top of the list. The list of events can be filtered by type by selecting the Filter icon in the header row and selecting an event type.
