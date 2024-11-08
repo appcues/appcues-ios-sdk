@@ -103,7 +103,7 @@ internal class UIDebugger: UIDebugging {
 
         // Set up the debugger
 
-        guard let windowScene = UIApplication.shared.activeWindowScenes.first else {
+        guard let windowScene = UIApplication.shared.mainWindowScene else {
             config.logger.error("Could not open debugger")
             return
         }
@@ -161,7 +161,7 @@ internal class UIDebugger: UIDebugging {
         }
 
         // One-time on-demand set up of the toast window
-        if toastWindow == nil, let windowScene = UIApplication.shared.activeWindowScenes.first {
+        if toastWindow == nil, let windowScene = UIApplication.shared.mainWindowScene {
             toastWindow = ToastUIWindow(windowScene: windowScene)
         }
 
