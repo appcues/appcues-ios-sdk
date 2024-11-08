@@ -43,6 +43,8 @@ internal class ModalContextManager {
 
     func remove(viewController: UIViewController, completion: (() -> Void)?) {
         viewController.dismiss(animated: true) {
+            // Ensure the window is removed from the hierarchy even if something outside the SDK has a reference to it
+            self.presentingWindow?.windowScene = nil
             self.presentingWindow = nil
             completion?()
         }
