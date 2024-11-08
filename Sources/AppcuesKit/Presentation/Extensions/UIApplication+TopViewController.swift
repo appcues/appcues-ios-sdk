@@ -24,10 +24,16 @@ internal protocol URLOpening {
 extension UIApplication: TopControllerGetting {
 
     @available(iOS 13.0, *)
-    var activeWindowScenes: [UIWindowScene] {
+    private var activeWindowScenes: [UIWindowScene] {
         self.connectedScenes
             .filter { $0.activationState == .foregroundActive }
             .compactMap { $0 as? UIWindowScene }
+    }
+
+    // Prefer the active window scene, but in the case where there's no active scene, use the one from the main app window.
+    @available(iOS 13.0, *)
+    var mainWindowScene: UIWindowScene? {
+        activeWindowScenes.first ?? windows.first(where: { !$0.isAppcuesWindow })?.windowScene
     }
 
     // We expose this property because a unit test cannot init a UIWindowScene for mocking different states.

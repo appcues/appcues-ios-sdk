@@ -18,8 +18,8 @@ internal class ModalContextManager {
             return
         }
 
-        guard let windowScene = UIApplication.shared.activeWindowScenes.first else {
-            throw AppcuesTraitError(description: "No active window scene")
+        guard let windowScene = UIApplication.shared.mainWindowScene else {
+            throw AppcuesTraitError(description: "No main window scene")
         }
 
         let window = AppcuesUIWindow(windowScene: windowScene)
