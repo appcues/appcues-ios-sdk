@@ -8,7 +8,6 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 internal struct LoggedEvent: Identifiable {
     typealias Pair = (title: String, value: String?)
 
@@ -127,7 +126,6 @@ internal struct LoggedEvent: Identifiable {
     }
 }
 
-@available(iOS 13.0, *)
 extension LoggedEvent {
     enum EventType: CaseIterable, CustomStringConvertible {
         case screen

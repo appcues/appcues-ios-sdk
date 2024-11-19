@@ -8,7 +8,6 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 internal class AppcuesTrackAction: AppcuesExperienceAction {
     struct Config {
         let eventName: String
@@ -44,7 +43,6 @@ internal class AppcuesTrackAction: AppcuesExperienceAction {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesTrackAction.Config: Decodable {
 
     private enum CodingKeys: String, CodingKey {

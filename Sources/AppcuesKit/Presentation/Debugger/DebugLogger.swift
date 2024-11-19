@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal class DebugLogger: ObservableObject, Logging {
     let previousLogger: Logging?
 
@@ -73,7 +72,6 @@ internal class DebugLogger: ObservableObject, Logging {
     }
 }
 
-@available(iOS 13.0, *)
 extension DebugLogger {
     struct Log: Identifiable, Encodable {
         let id = UUID()

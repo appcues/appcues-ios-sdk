@@ -12,7 +12,6 @@ import UIKit
 // shared instance. The UIScrollView swizzled methods below can then send updates
 // into this class and have them processed and broadcast to a StepRecoverObserver, if
 // any observer is currently in recovery/retry mode (i.e. failed tooltip)
-@available(iOS 13.0, *)
 internal class AppcuesScrollViewDelegate: NSObject, UIScrollViewDelegate {
     static var shared = AppcuesScrollViewDelegate()
 
@@ -73,7 +72,6 @@ internal class AppcuesScrollViewDelegate: NSObject, UIScrollViewDelegate {
     }
 }
 
-@available(iOS 13.0, *)
 extension UIScrollView {
 
     static func swizzleScrollViewGetDelegate() {

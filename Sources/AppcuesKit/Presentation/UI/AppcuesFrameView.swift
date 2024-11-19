@@ -19,18 +19,10 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
     /// The delegate object that manages and observes presentations in this embed frame.
     public weak var presentationDelegate: AppcuesPresentationDelegate? {
         get {
-            if #available(iOS 13.0, *) {
-                return stateMachine?.clientControllerPresentationDelegate
-            } else {
-                return nil
-            }
+            stateMachine?.clientControllerPresentationDelegate
         }
         set {
-            if #available(iOS 13.0, *) {
-                stateMachine?.clientControllerPresentationDelegate = newValue
-            } else {
-                // no-op
-            }
+            stateMachine?.clientControllerPresentationDelegate = newValue
         }
     }
 
@@ -38,7 +30,6 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
     internal var renderContext: RenderContext?
 
     private var _stateMachine: Any?
-    @available(iOS 13.0, *)
     internal var stateMachine: ExperienceStateMachine? {
         get { _stateMachine as? ExperienceStateMachine }
         set { _stateMachine = newValue }
@@ -145,9 +136,7 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
 
     /// Set the Frame back to an unregistered state.
     internal func reset() {
-        if #available(iOS 13.0, *) {
-            stateMachine?.removeAnalyticsObserver()
-            try? stateMachine?.transition(.endExperience(markComplete: false))
-        }
+        stateMachine?.removeAnalyticsObserver()
+        try? stateMachine?.transition(.endExperience(markComplete: false))
     }
 }

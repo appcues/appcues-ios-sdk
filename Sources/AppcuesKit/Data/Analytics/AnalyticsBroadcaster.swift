@@ -47,9 +47,8 @@ private extension MutableCollection where Element == Any {
     /// It's required to be this way because Dictionary doesn't conform to MutableCollection, only Dictionary.Values.
     mutating func sanitize() {
         for key in self.indices {
-            if #available(iOS 13.0, *), let stepState = self[key] as? ExperienceData.StepState {
-                // This needs to be separate from the switch for the version check,
-                // but it also means the switch applies to the dictionary value, ensuring it's also sanitized.
+            if let stepState = self[key] as? ExperienceData.StepState {
+                // Setting this outside the switch means the switch applies to the dictionary value, ensuring it's also sanitized.
                 self[key] = stepState.formattedAsAny() ?? NSNull()
             }
 

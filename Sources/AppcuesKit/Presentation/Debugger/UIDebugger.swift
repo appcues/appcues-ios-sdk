@@ -10,7 +10,6 @@ import UIKit
 import SwiftUI
 import Combine
 
-@available(iOS 13.0, *)
 internal protocol UIDebugging: AnyObject {
     func verifyInstall(token: String)
     func show(mode: DebugMode)
@@ -44,7 +43,6 @@ internal enum DebugMode {
     case screenCapture(Authorization)     // capture screen image and layout for element targeting
 }
 
-@available(iOS 13.0, *)
 internal class UIDebugger: UIDebugging {
     private var debugWindow: DebugUIWindow?
     private var toastWindow: ToastUIWindow?
@@ -174,7 +172,6 @@ internal class UIDebugger: UIDebugging {
     }
 }
 
-@available(iOS 13.0, *)
 extension UIDebugger: DebugViewDelegate, ScreenCaptureUI {
     func debugView(did event: DebugView.Event) {
         switch event {
@@ -198,7 +195,6 @@ extension UIDebugger: DebugViewDelegate, ScreenCaptureUI {
     }
 }
 
-@available(iOS 13.0, *)
 extension UIDebugger: AnalyticsSubscribing {
     func track(update: TrackingUpdate) {
         guard Thread.isMainThread else {

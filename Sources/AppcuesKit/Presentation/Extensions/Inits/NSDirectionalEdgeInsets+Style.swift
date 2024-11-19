@@ -9,7 +9,6 @@
 import UIKit
 
 extension NSDirectionalEdgeInsets {
-    @available(iOS 13.0, *)
     init(paddingFrom style: ExperienceComponent.Style?, fallback: CGFloat = 0) {
         self.init(
             top: style?.paddingTop ?? fallback,
@@ -19,7 +18,6 @@ extension NSDirectionalEdgeInsets {
         )
     }
 
-    @available(iOS 13.0, *)
     init(marginFrom style: ExperienceComponent.Style?, fallback: CGFloat = 0) {
         self.init(
             top: style?.marginTop ?? fallback,

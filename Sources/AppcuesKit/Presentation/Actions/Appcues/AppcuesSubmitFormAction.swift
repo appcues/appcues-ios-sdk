@@ -8,7 +8,6 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActionQueueTransforming {
     struct Config: Decodable {
         let skipValidation: Bool

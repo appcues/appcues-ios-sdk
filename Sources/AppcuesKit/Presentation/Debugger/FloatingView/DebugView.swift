@@ -8,12 +8,10 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal protocol DebugViewDelegate: AnyObject {
     func debugView(did event: DebugView.Event)
 }
 
-@available(iOS 13.0, *)
 // swiftlint:disable:next type_body_length attributes
 internal class DebugView: UIView {
 
@@ -449,7 +447,6 @@ internal class DebugView: UIView {
     }
 }
 
-@available(iOS 13.0, *)
 extension DebugView {
     enum Event {
         case show

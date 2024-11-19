@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 
-@available(iOS 13.0, *)
 internal class APIVerifier {
     static let title = "Connected to Appcues"
     let networking: Networking

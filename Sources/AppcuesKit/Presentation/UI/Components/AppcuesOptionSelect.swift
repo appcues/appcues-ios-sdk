@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal struct AppcuesOptionSelect: View {
     let model: ExperienceComponent.OptionSelectModel
 
@@ -93,7 +92,6 @@ internal struct AppcuesOptionSelect: View {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceComponent.OptionSelectModel.ControlPosition {
     var verticalAlignment: VerticalAlignment? {
         switch self {

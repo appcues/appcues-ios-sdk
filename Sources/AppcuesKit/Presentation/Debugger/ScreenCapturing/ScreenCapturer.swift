@@ -14,7 +14,6 @@ internal enum ScreenCaptureError: Error {
     case failedCaptureEncoding
 }
 
-@available(iOS 13.0, *)
 internal class ScreenCapturer {
     private let config: Appcues.Config
     private let networking: Networking

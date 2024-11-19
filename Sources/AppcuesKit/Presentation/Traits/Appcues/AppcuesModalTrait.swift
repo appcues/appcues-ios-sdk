@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCreatingTrait, AppcuesPresentingTrait {
 
     enum Transition: Equatable {
@@ -93,7 +92,6 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesModalTrait {
     enum PresentationStyle: String, Decodable {
         case full
@@ -125,7 +123,6 @@ extension AppcuesModalTrait {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesModalTrait.Config {
     func toTransition() -> AppcuesModalTrait.Transition {
 

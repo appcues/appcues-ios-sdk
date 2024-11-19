@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 extension UIColor {
     convenience init?(dynamicColor: ExperienceComponent.Style.DynamicColor?) {
         guard let semanticColor = dynamicColor else { return nil }
@@ -23,7 +22,6 @@ extension UIColor {
     }
 }
 
-@available(iOS 13.0, *)
 extension Color {
     init?(dynamicColor: ExperienceComponent.Style.DynamicColor?) {
         guard let uiColor = UIColor(dynamicColor: dynamicColor) else { return nil }

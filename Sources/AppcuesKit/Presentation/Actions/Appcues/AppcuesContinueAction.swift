@@ -8,7 +8,6 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 internal class AppcuesContinueAction: AppcuesExperienceAction {
     struct Config: Decodable {
         let index: Int?

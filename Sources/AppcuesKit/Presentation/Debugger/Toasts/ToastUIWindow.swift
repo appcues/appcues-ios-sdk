@@ -16,7 +16,6 @@ private class OverlayViewController: UIViewController {
 }
 
 /// A transparent UIWindow that displays toast messages and handles the expected toast interactions.
-@available(iOS 13.0, *)
 internal class ToastUIWindow: UIWindow {
 
     private let toastTapRecognizer = UITapGestureRecognizer()

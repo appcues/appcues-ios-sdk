@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class DebugUIWindow: UIWindow {
 
     init(windowScene: UIWindowScene, rootViewController: UIViewController) {

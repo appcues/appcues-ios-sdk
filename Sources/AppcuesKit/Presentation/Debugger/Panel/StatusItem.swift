@@ -46,7 +46,6 @@ extension StatusItem {
             }
         }
 
-        @available(iOS 13.0, *)
         var tintColor: Color {
             switch self {
             case .verified: return .green

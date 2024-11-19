@@ -11,7 +11,6 @@ import SwiftUI
 // The NPSView is a specialized display format for the AppcuesOptionSelect component.
 // It can be used for single-select models. It splits the given set of options in half
 // and renders in a specific two row display format, for the net promotor score use case.
-@available(iOS 13.0, *)
 internal struct NPSView: View {
     let model: ExperienceComponent.OptionSelectModel
 

@@ -8,7 +8,6 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 extension ExperienceStateMachine {
     indirect enum Action {
         case startExperience(ExperienceData)

@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 extension ExperienceWrapperViewController {
     struct DragDirection {
         enum Edge {

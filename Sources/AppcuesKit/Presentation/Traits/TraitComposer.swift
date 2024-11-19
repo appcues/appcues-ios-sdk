@@ -8,12 +8,10 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal protocol TraitComposing: AnyObject {
     func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage
 }
 
-@available(iOS 13.0, *)
 internal class TraitComposer: TraitComposing {
 
     private weak var appcues: Appcues?
@@ -154,7 +152,6 @@ internal class TraitComposer: TraitComposing {
     }
 }
 
-@available(iOS 13.0, *)
 extension TraitComposer {
     class DecomposedTraits {
         private(set) var allTraitInstances: [AppcuesExperienceTrait]

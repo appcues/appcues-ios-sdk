@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class ModalContextManager {
     var presentingWindow: AppcuesUIWindow?
 
@@ -51,7 +50,6 @@ internal class ModalContextManager {
     }
 }
 
-@available(iOS 13.0, *)
 extension ModalContextManager {
     class AppcuesUIWindow: UIWindow {
         override init(windowScene: UIWindowScene) {

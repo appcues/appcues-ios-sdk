@@ -9,7 +9,6 @@
 import Foundation
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal struct AppcuesEmbed: View {
     let model: ExperienceComponent.EmbedModel
 

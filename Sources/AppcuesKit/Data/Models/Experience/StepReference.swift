@@ -26,8 +26,7 @@ internal enum StepReference: Equatable {
         }
     }
 
-    @available(iOS 13.0, *)
-    func resolve(experience: ExperienceData, currentIndex: Experience.StepIndex) -> Experience.StepIndex? {
+        func resolve(experience: ExperienceData, currentIndex: Experience.StepIndex) -> Experience.StepIndex? {
         switch self {
         case .index(let index):
             return experience.stepIndices[safe: index]
@@ -68,7 +67,6 @@ extension Experience {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceData {
     var stepIndices: [Experience.StepIndex] {
         model.steps.enumerated().flatMap { groupOffset, element in

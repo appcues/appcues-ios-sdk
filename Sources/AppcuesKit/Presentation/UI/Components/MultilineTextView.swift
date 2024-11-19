@@ -56,7 +56,6 @@ internal struct TextInputStyle: TextInputStyling {
 // from iOS 13 and up, since SwiftUI TextField has different feature support
 // on later iOS versions, and not all available in 13. This implementation
 // wraps UIKit UITextField for single line, and UIKit UITextView for multi-line.
-@available(iOS 13.0, *)
 internal struct MultilineTextView: UIViewRepresentable {
     @Binding var text: String
     let model: TextInputStyling
@@ -124,7 +123,6 @@ internal struct MultilineTextView: UIViewRepresentable {
     }
 }
 
-@available(iOS 13.0, *)
 extension MultilineTextView {
     class Coordinator: NSObject, UITextViewDelegate, UITextFieldDelegate {
         var parent: MultilineTextView
@@ -226,7 +224,6 @@ extension MultilineTextView {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceComponent.TextInputModel: TextInputStyling {
     var font: UIFont? {
         let fontSize = textFieldStyle?.fontSize ?? UIFont.labelFontSize
