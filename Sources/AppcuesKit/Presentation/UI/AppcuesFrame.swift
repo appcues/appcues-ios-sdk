@@ -9,7 +9,6 @@
 import SwiftUI
 
 /// A SwiftUI view that displays an Appcues experience.
-@available(iOS 13.0, *)
 public struct AppcuesFrame: UIViewControllerRepresentable {
     weak var appcues: Appcues?
     let frameID: String
@@ -33,7 +32,6 @@ public struct AppcuesFrame: UIViewControllerRepresentable {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesFrame {
     class AppcuesFrameVC: UIViewController {
         lazy var frameView = AppcuesFrameView()

@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal enum DebugPluginUI {
     struct PluginListView: View {
         let componentDebugInfo: [(identifier: String, debuggableConfig: [String: Any]?)]
@@ -105,7 +104,6 @@ internal enum DebugPluginUI {
     }
 }
 
-@available(iOS 13.0, *)
 private extension DebugPluginUI {
 
     class DebugExperienceViewModel: ExperienceStepViewModel {

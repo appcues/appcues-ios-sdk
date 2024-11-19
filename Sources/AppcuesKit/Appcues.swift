@@ -18,10 +18,8 @@ public class Appcues: NSObject {
     /// This strategy controls how the application UI layout hierarchy is captured for building targeted element
     /// experiences. It is also used to control how elements are found for positioning content during rendering of targeted element
     /// experiences, such as anchored tooltips. By default, the SDK uses a strategy for native iOS UIKit applications.
-    @available(iOS 13.0, *)
     public static var elementTargeting: AppcuesElementTargeting = UIKitElementTargeting()
 
-    @available(iOS 13.0, *)
     internal static var customComponentRegistry = CustomComponentRegistry()
 
     let container = DIContainer()
@@ -30,47 +28,10 @@ public class Appcues: NSObject {
     private lazy var analyticsPublisher = container.resolve(AnalyticsPublishing.self)
     private lazy var storage = container.resolve(DataStoring.self)
     private lazy var sessionMonitor = container.resolve(SessionMonitoring.self)
-
-    private var _uiDebugger: Any?
-    @available(iOS 13.0, *)
-    private var uiDebugger: UIDebugging {
-        if _uiDebugger == nil {
-            _uiDebugger = container.resolve(UIDebugging.self)
-        }
-        // swiftlint:disable:next force_cast
-        return _uiDebugger as! UIDebugging
-    }
-
-    private var _traitRegistry: Any?
-    @available(iOS 13.0, *)
-    private var traitRegistry: TraitRegistry {
-        if _traitRegistry == nil {
-            _traitRegistry = container.resolve(TraitRegistry.self)
-        }
-        // swiftlint:disable:next force_cast
-        return _traitRegistry as! TraitRegistry
-    }
-
-    private var _actionRegistry: Any?
-    @available(iOS 13.0, *)
-    private var actionRegistry: ActionRegistry {
-        if _actionRegistry == nil {
-            _actionRegistry = container.resolve(ActionRegistry.self)
-        }
-        // swiftlint:disable:next force_cast
-        return _actionRegistry as! ActionRegistry
-    }
-
-    private var _contentLoader: Any?
-    @available(iOS 13.0, *)
-    private var contentLoader: ContentLoading {
-        if _contentLoader == nil {
-            _contentLoader = container.resolve(ContentLoading.self)
-        }
-        // swiftlint:disable:next force_cast
-        return _contentLoader as! ContentLoading
-    }
-
+    private lazy var uiDebugger = container.resolve(UIDebugging.self)
+    private lazy var traitRegistry = container.resolve(TraitRegistry.self)
+    private lazy var actionRegistry = container.resolve(ActionRegistry.self)
+    private lazy var contentLoader = container.resolve(ContentLoading.self)
     private lazy var notificationCenter = container.resolve(NotificationCenter.self)
 
     /// The delegate object that manages and observes experience presentations.
@@ -127,8 +88,6 @@ public class Appcues: NSObject {
     ///   - type: View controller type
     public static func registerCustomComponent(identifier: String, type: AppcuesCustomComponentViewController.Type) {
         // NOTE: this can't be @objc because the AppcuesCustomComponentView protocol inherits from UIView
-        guard #available(iOS 13.0, *) else { return }
-
         customComponentRegistry.registerCustomComponent(identifier: identifier, type: type)
     }
 
@@ -205,10 +164,8 @@ public class Appcues: NSObject {
         storage.isAnonymous = true
         storage.groupID = nil
 
-        if #available(iOS 13.0, *) {
-            let experienceRenderer = container.resolve(ExperienceRendering.self)
-            experienceRenderer.resetAll()
-        }
+        let experienceRenderer = container.resolve(ExperienceRendering.self)
+        experienceRenderer.resetAll()
 
         notificationCenter.post(name: .appcuesReset, object: self, userInfo: nil)
     }
@@ -242,12 +199,6 @@ public class Appcues: NSObject {
     /// This method ignores any targeting that is set on the experience.
     @objc
     public func show(experienceID: String, completion: ((Bool, Error?) -> Void)? = nil) {
-        guard #available(iOS 13.0, *) else {
-            config.logger.error("iOS 13 or above is required to show an Appcues experience")
-            completion?(false, AppcuesError.unsupportedOSVersion)
-            return
-        }
-
         guard isActive else {
             config.logger.error("An active Appcues session is required to show an Appcues experience")
             completion?(false, AppcuesError.noActiveSession)
@@ -286,8 +237,6 @@ public class Appcues: NSObject {
     /// A trait will not be registered if the specified trait type is already registered.
     @objc
     internal func register(trait: AppcuesExperienceTrait.Type) -> Bool {
-        guard #available(iOS 13.0, *) else { return false }
-
         return traitRegistry.register(trait: trait)
     }
 
@@ -298,8 +247,6 @@ public class Appcues: NSObject {
     /// An action will not be registered if the specified action type is already registered.
     @objc
     internal func register(action: AppcuesExperienceAction.Type) -> Bool {
-        guard #available(iOS 13.0, *) else { return false }
-
         return actionRegistry.register(action: action)
     }
 
@@ -310,11 +257,6 @@ public class Appcues: NSObject {
     ///   - parentViewController: The `UIViewController` that owns the provided ``AppcuesFrameView`` instance.
     @objc
     public func register(frameID: String, for view: AppcuesFrameView, on parentViewController: UIViewController) {
-        guard #available(iOS 13.0, *) else {
-            config.logger.error("iOS 13 or above is required to render embedded experiences")
-            return
-        }
-
         view.configure(parentViewController: parentViewController)
 
         let experienceRenderer = container.resolve(ExperienceRendering.self)
@@ -326,11 +268,6 @@ public class Appcues: NSObject {
     /// See <doc:Debugging> for usage information.
     @objc
     public func debug() {
-        guard #available(iOS 13.0, *) else {
-            config.logger.error("iOS 13 or above is required to use the Appcues inline debugger")
-            return
-        }
-
         uiDebugger.show(mode: .debugger(nil))
     }
 
@@ -355,8 +292,6 @@ public class Appcues: NSObject {
     @discardableResult
     @objc
     public func didHandleURL(_ url: URL) -> Bool {
-        guard #available(iOS 13.0, *) else { return false }
-
         return container.resolve(DeepLinkHandling.self).didHandleURL(url)
     }
 
@@ -400,16 +335,14 @@ public class Appcues: NSObject {
         container.registerLazy(AnalyticsBroadcaster.self, initializer: AnalyticsBroadcaster.init)
         container.registerLazy(PushMonitoring.self, initializer: PushMonitor.init)
 
-        if #available(iOS 13.0, *) {
-            container.registerLazy(PushVerifier.self, initializer: PushVerifier.init)
-            container.registerLazy(DeepLinkHandling.self, initializer: DeepLinkHandler.init)
-            container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
-            container.registerLazy(ContentLoading.self, initializer: ContentLoader.init)
-            container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
-            container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
-            container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
-            container.registerLazy(TraitComposing.self, initializer: TraitComposer.init)
-        }
+        container.registerLazy(PushVerifier.self, initializer: PushVerifier.init)
+        container.registerLazy(DeepLinkHandling.self, initializer: DeepLinkHandler.init)
+        container.registerLazy(UIDebugging.self, initializer: UIDebugger.init)
+        container.registerLazy(ContentLoading.self, initializer: ContentLoader.init)
+        container.registerLazy(ExperienceRendering.self, initializer: ExperienceRenderer.init)
+        container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
+        container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
+        container.registerLazy(TraitComposing.self, initializer: TraitComposer.init)
 
         // anything that should happen at startup automatically is handled here
 

@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 extension TextAlignment {
 
     /// Init `TextAlignment` from an experience JSON model value.

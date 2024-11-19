@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 extension View {
     func setupActions(on viewModel: ExperienceStepViewModel, for componentModel: ComponentModel) -> some View {
         let actions = viewModel.actions(for: componentModel.id)
@@ -148,7 +147,6 @@ extension View {
     }
 }
 
-@available(iOS 13.0, *)
 extension Text {
     func applyTextStyle(_ style: AppcuesStyle, model: ExperienceComponent.TextModel) -> some View {
         self

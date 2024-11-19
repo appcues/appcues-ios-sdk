@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCreatingTrait, AppcuesPresentingTrait {
     struct Config: Decodable {
         // swiftlint:disable:next discouraged_optional_boolean

@@ -14,7 +14,6 @@ internal struct CustomComponentData {
     let actionController: AppcuesExperienceActions
 }
 
-@available(iOS 13.0, *)
 internal class CustomComponentRegistry {
     private var registeredComponents: [String: AppcuesCustomComponentViewController.Type] = [:]
 

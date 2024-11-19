@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 import Combine
 
-@available(iOS 13.0, *)
 internal class DebugViewModel: ObservableObject {
     private let storage: DataStoring
     private var cancellables = Set<AnyCancellable>()

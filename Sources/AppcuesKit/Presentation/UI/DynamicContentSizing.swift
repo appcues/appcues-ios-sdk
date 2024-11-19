@@ -10,7 +10,6 @@ import UIKit
 
 /// Used to inform a container `UIViewController` whether it should update it's `preferredContentSize` based
 /// on the updated size of this `UIContentContainer`.
-@available(iOS 13.0, *)
 internal protocol DynamicContentSizing: UIContentContainer {
     var updatesPreferredContentSize: Bool { get set }
 }

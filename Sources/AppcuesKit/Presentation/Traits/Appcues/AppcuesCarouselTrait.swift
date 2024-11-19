@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class AppcuesCarouselTrait: AppcuesContainerCreatingTrait {
     static let type = "@appcues/carousel"
 
@@ -25,7 +24,6 @@ internal class AppcuesCarouselTrait: AppcuesContainerCreatingTrait {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesCarouselTrait {
 
     class CarouselContainerViewController: AppcuesExperienceContainerViewController, UICollectionViewDataSource, UICollectionViewDelegate {

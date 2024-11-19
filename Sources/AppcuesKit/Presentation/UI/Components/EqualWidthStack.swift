@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 private struct StackWidthPreferenceKey: PreferenceKey {
     static let defaultValue: CGFloat = 0
 
@@ -17,7 +16,6 @@ private struct StackWidthPreferenceKey: PreferenceKey {
     }
 }
 
-@available(iOS 13.0, *)
 internal struct EqualWidthStack<Content: View>: View {
     @State private var stackWidth: CGFloat = 0
 

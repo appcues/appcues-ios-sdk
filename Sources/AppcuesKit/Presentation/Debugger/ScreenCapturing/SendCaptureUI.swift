@@ -9,7 +9,6 @@
 import SwiftUI
 
 /// Namespaced Views used in the screen capture confirmation dialog.
-@available(iOS 13.0, *)
 internal enum SendCaptureUI {
 
     internal enum SendCaptureError: Error {
@@ -131,7 +130,6 @@ internal enum SendCaptureUI {
     }
 }
 
-@available(iOS 13.0, *)
 extension Color {
     // attempted to put colors in asset catalog and use SwiftGen, but the new 6.6.2 version has an
     // open issue with the generated code https://github.com/SwiftGen/SwiftGen/issues/1022 related

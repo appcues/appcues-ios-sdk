@@ -8,7 +8,6 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 internal class AppcuesUpdateProfileAction: AppcuesExperienceAction {
     struct Config {
         let properties: [String: Any]
@@ -45,7 +44,6 @@ internal class AppcuesUpdateProfileAction: AppcuesExperienceAction {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesUpdateProfileAction.Config: Decodable {
     // Custom decoding for this one - we want to just gather up all the key/value
     // pairs from the trait config as raw user property values. We trim the set to

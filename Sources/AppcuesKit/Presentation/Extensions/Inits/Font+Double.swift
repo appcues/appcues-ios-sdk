@@ -7,7 +7,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 extension Font {
 
     /// Init `Font` from an experience JSON model values.
@@ -61,7 +60,6 @@ extension UIFontMetrics {
     }
 }
 
-@available(iOS 13.0, *)
 extension Font.Weight {
 
     /// Init `Font.Weight` from an experience JSON fontName keyword.
@@ -81,7 +79,6 @@ extension Font.Weight {
     }
 }
 
-@available(iOS 13.0, *)
 extension Font.Design {
 
     /// Init `Font.Design` from an experience JSON fontName keyword.
@@ -96,7 +93,6 @@ extension Font.Design {
     }
 }
 
-@available(iOS 13.0, *)
 extension UIFont {
     static func matching(name: String?, size: Double?) -> UIFont? {
         guard let size = CGFloat(size) else { return nil }
@@ -126,7 +122,6 @@ extension UIFont {
     }
 }
 
-@available(iOS 13.0, *)
 extension UIFont.Weight {
 
     /// Init `UIFont.Weight` from an experience JSON fontName keyword.
@@ -146,7 +141,6 @@ extension UIFont.Weight {
     }
 }
 
-@available(iOS 13.0, *)
 extension UIFontDescriptor.SystemDesign {
 
     /// Init `UIFontDescriptor.SystemDesign` from an experience JSON fontName keyword.

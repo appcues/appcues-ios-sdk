@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal class AppcuesBackgroundContentTrait: AppcuesStepDecoratingTrait, AppcuesContainerDecoratingTrait {
     struct Config: Decodable {
         let content: ExperienceComponent

@@ -10,7 +10,6 @@ import Foundation
 
 extension Dictionary where Key == String, Value == Any {
     /// Map experience model to a general property dictionary.
-    @available(iOS 13.0, *)
     init(
         propertiesFrom experience: ExperienceData,
         stepIndex: Experience.StepIndex? = nil,

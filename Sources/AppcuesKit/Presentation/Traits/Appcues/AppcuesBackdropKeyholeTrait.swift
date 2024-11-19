@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         let shape: String?
@@ -202,7 +201,6 @@ internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesBackdropKeyholeTrait {
     enum KeyholeShape {
         case rectangle(cornerRadius: CGFloat)

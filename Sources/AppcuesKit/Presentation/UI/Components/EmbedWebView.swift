@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 import WebKit
 
-@available(iOS 13.0, *)
 internal struct EmbedWebView: UIViewRepresentable {
     let embed: String
 

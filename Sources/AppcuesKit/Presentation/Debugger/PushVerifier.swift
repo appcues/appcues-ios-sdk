@@ -19,7 +19,6 @@ private final class KeyedArchiver: NSKeyedArchiver {
     }
 }
 
-@available(iOS 13.0, *)
 internal class PushVerifier {
     enum ErrorMessage: Equatable, CustomStringConvertible {
         case noPushEnvironment(String)
@@ -296,7 +295,6 @@ internal class PushVerifier {
     }
 }
 
-@available(iOS 13.0, *)
 private extension PushVerifier {
     struct PushTestResponse: Decodable {
         let ok: Bool

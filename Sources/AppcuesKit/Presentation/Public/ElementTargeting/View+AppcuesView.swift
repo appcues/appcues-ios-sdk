@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 public extension View {
     /// Associates the view with an identifier for Appcues element targeting.
     /// - Parameter identifier: Unique name identifying the view.

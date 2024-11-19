@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         let buttonAppearance: ButtonAppearance?
@@ -84,7 +83,6 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesSkippableTrait {
     enum ButtonAppearance: String, Decodable {
         case hidden
@@ -93,7 +91,6 @@ extension AppcuesSkippableTrait {
     }
 }
 
-@available(iOS 13.0, *)
 private extension UIViewController {
     @discardableResult
     func addDismissButton(appearance: AppcuesSkippableTrait.ButtonAppearance, style: ExperienceComponent.Style?) -> CloseButton {
@@ -145,7 +142,6 @@ private extension UIViewController {
     }
 }
 
-@available(iOS 13.0, *)
 private extension UIViewController {
     class CloseButton: UIButton {
         private static let defaultSize: Double = 30

@@ -176,20 +176,14 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         activityProcessor.process(activity) { [weak self] result in
             switch result {
             case .success(let qualifyResponse):
-                if #available(iOS 13.0, *) {
-                    let experienceRenderer = self?.container?.resolve(ExperienceRendering.self)
-                    experienceRenderer?.processAndShow(
-                        qualifiedExperiences: self?.process(qualifyResponse: qualifyResponse, activity: activity) ?? [],
-                        reason: .qualification(reason: qualifyResponse.qualificationReason)
-                    )
+                let experienceRenderer = self?.container?.resolve(ExperienceRendering.self)
+                experienceRenderer?.processAndShow(
+                    qualifiedExperiences: self?.process(qualifyResponse: qualifyResponse, activity: activity) ?? [],
+                    reason: .qualification(reason: qualifyResponse.qualificationReason)
+                )
 
-                    if qualifyResponse.experiences.isEmpty {
-                        // common case, nothing qualified - we know there was nothing to render, so just remove tracking
-                        SdkMetrics.remove(activity.requestID)
-                    }
-                } else {
-                    self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
-                    // nothing will render, we can remove tracking
+                if qualifyResponse.experiences.isEmpty {
+                    // common case, nothing qualified - we know there was nothing to render, so just remove tracking
                     SdkMetrics.remove(activity.requestID)
                 }
             case .failure(let error):
@@ -199,7 +193,6 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         }
     }
 
-    @available(iOS 13.0, *)
     private func process(qualifyResponse: QualifyResponse, activity: Activity) -> [ExperienceData] {
         let experiments = qualifyResponse.experiments ?? []
         return qualifyResponse.experiences.map { item in

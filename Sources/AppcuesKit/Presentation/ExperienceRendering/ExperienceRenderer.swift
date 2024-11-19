@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal protocol ExperienceRendering: AnyObject {
     func start(owner: StateMachineOwning, forContext context: RenderContext)
     func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger)
@@ -50,7 +49,6 @@ internal enum ExperienceRendererError: Error {
     case experimentControl
 }
 
-@available(iOS 13.0, *)
 internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
 
     // Conformance to `StateMachineOwning`.

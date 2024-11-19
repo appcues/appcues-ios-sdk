@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal struct CustomComponentRepresentable: UIViewControllerRepresentable {
     private let type: AppcuesCustomComponentViewController.Type
     private let configuration: AppcuesExperiencePluginConfiguration
@@ -31,7 +30,6 @@ internal struct CustomComponentRepresentable: UIViewControllerRepresentable {
     }
 }
 
-@available(iOS 13.0, *)
 internal struct AppcuesCustomComponent: View {
     let model: ExperienceComponent.CustomComponentModel
 

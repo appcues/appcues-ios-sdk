@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal struct AppcuesImage: View {
     let model: ExperienceComponent.ImageModel
     private let transformedURL: URL

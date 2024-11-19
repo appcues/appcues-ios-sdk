@@ -186,8 +186,7 @@ extension Experience: Decodable {
 
         // Check for an experience-level or first group-level embed trait
         let eligibleTraits = traits + (steps.first?.traits ?? [])
-        if #available(iOS 13.0, *),
-           let embedTrait = eligibleTraits.first(where: { $0.type == AppcuesEmbeddedTrait.type }),
+        if let embedTrait = eligibleTraits.first(where: { $0.type == AppcuesEmbeddedTrait.type }),
            let config = embedTrait.configDecoder.decode(AppcuesEmbeddedTrait.Config.self) {
             renderContext = .embed(frameID: config.frameID)
         } else {
@@ -198,8 +197,7 @@ extension Experience: Decodable {
 
 extension Experience {
     /// Returns a function that creates the post experience actions given an ``Appcues`` instance.
-    @available(iOS 13.0, *)
-    var postExperienceActionFactory: ((Appcues?) -> [AppcuesExperienceAction]) {
+        var postExperienceActionFactory: ((Appcues?) -> [AppcuesExperienceAction]) {
         return { appcues in
             var actions: [AppcuesExperienceAction] = []
 

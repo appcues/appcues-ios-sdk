@@ -4,7 +4,7 @@ attributes:
 options:
   defaultConfig: Release
   deploymentTarget:
-    iOS: 11.0
+    iOS: 13.0
   groupSortPosition: top
 configs:
   Debug: debug

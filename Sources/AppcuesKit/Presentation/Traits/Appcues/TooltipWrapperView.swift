@@ -15,7 +15,6 @@ internal enum ContentPosition: String, Decodable {
     case right
 }
 
-@available(iOS 13.0, *)
 internal class TooltipWrapperView: ExperienceWrapperView {
 
     private static let defaultMaxWidth: CGFloat = 400

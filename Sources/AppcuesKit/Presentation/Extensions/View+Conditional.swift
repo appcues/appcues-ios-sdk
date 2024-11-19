@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 extension View {
 
     // https://www.avanderlee.com/swiftui/conditional-view-modifier/

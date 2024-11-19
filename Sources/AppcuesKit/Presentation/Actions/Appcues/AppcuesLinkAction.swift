@@ -9,7 +9,6 @@
 import UIKit
 import SafariServices
 
-@available(iOS 13.0, *)
 internal class AppcuesLinkAction: AppcuesExperienceAction {
     struct Config: Decodable {
         let url: URL

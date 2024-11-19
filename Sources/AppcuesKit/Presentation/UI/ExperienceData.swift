@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 @dynamicMemberLookup
 internal class ExperienceData {
     let model: Experience
@@ -72,7 +71,6 @@ internal class ExperienceData {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceData {
 
     enum Validator: Equatable {
@@ -83,7 +81,6 @@ extension ExperienceData {
         /// At most the specified number of values have been selected.
         case maxSelections(UInt)
 
-        @available(iOS 13.0, *)
         func isSatisfied(value: ExperienceData.FormItem.ValueType) -> Bool {
             switch (self, value) {
             case (.nonEmpty, _), (.minSelections, .single), (.minSelections, .singleLeadingFill):
@@ -264,7 +261,6 @@ extension ExperienceData {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceData.StepState {
     func formattedAsProfileUpdate() -> [String: Any] {
         var update: [String: Any] = [:]
@@ -293,7 +289,6 @@ extension ExperienceData.StepState {
 
 }
 
-@available(iOS 13.0, *)
 extension ExperienceData.StepState: Encodable {
     enum ItemKeys: CodingKey {
         case fieldId, fieldType, fieldRequired, value, label
@@ -313,14 +308,12 @@ extension ExperienceData.StepState: Encodable {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceData.StepState: Equatable {
     static func == (lhs: ExperienceData.StepState, rhs: ExperienceData.StepState) -> Bool {
         lhs.formItems == rhs.formItems
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceComponent.TextInputModel {
     func validators() -> [ExperienceData.Validator] {
         var validators: [ExperienceData.Validator] = []
@@ -333,7 +326,6 @@ extension ExperienceComponent.TextInputModel {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceComponent.OptionSelectModel {
 
     /// The actual minimum number of selections (accounting for the full model state)	.
