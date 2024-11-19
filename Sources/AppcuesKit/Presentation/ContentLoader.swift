@@ -8,7 +8,6 @@
 
 import Foundation
 
-@available(iOS 13.0, *)
 internal protocol ContentLoading: AnyObject {
     func load(
         experienceID: String,
@@ -26,7 +25,6 @@ internal protocol ContentLoading: AnyObject {
     )
 }
 
-@available(iOS 13.0, *)
 internal class ContentLoader: ContentLoading {
 
     private let config: Appcues.Config

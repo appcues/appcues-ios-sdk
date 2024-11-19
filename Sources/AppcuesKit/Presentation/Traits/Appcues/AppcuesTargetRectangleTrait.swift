@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class AppcuesTargetRectangleTrait: AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         let contentPreferredPosition: ContentPosition?

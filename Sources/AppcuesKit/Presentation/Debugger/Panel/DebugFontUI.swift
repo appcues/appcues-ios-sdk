@@ -9,7 +9,6 @@
 import SwiftUI
 
 /// Namespaced Views used in the debug panel.
-@available(iOS 13.0, *)
 internal enum DebugFontUI {
     struct FontListView: View {
         static let sections: [(title: String, names: [String])] = {
@@ -107,7 +106,6 @@ internal enum DebugFontUI {
     }
 }
 
-@available(iOS 13.0, *)
 extension View {
     func searchableCompatible(text: Binding<String>) -> some View {
         modifier(DebugFontUI.Searchable(text: text))
@@ -117,7 +115,6 @@ extension View {
 // These extensions follow the interfaces of `CaseIterable` and `CustomStringConvertible`, but do not conform to those protocols
 // so that the extension methods aren't required to be public.
 
-@available(iOS 13.0, *)
 extension Font.Design {
     static var allCases: [Font.Design] {
         [.default, monospaced, .rounded, .serif]
@@ -132,7 +129,6 @@ extension Font.Design {
         }
     }
 }
-@available(iOS 13.0, *)
 extension Font.Weight {
     static var allCases: [Font.Weight] {
         [.ultraLight, .thin, .light, .regular, .medium, .semibold, .bold, .heavy, .black]

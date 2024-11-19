@@ -9,7 +9,6 @@
 import Foundation
 import StoreKit
 
-@available(iOS 13.0, *)
 internal class AppcuesRequestReviewAction: AppcuesExperienceAction {
 
     static let type = "@appcues/request-review"

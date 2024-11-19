@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal enum DebugLogUI {
     struct LoggerView: View {
         @EnvironmentObject var logger: DebugLogger

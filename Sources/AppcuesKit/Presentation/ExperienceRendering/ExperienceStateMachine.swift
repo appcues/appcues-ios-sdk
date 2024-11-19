@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class ExperienceStateMachine {
 
     private let config: Appcues.Config
@@ -109,7 +108,6 @@ internal class ExperienceStateMachine {
 
 // MARK: - AppcuesExperienceContainerEventHandler
 
-@available(iOS 13.0, *)
 extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
     // MARK: Step Lifecycle
 
@@ -247,7 +245,6 @@ private extension UIViewController {
 
 // MARK: - State Machine Types
 
-@available(iOS 13.0, *)
 extension ExperienceStateMachine {
     struct Transition {
         let toState: State?
@@ -267,7 +264,6 @@ extension ExperienceStateMachine {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceStateMachine {
     enum SideEffect {
         case continuation(Action)

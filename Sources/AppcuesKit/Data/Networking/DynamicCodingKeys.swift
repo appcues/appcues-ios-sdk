@@ -43,7 +43,7 @@ extension KeyedEncodingContainer where K == DynamicCodingKeys {
                 // "_sdkMetrics" is a special case - the Experience rendering timing metrics
                 var autopropContainer = self.nestedContainer(keyedBy: DynamicCodingKeys.self, forKey: codingKey)
                 try autopropContainer.encodeSkippingInvalid(nestedProps, logger: logger)
-            } else if #available(iOS 13.0, *), let stepState = value as? ExperienceData.StepState {
+            } else if let stepState = value as? ExperienceData.StepState {
                 // Allow encoding the nested StepState structure since platform expects it
                 try self.encode(stepState, forKey: codingKey)
             } else {

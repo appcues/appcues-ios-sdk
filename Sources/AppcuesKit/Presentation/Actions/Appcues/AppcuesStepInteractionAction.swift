@@ -9,7 +9,6 @@
 import Foundation
 
 /// Internal-only action: This action isn't registered in the `ActionRegistry`.
-@available(iOS 13.0, *)
 internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
 
     static let type = "@appcues/step_interaction"

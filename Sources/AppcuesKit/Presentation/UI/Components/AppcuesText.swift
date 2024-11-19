@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal struct AppcuesText: View {
     let model: ExperienceComponent.TextModel
 
@@ -29,7 +28,6 @@ internal struct AppcuesText: View {
     }
 }
 
-@available(iOS 13.0, *)
 extension Text {
     init(textModel: ExperienceComponent.TextModel, skipColor: Bool = false, scaled: Bool = false) {
         self.init(verbatim: "")

@@ -9,7 +9,6 @@
 import SwiftUI
 
 /// Namespaced Views used in the debug panel.
-@available(iOS 13.0, *)
 internal enum DebugUI {
     struct MainPanelView: View {
         let apiVerifier: APIVerifier
@@ -352,7 +351,6 @@ internal enum DebugUI {
 
 }
 
-@available(iOS 13.0, *)
 extension DebugUI.ListItemRowView where Action == EmptyView {
     init(item: StatusItem) {
         self.init(item: item) { EmptyView() }

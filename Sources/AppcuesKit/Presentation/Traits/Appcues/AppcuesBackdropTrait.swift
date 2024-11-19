@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class AppcuesBackdropTrait: AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         let backgroundColor: ExperienceComponent.Style.DynamicColor

@@ -13,7 +13,6 @@ import Foundation
 // are observed. It hooks into the AppcuesScrollViewDelegate, which receives
 // scroll updates from the UIScrollView implementations in the app via
 // method swizzling.
-@available(iOS 13.0, *)
 internal class StepRecoveryObserver: ExperienceStateObserver {
 
     private let stateMachine: ExperienceStateMachine

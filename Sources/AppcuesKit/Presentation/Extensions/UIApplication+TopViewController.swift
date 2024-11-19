@@ -23,7 +23,6 @@ internal protocol URLOpening {
 
 extension UIApplication: TopControllerGetting {
 
-    @available(iOS 13.0, *)
     private var activeWindowScenes: [UIWindowScene] {
         self.connectedScenes
             .filter { $0.activationState == .foregroundActive }
@@ -31,30 +30,21 @@ extension UIApplication: TopControllerGetting {
     }
 
     // Prefer the active window scene, but in the case where there's no active scene, use the one from the main app window.
-    @available(iOS 13.0, *)
     var mainWindowScene: UIWindowScene? {
         activeWindowScenes.first ?? windows.first(where: { !$0.isAppcuesWindow })?.windowScene
     }
 
     // We expose this property because a unit test cannot init a UIWindowScene for mocking different states.
     var hasActiveWindowScenes: Bool {
-        if #available(iOS 13.0, *) {
-            return !activeWindowScenes.isEmpty
-        } else {
-            return false
-        }
+        !activeWindowScenes.isEmpty
     }
 
     // Note: multitasking with two instances of the same app side by side will have both designated as `.foregroundActive`,
     // and as a result the returned window may not be the one expected.
     private var activeKeyWindow: UIWindow? {
-        if #available(iOS 13.0, *) {
-            return self.activeWindowScenes
-                .flatMap { $0.windows }
-                .first { $0.isKeyWindow }
-        } else {
-            return keyWindow
-        }
+        self.activeWindowScenes
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }
     }
 
     func topViewController() -> UIViewController? {

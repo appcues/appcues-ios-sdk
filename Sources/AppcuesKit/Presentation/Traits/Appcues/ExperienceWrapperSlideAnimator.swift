@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimatedTransitioning {
 
     enum ModalTransitionType {
@@ -90,7 +89,6 @@ internal class ExperienceWrapperSlideAnimator: NSObject, UIViewControllerAnimate
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceWrapperView {
     func slideTransform(edge: AppcuesModalTrait.TransitionEdge, containerBounds: CGRect) {
         var offsetX: CGFloat

@@ -9,7 +9,6 @@
 import Foundation
 import UIKit
 
-@available(iOS 13.0, *)
 internal class AppcuesCloseAction: AppcuesExperienceAction {
     struct Config: Decodable {
         let markComplete: Bool

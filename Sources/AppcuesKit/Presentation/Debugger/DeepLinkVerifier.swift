@@ -9,7 +9,6 @@
 import UIKit
 import Combine
 
-@available(iOS 13.0, *)
 internal class DeepLinkVerifier {
     let title = "Appcues Deep Link"
     let applicationID: String

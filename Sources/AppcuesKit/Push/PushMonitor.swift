@@ -129,10 +129,9 @@ internal class PushMonitor: PushMonitoring {
 
         guard !parsedNotification.isInternal else {
             // This is a synthetic notification response from PushVerifier.
-            if #available(iOS 13.0, *) {
-                let pushVerifier = appcues.container.resolve(PushVerifier.self)
-                pushVerifier.receivedVerification(token: parsedNotification.notificationID)
-            }
+            let pushVerifier = appcues.container.resolve(PushVerifier.self)
+            pushVerifier.receivedVerification(token: parsedNotification.notificationID)
+
             completionHandler()
             return true
         }
@@ -199,26 +198,22 @@ internal class PushMonitor: PushMonitoring {
             ))
         }
 
-        if #available(iOS 13.0, *) {
-            var actions: [AppcuesExperienceAction] = []
+        var actions: [AppcuesExperienceAction] = []
 
-            if let deepLinkURL = parsedNotification.deepLinkURL {
-                actions.append(AppcuesLinkAction(appcues: appcues, url: deepLinkURL))
-            }
-
-            if let experienceID = parsedNotification.experienceID {
-                actions.append(AppcuesLaunchExperienceAction(
-                    appcues: appcues,
-                    experienceID: experienceID,
-                    trigger: .pushNotification(notificationID: parsedNotification.notificationID)
-                ))
-            }
-
-            let actionRegistry = appcues.container.resolve(ActionRegistry.self)
-            actionRegistry.enqueue(actionInstances: actions, completion: completionHandler)
-        } else {
-            completionHandler()
+        if let deepLinkURL = parsedNotification.deepLinkURL {
+            actions.append(AppcuesLinkAction(appcues: appcues, url: deepLinkURL))
         }
+
+        if let experienceID = parsedNotification.experienceID {
+            actions.append(AppcuesLaunchExperienceAction(
+                appcues: appcues,
+                experienceID: experienceID,
+                trigger: .pushNotification(notificationID: parsedNotification.notificationID)
+            ))
+        }
+
+        let actionRegistry = appcues.container.resolve(ActionRegistry.self)
+        actionRegistry.enqueue(actionInstances: actions, completion: completionHandler)
     }
 
     private func getPushEnvironment() {

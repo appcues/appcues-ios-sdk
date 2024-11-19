@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal struct SelectToggleView<Content: View>: View {
 
     enum Appearance {
@@ -60,7 +59,6 @@ internal struct SelectToggleView<Content: View>: View {
     }
 }
 
-@available(iOS 13.0, *)
 extension SelectToggleView.Appearance {
     init(_ mode: ExperienceComponent.OptionSelectModel.SelectMode) {
         switch mode {

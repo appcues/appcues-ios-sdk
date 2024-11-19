@@ -12,7 +12,6 @@ internal struct AnimatedImage {
     let animatedImage: FLAnimatedImage
 }
 
-@available(iOS 13.0, *)
 extension AnimatedImage: UIViewRepresentable {
 
     func makeUIView(context: Context) -> UIView {

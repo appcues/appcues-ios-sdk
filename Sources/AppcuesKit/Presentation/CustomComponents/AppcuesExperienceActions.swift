@@ -23,7 +23,6 @@ public class AppcuesExperienceActions {
     }
 
     /// Trigger the actions associated with the custom component in the Appcues Mobile Builder.
-    @available(iOS 13.0, *)
     public func triggerBlockActions() {
         guard let actions = actions, let actionRegistry = appcues?.container.resolve(ActionRegistry.self) else { return }
         actionRegistry.enqueue(
@@ -39,38 +38,32 @@ public class AppcuesExperienceActions {
     /// - Parameters:
     ///   - name: Name of the event.
     ///   - properties: Optional properties that provide additional context about the event.
-    @available(iOS 13.0, *)
     public func track(name: String, properties: [String: Any]? = nil) {
         enqueue(AppcuesTrackAction(appcues: appcues, eventName: name, attributes: properties))
     }
 
     /// Advance the flow to the next step. If the flow is on its final step, the flow will dismiss as completed.
-    @available(iOS 13.0, *)
     public func nextStep() {
         enqueue(AppcuesContinueAction(appcues: appcues, renderContext: renderContext, stepReference: .offset(1)))
     }
 
     /// Navigate the flow to the previous step. If the flow is on its initial step, nothing will happen.
-    @available(iOS 13.0, *)
     public func previousStep() {
         enqueue(AppcuesContinueAction(appcues: appcues, renderContext: renderContext, stepReference: .offset(-1)))
     }
 
     /// Dismiss the flow.
     /// - Parameter markComplete: Whether the flow should be marked as complete for analytics purposes. Defaults to `false`.
-    @available(iOS 13.0, *)
     public func close(markComplete: Bool = false) {
         enqueue(AppcuesCloseAction(appcues: appcues, renderContext: renderContext, markComplete: markComplete))
     }
 
     /// Update the Appcues profile of the current user.
     /// - Parameter properties: Properties to add to the Appcues profile of the current user.
-    @available(iOS 13.0, *)
     public func updateProfile(properties: [String: Any]) {
         enqueue(AppcuesUpdateProfileAction(appcues: appcues, properties: properties))
     }
 
-    @available(iOS 13.0, *)
     private func enqueue(_ action: AppcuesExperienceAction) {
         guard let actionRegistry = appcues?.container.resolve(ActionRegistry.self) else { return }
         actionRegistry.enqueue(actionInstances: [action]) {}

@@ -107,26 +107,9 @@ extension UIDevice {
         let binaryString = try String(contentsOfFile: path, encoding: .isoLatin1)
 
         let scanner = Scanner(string: binaryString)
-        let plistString: String
 
-        if #available(iOS 13.0, *) {
-            guard scanner.scanUpToString("<plist") != nil,
-                  let targetString = scanner.scanUpToString("</plist>")
-            else {
-                throw ProvisioningProfileError.plistScanFailed
-            }
-            plistString = targetString
-        } else {
-            // swiftlint:disable:next legacy_objc_type
-            var targetString: NSString?
-
-            guard scanner.scanUpTo("<plist", into: nil),
-                  scanner.scanUpTo("</plist>", into: &targetString),
-                  let targetString = targetString
-            else {
-                throw ProvisioningProfileError.plistScanFailed
-            }
-            plistString = targetString as String
+        guard scanner.scanUpToString("<plist") != nil, let plistString = scanner.scanUpToString("</plist>") else {
+            throw ProvisioningProfileError.plistScanFailed
         }
 
         guard let plistData = (plistString + "</plist>").data(using: .isoLatin1) else {

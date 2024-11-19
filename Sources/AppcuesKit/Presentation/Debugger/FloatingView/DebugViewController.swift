@@ -9,7 +9,6 @@
 import UIKit
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal class DebugViewController: UIViewController {
 
     var delegate: DebugViewDelegate? {
@@ -136,7 +135,6 @@ internal class DebugViewController: UIViewController {
     }
 }
 
-@available(iOS 13.0, *)
 extension DebugViewController: FloatingViewDelegate {
     func floatingViewActivated() {
         switch mode {
@@ -150,7 +148,6 @@ extension DebugViewController: FloatingViewDelegate {
     }
 }
 
-@available(iOS 13.0, *)
 private extension DebugMode {
     var accessibilityLabel: String {
         switch self {

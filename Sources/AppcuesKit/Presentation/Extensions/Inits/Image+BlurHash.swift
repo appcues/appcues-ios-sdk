@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 extension Image {
     init?(blurHash: String?, size: CGSize = CGSize(width: 16, height: 16)) {
         guard let blurHash = blurHash, let image = UIImage(blurHash: blurHash, size: size) else {

@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal class ExperienceStepViewModel: ObservableObject {
 
     enum ActionType: String {
@@ -88,7 +87,6 @@ internal class ExperienceStepViewModel: ObservableObject {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceComponent {
     /// Recursively get all the form components in the `ExperienceContent`.
     var formComponents: [UUID: ExperienceData.FormItem] {

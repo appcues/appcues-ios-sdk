@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 internal struct AppcuesButton: View {
     let model: ExperienceComponent.ButtonModel
 

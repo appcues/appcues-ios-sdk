@@ -8,7 +8,6 @@
 
 import UIKit
 
-@available(iOS 13.0, *)
 internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     struct Config: Decodable {
         // swiftlint:disable:next discouraged_optional_boolean
@@ -133,7 +132,6 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesTargetInteractionTrait {
     class TargetView: UIView, UIGestureRecognizerDelegate {
         private weak var appWindow: UIWindow?

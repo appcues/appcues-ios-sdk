@@ -16,7 +16,6 @@ import SwiftUI
 // the backdrop - and the ExperienceStepViewController centered within - providing the scroll
 // container where the hosted SwiftUI content resides. However, this is a more specific and
 // reduced implementation that is decoupled from Experience step content and data.
-@available(iOS 13.0, *)
 internal class DebugModalViewController<Content: View>: UIViewController {
 
     lazy var containerView = DebugModalWrapperView()
@@ -101,7 +100,6 @@ internal class DebugModalViewController<Content: View>: UIViewController {
     }
 }
 
-@available(iOS 13.0, *)
 extension DebugModalViewController {
     internal class DebugModalWrapperView: UIView {
         let backdropView: UIView = {

@@ -125,7 +125,6 @@ internal class UIKitElementSelector: AppcuesElementSelector {
 
 // UIKit implementation of element targeting that captures the UIView hierarchy for the current UIWindow,
 // and identifies applicable views with a UIKitElementSelector.
-@available(iOS 13.0, *)
 internal class UIKitElementTargeting: AppcuesElementTargeting {
     // Inject a window for testing purposes
     var window: UIWindow?

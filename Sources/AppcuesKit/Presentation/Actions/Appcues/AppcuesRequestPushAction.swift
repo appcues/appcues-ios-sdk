@@ -9,7 +9,6 @@
 import Foundation
 import UserNotifications
 
-@available(iOS 13.0, *)
 internal class AppcuesRequestPushAction: AppcuesExperienceAction {
 
     static let type = "@appcues/request-push"

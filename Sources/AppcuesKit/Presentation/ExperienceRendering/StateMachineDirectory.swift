@@ -10,7 +10,6 @@ import Foundation
 
 internal protocol StateMachineOwning: AnyObject {
     var renderContext: RenderContext? { get set }
-    @available(iOS 13.0, *)
     var stateMachine: ExperienceStateMachine? { get set }
 
     /// Should reset the `stateMachine` to `.idling` and clear any rendered experience without triggering experience analytics.
@@ -19,7 +18,6 @@ internal protocol StateMachineOwning: AnyObject {
 
 // This class is intended to work like a `Dictionary<RenderContext, StateMachineOwning?>`,
 // while abstracting away the fact that it weakly references the value.
-@available(iOS 13.0, *)
 internal class StateMachineDirectory {
     private var stateMachines: [RenderContext: WeakStateMachineOwning] = [:]
     private let syncQueue = DispatchQueue(label: "appcues-state-directory")
@@ -79,7 +77,6 @@ internal class StateMachineDirectory {
 
 }
 
-@available(iOS 13.0, *)
 private extension StateMachineDirectory {
     class WeakStateMachineOwning {
         weak var value: StateMachineOwning?
