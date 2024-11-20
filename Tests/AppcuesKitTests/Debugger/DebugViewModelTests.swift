@@ -10,7 +10,6 @@ import XCTest
 import Combine
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class DebugViewModelTests: XCTestCase {
 
     var debugViewModel: DebugViewModel!

@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class DynamicCodingKeysTests: XCTestCase {
 
     var encoder: JSONEncoder = {
@@ -49,7 +48,6 @@ class DynamicCodingKeysTests: XCTestCase {
     }
 }
 
-@available(iOS 13.0, *)
 extension DynamicCodingKeysTests {
     struct TestData: Encodable {
         let logger = DebugLogger(previousLogger: nil)

@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class AppcuesTargetRectangleTraitTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -118,7 +117,6 @@ class AppcuesTargetRectangleTraitTests: XCTestCase {
 
 }
 
-@available(iOS 13.0, *)
 extension AppcuesTargetRectangleTrait {
     convenience init?(
         appcues: Appcues?,

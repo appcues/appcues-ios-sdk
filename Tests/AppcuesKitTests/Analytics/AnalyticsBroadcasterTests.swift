@@ -89,7 +89,6 @@ class AnalyticsBroadcasterTests: XCTestCase {
         XCTAssertEqual(delegate.lastIsInternal, false)
     }
 
-    @available(iOS 13.0, *) // ExperienceData.StepState is 13+
     func testBroadcastSanitizesStepState() throws {
         // Arrange
         let expectedFormItem = ExperienceData.FormItem(model: ExperienceComponent.TextInputModel(

@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class ActionRegistryTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -192,7 +191,6 @@ class ActionRegistryTests: XCTestCase {
     }
 }
 
-@available(iOS 13.0, *)
 private extension ActionRegistryTests {
     class TestAction: AppcuesExperienceAction, ExperienceActionQueueTransforming {
         struct Config: Decodable {

@@ -326,7 +326,6 @@ class AppcuesTests: XCTestCase {
     }
 
     // Test that all the components are properly deinited when the Appcues instance is
-    @available(iOS 13.0, *)
     func testDeinit() throws {
         // Arrange
         var appcues: Appcues? = Appcues(config: Appcues.Config(accountID: "abc", applicationID: "123"))
