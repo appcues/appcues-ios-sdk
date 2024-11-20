@@ -26,8 +26,7 @@ internal enum PushAutoConfig {
         // If an Appcues push notification was opened and unhandled before the instance was registered,
         // see if this new instance can handle it
         if let response = receivedUnhandledResponse {
-            // swiftlint:disable:next trailing_closure
-            let didHandle = observer.didReceiveNotification(response: response, completionHandler: {})
+            let didHandle = observer.didReceiveNotification(response: response)
             if didHandle {
                 receivedUnhandledResponse = nil
             }
@@ -65,21 +64,14 @@ internal enum PushAutoConfig {
         // Stop at the first PushMonitor that successfully handles the notification
         let didHandleResponse = pushMonitors.contains { weakPushMonitor in
             guard let pushMonitor = weakPushMonitor.value else { return false }
-
-            // `completionHandler` is executed iff this returns true
-            return pushMonitor.didReceiveNotification(response: response, completionHandler: completionHandler)
+            return pushMonitor.didReceiveNotification(response: response)
         }
 
-        if didHandleResponse {
-            // Clear the existing value if a newer response was handled
-            receivedUnhandledResponse = nil
-        } else {
-            // Save unhandled response for any future PushMonitor instances
-            receivedUnhandledResponse = response
-            // Completion block has yet to be called because no PushMonitor instance has handled it
-            // The block must be called by all paths of this function, so call it now
-            completionHandler()
-        }
+        // Clear the existing value if a newer response was handled, or
+        // save unhandled response for any future PushMonitor instances
+        receivedUnhandledResponse = didHandleResponse ? nil : response
+
+        completionHandler()
     }
 
     // Shared instance is called from the swizzled method

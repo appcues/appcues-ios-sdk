@@ -13,16 +13,14 @@ internal protocol ContentLoading: AnyObject {
         experienceID: String,
         published: Bool,
         queryItems: [URLQueryItem],
-        trigger: ExperienceTrigger,
-        completion: ((Result<Void, Error>) -> Void)?
-    )
+        trigger: ExperienceTrigger
+    ) async throws
 
     func loadPush(
         id: String,
         published: Bool,
-        queryItems: [URLQueryItem],
-        completion: ((Result<Void, Error>) -> Void)?
-    )
+        queryItems: [URLQueryItem]
+    ) async throws
 }
 
 internal class ContentLoader: ContentLoading {
@@ -51,40 +49,36 @@ internal class ContentLoader: ContentLoading {
         experienceID: String,
         published: Bool,
         queryItems: [URLQueryItem],
-        trigger: ExperienceTrigger,
-        completion: ((Result<Void, Error>) -> Void)?
-    ) {
+        trigger: ExperienceTrigger
+    ) async throws {
 
         let endpoint = published ?
             APIEndpoint.content(experienceID: experienceID, queryItems: queryItems) :
             APIEndpoint.preview(experienceID: experienceID, queryItems: queryItems)
 
-        networking.get(
-            from: endpoint,
-            authorization: Authorization(bearerToken: storage.userSignature)
-        ) { [weak self] (result: Result<Experience, Error>) in
-            switch result {
-            case .success(let experience):
-                self?.experienceRenderer.processAndShow(
-                    experience: ExperienceData(experience, trigger: trigger, priority: .normal, published: published),
-                    completion: completion
-                )
-            case .failure(let error):
-                self?.config.logger.error("Loading experience %{public}@ failed with error %{public}@", experienceID, "\(error)")
-                completion?(.failure(error))
-            }
+        do {
+            let experience: Experience = try await networking.get(
+                from: endpoint,
+                authorization: Authorization(bearerToken: storage.userSignature)
+            )
 
-            self?.lastPreviewExperienceID = published ? nil : experienceID
-            self?.lastPreviewQueryItems = published ? nil : queryItems
+            try await experienceRenderer.processAndShow(
+                experience: ExperienceData(experience, trigger: trigger, priority: .normal, published: published)
+            )
+        } catch {
+            config.logger.error("Loading experience %{public}@ failed with error %{public}@", experienceID, "\(error)")
+            throw error
         }
+
+        lastPreviewExperienceID = published ? nil : experienceID
+        lastPreviewQueryItems = published ? nil : queryItems
     }
 
     func loadPush(
         id: String,
         published: Bool,
-        queryItems: [URLQueryItem],
-        completion: ((Result<Void, Error>) -> Void)?
-    ) {
+        queryItems: [URLQueryItem]
+    ) async throws {
         let endpoint = published ?
             APIEndpoint.pushContent(id: id) :
             APIEndpoint.pushPreview(id: id)
@@ -96,18 +90,15 @@ internal class ContentLoader: ContentLoading {
 
         let data = try? NetworkClient.encoder.encode(body)
 
-        networking.post(
-            to: endpoint,
-            authorization: Authorization(bearerToken: storage.userSignature),
-            body: data
-        ) { [weak self] (result: Result<Void, Error>) in
-            switch result {
-            case .success:
-                completion?(.success(()))
-            case .failure(let error):
-                self?.config.logger.error("Loading push %{public}@ failed with error %{public}@", id, "\(error)")
-                completion?(.failure(error))
-            }
+        do {
+            try await networking.post(
+                to: endpoint,
+                authorization: Authorization(bearerToken: storage.userSignature),
+                body: data
+            )
+        } catch {
+            config.logger.error("Loading push %{public}@ failed with error %{public}@", id, "\(error)")
+            throw error
         }
     }
 
@@ -115,6 +106,8 @@ internal class ContentLoader: ContentLoading {
     private func refreshPreview(notification: Notification) {
         guard let experienceID = lastPreviewExperienceID else { return }
 
-        load(experienceID: experienceID, published: false, queryItems: lastPreviewQueryItems ?? [], trigger: .preview, completion: nil)
+        Task {
+            try await load(experienceID: experienceID, published: false, queryItems: lastPreviewQueryItems ?? [], trigger: .preview)
+        }
     }
 }

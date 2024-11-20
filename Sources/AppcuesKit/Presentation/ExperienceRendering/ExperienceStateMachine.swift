@@ -37,33 +37,18 @@ internal class ExperienceStateMachine {
         state = initialState
     }
 
-    /// Transition to a new state.
-    ///
-    /// Any side effects in `observer` should be dispatched asynchronously to allow the observer processing to complete
-    /// before the side effect spawns a new action.
-    ///
-    /// - Parameters:
-    ///   - newState: `ExperienceState` to attempt a transition to.
-    ///   - observer: Block that's called on each state change, or if no state change occurs (represented by a `nil` value).
-    ///   Must return `true` iff the observer is complete and should be removed.
-    func transitionAndObserve(_ action: Action, filter: UUID? = nil, observer: @escaping (ExperienceStateObserver.StateResult) -> Bool) {
-        let observer = StateObserver(filter: filter, observer)
-        addObserver(observer)
-
-        do {
-            try transition(action)
-        } catch {
-            let error = ExperienceError.noTransition(currentState: state)
-            let observerIsSatisfiedByFailure = observer.evaluateIfSatisfied(result: .failure(error))
-            if observerIsSatisfiedByFailure {
-                stateObservers = stateObservers.filter { $0 !== observer }
-            }
-        }
-    }
-
-    func transition(_ action: Action) throws {
-        guard let transition = state.transition(for: action, traitComposer: traitComposer) else {
+    func transition(_ action: Action) async throws {
+        guard let transition = await state.transition(for: action, traitComposer: traitComposer) else {
             throw InvalidTransition(fromState: state, action: action)
+        }
+
+        // needs to happen even if the side effect throws
+        defer {
+            // only after the rest of the transition has fully completed, check if we should
+            // remove all the observers (i.e. clear the analytics observer on return to idling)
+            if transition.resetObservers {
+                stateObservers.removeAll()
+            }
         }
 
         if let toState = transition.toState {
@@ -71,13 +56,7 @@ internal class ExperienceStateMachine {
         }
 
         if let sideEffect = transition.sideEffect {
-            try sideEffect.execute(in: self)
-        }
-
-        // only after the rest of the transition has fully completed, check if we should
-        // remove all the observers (i.e. clear the analytics observer on return to idling)
-        if transition.resetObservers {
-            stateObservers.removeAll()
+            try await sideEffect.execute(in: self)
         }
     }
 
@@ -94,10 +73,10 @@ internal class ExperienceStateMachine {
         experience: ExperienceData,
         stepIndex: Experience.StepIndex,
         package: ExperiencePackage
-    ) {
+    ) async {
         let recoverable = (error as? AppcuesTraitError)?.recoverable ?? false
         let retryEffect: ExperienceStateMachine.SideEffect? = recoverable ? .retryPresentation(experience, stepIndex, package) : nil
-        try? transition(
+        try? await transition(
             .reportError(
                 error: .step(experience, stepIndex, "\(error)", recoverable: recoverable),
                 retryEffect: retryEffect
@@ -151,7 +130,9 @@ extension ExperienceStateMachine: AppcuesExperienceContainerEventHandler {
         case let .renderingStep(experience, _, package, _) where package.wrapperController.isDisappearing:
             experienceDidDisappear(experience: experience)
             // Update state in response to UI changes that have happened already (a call to UIViewController.dismiss).
-            try? transition(.endExperience(markComplete: false))
+            Task {
+                try? await transition(.endExperience(markComplete: false))
+            }
         default:
             break
         }
@@ -274,22 +255,21 @@ extension ExperienceStateMachine {
         case error(ExperienceError)
         case processActions((Appcues?) -> [AppcuesExperienceAction])
 
-        func execute(in machine: ExperienceStateMachine) throws {
+        func execute(in machine: ExperienceStateMachine) async throws {
             switch self {
             case .continuation(let action):
-                try machine.transition(action)
+                try await machine.transition(action)
             case let .presentContainer(experience, stepIndex, package, actions):
-                machine.actionRegistry.enqueue(actionModels: actions, level: .group, renderContext: experience.renderContext) {
-                    executePresentContainer(
-                        machine: machine,
-                        experience: experience,
-                        stepIndex: stepIndex,
-                        package: package,
-                        isRecovering: false
-                    )
-                }
+                try? await machine.actionRegistry.enqueue(actionModels: actions, level: .group, renderContext: experience.renderContext)
+                await executePresentContainer(
+                    machine: machine,
+                    experience: experience,
+                    stepIndex: stepIndex,
+                    package: package,
+                    isRecovering: false
+                )
             case let .retryPresentation(experience, stepIndex, package):
-                executePresentContainer(
+                await executePresentContainer(
                     machine: machine,
                     experience: experience,
                     stepIndex: stepIndex,
@@ -297,14 +277,16 @@ extension ExperienceStateMachine {
                     isRecovering: true
                 )
             case let .navigateInContainer(package, pageIndex):
-                package.containerController.navigate(to: pageIndex, animated: true)
+                await package.containerController.navigate(to: pageIndex, animated: true)
             case let .dismissContainer(package, action):
-                package.dismisser { try? machine.transition(action) }
+                await package.dismisser()
+                try? await machine.transition(action)
             case let .error(error):
                 // Call each observer with the error as a failure and filter out ones that been satisfied
                 machine.stateObservers = machine.stateObservers.filter {
                     !$0.evaluateIfSatisfied(result: .failure(error))
                 }
+                throw error
             case let .processActions(actionFactory):
                 machine.actionRegistry.enqueue(actionFactory: actionFactory)
             }
@@ -316,10 +298,10 @@ extension ExperienceStateMachine {
             stepIndex: Experience.StepIndex,
             package: ExperiencePackage,
             isRecovering: Bool
-        ) {
-            machine.clientControllerDelegate = UIApplication.shared.topViewController() as? AppcuesExperienceDelegate
+        ) async {
+            machine.clientControllerDelegate = await UIApplication.shared.topViewController() as? AppcuesExperienceDelegate
             guard machine.canDisplay(experience: experience) else {
-                try? machine.transition(
+                try? await machine.transition(
                     .reportError(
                         error: .step(experience, stepIndex, "Step blocked by app"),
                         retryEffect: nil
@@ -333,14 +315,16 @@ extension ExperienceStateMachine {
             if !isRecovering { // guard against adding multiple observers during recovery attempts
                 package.pageMonitor.addObserver { [weak machine, weak package] newIndex, oldIndex in
                     guard let machine = machine, let package = package else { return }
-                    do {
-                        try package.stepDecoratingTraitUpdater(newIndex, oldIndex)
-                        machine.containerNavigated(from: oldIndex, to: newIndex)
-                    } catch {
-                        // Report a fatal error and dismiss the experience
-                        let errorIndex = Experience.StepIndex(group: stepIndex.group, item: newIndex)
-                        machine.handlePresentationError(error, experience: experience, stepIndex: errorIndex, package: package)
-                        package.dismisser({})
+                    Task {
+                        do {
+                            try await package.stepDecoratingTraitUpdater(newIndex, oldIndex)
+                            machine.containerNavigated(from: oldIndex, to: newIndex)
+                        } catch {
+                            // Report a fatal error and dismiss the experience
+                            let errorIndex = Experience.StepIndex(group: stepIndex.group, item: newIndex)
+                            await machine.handlePresentationError(error, experience: experience, stepIndex: errorIndex, package: package)
+                            await package.dismisser()
+                        }
                     }
                 }
             }
@@ -348,37 +332,30 @@ extension ExperienceStateMachine {
             // This flag tells automatic screen tracking to ignore screens that the SDK is presenting
             objc_setAssociatedObject(package.wrapperController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
 
-            // The dispatcher call here with asyncAfter is to attempt to let any pending layout operations complete
-            // before running this new container presentation. The package.stepDecoratingTraitUpdater in particular may
-            // be looking for target elements on the view that need to be fully loaded first, and this container
-            // may be presenting after a pre-step navigation action that is finalizing the loading of the new view.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) {
-
-                func presentStep(onError: @escaping (Error) -> Void) {
-                    do {
-                        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
-                        try package.presenter {
-                            try? machine.transition(.renderStep)
-                        }
-                    } catch {
-                        if let error = error as? AppcuesTraitError,
-                           let retryMilliseconds = error.retryMilliseconds {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(retryMilliseconds)) {
-                                presentStep(onError: onError)
-                            }
-                        } else {
-                            onError(error)
-                        }
+            func presentStep() async throws {
+                do {
+                    try await package.stepDecoratingTraitUpdater(stepIndex.item, nil)
+                    try await package.presenter()
+                    try await machine.transition(.renderStep)
+                } catch {
+                    if let error = error as? AppcuesTraitError,
+                       let retryMilliseconds = error.retryMilliseconds {
+                        try await Task.sleep(nanoseconds: UInt64(retryMilliseconds * 1_000_000))
+                        try await presentStep()
+                    } else {
+                        throw error
                     }
                 }
+            }
 
-                // Rendering metrics start now, and will include any time spent in error/retry of trait application
-                // inside of the presentStep local helper function.
-                SdkMetrics.renderStart(experience.requestID)
+            // Rendering metrics start now, and will include any time spent in error/retry of trait application
+            // inside of the presentStep local helper function.
+            SdkMetrics.renderStart(experience.requestID)
 
-                presentStep { error in
-                    machine.handlePresentationError(error, experience: experience, stepIndex: stepIndex, package: package)
-                }
+            do {
+                try await presentStep()
+            } catch {
+                await machine.handlePresentationError(error, experience: experience, stepIndex: stepIndex, package: package)
             }
         }
     }

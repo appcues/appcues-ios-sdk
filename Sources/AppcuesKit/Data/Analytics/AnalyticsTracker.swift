@@ -171,14 +171,17 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
     // final step after all queueing - make the network call to send the activity, and process the result
     private func send(_ activity: Activity?, trackedAt: Date?) {
         guard let activity = activity else { return }
-        // `trackedAt` value is only sent in cases of immediate qualification-eligible tracking, for SDK metrics
-        SdkMetrics.tracked(activity.requestID, time: trackedAt)
-        activityProcessor.process(activity) { [weak self] result in
-            switch result {
-            case .success(let qualifyResponse):
-                let experienceRenderer = self?.container?.resolve(ExperienceRendering.self)
-                experienceRenderer?.processAndShow(
-                    qualifiedExperiences: self?.process(qualifyResponse: qualifyResponse, activity: activity) ?? [],
+
+        Task {
+            // `trackedAt` value is only sent in cases of immediate qualification-eligible tracking, for SDK metrics
+            SdkMetrics.tracked(activity.requestID, time: trackedAt)
+            do {
+                let qualifyResponse = try await activityProcessor.process(activity)
+
+                let experienceRenderer = container?.resolve(ExperienceRendering.self)
+
+                try await experienceRenderer?.processAndShow(
+                    qualifiedExperiences: process(qualifyResponse: qualifyResponse, activity: activity),
                     reason: .qualification(reason: qualifyResponse.qualificationReason)
                 )
 
@@ -186,8 +189,10 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                     // common case, nothing qualified - we know there was nothing to render, so just remove tracking
                     SdkMetrics.remove(activity.requestID)
                 }
-            case .failure(let error):
-                self?.config.logger.error("Failed processing qualify response: %{public}@", "\(error)")
+            } catch ActivityProcessor.ActivityProcessorError.noActivity {
+                // Not an error
+            } catch {
+                config.logger.error("Failed processing qualify response: %{public}@", "\(error)")
                 SdkMetrics.remove(activity.requestID)
             }
         }

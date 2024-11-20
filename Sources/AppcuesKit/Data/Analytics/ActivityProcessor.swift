@@ -9,12 +9,16 @@
 import Foundation
 
 internal protocol ActivityProcessing: AnyObject {
-    func process(_ activity: Activity, completion: @escaping (Result<QualifyResponse, Error>) -> Void)
+    func process(_ activity: Activity) async throws -> QualifyResponse
 }
 
 /// This class is responsible for the network transport of analytics data to the /activity API endpoint. This includes
 /// the underlying persistent storage and retry, if necessary, for connection issues or app termination - to avoid loss of data.
 internal class ActivityProcessor: ActivityProcessing {
+
+    enum ActivityProcessorError: Error {
+        case noActivity
+    }
 
     private let config: Appcues.Config
     private let networking: Networking
@@ -34,8 +38,8 @@ internal class ActivityProcessor: ActivityProcessing {
         self.activityStorage = container.resolve(ActivityStoring.self)
     }
 
-    func process(_ activity: Activity, completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
-        guard let activity = ActivityStorage(activity) else { return }
+    func process(_ activity: Activity) async throws -> QualifyResponse {
+        guard let activity = ActivityStorage(activity) else { throw ActivityProcessorError.noActivity }
 
         var itemsToFlush: [ActivityStorage] = []
 
@@ -60,7 +64,7 @@ internal class ActivityProcessor: ActivityProcessing {
             processingItems.formUnion(itemsToFlush.map { $0.requestID })
         }
 
-        post(activities: itemsToFlush, current: activity, completion: completion)
+        return try await post(activities: itemsToFlush, current: activity)
     }
 
     // this method returns the X (based on config) applicable items to flush from storage.
@@ -114,57 +118,51 @@ internal class ActivityProcessor: ActivityProcessing {
         return eligible
     }
 
-    private func post(
-        activities: [ActivityStorage],
-        current: ActivityStorage,
-        completion: @escaping (Result<QualifyResponse, Error>) -> Void
-    ) {
+    private func post(activities: [ActivityStorage], current: ActivityStorage) async throws -> QualifyResponse {
         var activities = activities
-        guard !activities.isEmpty else { return } // done - nothing in the queue
+        guard !activities.isEmpty else { throw ActivityProcessorError.noActivity } // done - nothing in the queue
         let activity = activities.removeFirst()
 
         // check if this item in the list is the "current" activity that triggered this processing initially
         if activity.requestID == current.requestID {
             // if so, it is a /qualify request and it is the end of the line for this queue process
-            handleQualify(activity: activity, completion: completion)
+            return try await handleQualify(activity: activity)
         } else {
             // otherwise, it is a retry item, use /activity endpoint, and recurse when done
-            handleActivity(activity: activity) { [weak self] in
-                // recurse on remainder of the queue
-                self?.post(activities: activities, current: current, completion: completion)
-            }
+            await handleActivity(activity: activity)
+
+            // recurse on remainder of the queue
+            return try await post(activities: activities, current: current)
         }
     }
 
-    private func handleActivity(activity: ActivityStorage, completion: @escaping () -> Void) {
-        networking.post(
-            to: APIEndpoint.activity(userID: activity.userID),
-            authorization: Authorization(bearerToken: activity.userSignature),
-            body: activity.data,
-            requestId: nil
-        ) { [weak self] (result: Result<ActivityResponse, Error>) in
-            guard let self = self else { return }
-            var success = true
-            if case let .failure(error) = result, error.requiresRetry { success = false }
-            self.postProcess(activity: activity, success: success)
-            completion()
+    private func handleActivity(activity: ActivityStorage) async {
+        do {
+            let _: ActivityResponse = try await networking.post(
+                to: APIEndpoint.activity(userID: activity.userID),
+                authorization: Authorization(bearerToken: activity.userSignature),
+                body: activity.data,
+                requestId: nil
+            )
+            self.postProcess(activity: activity, success: true)
+        } catch {
+            self.postProcess(activity: activity, success: !error.requiresRetry)
         }
     }
 
-    private func handleQualify(activity: ActivityStorage, completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
-        networking.post(
-            to: APIEndpoint.qualify(userID: activity.userID),
-            authorization: Authorization(bearerToken: activity.userSignature),
-            body: activity.data,
-            requestId: activity.requestID
-        ) { [weak self] (result: Result<QualifyResponse, Error>) in
-            guard let self = self else { return }
-            var success = true
-            if case let .failure(error) = result, error.requiresRetry { success = false }
-            self.postProcess(activity: activity, success: success)
-
-            // the current activity sent for qualification is the end of processing, invoke completion
-            completion(result)
+    private func handleQualify(activity: ActivityStorage) async throws -> QualifyResponse {
+        do {
+            let qualifyResponse: QualifyResponse = try await networking.post(
+                to: APIEndpoint.qualify(userID: activity.userID),
+                authorization: Authorization(bearerToken: activity.userSignature),
+                body: activity.data,
+                requestId: activity.requestID
+            )
+            postProcess(activity: activity, success: true)
+            return qualifyResponse
+        } catch {
+            postProcess(activity: activity, success: !error.requiresRetry)
+            throw error
         }
     }
 

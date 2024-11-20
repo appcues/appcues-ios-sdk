@@ -45,7 +45,8 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
         longPressActions = actions.filter { ActionType(rawValue: $0.trigger) == .longPress }
     }
 
-    func decorate(backdropView: UIView) throws {
+    @MainActor
+    func decorate(backdropView: UIView) async throws {
         guard let metadataDelegate = metadataDelegate else {
             // nothing to do without a targetRectangle from the metadata dictionary
             targetView.removeFromSuperview()
@@ -57,12 +58,14 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
         }
     }
 
+    @MainActor
     func undecorate(backdropView: UIView) throws {
         targetView.removeFromSuperview()
 
         metadataDelegate?.removeHandler(for: Self.type)
     }
 
+    @MainActor
     private func handle(backdropView: UIView, metadata: AppcuesTraitMetadata) {
         guard var newTarget: CGRect = metadata["targetRectangle"], metadata[isSet: "backdropBackgroundColor"] else {
             targetView.removeFromSuperview()
@@ -119,6 +122,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
     // simplified version of how AppcuesBackdropKeyholeTrait gets the mask layer for a keyhole
     // in this case, we just want a CAShapeLayer for hit testing, and are not concerned with animations
     // or gradients for the circle blur - just the bounds of the keyhole
+    @MainActor
     private func getKeyholeShapeMask(backdropView: UIView, targetRectangle: CGRect, metadata: AppcuesTraitMetadata) -> CALayer? {
         guard backdropView.bounds != .zero else { return nil }
 

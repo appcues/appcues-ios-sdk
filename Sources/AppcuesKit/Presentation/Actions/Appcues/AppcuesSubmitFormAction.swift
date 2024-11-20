@@ -28,12 +28,8 @@ internal class AppcuesSubmitFormAction: AppcuesExperienceAction, ExperienceActio
         self.skipValidation = config?.skipValidation ?? false
     }
 
-    func execute(completion: ActionRegistry.Completion) {
-        guard let appcues = appcues else { return completion() }
-
-        defer {
-            completion()
-        }
+    func execute() async throws {
+        guard let appcues = appcues else { throw AppcuesTraitError(description: "No appcues instance") }
 
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
         let analyticsPublisher = appcues.container.resolve(AnalyticsPublishing.self)

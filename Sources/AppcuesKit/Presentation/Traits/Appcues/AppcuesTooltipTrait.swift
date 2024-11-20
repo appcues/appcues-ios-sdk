@@ -37,12 +37,14 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
         self.tooltipStyle = config?.style
     }
 
+    @MainActor
     func decorate(stepController: UIViewController) throws {
         // Need to cast for access to the padding property.
         guard let stepController = stepController as? ExperienceStepViewController else { return }
         stepController.padding = NSDirectionalEdgeInsets(paddingFrom: tooltipStyle)
     }
 
+    @MainActor
     func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
         let experienceWrapperViewController = ExperienceWrapperViewController<TooltipWrapperView>(wrapping: containerController)
         experienceWrapperViewController.configureStyle(tooltipStyle)
@@ -64,6 +66,7 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
 
     // We want a non-animating handler until we have a targetRectangle value at which point we want to switch to an animating handler.
     // This ensure the first step in a group doesn't awkwardly animate from the no target bottom position.
+    @MainActor
     private func setHandler(wrapperController: ExperienceWrapperViewController<TooltipWrapperView>, initial: Bool) {
         metadataDelegate?.registerHandler(for: Self.type, animating: !initial) { [weak self] metadata in
             wrapperController.bodyView.preferredPosition = metadata["contentPreferredPosition"]
@@ -76,15 +79,18 @@ internal class AppcuesTooltipTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCr
         }
     }
 
+    @MainActor
     func getBackdrop(for wrapperController: UIViewController) -> UIView? {
         return (wrapperController as? ExperienceWrapperViewController<TooltipWrapperView>)?.bodyView.backdropView
     }
 
-    func present(viewController: UIViewController, completion: (() -> Void)?) throws {
-        try modalContextManager.present(viewController: viewController, completion: completion)
+    @MainActor
+    func present(viewController: UIViewController) async throws {
+        try await modalContextManager.present(viewController: viewController)
     }
 
-    func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        modalContextManager.remove(viewController: viewController, completion: completion)
+    @MainActor
+    func remove(viewController: UIViewController) async {
+        await modalContextManager.remove(viewController: viewController)
     }
 }

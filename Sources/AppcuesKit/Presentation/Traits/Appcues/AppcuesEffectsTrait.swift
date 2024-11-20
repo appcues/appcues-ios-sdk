@@ -23,7 +23,8 @@ internal class AppcuesEffectsTrait: AppcuesBackdropDecoratingTrait {
         self.config = config
     }
 
-    func decorate(backdropView: UIView) throws {
+    @MainActor
+    func decorate(backdropView: UIView) async throws {
         let effectView: UIView
         switch config.presentationStyle {
         case .confetti:
@@ -38,6 +39,7 @@ internal class AppcuesEffectsTrait: AppcuesBackdropDecoratingTrait {
         self.effectView = effectView
     }
 
+    @MainActor
     func undecorate(backdropView: UIView) throws {
         effectView?.removeFromSuperview()
         effectView = nil

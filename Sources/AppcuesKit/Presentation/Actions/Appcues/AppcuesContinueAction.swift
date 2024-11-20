@@ -45,10 +45,10 @@ internal class AppcuesContinueAction: AppcuesExperienceAction {
         self.stepReference = stepReference
     }
 
-    func execute(completion: @escaping ActionRegistry.Completion) {
-        guard let appcues = appcues else { return completion() }
+    func execute() async throws {
+        guard let appcues = appcues else { throw AppcuesTraitError(description: "No appcues instance") }
 
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.show(step: stepReference, inContext: renderContext, completion: completion)
+        try await experienceRenderer.show(step: stepReference, inContext: renderContext)
     }
 }

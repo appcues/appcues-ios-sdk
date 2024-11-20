@@ -9,12 +9,17 @@
 import UIKit
 
 internal class ModalContextManager {
-    var presentingWindow: AppcuesUIWindow?
+    @MainActor
+    private var presentingWindow: AppcuesUIWindow?
 
-    func present(viewController: UIViewController, useSameWindow: Bool = false, completion: (() -> Void)?) throws {
+    init() {
+        // no-op
+    }
+
+    @MainActor
+    func present(viewController: UIViewController, useSameWindow: Bool = false) async throws {
         guard !useSameWindow else {
-            try presentInSameWindow(viewController: viewController, completion: completion)
-            return
+            return try await presentInSameWindow(viewController: viewController)
         }
 
         guard let windowScene = UIApplication.shared.mainWindowScene else {
@@ -27,26 +32,38 @@ internal class ModalContextManager {
             throw AppcuesTraitError(description: "No root view controller")
         }
 
-        rootViewController.present(viewController, animated: true, completion: completion)
+        await withCheckedContinuation { continuation in
+            rootViewController.present(viewController, animated: true) {
+                continuation.resume()
+            }
+        }
 
         presentingWindow = window
     }
 
-    private func presentInSameWindow(viewController: UIViewController, completion: (() -> Void)?) throws {
+    @MainActor
+    private func presentInSameWindow(viewController: UIViewController) async throws {
         guard let topViewController = UIApplication.shared.topViewController() else {
             throw AppcuesTraitError(description: "No top VC found")
         }
 
-        topViewController.present(viewController, animated: true, completion: completion)
+        await withCheckedContinuation { continuation in
+            topViewController.present(viewController, animated: true) {
+                continuation.resume()
+            }
+        }
     }
 
-    func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        viewController.dismiss(animated: true) {
-            // Ensure the window is removed from the hierarchy even if something outside the SDK has a reference to it
-            self.presentingWindow?.windowScene = nil
-            self.presentingWindow = nil
-            completion?()
+    @MainActor
+    func remove(viewController: UIViewController) async {
+        await withCheckedContinuation { continuation in
+            viewController.dismiss(animated: true) {
+                continuation.resume()
+            }
         }
+        // Ensure the window is removed from the hierarchy even if something outside the SDK has a reference to it
+        self.presentingWindow?.windowScene = nil
+        self.presentingWindow = nil
     }
 }
 

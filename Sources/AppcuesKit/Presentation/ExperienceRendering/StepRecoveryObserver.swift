@@ -23,7 +23,9 @@ internal class StepRecoveryObserver: ExperienceStateObserver {
 
     func scrollEnded() {
         stopRetryHandler() // stop now, if this next retry fails, it will start over again
-        try? stateMachine.transition(.retry)
+        Task {
+            try? await stateMachine.transition(.retry)
+        }
     }
 
     func stopRetryHandler() {

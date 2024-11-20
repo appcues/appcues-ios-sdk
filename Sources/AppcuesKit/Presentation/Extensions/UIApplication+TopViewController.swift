@@ -17,7 +17,7 @@ internal protocol TopControllerGetting {
 internal protocol URLOpening {
     var universalLinkHostAllowList: [String]? { get }
 
-    func open(_ url: URL, completionHandler: @escaping (() -> Void))
+    func open(_ url: URL) async
     func open(potentialUniversalLink: URL) -> Bool
 }
 
@@ -52,7 +52,7 @@ extension UIApplication: TopControllerGetting {
 
         // swiftlint:disable:next force_unwrapping
         if window == nil || window!.isAppcuesWindow {
-            window = UIApplication.shared.windows.first { !$0.isAppcuesWindow }
+            window = UIApplication.shared.appWindow
         }
 
         guard let rootViewController = window?.rootViewController else { return nil }
@@ -87,8 +87,8 @@ extension UIApplication: URLOpening {
         Bundle.main.object(forInfoDictionaryKey: "AppcuesUniversalLinkHostAllowList") as? [String]
     }
 
-    func open(_ url: URL, completionHandler: @escaping (() -> Void)) {
-        open(url, options: [:]) { _ in completionHandler() }
+    func open(_ url: URL) async {
+        await open(url, options: [:])
     }
 
     func open(potentialUniversalLink url: URL) -> Bool {

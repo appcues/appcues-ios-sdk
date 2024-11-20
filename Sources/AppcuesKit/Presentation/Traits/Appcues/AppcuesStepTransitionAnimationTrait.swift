@@ -27,6 +27,7 @@ internal class AppcuesStepTransitionAnimationTrait: AppcuesContainerDecoratingTr
         self.easing = config?.easing ?? .linear
     }
 
+    @MainActor
     func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         metadataDelegate?.set([
             "animationDuration": duration,
@@ -35,6 +36,7 @@ internal class AppcuesStepTransitionAnimationTrait: AppcuesContainerDecoratingTr
         ])
     }
 
+    @MainActor
     func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
         metadataDelegate?.unset(keys: [ "animationDuration", "animationEasing" ])
     }

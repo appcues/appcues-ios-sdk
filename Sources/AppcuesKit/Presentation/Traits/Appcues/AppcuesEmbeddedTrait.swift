@@ -38,21 +38,25 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesContaine
         self.style = config.style
     }
 
+    @MainActor
     func decorate(stepController: UIViewController) throws {
         // Need to cast for access to the padding property.
         guard let stepController = stepController as? ExperienceStepViewController else { return }
         stepController.padding = NSDirectionalEdgeInsets(paddingFrom: style)
     }
 
+    @MainActor
     func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         applyStyle(style, to: containerController)
     }
 
+    @MainActor
     func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
         applyStyle(nil, to: containerController)
     }
 
-    func present(viewController: UIViewController, completion: (() -> Void)?) throws {
+    @MainActor
+    func present(viewController: UIViewController) async throws {
         let experienceRenderer = appcues?.container.resolve(ExperienceRendering.self)
 
         self.embedView = experienceRenderer?.owner(forContext: .embed(frameID: frameID)) as? AppcuesFrameView
@@ -62,13 +66,15 @@ internal class AppcuesEmbeddedTrait: AppcuesStepDecoratingTrait, AppcuesContaine
         }
 
         let margins = NSDirectionalEdgeInsets(marginFrom: style)
-        embedView.embed(viewController, margins: margins, transition: transition, completion: completion)
+        await embedView.embed(viewController, margins: margins, transition: transition)
     }
 
-    func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        embedView?.unembed(viewController, transition: transition, completion: completion)
+    @MainActor
+    func remove(viewController: UIViewController) async {
+        await embedView?.unembed(viewController, transition: transition)
     }
 
+    @MainActor
     private func applyStyle(_ style: ExperienceComponent.Style?, to container: UIViewController) {
         container.view.backgroundColor = UIColor(dynamicColor: style?.backgroundColor)
         container.view.layer.cornerRadius = style?.cornerRadius ?? 0

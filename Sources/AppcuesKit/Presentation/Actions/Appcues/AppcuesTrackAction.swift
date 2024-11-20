@@ -35,11 +35,12 @@ internal class AppcuesTrackAction: AppcuesExperienceAction {
         self.attributes = attributes
     }
 
-    func execute(completion: ActionRegistry.Completion) {
-        guard let appcues = appcues else { return completion() }
+    func execute() async throws {
+        guard let appcues = appcues else { throw AppcuesTraitError(description: "No appcues instance") }
 
-        appcues.track(name: eventName, properties: attributes)
-        completion()
+        let trackingUpdate = TrackingUpdate(type: .event(name: eventName, interactive: true), properties: attributes, isInternal: false)
+        let analyticsPublisher = appcues.container.resolve(AnalyticsPublishing.self)
+        analyticsPublisher.publish(trackingUpdate)
     }
 }
 

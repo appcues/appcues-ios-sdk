@@ -42,8 +42,8 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
         self.destination = destination
     }
 
-    func execute(completion: @escaping ActionRegistry.Completion) {
-        guard let appcues = appcues else { return completion() }
+    func execute() async throws {
+        guard let appcues = appcues else { throw AppcuesTraitError(description: "No appcues instance") }
 
         let analyticsPublisher = appcues.container.resolve(AnalyticsPublishing.self)
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
@@ -70,7 +70,5 @@ internal class AppcuesStepInteractionAction: AppcuesExperienceAction {
             properties: interactionProperties,
             isInternal: true
         ), shouldPublish: shouldPublish)
-
-        completion()
     }
 }

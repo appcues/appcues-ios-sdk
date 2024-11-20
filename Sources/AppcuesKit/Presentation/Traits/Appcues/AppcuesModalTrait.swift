@@ -46,12 +46,14 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
         self.transition = config.toTransition()
     }
 
+    @MainActor
     func decorate(stepController: UIViewController) throws {
         // Need to cast for access to the padding property.
         guard let stepController = stepController as? ExperienceStepViewController else { return }
         stepController.padding = NSDirectionalEdgeInsets(paddingFrom: modalStyle)
     }
 
+    @MainActor
     func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController {
         containerController.modalPresentationStyle = presentationStyle.modalPresentationStyle
 
@@ -75,20 +77,19 @@ internal class AppcuesModalTrait: AppcuesStepDecoratingTrait, AppcuesWrapperCrea
         return containerController
     }
 
+    @MainActor
     func getBackdrop(for wrapperController: UIViewController) -> UIView? {
         return (wrapperController as? ExperienceWrapperViewController)?.bodyView.backdropView
     }
 
-    func present(viewController: UIViewController, completion: (() -> Void)?) throws {
-        try modalContextManager.present(
-            viewController: viewController,
-            useSameWindow: presentationStyle.useSameWindow,
-            completion: completion
-        )
+    @MainActor
+    func present(viewController: UIViewController) async throws {
+        try await modalContextManager.present(viewController: viewController, useSameWindow: presentationStyle.useSameWindow)
     }
 
-    func remove(viewController: UIViewController, completion: (() -> Void)?) {
-        modalContextManager.remove(viewController: viewController, completion: completion)
+    @MainActor
+    func remove(viewController: UIViewController) async {
+        await modalContextManager.remove(viewController: viewController)
     }
 }
 

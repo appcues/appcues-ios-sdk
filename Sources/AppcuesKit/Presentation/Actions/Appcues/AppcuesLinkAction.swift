@@ -39,20 +39,20 @@ internal class AppcuesLinkAction: AppcuesExperienceAction {
         self.openExternally = openExternally
     }
 
-    func execute(completion: @escaping ActionRegistry.Completion) {
-        guard let appcues = appcues else { return completion() }
+    @MainActor
+    func execute() async throws {
+        guard let appcues = appcues else { throw AppcuesTraitError(description: "No appcues instance") }
         let logger = appcues.config.logger
 
-        // If a delegate is provided from the host application, preference is to use it for
-        // handling navigation and invoking the completion handler.
+        // If a delegate is provided from the host application, preference is to use it for handling navigation.
         if let delegate = appcues.navigationDelegate {
             logger.info("@appcues/link: AppcuesNavigationDelegate opening %{private}@", url.absoluteString)
-            delegate.navigate(to: url, openExternally: openExternally) { _ in completion() }
+            _ = await delegate.navigate(to: url, openExternally: openExternally)
             return
         }
 
         // If no delegate provided, fall back to automatic handling behavior provided by the
-        // UIApplication - caveat, the completion callback may execute before the app has
+        // UIApplication - caveat, the function may complete before the app has
         // fully navigated to the destination.
 
         let isWebLink = ["http", "https"].contains(url.scheme?.lowercased())
@@ -68,20 +68,24 @@ internal class AppcuesLinkAction: AppcuesExperienceAction {
 
             if successfullyHandledUniversalLink {
                 logger.info("@appcues/link: universal link opened %{private}@", url.absoluteString)
-                completion()
+                return
             } else {
                 if openExternally {
                     logger.info("@appcues/link: external link opening %{private}@", url.absoluteString)
-                    urlOpener.open(url, completionHandler: completion)
+                    await urlOpener.open(url)
                 } else {
                     logger.info("@appcues/link: in-app link opening %{private}@", url.absoluteString)
-                    urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true, completion: completion)
+                    await withCheckedContinuation { continuation in
+                        urlOpener.topViewController()?.present(SFSafariViewController(url: url), animated: true) {
+                            continuation.resume()
+                        }
+                    }
                 }
             }
         } else {
             // Scheme link
             logger.info("@appcues/link: scheme link opening %{private}@", url.absoluteString)
-            urlOpener.open(url, completionHandler: completion)
+            await urlOpener.open(url)
         }
     }
 

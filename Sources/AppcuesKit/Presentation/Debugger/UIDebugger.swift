@@ -11,15 +11,15 @@ import SwiftUI
 import Combine
 
 internal protocol UIDebugging: AnyObject {
-    func verifyInstall(token: String)
-    func show(mode: DebugMode)
-    func showToast(_ toast: DebugToast)
+    @MainActor func verifyInstall(token: String)
+    @MainActor func show(mode: DebugMode)
+    @MainActor func showToast(_ toast: DebugToast)
 }
 
 /// Methods used by ScreenCapturer
 internal protocol ScreenCaptureUI {
-    func showConfirmation(screen: Capture, completion: @escaping (Result<String, Error>) -> Void)
-    func showToast(_ toast: DebugToast)
+    @MainActor func showConfirmation(screen: Capture, completion: @escaping (Result<String, Error>) -> Void)
+    @MainActor func showToast(_ toast: DebugToast)
 }
 
 /// Navigation destinations within the debugger
@@ -60,6 +60,7 @@ internal class UIDebugger: UIDebugging {
     var eventPublisher: AnyPublisher<LoggedEvent, Never> { subject.eraseToAnyPublisher() }
     private var cancellable = Set<AnyCancellable>()
 
+    @MainActor
     private var debugViewController: DebugViewController? {
         return debugWindow?.rootViewController as? DebugViewController
     }
@@ -81,18 +82,13 @@ internal class UIDebugger: UIDebugging {
         notificationCenter.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
     }
 
+    @MainActor
     func verifyInstall(token: String) {
         debugViewController?.deepLinkVerifier.receivedVerification(token: token)
     }
 
+    @MainActor
     func show(mode: DebugMode) {
-        guard Thread.isMainThread else {
-            DispatchQueue.main.async {
-                self.show(mode: mode)
-            }
-            return
-        }
-
         guard debugViewController?.mode == nil else {
             // Debugger already open, so just update the mode
             debugViewController?.mode = mode
@@ -138,6 +134,7 @@ internal class UIDebugger: UIDebugging {
         debugWindow = DebugUIWindow(windowScene: windowScene, rootViewController: rootViewController)
     }
 
+    @MainActor
     func hide() {
         analyticsPublisher.remove(subscriber: self)
         debugWindow?.isHidden = true
@@ -150,14 +147,8 @@ internal class UIDebugger: UIDebugging {
         }
     }
 
+    @MainActor
     func showToast(_ toast: DebugToast) {
-        guard Thread.isMainThread else {
-            DispatchQueue.main.async {
-                self.showToast(toast)
-            }
-            return
-        }
-
         // One-time on-demand set up of the toast window
         if toastWindow == nil, let windowScene = UIApplication.shared.mainWindowScene {
             toastWindow = ToastUIWindow(windowScene: windowScene)
@@ -166,6 +157,7 @@ internal class UIDebugger: UIDebugging {
         toastWindow?.showToast(toast)
     }
 
+    @MainActor
     @objc
     private func appcuesReset(notification: Notification) {
         debugViewController?.viewModel.reset()
@@ -174,22 +166,25 @@ internal class UIDebugger: UIDebugging {
 
 extension UIDebugger: DebugViewDelegate, ScreenCaptureUI {
     func debugView(did event: DebugView.Event) {
-        switch event {
-        case .hide:
-            hide()
-        case .open:
-            debugViewController?.apiVerifier.verifyAPI()
-        case let .screenCapture(authorization):
-            screenCapturer.captureScreen(
-                window: UIApplication.shared.windows.first(where: { !$0.isAppcuesWindow }),
-                authorization: authorization,
-                captureUI: self
-            )
-        case .show, .close, .reposition:
-            break
+        Task {
+            switch event {
+            case .hide:
+                await hide()
+            case .open:
+                await debugViewController?.apiVerifier.verifyAPI()
+            case let .screenCapture(authorization):
+                await screenCapturer.captureScreen(
+                    window: UIApplication.shared.appWindow,
+                    authorization: authorization,
+                    captureUI: self
+                )
+            case .show, .close, .reposition:
+                break
+            }
         }
     }
 
+    @MainActor
     func showConfirmation(screen: Capture, completion: @escaping (Result<String, Error>) -> Void) {
         debugViewController?.confirmCapture(screen: screen, completion: completion)
     }
@@ -197,11 +192,8 @@ extension UIDebugger: DebugViewDelegate, ScreenCaptureUI {
 
 extension UIDebugger: AnalyticsSubscribing {
     func track(update: TrackingUpdate) {
-        guard Thread.isMainThread else {
-            DispatchQueue.main.async { self.track(update: update) }
-            return
+        Task { @MainActor in
+            subject.send(LoggedEvent(from: update))
         }
-
-        subject.send(LoggedEvent(from: update))
     }
 }

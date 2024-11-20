@@ -15,18 +15,18 @@ internal class AppcuesDelayAction: AppcuesExperienceAction {
 
     static let type = "@appcues/delay"
 
-    let duration: TimeInterval
+    let nsDuration: UInt64
 
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
         guard let config = configuration.decode(Config.self) else { return nil }
-        self.duration = Double(config.duration) / 1_000
+        self.nsDuration = UInt64(config.duration * 1_000_000)
     }
 
     init(duration: TimeInterval) {
-        self.duration = duration
+        self.nsDuration = UInt64(duration * 1_000_000_000)
     }
 
-    func execute(completion: @escaping ActionRegistry.Completion) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + duration) { completion() }
+    func execute() async throws {
+        try await Task.sleep(nanoseconds: nsDuration)
     }
 }

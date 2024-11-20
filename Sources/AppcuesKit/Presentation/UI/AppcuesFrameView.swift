@@ -29,11 +29,7 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
     // Managed by the StateMachineDirectory
     internal var renderContext: RenderContext?
 
-    private var _stateMachine: Any?
-    internal var stateMachine: ExperienceStateMachine? {
-        get { _stateMachine as? ExperienceStateMachine }
-        set { _stateMachine = newValue }
-    }
+    internal var stateMachine: ExperienceStateMachine?
 
     private weak var parentViewController: UIViewController?
     private weak var experienceViewController: UIViewController?
@@ -79,9 +75,8 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
     internal func embed(
         _ experienceController: UIViewController,
         margins: NSDirectionalEdgeInsets,
-        transition: Transition,
-        completion: (() -> Void)?
-    ) {
+        transition: Transition
+    ) async {
         guard let viewController = parentViewController else { return }
 
         configureConstraints(isEmpty: false)
@@ -93,50 +88,50 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
         switch transition {
         case .none:
             isHidden = false
-            completion?()
         case .fade:
             self.isHidden = false
             self.alpha = 0
-            UIView.animate(
-                withDuration: 0.3,
-                animations: {
-                    self.alpha = 1
-                },
-                completion: { _ in
-                    completion?()
-                }
-            )
+            await withCheckedContinuation { continuation in
+                UIView.animate(
+                    withDuration: 0.3,
+                    animations: {
+                        self.alpha = 1
+                    },
+                    completion: { _ in
+                        continuation.resume()
+                    }
+                )
+            }
         }
     }
 
-    internal func unembed(_ experienceController: UIViewController, transition: Transition, completion: (() -> Void)?) {
+    internal func unembed(_ experienceController: UIViewController, transition: Transition) async {
         switch transition {
         case .none:
             isHidden = true
             parentViewController?.unembedChildViewController(experienceController)
             configureConstraints(isEmpty: true)
-            // Complete async so that experienceController.viewDidDisappear gets called before the state machine moves to .idling
-            DispatchQueue.main.async { completion?() }
         case .fade:
-            UIView.animate(
-                withDuration: 0.3,
-                animations: {
-                    self.alpha = 0
-                },
-                completion: { _ in
-                    self.isHidden = true
-                    self.parentViewController?.unembedChildViewController(experienceController)
-                    self.configureConstraints(isEmpty: true)
-                    // Complete async so that experienceController.viewDidDisappear gets called before the state machine moves to .idling
-                    DispatchQueue.main.async { completion?() }
-                }
-            )
+            await withCheckedContinuation { continuation in
+                UIView.animate(
+                    withDuration: 0.3,
+                    animations: {
+                        self.alpha = 0
+                    },
+                    completion: { _ in
+                        self.isHidden = true
+                        self.parentViewController?.unembedChildViewController(experienceController)
+                        self.configureConstraints(isEmpty: true)
+                        continuation.resume()
+                    }
+                )
+            }
         }
     }
 
     /// Set the Frame back to an unregistered state.
-    internal func reset() {
+    internal func reset() async {
         stateMachine?.removeAnalyticsObserver()
-        try? stateMachine?.transition(.endExperience(markComplete: false))
+        try? await stateMachine?.transition(.endExperience(markComplete: false))
     }
 }

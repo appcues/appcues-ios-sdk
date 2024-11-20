@@ -35,6 +35,7 @@ internal class AppcuesBackgroundContentTrait: AppcuesStepDecoratingTrait, Appcue
         self.content = config.content
     }
 
+    @MainActor
     func decorate(stepController viewController: UIViewController) throws {
         guard level == .step else { return }
 
@@ -44,6 +45,7 @@ internal class AppcuesBackgroundContentTrait: AppcuesStepDecoratingTrait, Appcue
         applyBackground(with: viewController.viewModel, parent: viewController)
     }
 
+    @MainActor
     func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         guard level == .group || level == .experience else { return }
 
@@ -52,13 +54,14 @@ internal class AppcuesBackgroundContentTrait: AppcuesStepDecoratingTrait, Appcue
         backgroundViewController = applyBackground(with: emptyViewModel, parent: containerController)
     }
 
+    @MainActor
     func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
         if let backgroundViewController = backgroundViewController {
             containerController.unembedChildViewController(backgroundViewController)
         }
     }
 
-    @discardableResult
+    @discardableResult @MainActor
     private func applyBackground(with viewModel: ExperienceStepViewModel, parent viewController: UIViewController) -> UIViewController {
         // Must have the environmentObject to avoid a crash.
         let backgroundContentVC = AppcuesHostingController(rootView: content.view

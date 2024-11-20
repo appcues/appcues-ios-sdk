@@ -25,17 +25,15 @@ internal class ScreenCapturer {
         self.experienceRenderer = experienceRenderer
     }
 
-    func captureScreen(window: UIWindow?, authorization: Authorization, captureUI: ScreenCaptureUI) {
-        guard experienceRenderer.experienceData(forContext: .modal) == nil else {
-            experienceRenderer.dismiss(inContext: .modal, markComplete: false) { _ in
-                self.captureScreen(window: window, authorization: authorization, captureUI: captureUI)
-            }
-            return
+    @MainActor
+    func captureScreen(window: UIWindow?, authorization: Authorization, captureUI: ScreenCaptureUI) async {
+        if experienceRenderer.experienceData(forContext: .modal) != nil {
+            try? await experienceRenderer.dismiss(inContext: .modal, markComplete: false)
         }
 
         guard let window = window,
               let screenshot = window.screenshot(),
-              let layout = Appcues.elementTargeting.captureLayout() else {
+              let layout = await Appcues.elementTargeting.captureLayout() else {
             let toast = DebugToast(message: .screenCaptureFailure, style: .failure)
             captureUI.showToast(toast)
             return
@@ -59,156 +57,84 @@ internal class ScreenCapturer {
                 // get updated name
                 capture.displayName = name
 
-                // save the screen into the account/app
-                self.saveScreen(captureUI: captureUI, capture: capture, authorization: authorization)
+                Task {
+                    // save the screen into the account/app
+                    await self.saveScreen(captureUI: captureUI, capture: capture, authorization: authorization)
+                }
             }
         }
     }
 
-    private func saveScreen(captureUI: ScreenCaptureUI, capture: Capture, authorization: Authorization) {
-        saveScreenCapture(networking: networking, screen: capture, authorization: authorization) { result in
-            switch result {
-            case .success:
-                DispatchQueue.main.async {
-                    let toast = DebugToast(message: .screenCaptureSuccess(displayName: capture.displayName), style: .success)
-                    captureUI.showToast(toast)
-                }
-            case .failure(NetworkingError.nonSuccessfulStatusCode(400, _)):
-                DispatchQueue.main.async {
-                    let toast = DebugToast(message: .captureSessionExpired, style: .failure, duration: 6.0)
-                    captureUI.showToast(toast)
-                }
-            case .failure:
-                DispatchQueue.main.async {
-                    let toast = DebugToast(message: .screenUploadFailure, style: .failure, duration: 6.0) {
-                        // onRetry - recursively call save to try again
-                        self.saveScreen(captureUI: captureUI, capture: capture, authorization: authorization)
-                    }
-                    captureUI.showToast(toast)
+    @MainActor
+    private func saveScreen(captureUI: ScreenCaptureUI, capture: Capture, authorization: Authorization) async {
+        do {
+            try await saveScreenCapture(networking: networking, screen: capture, authorization: authorization)
+
+            let toast = DebugToast(message: .screenCaptureSuccess(displayName: capture.displayName), style: .success)
+            captureUI.showToast(toast)
+        } catch NetworkingError.nonSuccessfulStatusCode(400, _) {
+            let toast = DebugToast(message: .captureSessionExpired, style: .failure, duration: 6.0)
+            captureUI.showToast(toast)
+        } catch {
+            let toast = DebugToast(message: .screenUploadFailure, style: .failure, duration: 6.0) {
+                // onRetry - recursively call save to try again
+                Task {
+                    await self.saveScreen(captureUI: captureUI, capture: capture, authorization: authorization)
                 }
             }
+            captureUI.showToast(toast)
         }
     }
 
     private func saveScreenCapture(
         networking: Networking,
         screen: Capture,
-        authorization: Authorization,
-        completion: @escaping (Result<Void, Error>) -> Void
-    ) {
+        authorization: Authorization
+    ) async throws {
         // this is a 4-step chain of nested async completion blocks
 
         // Step 1 - lookup customer API endpoint in from settings endpoint
-        networking.get(from: SettingsEndpoint.settings, authorization: nil) { (result: Result<SdkSettings, Error>) -> Void in
+        let sdkSettings: SdkSettings = try await networking.get(from: SettingsEndpoint.settings, authorization: nil)
 
-            switch result {
-
-            // step 1 failure - bubble up error
-            case let .failure(error): completion(.failure(error))
-
-            // step 1 success
-            case let .success(response):
-                guard let customerAPIHost = URL(string: response.services.customerApi) else {
-                    completion(.failure(ScreenCaptureError.customerAPINotFound))
-                    return
-                }
-
-                // Step 2 - call pre-upload endpoint and get pre-signed image upload URL
-                networking.post(
-                    to: CustomerAPIEndpoint.preSignedImageUpload(host: customerAPIHost, filename: "\(screen.id).png"),
-                    authorization: authorization,
-                    body: nil,
-                    requestId: nil
-                ) { (result: Result<ScreenshotUpload, Error>) -> Void in
-
-                    switch result {
-
-                    // step 2 failure - bubble up error
-                    case let .failure(error): completion(.failure(error))
-
-                    // step 2 success
-                    case let .success(response):
-
-                        // Step 3 - upload the image using the pre-signed image upload URL
-                        self.uploadImage(networking: networking, screen: screen, upload: response) { result in
-                            switch result {
-
-                            // step 3 failure - bubble up error
-                            case let .failure(error): completion(.failure(error))
-
-                            // step 3 success
-                            case let .success(screen): // screen value here is now updated with screenshotImageUrl
-
-                                // Step 4 - save the screen into the customer Appcues account
-                                self.saveScreen(
-                                    networking: networking,
-                                    customerAPIHost: customerAPIHost,
-                                    screen: screen,
-                                    authorization: authorization,
-                                    completion: completion // final completion here will go back to caller of saveScreenCapture
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+        guard let customerAPIHost = URL(string: sdkSettings.services.customerApi) else {
+            throw ScreenCaptureError.customerAPINotFound
         }
-    }
 
-    private func uploadImage(
-        networking: Networking,
-        screen: Capture,
-        upload: ScreenshotUpload,
-        completion: @escaping (Result<Capture, Error>) -> Void
-    ) {
+        // Step 2 - call pre-upload endpoint and get pre-signed image upload URL
+        let upload: ScreenshotUpload = try await networking.post(
+            to: CustomerAPIEndpoint.preSignedImageUpload(host: customerAPIHost, filename: "\(screen.id).png"),
+            authorization: authorization,
+            body: nil,
+            requestId: nil
+        )
+        // Step 3 - upload the image using the pre-signed image upload URL
         guard let imageData = screen.screenshot.pngData() else {
-            completion(.failure(ScreenCaptureError.noImageData))
-            return
+            throw ScreenCaptureError.noImageData
         }
 
-        // update the screenshotImageUrl on the screen we are capturing
-        // this will be returned in completion handler if the upload succeeds
-        var screen = screen
-        screen.screenshotImageUrl = upload.url
-
-        networking.put(
+        try await networking.put(
             to: URLEndpoint(url: upload.upload.presignedUrl),
             authorization: nil, // pre-signed url, no auth needed on upload
             body: imageData,
             contentType: "image/png"
-        ) { result in
+        )
 
-            switch result {
-            case .success:
-                // return the transformed screen - with new screenshotImageUrl
-                completion(.success(screen))
+        // update the screenshotImageUrl on the screen we are capturing
+        // return the transformed screen - with new screenshotImageUrl
+        var updatedScreen = screen
+        updatedScreen.screenshotImageUrl = upload.url
 
-            case let .failure(error):
-                // bubble up error
-                completion(.failure(error))
-            }
-        }
-    }
-
-    private func saveScreen(
-        networking: Networking,
-        customerAPIHost: URL,
-        screen: Capture,
-        authorization: Authorization,
-        completion: @escaping (Result<Void, Error>) -> Void
-    ) {
-        guard let data = try? NetworkClient.encoder.encode(screen) else {
-            completion(.failure(ScreenCaptureError.failedCaptureEncoding))
-            return
+        // Step 4 - save the screen into the customer Appcues account
+        guard let screenData = try? NetworkClient.encoder.encode(updatedScreen) else {
+            throw ScreenCaptureError.failedCaptureEncoding
         }
 
         // this will ultimately resolve the initial completion handler that started this
         // chain of requests, with either success or failure of saving the full screen capture information
-        networking.post(
+        try await networking.post(
             to: CustomerAPIEndpoint.screenCapture(host: customerAPIHost),
             authorization: authorization,
-            body: data,
-            completion: completion
+            body: screenData
         )
     }
 }

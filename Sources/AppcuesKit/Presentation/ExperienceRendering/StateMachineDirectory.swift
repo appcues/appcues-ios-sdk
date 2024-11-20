@@ -13,7 +13,7 @@ internal protocol StateMachineOwning: AnyObject {
     var stateMachine: ExperienceStateMachine? { get set }
 
     /// Should reset the `stateMachine` to `.idling` and clear any rendered experience without triggering experience analytics.
-    func reset()
+    func reset() async throws
 }
 
 // This class is intended to work like a `Dictionary<RenderContext, StateMachineOwning?>`,
@@ -35,14 +35,14 @@ internal class StateMachineDirectory {
         }
     }
 
-    func forEach(_ body: ((key: RenderContext, value: StateMachineOwning)) throws -> Void) rethrows {
+    func asyncForEach(_ body: ((key: RenderContext, value: StateMachineOwning)) async throws -> Void) async rethrows {
         // Operate on a copy of the stateMachine dictionary so we don't need to use the syncQueue
         // which would block subsequent uses of the Directory.
         let stateMachineSnapshot = stateMachines
 
-        try stateMachineSnapshot.forEach { renderContext, weakStateMachineOwning in
+        for (renderContext, weakStateMachineOwning) in stateMachineSnapshot {
             if let nonWeakValue = weakStateMachineOwning.value {
-                try body((renderContext, nonWeakValue))
+                try await body((renderContext, nonWeakValue))
             }
         }
     }

@@ -20,23 +20,20 @@ internal class APIVerifier {
         self.networking = networking
     }
 
-    func verifyAPI() {
+    @MainActor
+    func verifyAPI() async {
         subject.send(StatusItem(status: .pending, title: APIVerifier.title))
 
-        networking.get(from: APIEndpoint.health, authorization: nil) { [weak self] (result: Result<ActivityResponse, Error>) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    self?.subject.send(StatusItem(status: .verified, title: APIVerifier.title))
-                case .failure(let error):
-                    self?.subject.send(StatusItem(
-                        status: .unverified,
-                        title: APIVerifier.title,
-                        subtitle: error.localizedDescription,
-                        detailText: "\(error)"
-                    ))
-                }
-            }
+        do {
+            let _: ActivityResponse = try await networking.get(from: APIEndpoint.health, authorization: nil)
+            subject.send(StatusItem(status: .verified, title: APIVerifier.title))
+        } catch {
+            subject.send(StatusItem(
+                status: .unverified,
+                title: APIVerifier.title,
+                subtitle: error.localizedDescription,
+                detailText: "\(error)"
+            ))
         }
     }
 }
