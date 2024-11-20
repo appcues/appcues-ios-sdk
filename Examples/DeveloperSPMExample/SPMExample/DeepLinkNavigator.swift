@@ -119,8 +119,12 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
     var scene: UIScene?
 
     // conforming to AppcuesNavigationDelegate for navigation requests coming from the Appcues SDK
-    func navigate(to url: URL, openExternally: Bool, completion: @escaping (Bool) -> Void) {
-        handle(url: url, openExternally: openExternally, completion: completion)
+    func navigate(to url: URL, openExternally: Bool) async -> Bool {
+        await withCheckedContinuation { continuation in
+            handle(url: url, openExternally: openExternally) { success in
+                continuation.resume(returning: success)
+            }
+        }
     }
 
     // called by scheme links or universal links attempting to deep link into our application
@@ -196,10 +200,15 @@ class DeepLinkNavigator: AppcuesNavigationDelegate {
         }
 
         if let experienceID = target.experienceID {
-            Appcues.shared.show(experienceID: experienceID) { success, _ in
-                // we'll use the final success value from showing the experience for the overall success
-                // of the deep link routing, in this case
-                completion?(success)
+            Task {
+                do {
+                    try await Appcues.shared.show(experienceID: experienceID)
+                    // we'll use the final success value from showing the experience for the overall success
+                    // of the deep link routing, in this case
+                    completion?(true)
+                } catch {
+                    completion?(false)
+                }
             }
         } else {
             completion?(true)
