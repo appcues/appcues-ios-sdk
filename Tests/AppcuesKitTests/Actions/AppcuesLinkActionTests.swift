@@ -10,7 +10,6 @@ import XCTest
 import SafariServices
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class AppcuesLinkActionTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -285,7 +284,6 @@ private class MockNavigationDelegate: AppcuesNavigationDelegate {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesLinkActionTests {
     class MockURLOpener: TopControllerGetting, URLOpening {
         var hasActiveWindowScenes: Bool = true
@@ -322,7 +320,6 @@ extension AppcuesLinkActionTests {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesLinkAction {
     convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))

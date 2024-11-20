@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class ScreenCapturerTests: XCTestCase {
 
     private var screenCapturer: ScreenCapturer!

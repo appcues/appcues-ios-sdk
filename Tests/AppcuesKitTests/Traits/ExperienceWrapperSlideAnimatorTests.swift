@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class ExperienceWrapperSlideAnimatorTests: XCTestCase {
 
     private static let iPhone14ProPortraitFrame = CGRect(x: 0, y: 0, width: 393, height: 852)

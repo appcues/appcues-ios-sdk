@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class StepRefTests: XCTestCase {
     typealias SI = Experience.StepIndex
 

@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class ExperienceStateMachineTests: XCTestCase {
 
     typealias State = ExperienceStateMachine.State
@@ -851,7 +850,6 @@ private class ListingObserver: ExperienceStateObserver {
     }
 }
 
-@available(iOS 13.0, *)
 private extension ExperienceStateMachineTests {
     class TestAction: AppcuesExperienceAction {
         struct Config: Decodable {

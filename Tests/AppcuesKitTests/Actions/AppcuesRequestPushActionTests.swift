@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class AppcuesRequestPushActionTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -58,7 +57,6 @@ class AppcuesRequestPushActionTests: XCTestCase {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesRequestPushAction {
     convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))
