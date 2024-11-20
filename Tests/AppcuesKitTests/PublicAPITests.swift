@@ -14,9 +14,7 @@ import AppcuesKit
 class PublicAPITests: XCTestCase {
 
     func testAPI() throws {
-        if #available(iOS 13.0, *) {
-            Appcues.elementTargeting = SampleElementTargeting()
-        }
+        Appcues.elementTargeting = SampleElementTargeting()
 
         _ = AppcuesElementSelector().evaluateMatch(for: AppcuesElementSelector())
 
@@ -79,18 +77,13 @@ class PublicAPITests: XCTestCase {
         appcuesInstance.trackScreens()
 
         _ = appcuesInstance.didHandleURL(URL(string: "https://api.appcues.net")!)
-
-        if #available(iOS 13.0, *) {
-            _ = appcuesInstance.filterAndHandle(Set())
-        }
+        _ = appcuesInstance.filterAndHandle(Set())
 
         let frameView = AppcuesFrameView(frame: .zero)
         appcuesInstance.register(frameID: "frame1", for: frameView, on: UIViewController())
         frameView.presentationDelegate = presentationDelegate
 
-        if #available(iOS 13.0, *) {
-            let frame = AppcuesFrame(appcues: appcuesInstance, frameID: "frame1")
-        }
+        let frame = AppcuesFrame(appcues: appcuesInstance, frameID: "frame1")
     }
 }
 

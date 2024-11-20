@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class EmbedExperienceRendererTests: XCTestCase {
 
     let screenTrigger = ExperienceTrigger.qualification(reason: .screenView)
@@ -240,7 +239,6 @@ extension Experience {
     }
 }
 
-@available(iOS 13.0, *)
 extension ExperienceData {
     static func mockEmbed(frameID: String, trigger: ExperienceTrigger) -> ExperienceData {
         ExperienceData(

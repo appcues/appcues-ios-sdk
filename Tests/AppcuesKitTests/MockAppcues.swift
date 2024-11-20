@@ -31,15 +31,13 @@ class MockAppcues: Appcues {
         container.register(AnalyticsTracking.self, value: analyticsTracker)
         container.register(PushMonitoring.self, value: pushMonitor)
 
-        if #available(iOS 13.0, *) {
-            container.register(DeepLinkHandling.self, value: deepLinkHandler)
-            container.register(UIDebugging.self, value: debugger)
-            container.register(ContentLoading.self, value: contentLoader)
-            container.register(ExperienceRendering.self, value: MockExperienceRenderer())
-            container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
-            container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
-            container.register(TraitComposing.self, value: MockTraitComposer())
-        }
+        container.register(DeepLinkHandling.self, value: deepLinkHandler)
+        container.register(UIDebugging.self, value: debugger)
+        container.register(ContentLoading.self, value: contentLoader)
+        container.register(ExperienceRendering.self, value: experienceRenderer)
+        container.register(TraitComposing.self, value: traitComposer)
+        container.registerLazy(TraitRegistry.self, initializer: TraitRegistry.init)
+        container.registerLazy(ActionRegistry.self, initializer: ActionRegistry.init)
 
         // dependencies that are not mocked
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
@@ -65,20 +63,8 @@ class MockAppcues: Appcues {
     var networking = MockNetworking()
     var analyticsTracker = MockAnalyticsTracker()
     var pushMonitor = MockPushMonitor()
-
-    // must wrap in @available since MockExperienceRenderer has a stored property with
-    // type ExperienceData in it, which is 13+
-    @available(iOS 13.0, *)
-    var experienceRenderer: MockExperienceRenderer {
-        return container.resolve(ExperienceRendering.self) as! MockExperienceRenderer
-    }
-
-    // must wrap in @available since MockTraitComposer has a stored property with
-    // type ExperienceData in it, which is 13+
-    @available(iOS 13.0, *)
-    var traitComposer: MockTraitComposer {
-        return container.resolve(TraitComposing.self) as! MockTraitComposer
-    }
+    var experienceRenderer =  MockExperienceRenderer()
+    var traitComposer = MockTraitComposer()
 }
 
 class MockAnalyticsPublisher: AnalyticsPublishing {
@@ -148,7 +134,6 @@ class MockContentLoader: ContentLoading {
     }
 }
 
-@available(iOS 13.0, *) // due to reference to ExperienceData
 class MockExperienceRenderer: ExperienceRendering {
     var onStart: ((StateMachineOwning, RenderContext) -> Void)?
     func start(owner: StateMachineOwning, forContext context: RenderContext) {
@@ -252,7 +237,6 @@ class MockDeepLinkHandler: DeepLinkHandling {
     }
 }
 
-@available(iOS 13.0, *) // due to reference to ExperienceData
 class MockTraitComposer: TraitComposing {
 
     var onPackage: ((ExperienceData, Experience.StepIndex) throws -> ExperiencePackage)?

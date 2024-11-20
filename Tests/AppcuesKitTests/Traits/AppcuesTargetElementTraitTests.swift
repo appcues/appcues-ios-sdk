@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class AppcuesTargetElementTraitTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -334,7 +333,6 @@ extension UIView {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesTargetElementTrait {
     convenience init?(
         appcues: Appcues?,

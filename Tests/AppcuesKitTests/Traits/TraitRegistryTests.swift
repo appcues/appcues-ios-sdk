@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class TraitRegistryTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -68,7 +67,6 @@ class TraitRegistryTests: XCTestCase {
     }
 }
 
-@available(iOS 13.0, *)
 private extension TraitRegistryTests {
     class TestTrait: AppcuesExperienceTrait {
         static let type = "@test/trait"

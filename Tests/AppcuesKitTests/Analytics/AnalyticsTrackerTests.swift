@@ -343,7 +343,6 @@ class AnalyticsTrackerTests: XCTestCase {
         wait(for: [minTimeExpectation, onRequestExpectation], timeout: appcues.config.flushAfterDuration + 1, enforceOrder: true)
     }
 
-    @available(iOS 13.0, *)
     func testProcessEmptyResponse() throws {
         let onRenderExpectation = expectation(description: "Experience renderer successfully called")
         let successResponse = QualifyResponse(
@@ -371,7 +370,6 @@ class AnalyticsTrackerTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    @available(iOS 13.0, *)
     func testProcessExperienceResponse() throws {
         let onRenderExpectation = expectation(description: "Experience renderer successfully called")
         let successResponse = QualifyResponse(
@@ -410,22 +408,19 @@ extension Dictionary where Key == String, Value == Any {
         }
         XCTAssertEqual(Set(self.keys), Set(other.keys), file: file, line: line)
         self.keys.forEach { key in
-            // special case since ExperienceData is 13+
-            if #available(iOS 13.0, *), let val1 = self[key] as? ExperienceData.StepState, let val2 = other[key] as? ExperienceData.StepState {
+            switch(self[key], other[key]) {
+            case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
                 XCTAssertEqual(val1, val2, file: file, line: line)
-            } else {
-                switch(self[key], other[key]) {
-                case let (val1 as String, val2 as String):
-                    XCTAssertEqual(val1, val2, file: file, line: line)
-                case let (val1 as NSNumber, val2 as NSNumber):
-                    XCTAssertEqual(val1, val2, file: file, line: line)
-                case let (val1 as [Any], val2 as [Any]):
-                    val1.verifyPropertiesMatch(val2, file: file, line: line)
-                case let (val1 as [String: Any], val2 as [String: Any]):
-                    val1.verifyPropertiesMatch(val2, file: file, line: line)
-                default:
-                    XCTFail("\(self[key] ?? "nil") does not match \(other[key] ?? "nil").", file: file, line: line)
-                }
+            case let (val1 as String, val2 as String):
+                XCTAssertEqual(val1, val2, file: file, line: line)
+            case let (val1 as NSNumber, val2 as NSNumber):
+                XCTAssertEqual(val1, val2, file: file, line: line)
+            case let (val1 as [Any], val2 as [Any]):
+                val1.verifyPropertiesMatch(val2, file: file, line: line)
+            case let (val1 as [String: Any], val2 as [String: Any]):
+                val1.verifyPropertiesMatch(val2, file: file, line: line)
+            default:
+                XCTFail("\(self[key] ?? "nil") does not match \(other[key] ?? "nil").", file: file, line: line)
             }
         }
     }
@@ -441,21 +436,19 @@ extension Array where Element == Any {
         XCTAssertEqual(self.count, other.count, file: file, line: line)
 
         zip(self, other).forEach { (selfVal, otherVal) in
-            if #available(iOS 13.0, *), let val1 = selfVal as? ExperienceData.StepState, let val2 = otherVal as? ExperienceData.StepState {
+            switch(selfVal, otherVal) {
+            case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
                 XCTAssertEqual(val1, val2, file: file, line: line)
-            } else {
-                switch(selfVal, otherVal) {
-                case let (val1 as String, val2 as String):
-                    XCTAssertEqual(val1, val2, file: file, line: line)
-                case let (val1 as NSNumber, val2 as NSNumber):
-                    XCTAssertEqual(val1, val2, file: file, line: line)
-                case let (val1 as [Any], val2 as [Any]):
-                    val1.verifyPropertiesMatch(val2, file: file, line: line)
-                case let (val1 as [String: Any], val2 as [String: Any]):
-                    val1.verifyPropertiesMatch(val2, file: file, line: line)
-                default:
-                    XCTFail("\(selfVal) does not match \(otherVal).", file: file, line: line)
-                }
+            case let (val1 as String, val2 as String):
+                XCTAssertEqual(val1, val2, file: file, line: line)
+            case let (val1 as NSNumber, val2 as NSNumber):
+                XCTAssertEqual(val1, val2, file: file, line: line)
+            case let (val1 as [Any], val2 as [Any]):
+                val1.verifyPropertiesMatch(val2, file: file, line: line)
+            case let (val1 as [String: Any], val2 as [String: Any]):
+                val1.verifyPropertiesMatch(val2, file: file, line: line)
+            default:
+                XCTFail("\(selfVal) does not match \(otherVal).", file: file, line: line)
             }
         }
     }

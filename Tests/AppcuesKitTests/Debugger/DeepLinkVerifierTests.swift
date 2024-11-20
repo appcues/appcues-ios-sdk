@@ -10,7 +10,6 @@ import XCTest
 import Combine
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class DeepLinkVerifierTests: XCTestCase {
 
     var deepLinkVerifier: MockDeepLinkVerifier!
@@ -170,7 +169,6 @@ class DeepLinkVerifierTests: XCTestCase {
 }
 
 /// Mock DeepLinkVerifier that allows overriding loading the CFBundleURLSchemes values from the Info.plist
-@available(iOS 13.0, *)
 class MockDeepLinkVerifier: DeepLinkVerifier {
     var mockURLTypes: [[String : Any]]?
 

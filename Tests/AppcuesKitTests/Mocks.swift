@@ -30,7 +30,6 @@ enum Mocks {
         }
     }
 
-    @available(iOS 13.0, *)
     class ContainerViewController: DefaultContainerViewController {
         // ExperienceStateMachine checks these values to avoid unnecessary lifecycle events,
         // and so we need to mock them to trigger the correct events
@@ -197,7 +196,6 @@ extension Experience.Step.Child {
 
 }
 
-@available(iOS 13.0, *)
 extension ExperienceData {
     static var mock: ExperienceData { ExperienceData(.mock, trigger: .showCall) }
     static var singleStepMock: ExperienceData { ExperienceData(.singleStepMock, trigger: .showCall) }

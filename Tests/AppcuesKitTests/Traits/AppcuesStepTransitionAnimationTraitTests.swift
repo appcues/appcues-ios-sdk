@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class AppcuesStepTransitionAnimationTraitTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -121,7 +120,6 @@ class AppcuesStepTransitionAnimationTraitTests: XCTestCase {
 
 }
 
-@available(iOS 13.0, *)
 extension AppcuesStepTransitionAnimationTrait {
     convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))

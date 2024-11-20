@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class AppcuesTooltipTraitTests: XCTestCase {
 
     func testBackdrop() throws {
@@ -29,7 +28,6 @@ class AppcuesTooltipTraitTests: XCTestCase {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesTooltipTrait {
     convenience init?() {
         self.init(

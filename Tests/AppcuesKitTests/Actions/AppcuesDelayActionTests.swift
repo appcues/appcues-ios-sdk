@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class AppcuesDelayActionTests: XCTestCase {
 
     func testInit() throws {
@@ -37,7 +36,6 @@ class AppcuesDelayActionTests: XCTestCase {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesDelayAction {
     convenience init?(appcues: Appcues?) {
         self.init(configuration: AppcuesExperiencePluginConfiguration(nil, appcues: appcues))

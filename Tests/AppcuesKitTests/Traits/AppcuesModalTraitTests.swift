@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class AppcuesModalTraitTests: XCTestCase {
 
     func testBackdrop() throws {
@@ -113,7 +112,6 @@ class AppcuesModalTraitTests: XCTestCase {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesModalTrait {
     convenience init?(presentationStyle: PresentationStyle) {
         self.init(
@@ -124,7 +122,6 @@ extension AppcuesModalTrait {
     }
 }
 
-@available(iOS 13.0, *)
 extension AppcuesModalTrait.Config {
     init(
         transition: String,

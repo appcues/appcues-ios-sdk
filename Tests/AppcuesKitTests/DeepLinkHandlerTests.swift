@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class DeepLinkHandlerTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -254,7 +253,6 @@ class DeepLinkHandlerTests: XCTestCase {
     }
 }
 
-@available(iOS 13.0, *)
 extension DeepLinkHandlerTests {
     class MockTopControllerGetting: TopControllerGetting {
         var hasActiveWindowScenes: Bool = true

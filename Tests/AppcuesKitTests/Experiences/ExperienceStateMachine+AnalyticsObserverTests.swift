@@ -9,7 +9,6 @@
 import XCTest
 @testable import AppcuesKit
 
-@available(iOS 13.0, *)
 class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     var appcues: MockAppcues!
