@@ -16,9 +16,7 @@ class AnalyticsBroadcasterTests: XCTestCase {
     var delegate: MockAnalyticsDelegate!
 
     override func setUpWithError() throws {
-        let config = Appcues.Config(accountID: "00000", applicationID: "abc")
-
-        appcues = MockAppcues(config: config)
+        appcues = MockAppcues()
         delegate = MockAnalyticsDelegate()
         broadcaster = AnalyticsBroadcaster(container: appcues.container)
         appcues.analyticsDelegate = delegate

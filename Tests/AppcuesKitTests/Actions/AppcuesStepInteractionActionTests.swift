@@ -27,9 +27,8 @@ class AppcuesStepInteractionActionTests: XCTestCase {
         XCTAssertNil(failedAction)
     }
 
-    func testExecuteUnpublishedExperience() throws {
+    func testExecuteUnpublishedExperience() async throws {
         // Arrange
-        var completionCount = 0
         var loggedUpdates: [TrackingUpdate] = []
 
         appcues.experienceRenderer.onExperienceData = { _ in
@@ -57,18 +56,18 @@ class AppcuesStepInteractionActionTests: XCTestCase {
         )
 
         // Act
-        action.execute(completion: { completionCount += 1 })
+        try await action.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(loggedUpdates.count, 1)
-
         XCTAssertEqual(loggedUpdates[0].type, .event(name: "appcues:v2:step_interaction", interactive: false))
     }
 
-    func testNextStep() throws {
+    func testNextStep() async throws {
         // Arrange
-        var mostRecentUpdate: TrackingUpdate?
+        let updateExpectation = expectation(description: "Update set")
+        updateExpectation.expectedFulfillmentCount = 2
+        var updates: [TrackingUpdate] = []
         let experience = ExperienceData.mock
 
         appcues.experienceRenderer.onExperienceData = { _ in
@@ -78,7 +77,10 @@ class AppcuesStepInteractionActionTests: XCTestCase {
             .initial
         }
 
-        appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
+        appcues.analyticsPublisher.onPublish = { update in
+            updates.append(update)
+            updateExpectation.fulfill()
+        }
 
         // Act
         actionRegistry.enqueue(
@@ -98,8 +100,10 @@ class AppcuesStepInteractionActionTests: XCTestCase {
             viewDescription: "My Button")
 
         // Assert
-        let lastUpdate = try XCTUnwrap(mostRecentUpdate)
-        guard case .event(name: "appcues:v2:step_interaction", interactive: false) = lastUpdate.type else { return XCTFail() }
+        await fulfillment(of: [updateExpectation], timeout: 1)
+        XCTAssertEqual(updates.count, 2)
+        let firstUpdate = try XCTUnwrap(updates.first)
+        XCTAssertEqual(firstUpdate.type, .event(name: "appcues:v2:step_interaction", interactive: false))
         [
             "interactionType": "Button Tapped",
             "interactionData": [
@@ -119,13 +123,18 @@ class AppcuesStepInteractionActionTests: XCTestCase {
             "stepType": experience.steps[0].items[0].type,
             "stepIndex": "0,0",
             "version": try XCTUnwrap(experience.publishedAt)
-        ].verifyPropertiesMatch(lastUpdate.properties)
+        ].verifyPropertiesMatch(firstUpdate.properties)
     }
 
-    func testPreviousStep() throws {
+    func testPreviousStep() async throws {
         // Arrange
-        var mostRecentUpdate: TrackingUpdate?
-        appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
+        let updateExpectation = expectation(description: "Update set")
+        updateExpectation.expectedFulfillmentCount = 2
+        var updates: [TrackingUpdate] = []
+        appcues.analyticsPublisher.onPublish = { update in
+            updates.append(update)
+            updateExpectation.fulfill()
+        }
 
         // Act
         actionRegistry.enqueue(
@@ -145,8 +154,10 @@ class AppcuesStepInteractionActionTests: XCTestCase {
             viewDescription: "My Button")
 
         // Assert
-        let lastUpdate = try XCTUnwrap(mostRecentUpdate)
-        guard case .event(name: "appcues:v2:step_interaction", interactive: false) = lastUpdate.type else { return XCTFail() }
+        await fulfillment(of: [updateExpectation], timeout: 1)
+        XCTAssertEqual(updates.count, 2)
+        let firstUpdate = try XCTUnwrap(updates.first)
+        guard case .event(name: "appcues:v2:step_interaction", interactive: false) = firstUpdate.type else { return XCTFail() }
         [
             "interactionType": "Button Tapped",
             "interactionData": [
@@ -154,13 +165,17 @@ class AppcuesStepInteractionActionTests: XCTestCase {
                 "destination": "-1",
                 "text": "My Button"
             ]
-        ].verifyPropertiesMatch(lastUpdate.properties)
+        ].verifyPropertiesMatch(firstUpdate.properties)
     }
 
-    func testGoToLink() throws {
+    func testGoToLink() async throws {
         // Arrange
+        let updateExpectation = expectation(description: "Update set")
         var mostRecentUpdate: TrackingUpdate?
-        appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
+        appcues.analyticsPublisher.onPublish = { update in
+            mostRecentUpdate = update
+            updateExpectation.fulfill()
+        }
 
         // Act
         actionRegistry.enqueue(
@@ -180,6 +195,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
             viewDescription: "My Button")
 
         // Assert
+        await fulfillment(of: [updateExpectation], timeout: 1)
         let lastUpdate = try XCTUnwrap(mostRecentUpdate)
         guard case .event(name: "appcues:v2:step_interaction", interactive: false) = lastUpdate.type else { return XCTFail() }
         [
@@ -192,10 +208,14 @@ class AppcuesStepInteractionActionTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
     }
 
-    func testTriggerFlow() throws {
+    func testTriggerFlow() async throws {
         // Arrange
+        let updateExpectation = expectation(description: "Update set")
         var mostRecentUpdate: TrackingUpdate?
-        appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
+        appcues.analyticsPublisher.onPublish = { update in
+            mostRecentUpdate = update
+            updateExpectation.fulfill()
+        }
 
         // Act
         actionRegistry.enqueue(
@@ -215,6 +235,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
             viewDescription: "My Button")
 
         // Assert
+        await fulfillment(of: [updateExpectation], timeout: 1)
         let lastUpdate = try XCTUnwrap(mostRecentUpdate)
         guard case .event(name: "appcues:v2:step_interaction", interactive: false) = lastUpdate.type else { return XCTFail() }
         [
@@ -227,10 +248,14 @@ class AppcuesStepInteractionActionTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
     }
 
-    func testDismissFlow() throws {
+    func testDismissFlow() async throws {
         // Arrange
+        let updateExpectation = expectation(description: "Update set")
         var mostRecentUpdate: TrackingUpdate?
-        appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
+        appcues.analyticsPublisher.onPublish = { update in
+            mostRecentUpdate = update
+            updateExpectation.fulfill()
+        }
 
         // Act
         actionRegistry.enqueue(
@@ -246,6 +271,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
             viewDescription: "My Button")
 
         // Assert
+        await fulfillment(of: [updateExpectation], timeout: 1)
         let lastUpdate = try XCTUnwrap(mostRecentUpdate)
         guard case .event(name: "appcues:v2:step_interaction", interactive: false) = lastUpdate.type else { return XCTFail() }
         [
@@ -258,10 +284,14 @@ class AppcuesStepInteractionActionTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
     }
 
-    func testGoToCustomStep() throws {
+    func testGoToCustomStep() async throws {
         // Arrange
+        let updateExpectation = expectation(description: "Update set")
         var mostRecentUpdate: TrackingUpdate?
-        appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
+        appcues.analyticsPublisher.onPublish = { update in
+            mostRecentUpdate = update
+            updateExpectation.fulfill()
+        }
 
         // Act
         actionRegistry.enqueue(
@@ -277,6 +307,7 @@ class AppcuesStepInteractionActionTests: XCTestCase {
             viewDescription: "My Button")
 
         // Assert
+        await fulfillment(of: [updateExpectation], timeout: 1)
         let lastUpdate = try XCTUnwrap(mostRecentUpdate)
         guard case .event(name: "appcues:v2:step_interaction", interactive: false) = lastUpdate.type else { return XCTFail() }
         [
@@ -289,15 +320,13 @@ class AppcuesStepInteractionActionTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteThrowsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesStepInteractionAction(appcues: nil, renderContext: .modal, interactionType: "String", viewDescription: "String", category: "String", destination: "String"))
 
-        // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await action.execute()) {
+            XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "No appcues instance")
+        }
     }
 }

@@ -30,56 +30,49 @@ class AppcuesLaunchExperienceActionTests: XCTestCase {
         XCTAssertNil(failedAction)
     }
 
-    func testExecute() throws {
+    func testExecute() async throws {
         // Arrange
-        var completionCount = 0
         var loadCount = 0
-        appcues.contentLoader.onLoad = { contentID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { contentID, published, trigger in
             XCTAssertEqual(contentID, "123")
             guard case .launchExperienceAction = trigger else { return XCTFail() }
             loadCount += 1
-            completion?(.success(()))
         }
         let action = AppcuesLaunchExperienceAction(appcues: appcues, experienceID: "123")
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(loadCount, 1)
     }
 
-    func testExecuteWhenLoadFails() throws {
+    func testExecuteWhenLoadFails() async throws {
         // Arrange
-        var completionCount = 0
         var loadCount = 0
-        appcues.contentLoader.onLoad = { contentID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { contentID, published, trigger in
             XCTAssertEqual(contentID, "123")
             guard case .launchExperienceAction = trigger else { return XCTFail() }
             loadCount += 1
-            completion?(.failure(AppcuesError.noActiveSession))
+            throw AppcuesError.noActiveSession
         }
         let action = AppcuesLaunchExperienceAction(appcues: appcues, experienceID: "123")
 
-        // Act
-        action?.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await action?.execute()) {
+            XCTAssertEqual($0 as? AppcuesError, AppcuesError.noActiveSession)
+        }
         XCTAssertEqual(loadCount, 1)
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteThrowsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesLaunchExperienceAction(appcues: nil, experienceID: "123"))
 
-        // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await action.execute()) {
+            XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "No appcues instance")
+        }
     }
 }
 

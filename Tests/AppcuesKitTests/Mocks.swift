@@ -34,10 +34,12 @@ enum Mocks {
         // ExperienceStateMachine checks these values to avoid unnecessary lifecycle events,
         // and so we need to mock them to trigger the correct events
 
-        var mockIsBeingPresented = false
+        private var mockIsBeingPresented = false
+        func setIsBeingPresented(_ value: Bool) { mockIsBeingPresented  = value }
         override var isBeingPresented: Bool { mockIsBeingPresented }
 
         var mockIsBeingDismissed = false
+        func setIsBeingDismissed(_ value: Bool) { mockIsBeingDismissed  = value }
         override var isBeingDismissed: Bool { mockIsBeingDismissed }
 
         override func navigate(to pageIndex: Int, animated: Bool) {
@@ -206,10 +208,12 @@ extension ExperienceData {
         ExperienceData(.mockWithStepActions(actions: actions), trigger: trigger)
     }
 
+    @MainActor
     func package(presentExpectation: XCTestExpectation? = nil, dismissExpectation: XCTestExpectation? = nil) -> ExperiencePackage {
         package(onPresent: { presentExpectation?.fulfill() }, onDismiss: { dismissExpectation?.fulfill()} )
     }
 
+    @MainActor
     func package(
         onPresent: @escaping (() throws -> Void),
         onDismiss: @escaping (() -> Void),
@@ -225,20 +229,18 @@ extension ExperienceData {
             wrapperController: containerController,
             pageMonitor: pageMonitor,
             presenter: {
-                containerController.mockIsBeingPresented = true
+                containerController.setIsBeingPresented(true)
                 containerController.eventHandler?.containerWillAppear()
                 containerController.eventHandler?.containerDidAppear()
-                containerController.mockIsBeingPresented = false
+                containerController.setIsBeingPresented(false)
                 try onPresent()
-                $0?()
             },
             dismisser: {
-                containerController.mockIsBeingDismissed = true
+                containerController.setIsBeingDismissed(true)
                 containerController.eventHandler?.containerWillDisappear()
                 containerController.eventHandler?.containerDidDisappear()
-                containerController.mockIsBeingDismissed = false
+                containerController.setIsBeingDismissed(false)
                 onDismiss()
-                $0?()
             })
     }
 }

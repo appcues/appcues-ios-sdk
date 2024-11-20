@@ -10,6 +10,11 @@ import Foundation
 import UserNotifications
 @testable import AppcuesKit
 
+enum MockError: Error {
+    case noMock
+    case invalidSuccessType
+}
+
 class MockAppcues: Appcues {
     init() {
         super.init(config: Appcues.Config(accountID: "00000", applicationID: "abc"))
@@ -63,7 +68,7 @@ class MockAppcues: Appcues {
     var networking = MockNetworking()
     var analyticsTracker = MockAnalyticsTracker()
     var pushMonitor = MockPushMonitor()
-    var experienceRenderer =  MockExperienceRenderer()
+    var experienceRenderer = MockExperienceRenderer()
     var traitComposer = MockTraitComposer()
 }
 
@@ -112,25 +117,14 @@ class MockStorage: DataStoring {
 
 class MockContentLoader: ContentLoading {
 
-    var onLoad: ((String, Bool, ExperienceTrigger, ((Result<Void, Error>) -> Void)?) -> Void)?
-    func load(
-        experienceID: String,
-        published: Bool,
-        queryItems: [URLQueryItem], 
-        trigger: ExperienceTrigger,
-        completion: ((Result<Void, Error>) -> Void)?
-    ){
-        onLoad?(experienceID, published, trigger, completion)
+    var onLoad: ((String, Bool, ExperienceTrigger) throws -> Void)?
+    func load(experienceID: String, published: Bool, queryItems: [URLQueryItem], trigger: ExperienceTrigger) async throws {
+        try onLoad?(experienceID, published, trigger)
     }
 
-    var onLoadPush: ((String, Bool, [URLQueryItem], ((Result<Void, Error>) -> Void)?) -> Void)?
-    func loadPush(
-        id: String,
-        published: Bool,
-        queryItems: [URLQueryItem],
-        completion: ((Result<Void, Error>) -> Void)?
-    ) {
-        onLoadPush?(id, published, queryItems, completion)
+    var onLoadPush: ((String, Bool, [URLQueryItem]) throws -> Void)?
+    func loadPush(id: String, published: Bool, queryItems: [URLQueryItem]) async throws {
+        try onLoadPush?(id, published, queryItems)
     }
 }
 
@@ -139,25 +133,25 @@ class MockExperienceRenderer: ExperienceRendering {
     func start(owner: StateMachineOwning, forContext context: RenderContext) {
         onStart?(owner, context)
     }
-
+    
     var onProcessAndShow: (([ExperienceData], ExperienceTrigger) -> Void)?
     func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger) {
         onProcessAndShow?(qualifiedExperiences, reason)
     }
-
-    var onProcessAndShowExperience: ((ExperienceData, ((Result<Void, Error>) -> Void)?) -> Void)?
-    func processAndShow(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
-        onProcessAndShowExperience?(experience, completion)
+    
+    var onProcessAndShowExperience: ((ExperienceData) throws -> Void)?
+    func processAndShow(experience: AppcuesKit.ExperienceData) async throws {
+        try onProcessAndShowExperience?(experience)
     }
-
-    var onShowStep: ((StepReference, RenderContext, (() -> Void)?) -> Void)?
-    func show(step stepRef: StepReference, inContext context: RenderContext, completion: (() -> Void)?) {
-        onShowStep?(stepRef, context, completion)
+    
+    var onShowStep: ((StepReference, RenderContext) throws -> Void)?
+    func show(step stepRef: StepReference, inContext context: RenderContext) async throws {
+        try onShowStep?(stepRef, context)
     }
-
-    var onDismiss: ((RenderContext, Bool, ((Result<Void, Error>) -> Void)?) -> Void)?
-    func dismiss(inContext context: RenderContext, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-        onDismiss?(context, markComplete, completion)
+    
+    var onDismiss: ((RenderContext, Bool) throws -> Void)?
+    func dismiss(inContext context: AppcuesKit.RenderContext, markComplete: Bool) async throws {
+        try onDismiss?(context, markComplete)
     }
 
     var onExperienceData: ((RenderContext) -> ExperienceData?)?
@@ -185,17 +179,16 @@ class MockSessionMonitor: SessionMonitoring {
     var isSessionExpired: Bool = false
 
     var onStart: (() -> Bool)?
-    var onUpdateLastActivity: (() -> Void)?
-    var onReset: (() -> Void)?
-
     func start() -> Bool {
         return onStart?() ?? true
     }
 
+    var onReset: (() -> Void)?
     func reset() {
         onReset?()
     }
 
+    var onUpdateLastActivity: (() -> Void)?
     func updateLastActivity() {
         onUpdateLastActivity?()
     }
@@ -204,10 +197,12 @@ class MockSessionMonitor: SessionMonitoring {
 
 class MockActivityProcessor: ActivityProcessing {
 
-    var onProcess: ((Activity, (Result<QualifyResponse, Error>) -> Void) -> Void)?
-
-    func process(_ activity: Activity, completion: @escaping (Result<QualifyResponse, Error>) -> Void) {
-        onProcess?(activity, completion)
+    var onProcess: ((Activity) throws -> QualifyResponse)?
+    func process(_ activity: Activity) async throws -> QualifyResponse {
+        guard let onProcess = onProcess else {
+            throw MockError.noMock
+        }
+        return try onProcess(activity)
     }
 }
 
@@ -239,13 +234,16 @@ class MockDeepLinkHandler: DeepLinkHandling {
 
 class MockTraitComposer: TraitComposing {
 
-    var onPackage: ((ExperienceData, Experience.StepIndex) throws -> ExperiencePackage)?
-    func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
-        if let onPackage = onPackage {
-            return try onPackage(experience, stepIndex)
-        } else {
-            throw AppcuesTraitError(description: "no mock set")
+    @MainActor private var onPackage: ((ExperienceData, Experience.StepIndex) throws -> ExperiencePackage)?
+    @MainActor func setPackage(_ onPackage: (@MainActor (ExperienceData, Experience.StepIndex) throws -> ExperiencePackage)?) {
+        self.onPackage = onPackage
+    }
+    @MainActor func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
+        guard let onPackage = onPackage else {
+            throw MockError.noMock
         }
+
+        return try onPackage(experience, stepIndex)
     }
 }
 
@@ -268,91 +266,50 @@ class MockActivityStorage: ActivityStoring {
 }
 
 class MockNetworking: Networking {
-
-    enum MockError: Error {
-        case noMock
-        case invalidSuccessType
-    }
-
-    var onGet: ((Endpoint, Authorization?, ((Result<Any, Error>) -> Void)) -> Void)?
-    func get<T>(
-        from endpoint: Endpoint,
-        authorization: Authorization?,
-        completion: @escaping (Result<T, Error>) -> Void
-    ) where T : Decodable {
+    var onGet: ((Endpoint, Authorization?) throws -> Any)?
+    func get<T>(from endpoint: Endpoint, authorization: Authorization?) async throws -> T where T : Decodable {
         guard let onGet = onGet else {
-            completion(.failure(MockError.noMock))
-            return
+            throw MockError.noMock
         }
-        onGet(endpoint, authorization) { result in
-            switch result {
-            case .success(let value):
-                if let converted = value as? T {
-                    completion(.success(converted))
-                } else {
-                    completion(.failure(MockError.invalidSuccessType))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
+
+        let value = try onGet(endpoint, authorization)
+        if let converted = value as? T {
+            return converted
+        } else {
+            throw MockError.invalidSuccessType
         }
     }
 
-    var onPost: ((Endpoint, Authorization?, Data?, UUID?, ((Result<Any, Error>) -> Void)) -> Void)?
-    func post<T>(
-        to endpoint: Endpoint,
-        authorization: Authorization?,
-        body: Data?,
-        requestId: UUID?,
-        completion: @escaping (Result<T, Error>) -> Void
-    ) where T : Decodable {
+    var onPost: ((Endpoint, Authorization?, Data?, UUID?) throws -> Any)?
+    func post<T>(to endpoint: Endpoint, authorization: Authorization?, body: Data?, requestId: UUID?) async throws -> T where T : Decodable {
         guard let onPost = onPost else {
-            completion(.failure(MockError.noMock))
-            return
+            throw MockError.noMock
         }
-        onPost(endpoint, authorization, body, requestId) { result in
-            switch result {
-            case .success(let value):
-                if let converted = value as? T {
-                    completion(.success(converted))
-                } else {
-                    completion(.failure(MockError.invalidSuccessType))
-                }
-            case .failure(let error):
-                completion(.failure(error))
-            }
+
+        let value = try onPost(endpoint, authorization, body, requestId)
+        if let converted = value as? T {
+            return converted
+        } else {
+            throw MockError.invalidSuccessType
         }
     }
 
-    var onPostEmptyResponse: ((Endpoint, Authorization?, Data?, ((Result<Void, Error>) -> Void)) -> Void)?
-    func post(
-        to endpoint: Endpoint,
-        authorization: Authorization?,
-        body: Data?,
-        completion: @escaping (Result<Void, Error>) -> Void
-    ) {
+    var onPostEmptyResponse: ((Endpoint, Authorization?, Data?) throws -> Void)?
+    func post(to endpoint: Endpoint, authorization: Authorization?, body: Data?) async throws {
         guard let onPostEmptyResponse = onPostEmptyResponse else {
-            completion(.failure(MockError.noMock))
-            return
+            throw MockError.noMock
         }
 
-        onPostEmptyResponse(endpoint, authorization, body, completion)
+        try onPostEmptyResponse(endpoint, authorization, body)
     }
 
-    var onPutEmptyResponse: ((Endpoint, Authorization?, Data, String, ((Result<Void, Error>) -> Void)) -> Void)?
-    func put(
-        to endpoint: Endpoint,
-        authorization: Authorization?,
-        body: Data,
-        contentType: String,
-        completion: @escaping (Result<Void, Error>) -> Void
-    ) {
+    var onPutEmptyResponse: ((Endpoint, Authorization?, Data, String) throws -> Void)?
+    func put(to endpoint: Endpoint, authorization: Authorization?, body: Data, contentType: String) async throws {
         guard let onPutEmptyResponse = onPutEmptyResponse else {
-            completion(.failure(MockError.noMock))
-            return
+            throw MockError.noMock
         }
 
-        onPutEmptyResponse(endpoint, authorization, body, contentType, completion)
+        try onPutEmptyResponse(endpoint, authorization, body, contentType)
     }
 }
 
@@ -381,19 +338,14 @@ class MockPushMonitor: PushMonitoring {
         onSetPushToken?(deviceToken)
     }
 
-    var onRefreshPushStatus: (() -> Void)?
-    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?) {
-        onRefreshPushStatus?()
-        completion?(pushAuthorizationStatus)
+    var onRefreshPushStatus: (() -> UNAuthorizationStatus)?
+    func refreshPushStatus() async -> UNAuthorizationStatus {
+        onRefreshPushStatus?() ?? .notDetermined
     }
 
     var onDidReceiveNotification: ((UNNotificationResponse) -> Bool)?
-    func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool {
-        let result = onDidReceiveNotification?(response) ?? false
-        if result {
-            completionHandler()
-        }
-        return result
+    func didReceiveNotification(response: UNNotificationResponse) -> Bool {
+        onDidReceiveNotification?(response) ?? false
     }
 
     var onAttemptDeferredNotificationResponse: (() -> Void)?

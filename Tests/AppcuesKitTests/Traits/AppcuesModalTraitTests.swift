@@ -11,6 +11,7 @@ import XCTest
 
 class AppcuesModalTraitTests: XCTestCase {
 
+    @MainActor
     func testBackdrop() throws {
         // Arrange
         let containerController = DefaultContainerViewController(

@@ -36,7 +36,8 @@ class ScreenCapturerTests: XCTestCase {
             experienceRenderer: experienceRenderer)
     }
 
-    func testVisibleExperiencesAreDismissed() throws {
+    @MainActor
+    func testVisibleExperiencesAreDismissed() async throws {
         // Arrange
         var experienceDismissed = false
         experienceRenderer.onExperienceData = { context in
@@ -44,29 +45,29 @@ class ScreenCapturerTests: XCTestCase {
             return experienceDismissed ? nil : ExperienceData.mock
         }
 
-        experienceRenderer.onDismiss = { context, markComplete, completion in
+        experienceRenderer.onDismiss = { context, markComplete in
             XCTAssertEqual(context, .modal)
             XCTAssertFalse(markComplete)
 
             experienceDismissed = true
-            completion?(.success(()))
         }
 
         // Act
-        screenCapturer.captureScreen(window: nil, authorization: authorization, captureUI: screenCaptureUI)
+        await screenCapturer.captureScreen(window: nil, authorization: authorization, captureUI: screenCaptureUI)
 
         // Assert
         XCTAssertTrue(experienceDismissed)
     }
 
-    func testInitialFailure() throws {
+    @MainActor
+    func testInitialFailure() async throws {
         // Arrange
         var toast: DebugToast?
         screenCaptureUI.onShowToast = { toast = $0 }
 
         // Act
         // nil window should cause failure
-        screenCapturer.captureScreen(window: nil, authorization: authorization, captureUI: screenCaptureUI)
+        await screenCapturer.captureScreen(window: nil, authorization: authorization, captureUI: screenCaptureUI)
 
         // Assert
         let unwrappedToast = try XCTUnwrap(toast)
@@ -74,7 +75,8 @@ class ScreenCapturerTests: XCTestCase {
         XCTAssertEqual(unwrappedToast.style, .failure)
     }
 
-    func testConfirmationScreenShows() throws {
+    @MainActor
+    func testConfirmationScreenShows() async throws {
         // Arrange
         let confirmationShownExpectation = expectation(description: "Confirmation screen shows")
         screenCaptureUI.onShowConfirmation = { capture, completion in
@@ -82,19 +84,20 @@ class ScreenCapturerTests: XCTestCase {
         }
 
         // Act
-        screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
+        await screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [confirmationShownExpectation], timeout: 1)
     }
 
     // Step 1 failure
-    func testSaveSDKSettingsFail() throws {
+    @MainActor
+    func testSaveSDKSettingsFail() async throws {
         // Arrange
         // Step 1
-        networking.onGet = { endpoint, authorization, completion in
+        networking.onGet = { endpoint, authorization in
             guard case SettingsEndpoint.settings = endpoint else { return XCTFail("Unexpected GET request") }
-            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
+            throw NetworkingError.nonSuccessfulStatusCode(500, nil)
         }
 
         // Simulate trigger the interaction to submit
@@ -108,26 +111,27 @@ class ScreenCapturerTests: XCTestCase {
         }
 
         // Act
-        screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
+        await screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [failureToastShownExpectation], timeout: 1)
     }
 
     // Step 2 failure
-    func testSavePreUploadFail() throws {
+    @MainActor
+    func testSavePreUploadFail() async throws {
         // Arrange
         // Step 1
-        networking.onGet = { endpoint, authorization, completion in
+        networking.onGet = { endpoint, authorization in
             guard case SettingsEndpoint.settings = endpoint else { return XCTFail("Unexpected GET request") }
             XCTAssertNil(authorization)
-            completion(.success(self.sdkSettingsSuccess))
+            return self.sdkSettingsSuccess
         }
 
         // Step 2
-        networking.onPost = { endpoint, authorization, data, requestID, completion in
+        networking.onPost = { endpoint, authorization, data, requestID in
             guard case CustomerAPIEndpoint.preSignedImageUpload = endpoint else { return XCTFail("Unexpected POST request") }
-            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
+            throw NetworkingError.nonSuccessfulStatusCode(500, nil)
         }
 
         // Simulate trigger the interaction to submit
@@ -141,35 +145,36 @@ class ScreenCapturerTests: XCTestCase {
         }
 
         // Act
-        screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
+        await screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [failureToastShownExpectation], timeout: 1)
     }
 
     // Step 3 failure
-    func testSaveUploadImageFail() throws {
+    @MainActor
+    func testSaveUploadImageFail() async throws {
         // Arrange
         // Step 1
-        networking.onGet = { endpoint, authorization, completion in
+        networking.onGet = { endpoint, authorization in
             guard case SettingsEndpoint.settings = endpoint else { return XCTFail("Unexpected GET request") }
             XCTAssertNil(authorization)
-            completion(.success(self.sdkSettingsSuccess))
+            return self.sdkSettingsSuccess
         }
 
         // Step 2
-        networking.onPost = { endpoint, authorization, data, requestID, completion in
+        networking.onPost = { endpoint, authorization, data, requestID in
             guard case let CustomerAPIEndpoint.preSignedImageUpload(host, _) = endpoint else { return XCTFail("Unexpected POST request") }
             XCTAssertEqual(self.authorization, authorization)
             XCTAssertEqual(host.absoluteString, "https://customerapi.appcues.com")
-            completion(.success(self.preUploadSuccess))
+            return self.preUploadSuccess
         }
 
         // Step 3
-        networking.onPutEmptyResponse = { endpoint, authorization, data, contentType, completion in
+        networking.onPutEmptyResponse = { endpoint, authorization, data, contentType in
             switch endpoint {
             case is URLEndpoint:
-                completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
+                throw NetworkingError.nonSuccessfulStatusCode(500, nil)
             default:
                 XCTFail("Unexpected PUT request")
             }
@@ -186,44 +191,44 @@ class ScreenCapturerTests: XCTestCase {
         }
 
         // Act
-        screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
+        await screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [failureToastShownExpectation], timeout: 1)
     }
 
     // Step 4 failure
-    func testSaveScreenFail() throws {
+    @MainActor
+    func testSaveScreenFail() async throws {
         // Arrange
         // Step 1
-        networking.onGet = { endpoint, authorization, completion in
+        networking.onGet = { endpoint, authorization in
             guard case SettingsEndpoint.settings = endpoint else { return XCTFail("Unexpected GET request") }
             XCTAssertNil(authorization)
-            completion(.success(self.sdkSettingsSuccess))
+            return self.sdkSettingsSuccess
         }
 
         // Step 2
-        networking.onPost = { endpoint, authorization, data, requestID, completion in
+        networking.onPost = { endpoint, authorization, data, requestID in
             guard case let CustomerAPIEndpoint.preSignedImageUpload(host, _) = endpoint else { return XCTFail("Unexpected POST request") }
             XCTAssertEqual(self.authorization, authorization)
             XCTAssertEqual(host.absoluteString, "https://customerapi.appcues.com")
-            completion(.success(self.preUploadSuccess))
+            return self.preUploadSuccess
         }
 
         // Step 3
-        networking.onPutEmptyResponse = { endpoint, authorization, data, contentType, completion in
+        networking.onPutEmptyResponse = { endpoint, authorization, data, contentType in
             guard case let urlEndpoint as URLEndpoint = endpoint else { return XCTFail("Unexpected PUT request") }
             XCTAssertNil(authorization)
             XCTAssertEqual(urlEndpoint.url.absoluteString, "https://appcues.com/presigned-url")
             XCTAssertNotNil(data)
             XCTAssertEqual(contentType, "image/png")
-            completion(.success(()))
         }
 
         // Step 4
-        networking.onPostEmptyResponse = { endpoint, authorization, data, completion in
+        networking.onPostEmptyResponse = { endpoint, authorization, data in
             guard case CustomerAPIEndpoint.screenCapture = endpoint else { return XCTFail("Unexpected POST request") }
-            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
+            throw NetworkingError.nonSuccessfulStatusCode(500, nil)
         }
 
         // Simulate trigger the interaction to submit
@@ -237,46 +242,45 @@ class ScreenCapturerTests: XCTestCase {
         }
 
         // Act
-        screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
+        await screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [failureToastShownExpectation], timeout: 1)
     }
 
     // Step 4 success
-    func testSaveSuccess() throws {
+    @MainActor
+    func testSaveSuccess() async throws {
         // Arrange
         // Step 1
-        networking.onGet = { endpoint, authorization, completion in
+        networking.onGet = { endpoint, authorization in
             guard case SettingsEndpoint.settings = endpoint else { return XCTFail("Unexpected GET request") }
             XCTAssertNil(authorization)
-            completion(.success(self.sdkSettingsSuccess))
+            return self.sdkSettingsSuccess
         }
 
         // Step 2
-        networking.onPost = { endpoint, authorization, data, requestID, completion in
+        networking.onPost = { endpoint, authorization, data, requestID in
             guard case let CustomerAPIEndpoint.preSignedImageUpload(host, _) = endpoint else { return XCTFail("Unexpected POST request") }
             XCTAssertEqual(self.authorization, authorization)
             XCTAssertEqual(host.absoluteString, "https://customerapi.appcues.com")
-            completion(.success(self.preUploadSuccess))
+            return self.preUploadSuccess
         }
 
         // Step 3
-        networking.onPutEmptyResponse = { endpoint, authorization, data, contentType, completion in
+        networking.onPutEmptyResponse = { endpoint, authorization, data, contentType in
             guard case let urlEndpoint as URLEndpoint = endpoint else { return XCTFail("Unexpected PUT request") }
             XCTAssertNil(authorization)
             XCTAssertEqual(urlEndpoint.url.absoluteString, "https://appcues.com/presigned-url")
             XCTAssertNotNil(data)
             XCTAssertEqual(contentType, "image/png")
-            completion(.success(()))
         }
 
         // Step 4
-        networking.onPostEmptyResponse = { endpoint, authorization, data, completion in
+        networking.onPostEmptyResponse = { endpoint, authorization, data in
             guard case let CustomerAPIEndpoint.screenCapture(host) = endpoint else { return XCTFail("Unexpected POST request") }
             XCTAssertEqual(self.authorization, authorization)
             XCTAssertEqual(host.absoluteString, "https://customerapi.appcues.com")
-            completion(.success(()))
         }
 
         // Simulate trigger the interaction to submit
@@ -290,10 +294,10 @@ class ScreenCapturerTests: XCTestCase {
         }
 
         // Act
-        screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
+        await screenCapturer.captureScreen(window: UIWindow(), authorization: authorization, captureUI: screenCaptureUI)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [successToastShownExpectation], timeout: 1)
     }
 }
 
@@ -310,7 +314,7 @@ private class MockScreenCaptureUI: ScreenCaptureUI {
 }
 
 private class MockElementTargeting: AppcuesElementTargeting {
-    func captureLayout() -> AppcuesViewElement? {
+    func captureLayout() async -> AppcuesViewElement? {
         AppcuesViewElement(x: 0, y: 0, width: 10, height: 10, type: "mock", selector: nil, children: nil)
     }
 

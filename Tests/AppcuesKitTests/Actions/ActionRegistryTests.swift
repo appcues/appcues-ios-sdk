@@ -16,13 +16,14 @@ class ActionRegistryTests: XCTestCase {
     var logger: DebugLogger!
 
     override func setUpWithError() throws {
-        logger = DebugLogger(previousLogger: nil)
         appcues = MockAppcues()
+        logger = DebugLogger(previousLogger: nil)
         appcues.config.logger = logger
         actionRegistry = ActionRegistry(container: appcues.container)
     }
 
-    func testRegister() throws {
+    @MainActor
+    func testRegister() async throws {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
         let actionModel = Experience.Action(
@@ -41,10 +42,12 @@ class ActionRegistryTests: XCTestCase {
             renderContext: .modal,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
-        waitForExpectations(timeout: 1)
+
+        await fulfillment(of: [executionExpectation], timeout: 1)
     }
 
-    func testUnknownAction() throws {
+    @MainActor
+    func testUnknownAction() async throws {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
         executionExpectation.isInverted = true
@@ -64,11 +67,12 @@ class ActionRegistryTests: XCTestCase {
             renderContext: .modal,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
-        waitForExpectations(timeout: 1)
 
+        await fulfillment(of: [executionExpectation], timeout: 1)
     }
 
-    func testDuplicateTypeRegistrations() throws {
+    @MainActor
+    func testDuplicateTypeRegistrations() async throws {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
         let executionExpectation2 = expectation(description: "Second action executed")
@@ -92,7 +96,7 @@ class ActionRegistryTests: XCTestCase {
             renderContext: .modal,
             interactionType: "Button Tapped",
             viewDescription: "My Button")
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [executionExpectation, executionExpectation2], timeout: 1)
 
         XCTAssertEqual(logger.log.count, 1)
         let log = try XCTUnwrap(logger.log.first)
@@ -100,7 +104,8 @@ class ActionRegistryTests: XCTestCase {
         XCTAssertEqual(log.message, "Action of type @test/action is already registered.")
     }
 
-    func testQueueExecution() throws {
+    @MainActor
+    func testQueueExecution() async throws {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
         executionExpectation.expectedFulfillmentCount = 5
@@ -121,10 +126,11 @@ class ActionRegistryTests: XCTestCase {
 
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [executionExpectation], timeout: 1)
     }
 
-    func testQueueAppendingWhileProcessing() throws {
+    @MainActor
+    func testQueueAppendingWhileProcessing() async throws {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
         executionExpectation.expectedFulfillmentCount = 5
@@ -157,10 +163,11 @@ class ActionRegistryTests: XCTestCase {
             viewDescription: "Another Button")
 
         // Assert
-        waitForExpectations(timeout: 2)
+        await fulfillment(of: [executionExpectation], timeout: 2)
     }
 
-    func testQueueTransforming() throws {
+    @MainActor
+    func testQueueTransforming() async throws {
         // Arrange
         let executionExpectation = expectation(description: "Action executed")
         executionExpectation.expectedFulfillmentCount = 3
@@ -187,7 +194,7 @@ class ActionRegistryTests: XCTestCase {
         // Assert
 
         // The last two actionModel's should be removed
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [executionExpectation], timeout: 1)
     }
 }
 
@@ -223,19 +230,15 @@ private extension ActionRegistryTests {
             removeSubsequent = config?.removeSubsequent ?? false
         }
 
-        func execute(completion: @escaping () -> Void) {
+        func execute() async throws {
             if let delay = delay {
-                DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                    self.executionExpectation?.fulfill()
-                    completion()
-                }
-            } else {
-                executionExpectation?.fulfill()
-                completion()
+                try await Task.sleep(nanoseconds: UInt64(delay) * 1_000_000_000)
             }
+            executionExpectation?.fulfill()
         }
 
-        func transformQueue(_ queue: [AppcuesExperienceAction], index: Int, inContext appcues: Appcues) -> [AppcuesExperienceAction] {
+
+        func transformQueue(_ queue: [AppcuesExperienceAction], index: Int, inContext appcues: Appcues) -> [AppcuesKit.AppcuesExperienceAction] {
             guard removeSubsequent else { return queue }
             return Array(queue[0...index])
         }
@@ -251,9 +254,8 @@ private extension ActionRegistryTests {
             executionExpectation2 = config?.executionExpectation2?.expectation
         }
 
-        func execute(completion: @escaping () -> Void) {
+        func execute() async throws {
             executionExpectation2?.fulfill()
-            completion()
         }
     }
 }

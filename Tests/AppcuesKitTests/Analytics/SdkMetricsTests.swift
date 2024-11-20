@@ -9,6 +9,13 @@
 import XCTest
 @testable import AppcuesKit
 
+private actor Results {
+    var results: [[String: Any]] = []
+    func add(_ result: [String: Any]) {
+        results.append(result)
+    }
+}
+
 class SdkMetricsTests: XCTestCase {
 
     func testThreadSafety() throws {
@@ -18,21 +25,20 @@ class SdkMetricsTests: XCTestCase {
         completeExpectation.expectedFulfillmentCount = 100
 
         let ids = (0..<20).map({ _ in UUID() })
-        var results: [[String: Any]] = []
+        let results = Results()
 
         // Act
         // Process activity on 100 threads
         for i in 0..<100 {
             dispatchGroup.enter()
-            DispatchQueue.global().async {
+            Task.detached {
                 let idIndex = Int(floor(Double(i)/5))
                 switch i % 5 {
                 case 0: SdkMetrics.tracked(ids[idIndex], time: Date())
                 case 1: SdkMetrics.requested(ids[idIndex])
                 case 2: SdkMetrics.responded(ids[idIndex])
                 case 3: SdkMetrics.renderStart(ids[idIndex])
-                // Note that technically the write to results isn't thread safe, but if the test crashes here, that's ok
-                case 4: results.append(SdkMetrics.trackRender(ids[idIndex]))
+                case 4: await results.add(SdkMetrics.trackRender(ids[idIndex]))
                 default: XCTFail()
                 }
                 completeExpectation.fulfill()

@@ -19,20 +19,15 @@ class AppcuesDelayActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(AppcuesDelayAction.type, "@appcues/delay")
         XCTAssertNotNil(action)
-        XCTAssertEqual(action?.duration, 0.5)
         XCTAssertNil(failedAction)
     }
 
-    func testExecute() throws {
+    func testExecute() async throws {
         // Arrange
-        let completionExpectation = expectation(description: "Completion called")
         let action = AppcuesDelayAction(duration: 0.5)
 
         // Act
-        action.execute(completion: { completionExpectation.fulfill() })
-
-        // Assert
-        waitForExpectations(timeout: 1)
+        try await action.execute()
     }
 }
 

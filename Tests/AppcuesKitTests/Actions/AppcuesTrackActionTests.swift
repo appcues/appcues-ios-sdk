@@ -31,9 +31,8 @@ class AppcuesTrackActionTests: XCTestCase {
         XCTAssertNil(failedAction)
     }
 
-    func testExecute() throws {
+    func testExecute() async throws {
         // Arrange
-        var completionCount = 0
         var trackCount = 0
         appcues.analyticsPublisher.onPublish = { trackingUpdate in
             XCTAssertEqual(trackingUpdate.type, .event(name: "My Custom Event", interactive: true))
@@ -43,16 +42,14 @@ class AppcuesTrackActionTests: XCTestCase {
         let action = AppcuesTrackAction(fromDecoderWith: appcues, eventName: "My Custom Event")
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(trackCount, 1)
     }
     
-    func testExecuteWithAttributes() throws {
+    func testExecuteWithAttributes() async throws {
         // Arrange
-        var completionCount = 0
         var trackCount = 0
         appcues.analyticsPublisher.onPublish = { trackingUpdate in
             XCTAssertEqual(trackingUpdate.type, .event(name: "My Custom Event", interactive: true))
@@ -76,23 +73,20 @@ class AppcuesTrackActionTests: XCTestCase {
                                         ])
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(trackCount, 1)
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteThrowsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesTrackAction(appcues: nil, eventName: "My Custom Event"))
 
-        // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await action.execute()) {
+            XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "No appcues instance")
+        }
     }
 }
 

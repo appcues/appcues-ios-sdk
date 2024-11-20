@@ -21,7 +21,8 @@ class TraitComposerTests: XCTestCase {
         traitRegistry = appcues.container.resolve(TraitRegistry.self)
     }
 
-    func testExperienceLevelTraitsApplied() throws {
+    @MainActor
+    func testExperienceLevelTraitsApplied() async throws {
         // Arrange
         traitRegistry.register(trait: TestTrait.self)
         traitRegistry.register(trait: TestPresentingTrait.self)
@@ -62,13 +63,20 @@ class TraitComposerTests: XCTestCase {
 
         // Act
         // simulate the presentation, this updater called from ExperienceStateMachine.SideEffect.executePresentContainer
-        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
+        try await package.stepDecoratingTraitUpdater(stepIndex.item, nil)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [
+            stepDecoratingExpectation,
+            containerCreatingExpectation,
+            wrapperCreatingExpectation,
+            containerDecoratingExpectation,
+            backdropDecoratingExpectation
+        ], timeout: 1, enforceOrder: true)
     }
 
-    func testStepGroupLevelTraitsApplied() throws {
+    @MainActor
+    func testStepGroupLevelTraitsApplied() async throws {
         // Verify that a trait grouping properly includes traits from the group.
 
         // Arrange
@@ -93,13 +101,20 @@ class TraitComposerTests: XCTestCase {
 
         // Act
         // simulate the presentation, this updater called from ExperienceStateMachine.SideEffect.executePresentContainer
-        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
+        try await package.stepDecoratingTraitUpdater(stepIndex.item, nil)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [
+            stepDecoratingExpectation,
+            containerCreatingExpectation,
+            wrapperCreatingExpectation,
+            containerDecoratingExpectation,
+            backdropDecoratingExpectation
+        ], timeout: 1, enforceOrder: true)
     }
 
-    func testStepLevelTraitsApplied() throws {
+    @MainActor
+    func testStepLevelTraitsApplied() async throws {
         // Verify that a trait grouping properly excludes traits from different groups.
         // Verify that a traits at the step level are properly applied.
 
@@ -107,25 +122,38 @@ class TraitComposerTests: XCTestCase {
         traitRegistry.register(trait: TestTrait.self)
         traitRegistry.register(trait: TestPresentingTrait.self)
 
+        let stepDecoratingExpectation = expectation(description: "Step decorate called")
+        let containerCreatingExpectation = expectation(description: "Create container called")
+        let containerDecoratingExpectation = expectation(description: "Container decorate called")
+        let wrapperCreatingExpectation = expectation(description: "Create wrapper called")
+        let backdropDecoratingExpectation = expectation(description: "Backdrop decorate called")
+
         let experience = makeTestExperience(
-            stepDecoratingExpectation: expectation(description: "Step decorate called"),
-            containerCreatingExpectation: expectation(description: "Create container called"),
-            containerDecoratingExpectation: expectation(description: "Container decorate called"),
-            wrapperCreatingExpectation: expectation(description: "Create wrapper called"),
-            backdropDecoratingExpectation: expectation(description: "Backdrop decorate called"))
+            stepDecoratingExpectation: stepDecoratingExpectation,
+            containerCreatingExpectation: containerCreatingExpectation,
+            containerDecoratingExpectation: containerDecoratingExpectation,
+            wrapperCreatingExpectation: wrapperCreatingExpectation,
+            backdropDecoratingExpectation: backdropDecoratingExpectation)
 
         let stepIndex = Experience.StepIndex(group: 1, item: 0)
         let package = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: stepIndex)
 
         // Act
         // simulate the presentation, this updater called from ExperienceStateMachine.SideEffect.executePresentContainer
-        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
+        try await package.stepDecoratingTraitUpdater(stepIndex.item, nil)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [
+            stepDecoratingExpectation,
+            containerCreatingExpectation,
+            wrapperCreatingExpectation,
+            containerDecoratingExpectation,
+            backdropDecoratingExpectation
+        ], timeout: 1, enforceOrder: true)
     }
 
-    func testTraitSpecificity() throws {
+    @MainActor
+    func testTraitSpecificity() async throws {
         // Verify that for the single instance trait types, a group-level trait replaces an experience level one.
 
         // Arrange
@@ -223,13 +251,30 @@ class TraitComposerTests: XCTestCase {
 
         // Act
         // simulate the presentation, this updater called from ExperienceStateMachine.SideEffect.executePresentContainer
-        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
+        try await package.stepDecoratingTraitUpdater(stepIndex.item, nil)
 
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [
+            experienceLevelStepDecoratingExpectation,
+            experienceLevelContainerCreatingExpectation,
+            experienceLevelContainerDecoratingExpectation,
+            experienceLevelWrapperCreatingExpectation,
+            experienceLevelBackdropDecoratingExpectation,
+            experienceLevel2StepDecoratingExpectation,
+            experienceLevel2ContainerCreatingExpectation,
+            experienceLevel2ContainerDecoratingExpectation,
+            experienceLevel2WrapperCreatingExpectation,
+            experienceLevel2BackdropDecoratingExpectation,
+            groupLevelStepDecoratingExpectation,
+            groupLevelContainerCreatingExpectation,
+            groupLevelContainerDecoratingExpectation,
+            groupLevelWrapperCreatingExpectation,
+            groupLevelBackdropDecoratingExpectation
+        ], timeout: 1, enforceOrder: false)
     }
 
+    @MainActor
     func testMissingPresentingTraitThrows() throws {
         // Verify that an experience without a presenting trait throws an error.
 
@@ -243,7 +288,8 @@ class TraitComposerTests: XCTestCase {
         XCTAssertThrowsError(try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: Experience.StepIndex(group: 0, item: 0)))
     }
 
-    func testPackagePresenter() throws {
+    @MainActor
+    func testPackagePresenter() async throws {
         // Verify the present/remove closures are packaged properly.
 
         // Arrange
@@ -277,13 +323,14 @@ class TraitComposerTests: XCTestCase {
         // Act
         let package = try traitComposer.package(experience: ExperienceData(experience, trigger: .showCall), stepIndex: Experience.StepIndex(group: 0, item: 0))
 
-        try package.presenter(nil)
-        package.dismisser(nil)
+        try await package.presenter()
+        await package.dismisser()
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [presentExpectation, removeExpectation], timeout: 1, enforceOrder: true)
     }
 
+    @MainActor
     func testDefaultContainerCreatingTrait() throws {
         let traitInstance = try XCTUnwrap(TraitComposer.DefaultContainerCreatingTrait(configuration: AppcuesExperiencePluginConfiguration(nil, level: .group)))
         let pageMonitor = AppcuesExperiencePageMonitor(numberOfPages: 0, currentPage: 0)
@@ -291,6 +338,7 @@ class TraitComposerTests: XCTestCase {
         XCTAssertTrue(container is DefaultContainerViewController)
     }
 
+    @MainActor
     func testErrorWhenEmptyStepGroup() throws {
         // Arrange
         let experience = Experience(
@@ -323,6 +371,7 @@ class TraitComposerTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testDecompose() throws {
         // Arrange
         let traits: [AppcuesExperienceTrait] = [
@@ -343,6 +392,7 @@ class TraitComposerTests: XCTestCase {
         XCTAssertNotNil(decomposedTraits.presenting)
     }
 
+    @MainActor
     func testAppendDecomposedTraits() throws {
         // Arrange
         let experienceTraits: [AppcuesExperienceTrait] = [
@@ -365,6 +415,7 @@ class TraitComposerTests: XCTestCase {
         XCTAssertNotNil(decomposedTraits.presenting)
     }
 
+    @MainActor
     func testPropagateDecomposedTraits() throws {
         // Arrange
         let experienceTraits: [AppcuesExperienceTrait] = [
@@ -567,7 +618,7 @@ extension TraitComposerTests {
 
         // AppcuesBackdropDecoratingTrait
 
-        func decorate(backdropView: UIView) throws {
+        func decorate(backdropView: UIView) async throws {
             backdropDecoratingExpectation?.fulfill()
         }
 
@@ -605,14 +656,12 @@ extension TraitComposerTests {
             removeExpectation = config?.removeExpectation?.expectation
         }
 
-        func present(viewController: UIViewController, completion: (() -> Void)?) throws {
+        func present(viewController: UIViewController) async throws {
             presentExpectation?.fulfill()
-            completion?()
         }
 
-        func remove(viewController: UIViewController, completion: (() -> Void)?) {
+        func remove(viewController: UIViewController) async {
             removeExpectation?.fulfill()
-            completion?()
         }
     }
 }

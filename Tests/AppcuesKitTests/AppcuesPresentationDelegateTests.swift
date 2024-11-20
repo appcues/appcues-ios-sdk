@@ -21,7 +21,8 @@ final class AppcuesPresentationDelegateTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testDelegateAppear() throws {
+    @MainActor
+    func testDelegateAppear() async throws {
         // Arrange
         let delegate = MockAppcuesPresentationDelegate()
         let experience = ExperienceData.mockEmbed(frameID: "some-frame", trigger: .qualification(reason: .screenView))
@@ -57,13 +58,14 @@ final class AppcuesPresentationDelegateTests: XCTestCase {
         view.presentationDelegate = delegate
 
         // Act
-        try package.presenter({})
+        try await package.presenter()
 
         // Assert
-        waitForExpectations(timeout: 1.0)
+        await fulfillment(of: [willAppearExpectation, didAppearExpectation], timeout: 1, enforceOrder: true)
     }
 
-    func testDelegateDisappear() throws {
+    @MainActor
+    func testDelegateDisappear() async throws {
         // Arrange
         let delegate = MockAppcuesPresentationDelegate()
         let experience = ExperienceData.mock
@@ -99,10 +101,10 @@ final class AppcuesPresentationDelegateTests: XCTestCase {
         view.presentationDelegate = delegate
 
         // Act
-        package.dismisser({})
+        await package.dismisser()
 
         // Assert
-        waitForExpectations(timeout: 1.0)
+        await fulfillment(of: [willDisappearExpectation, didDisappearExpectation], timeout: 1, enforceOrder: true)
     }
 }
 

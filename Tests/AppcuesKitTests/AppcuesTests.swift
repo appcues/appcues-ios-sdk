@@ -19,7 +19,7 @@ class AppcuesTests: XCTestCase {
         appcues = MockAppcues(config: config)
     }
 
-    func testAnonymousTracking() throws {
+    func testAnonymousTracking() async throws {
         // Test to validate that (1) no activity flows through system when no user has been identified (anon or auth)
         // and (2) validate that activity does begin flowing through once the user is known (anon or auth)
 
@@ -64,7 +64,7 @@ class AppcuesTests: XCTestCase {
         XCTAssertEqual("anon:", appcues.storage.userID.prefix(5))
     }
 
-    func testIdentifyWithEmptyUserIsNotTracked() throws {
+    func testIdentifyWithEmptyUserIsNotTracked() async throws {
         // Arrange
         var trackedUpdates = 0
         appcues.analyticsPublisher.onPublish = { _ in trackedUpdates += 1 }
@@ -104,7 +104,7 @@ class AppcuesTests: XCTestCase {
         XCTAssertEqual(deferredPushAttempts, 1)
     }
 
-    func testIdentifySameUserTriggersDeviceUpdate() throws {
+    func testIdentifySameUserTriggersDeviceUpdate() async throws {
         // Arrange
         let deviceUpdateExpectation = expectation(description: "Device updated")
         appcues.analyticsPublisher.onPublish = { update in
@@ -118,10 +118,10 @@ class AppcuesTests: XCTestCase {
         appcues.identify(userID: "test-user") // re-identify
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [deviceUpdateExpectation], timeout: 1)
     }
 
-    func testIdentifyNewUserDoesNotTriggerDeviceUpdate() throws {
+    func testIdentifyNewUserDoesNotTriggerDeviceUpdate() async throws {
         // no device update here since the new user will trigger a new session_started
         // event with device props
 
@@ -139,7 +139,7 @@ class AppcuesTests: XCTestCase {
         appcues.identify(userID: "different-user")
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [deviceUpdateExpectation], timeout: 1)
     }
 
     func testReset() throws {
@@ -154,7 +154,7 @@ class AppcuesTests: XCTestCase {
         XCTAssertNil(appcues.storage.userSignature)
     }
 
-    func testSetGroup() throws {
+    func testSetGroup() async throws {
         // Arrange
         var mostRecentUpdate: TrackingUpdate?
         appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
@@ -169,7 +169,7 @@ class AppcuesTests: XCTestCase {
         XCTAssertEqual("group1", appcues.storage.groupID)
     }
 
-    func testNilGroupIDRemovesGroup() throws {
+    func testNilGroupIDRemovesGroup() async throws {
         // Arrange
         var mostRecentUpdate: TrackingUpdate?
         appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
@@ -184,7 +184,7 @@ class AppcuesTests: XCTestCase {
         XCTAssertNil(lastUpdate.properties)
     }
 
-    func testEmptyStringGroupIDRemovesGroup() throws {
+    func testEmptyStringGroupIDRemovesGroup() async throws {
         // Arrange
         var mostRecentUpdate: TrackingUpdate?
         appcues.analyticsPublisher.onPublish = { update in mostRecentUpdate = update }
@@ -211,7 +211,8 @@ class AppcuesTests: XCTestCase {
         XCTAssertNotNil(Int(tokens[1]))
     }
 
-    func testDebug() throws {
+    @MainActor
+    func testDebug() async throws {
         // Arrange
         let debuggerShownExpectation = expectation(description: "Debugger shown")
         appcues.debugger.onShow = { mode in
@@ -224,57 +225,38 @@ class AppcuesTests: XCTestCase {
         appcues.debug()
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [debuggerShownExpectation], timeout: 1)
     }
 
-    func testShowExperienceByID() throws {
+    func testShowExperienceByID() async throws {
         // Arrange
         appcues.sessionID = UUID()
-        var completionCount = 0
         var experienceShownCount = 0
-        appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { experienceID, published, trigger in
             XCTAssertEqual(true, published)
             XCTAssertEqual("1234", experienceID)
             guard case .showCall = trigger else { return XCTFail() }
             experienceShownCount += 1
-            completion?(.success(()))
         }
 
         // Act
-        appcues.show(experienceID: "1234") { success, _ in
-            if success {
-                completionCount += 1
-            }
-        }
+        try await appcues.show(experienceID: "1234")
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(experienceShownCount, 1)
     }
 
-    func testExperienceNotShownIfNoSession() throws {
+    func testExperienceNotShownIfNoSession() async throws {
         // Arrange
         appcues.sessionID = nil
-        var completionCount = 0
-        var experienceShownCount = 0
-        appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
-            experienceShownCount += 1
-            completion?(.failure(AppcuesError.noActiveSession))
-        }
 
-        // Act
-        appcues.show(experienceID: "1234") { success, _ in
-            if !success {
-                completionCount += 1
-            }
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await appcues.show(experienceID: "1234")) {
+            XCTAssertEqual($0 as? AppcuesError, AppcuesError.noActiveSession)
         }
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
-        XCTAssertEqual(experienceShownCount, 0)
     }
 
-    func testAutomaticScreenTracking() throws {
+    func testAutomaticScreenTracking() async throws {
         // Arrange
         let screenExpectation = expectation(description: "Screen tracked")
         appcues.analyticsPublisher.onPublish = { trackingUpdate in
@@ -286,12 +268,14 @@ class AppcuesTests: XCTestCase {
         // Act
         appcues.trackScreens()
         // simulates an automatic tracked screen to verify if tracking is handling
-        NotificationCenter.appcues.post(name: .appcuesTrackedScreen,
-                                        object: self,
-                                        userInfo: Notification.toInfo("test screen"))
+        NotificationCenter.appcues.post(
+            name: .appcuesTrackedScreen,
+            object: self,
+            userInfo: Notification.toInfo("test screen")
+        )
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [screenExpectation], timeout: 1)
     }
 
     func testSetPushToken() throws {
@@ -311,22 +295,24 @@ class AppcuesTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    @MainActor
     func testDidHandleURL() throws {
         // Arrange
         appcues.deepLinkHandler.onDidHandleURL = { url -> Bool in
-            XCTAssertEqual(URL(string: "https://www.appcues.com")!, url)
-            return true
+            return url.absoluteString == "https://www.appcues.com"
         }
 
         // Act
-        let result = appcues.didHandleURL(URL(string: "https://www.appcues.com")!)
+        let resultTrue = appcues.didHandleURL(URL(string: "https://www.appcues.com")!)
+        let resultFalse = appcues.didHandleURL(URL(string: "https://www.appcues.net")!)
 
         // Assert
-        XCTAssertTrue(result)
+        XCTAssertTrue(resultTrue)
+        XCTAssertFalse(resultFalse)
     }
 
     // Test that all the components are properly deinited when the Appcues instance is
-    func testDeinit() throws {
+    func testDeinit() async throws {
         // Arrange
         var appcues: Appcues? = Appcues(config: Appcues.Config(accountID: "abc", applicationID: "123"))
 
@@ -404,7 +390,7 @@ class AppcuesTests: XCTestCase {
         // Register and read a dependency on 100 threads
         for i in 0..<100 {
             dispatchGroup.enter()
-            DispatchQueue.global().async {
+            Task.detached {
                 let dep = Appcues.Config(accountID: "<acc_id>", applicationID: "<app_id>")
                 container.register(Appcues.Config.self, value: dep)
                 _ = container.resolve(Appcues.Config.self)
