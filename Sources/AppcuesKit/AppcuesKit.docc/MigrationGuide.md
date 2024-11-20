@@ -2,7 +2,41 @@
 
 Learn more about changes to Appcues iOS SDK.
 
-Appcues iOS SDK follow semantic versions. Accordingly, a major version is incremented when an incompatible API change is made. Below are details for each such version change.  
+Appcues iOS SDK follow semantic versions. Accordingly, a major version is incremented when an incompatible API change is made. Below are details for each such version change.
+
+## 4.x to 5.0 Migration Guide
+
+### Overview
+
+SDK version 5.0 updates the API to use async/await.
+
+### Changed
+
+- `Appcues.show(experienceID:completion:)` has been updated to ``Appcues/show(experienceID:)``, an async throwing function. The method call can be wrapped in a `Task` if called from a synchronous context.
+- `AppcuesNavigationDelegate/navigate(to:openExternally:completion:)` has been updated to ``AppcuesNavigationDelegate/navigate(to:openExternally:)``, an async function. Use `withCheckedContinuation` to convert completion handlers into async functions if necessary:
+    ```swift
+    func navigate(to url: URL, openExternally: Bool) async {
+        await withCheckedContinuation { continuation in
+            someFunction(completion: {
+                continuation.resume()
+            })
+        }
+    }
+    ```
+- `Appcues/didReceiveNotification(response:completionHandler)` has been updated to ``Appcues/didReceiveNotification(response:)``. It is now the responsibility of the app to call `completionHandler()`:
+    ```swift
+    if appcuesInstance.didReceiveNotification(response: response) {
+        completionHandler()
+        return
+    }
+    ```
+- `AppcuesElementTargeting/captureLayout()` has been updated to ``AppcuesElementTargeting/captureLayout()``, an async function.
+
+## 3.x to 4.0 Migration Guide
+
+### Overview
+
+SDK version 4.0 adds support for push notifications and has no breaking changes.
 
 ## 2.x to 3.0 Migration Guide
 
@@ -31,7 +65,7 @@ Updating to this release will not require any code changes for most SDK installa
 
 #### Changed
 
-- ``AppcuesNavigationDelegate`` is now responsible for handling universal links in addition to scheme links. Consequently, ``AppcuesNavigationDelegate/navigate(to:openExternally:completion:)`` has a new parameter `openExternally` which indicates whether a link is expecting to be opened in an external browser.
+- ``AppcuesNavigationDelegate`` is now responsible for handling universal links in addition to scheme links. Consequently, `AppcuesNavigationDelegate/navigate(to:openExternally:completion:)` has a new parameter `openExternally` which indicates whether a link is expecting to be opened in an external browser.
 
 ### Custom Action and Trait Changes
 

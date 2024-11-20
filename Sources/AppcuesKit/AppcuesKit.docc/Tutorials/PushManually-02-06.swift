@@ -21,11 +21,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        if Appcues.shared.didReceiveNotification(response: response, completionHandler: completionHandler) {
-            // NOTE: Appcues calls the completion handler if the notification is an Appcues notification.
+        if Appcues.shared.didReceiveNotification(response: response) {
+            completionHandler()
             return
         }
 
+        // If necessary, handle non-Appcues notifications
         completionHandler()
     }
 

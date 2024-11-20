@@ -46,7 +46,7 @@ func application(_ application: UIApplication, didRegisterForRemoteNotifications
 
 Update your `AppDelegate` to conform to the `UNUserNotificationCenterDelegate` protocol and assign `self` the delegate in `application(_:didFinishLaunchingWithOptions:)`.
 
-Implement `userNotificationCenter(_:didReceive:withCompletionHandler:)` and pass the received notification response to ``Appcues/didReceiveNotification(response:completionHandler:)``.
+Implement `userNotificationCenter(_:didReceive:withCompletionHandler:)` and pass the received notification response to ``Appcues/didReceiveNotification(response:)``.
 
 ```swift
 // AppDelegate.swift
@@ -61,8 +61,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        if appcuesInstance.didReceiveNotification(response: response, completionHandler: completionHandler) {
-            // NOTE: Appcues calls the completion handler if the notification is an Appcues notification.
+        if appcuesInstance.didReceiveNotification(response: response) {
+            completionHandler()
             return
         }
 
