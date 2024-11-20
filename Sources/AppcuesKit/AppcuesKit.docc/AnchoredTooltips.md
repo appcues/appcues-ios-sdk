@@ -29,7 +29,7 @@ These properties are also available in Xcode Interface Builder, used for Storybo
 
 ## Instrumenting SwiftUI Views
 
-iOS Applications using SwiftUI can also identify `View` elements. A `View` extension ``SwiftUI/View/appcuesView(identifier:)`` is provided by the Appcues iOS SDK to support this use case. The `identifier` String value must be unique on the screen where an anchored tooltip may be targeted.
+iOS Applications using SwiftUI can also identify `View` elements. A `View` extension ``SwiftUICore/View/appcuesView(identifier:)`` is provided by the Appcues iOS SDK to support this use case. The `identifier` String value must be unique on the screen where an anchored tooltip may be targeted.
 
 The following example shows how this would be added to a SwiftUI `Button` View:
 

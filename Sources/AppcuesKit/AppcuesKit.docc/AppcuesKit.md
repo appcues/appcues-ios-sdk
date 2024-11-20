@@ -22,7 +22,7 @@ A Swift library for sending user properties and events to the Appcues API and re
 
 ### Navigation
 
-- <doc:Navigation>
+- <doc:Navigating>
 - <doc:UniversalLinking>
 - ``AppcuesNavigationDelegate``
 
@@ -49,7 +49,7 @@ A Swift library for sending user properties and events to the Appcues API and re
 - ``AppcuesElementTargeting``
 - ``AppcuesElementSelector``
 - ``AppcuesViewElement``
-- ``SwiftUI/View/appcuesView(identifier:)``
+- ``SwiftUICore/View/appcuesView(identifier:)``
 - ``UIKit/UIWindow/isAppcuesWindow``
 
 ### Custom Components

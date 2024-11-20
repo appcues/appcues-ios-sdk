@@ -56,7 +56,7 @@
             }
             
             @Step {
-                Implement `userNotificationCenter(_:didReceive:withCompletionHandler:)` and pass the received notification response to ``Appcues/didReceiveNotification(response:completionHandler:)``.
+                Implement `userNotificationCenter(_:didReceive:)` and pass the received notification response to ``Appcues/didReceiveNotification(response:)``.
                                 
                 @Code(name: "AppDelegate.swift", file: PushManually-02-05.swift, previousFile: PushManually-02-04.swift)
             }

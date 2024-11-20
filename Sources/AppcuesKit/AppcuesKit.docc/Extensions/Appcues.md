@@ -24,7 +24,7 @@
 
 ### Showing Experiences
 
-- ``Appcues/show(experienceID:completion:)``
+- ``Appcues/show(experienceID:)``
 
 ### Embeds
 
@@ -37,7 +37,7 @@
 - <doc:PushNotificationsManually>
 - ``Appcues/enableAutomaticPushConfig()``
 - ``Appcues/setPushToken(_:)``
-- ``Appcues/didReceiveNotification(response:completionHandler:)``
+- ``Appcues/didReceiveNotification(response:)``
 
 ### Debugging
 
