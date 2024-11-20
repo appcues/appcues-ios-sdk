@@ -31,25 +31,25 @@ class ExperienceStateMachineTests: XCTestCase {
 
     // MARK: Standard Transitions
 
-    func test_stateIsIdling_whenStartExperience_transitionsToRenderingStep() throws {
+    func test_stateIsIdling_whenStartExperience_transitionsToRenderingStep() async throws {
         // Arrange
         let presentExpectation = expectation(description: "Experience presented")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
-        appcues.traitComposer.onPackage = { _, stepIndex in
+        let package: ExperiencePackage = await experience.package(presentExpectation: presentExpectation)
+        await appcues.traitComposer.setPackage { _, stepIndex in
             XCTAssertEqual(stepIndex, Experience.StepIndex(group: 0, item: 0))
             return package
         }
 
         let initialState: State = .idling
         let action: Action = .startExperience(experience)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [presentExpectation], timeout: 1)
         XCTAssertEqual(
             stateMachine.state,
             .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
@@ -57,18 +57,18 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertTrue(package.containerController.eventHandler === stateMachine)
     }
 
-    func test_stateIsRenderingStep_whenStartStep_transitionsToRenderingStepInSameGroup() throws {
+    func test_stateIsRenderingStep_whenStartStep_transitionsToRenderingStepInSameGroup() async throws {
         // the @appcues/continue action would do this
 
         // Arrange
         let presentExpectation = expectation(description: "Experience presented")
         presentExpectation.isInverted = true
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
+        let package: ExperiencePackage = await experience.package(presentExpectation: presentExpectation)
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: false)
         let action: Action = .startStep(StepReference.offset(1))
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // This would be set in the initial presentation of the group container, but we've skipped over that by setting
         // the initial state of the machine. This is relied upon so the containerController can notify the state machine
@@ -80,116 +80,118 @@ class ExperienceStateMachineTests: XCTestCase {
         }
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [presentExpectation], timeout: 1)
         XCTAssertEqual(
             stateMachine.state,
             .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
         )
     }
 
-    func test_stateIsRenderingStep_whenStartStep_transitionsToRenderingStepInNewGroup() throws {
+    func test_stateIsRenderingStep_whenStartStep_transitionsToRenderingStepInNewGroup() async throws {
         // the @appcues/continue action would do this
 
         // Arrange
         let presentExpectation = expectation(description: "Experience presented")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
-        appcues.traitComposer.onPackage = { _, stepIndex in
+        let package: ExperiencePackage = await experience.package(presentExpectation: presentExpectation)
+        await appcues.traitComposer.setPackage { _, stepIndex in
             XCTAssertEqual(stepIndex, Experience.StepIndex(group: 1, item: 0))
             return package
         }
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 2), package, isFirst: false)
         let action: Action = .startStep(StepReference.offset(1))
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [presentExpectation], timeout: 1)
         XCTAssertEqual(
             stateMachine.state,
             .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: false)
         )
     }
 
-    func test_stateIsRenderingStep_whenStartStepPastEnd_transitionsToIdling() throws {
+    func test_stateIsRenderingStep_whenStartStepPastEnd_transitionsToIdling() async throws {
         // the @appcues/continue action would do this
 
         // Arrange
         let dismissExpectation = expectation(description: "Experience dismissed")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+        let package: ExperiencePackage = await experience.package(dismissExpectation: dismissExpectation)
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: false)
         let action: Action = .startStep(StepReference.offset(1))
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [dismissExpectation], timeout: 1)
         XCTAssertEqual(stateMachine.state, .idling)
     }
 
-    func test_stateIsRenderingStep_whenEndExperience_transitionsToIdling() throws {
+    func test_stateIsRenderingStep_whenEndExperience_transitionsToIdling() async throws {
         // the @appcues/close action would do this
 
         // Arrange
         let dismissExpectation = expectation(description: "Experience dismissed")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+        let package: ExperiencePackage = await experience.package(dismissExpectation: dismissExpectation)
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
         let action: Action = .endExperience(markComplete: false)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [dismissExpectation], timeout: 1)
         XCTAssertEqual(stateMachine.state, .idling)
     }
 
-    func test_stateIsRenderingStep_onViewControllerDismissed_transitionsToIdling() throws {
+    func test_stateIsRenderingStep_onViewControllerDismissed_transitionsToIdling() async throws {
         // the @appcues/skippable trait would do this
 
         // Arrange
         let dismissExpectation = expectation(description: "Experience dismissed")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+        let package: ExperiencePackage = await experience.package(dismissExpectation: dismissExpectation)
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
         package.containerController.eventHandler = stateMachine
 
         // Act
-        (package.containerController as! Mocks.ContainerViewController).mockIsBeingDismissed = true
-        package.containerController.viewWillDisappear(false)
-        package.containerController.viewDidDisappear(false)
+        Task { @MainActor in
+            (package.containerController as! Mocks.ContainerViewController).mockIsBeingDismissed = true
+            package.containerController.viewWillDisappear(false)
+            package.containerController.viewDidDisappear(false)
+        }
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [dismissExpectation], timeout: 1)
         XCTAssertEqual(stateMachine.state, .idling)
     }
 
-    func test_stateIsRenderingStep_onViewControllerDismissed_doesNotMarkComplete() throws {
+    func test_stateIsRenderingStep_onViewControllerDismissed_doesNotMarkComplete() async throws {
         // the @appcues/skippable trait would do this
 
         // Arrange
         var updates: [TrackingUpdate] = []
         let dismissExpectation = expectation(description: "Experience dismissed")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+        let package: ExperiencePackage = await experience.package(dismissExpectation: dismissExpectation)
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: true)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
         package.containerController.eventHandler = stateMachine
         appcues.analyticsPublisher.onPublish = { update in updates.append(update) }
 
@@ -197,46 +199,47 @@ class ExperienceStateMachineTests: XCTestCase {
         stateMachine.addObserver(observer)
 
         // Act
-        (package.containerController as! Mocks.ContainerViewController).mockIsBeingDismissed = true
-        package.containerController.viewWillDisappear(false)
-        package.containerController.viewDidDisappear(false)
+        Task { @MainActor in
+            (package.containerController as! Mocks.ContainerViewController).mockIsBeingDismissed = true
+            package.containerController.viewWillDisappear(false)
+            package.containerController.viewDidDisappear(false)
+        }
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [dismissExpectation], timeout: 1)
         let lastUpdate = try XCTUnwrap(updates.last)
         // confirm that dismiss on last step triggers experience_dismissed analytics, not experience_completed
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_dismissed", interactive: false))
     }
 
-    func test_whenEndExperience_andMarkComplete_executesActions() throws {
+    func test_whenEndExperience_andMarkComplete_executesActions() async throws {
         // Arrange
         appcues.sessionID = UUID() // needed to pass a check to show the next experience
 
         let dismissExpectation = expectation(description: "Experience dismissed")
         let nextContentLoadedExpectation = expectation(description: "Next content ID requested")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+        let package: ExperiencePackage = await experience.package(dismissExpectation: dismissExpectation)
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
         let action: Action = .endExperience(markComplete: true)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
-        appcues.contentLoader.onLoad = { contentID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { contentID, published, trigger in
             XCTAssertEqual(contentID, ExperienceData.mock.nextContentID)
             XCTAssertTrue(published)
             nextContentLoadedExpectation.fulfill()
-            completion?(.success(()))
         }
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [dismissExpectation, nextContentLoadedExpectation], timeout: 1, enforceOrder: true)
         XCTAssertEqual(stateMachine.state, .idling)
     }
 
-    func test_whenEndExperience_andNoMarkComplete_doesNotExecuteActions() throws {
+    func test_whenEndExperience_andNoMarkComplete_doesNotExecuteActions() async throws {
         // Arrange
         appcues.sessionID = UUID() // needed to pass a check to show the next experience
 
@@ -244,25 +247,25 @@ class ExperienceStateMachineTests: XCTestCase {
         let nextContentLoadedExpectation = expectation(description: "Next content ID requested")
         nextContentLoadedExpectation.isInverted = true
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(dismissExpectation: dismissExpectation)
+        let package: ExperiencePackage = await experience.package(dismissExpectation: dismissExpectation)
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), package, isFirst: false)
         let action: Action = .endExperience(markComplete: false)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
-        appcues.contentLoader.onLoad = { contentID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { contentID, published, trigger in
             XCTFail("no next content should be shown")
         }
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [dismissExpectation, nextContentLoadedExpectation], timeout: 1, enforceOrder: true)
         XCTAssertEqual(stateMachine.state, .idling)
     }
 
-    func test_stateIsRenderingStep_whenStartStep_executesNavigationActionsBeforeTransition() throws {
+    func test_stateIsRenderingStep_whenStartStep_executesNavigationActionsBeforeTransition() async throws {
         // when the next step group has actions on "navigate" trigger, they are executed sequentially
         // before presenting the next group container
 
@@ -288,23 +291,23 @@ class ExperienceStateMachineTests: XCTestCase {
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
         let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .qualification(reason: nil))
-        let package: ExperiencePackage = experience.package(onPresent: {
+        let package: ExperiencePackage = await experience.package(onPresent: {
             executionSequence.append("present")
             presentExpectation.fulfill()
         }, onDismiss: {})
-        appcues.traitComposer.onPackage = { _, _ in
+        await appcues.traitComposer.setPackage { _, _ in
             return package
         }
 
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
         let action: Action = .startStep(StepReference.offset(1))
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [action1ExecutionExpectation, action2ExecutionExpectation, presentExpectation], timeout: 1, enforceOrder: true)
         XCTAssertEqual(
             stateMachine.state,
             .renderingStep(experience, Experience.StepIndex(group: 1, item: 0), package, isFirst: false)
@@ -312,7 +315,7 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(["action1", "action2", "present"], executionSequence)
     }
 
-    func test_stateIsIdling_whenStartExperience_doesNotExecutesNavigationActionsOnQualifiedExperience() throws {
+    func test_stateIsIdling_whenStartExperience_doesNotExecutesNavigationActionsOnQualifiedExperience() async throws {
         // when the first step group has actions on "navigate" trigger, and the flow is triggered from
         // qualification in a certain context - the pre-step actions should not execute before the flow starts
 
@@ -340,23 +343,23 @@ class ExperienceStateMachineTests: XCTestCase {
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
         let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .qualification(reason: nil))
-        let package: ExperiencePackage = experience.package(onPresent: {
+        let package: ExperiencePackage = await experience.package(onPresent: {
             executionSequence.append("present")
             presentExpectation.fulfill()
         }, onDismiss: {})
-        appcues.traitComposer.onPackage = { _, _ in
+        await appcues.traitComposer.setPackage { _, _ in
             return package
         }
 
         let initialState: State = .idling
         let action: Action = .startExperience(experience)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [action1ExecutionExpectation, action2ExecutionExpectation, presentExpectation], timeout: 1, enforceOrder: true)
         XCTAssertEqual(
             stateMachine.state,
             .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
@@ -364,7 +367,7 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(["present"], executionSequence)
     }
 
-    func test_stateIsIdling_whenStartExperience_executesNavigationActionsOnNonQualifiedExperience() throws {
+    func test_stateIsIdling_whenStartExperience_executesNavigationActionsOnNonQualifiedExperience() async throws {
         // when the first step group has actions on "navigate" trigger, and the flow is triggered from
         // something other than qualification - the pre-step actions should execute before the flow starts
 
@@ -390,23 +393,23 @@ class ExperienceStateMachineTests: XCTestCase {
         let actionRegistry = appcues.container.resolve(ActionRegistry.self)
         actionRegistry.register(action: TestAction.self)
         let experience = ExperienceData.mockWithStepActions(actions: [action1, action2], trigger: .deepLink)
-        let package: ExperiencePackage = experience.package(onPresent: {
+        let package: ExperiencePackage = await experience.package(onPresent: {
             executionSequence.append("present")
             presentExpectation.fulfill()
         }, onDismiss: {})
-        appcues.traitComposer.onPackage = { _, _ in
+        await appcues.traitComposer.setPackage { _, _ in
             return package
         }
 
         let initialState: State = .idling
         let action: Action = .startExperience(experience)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [action1ExecutionExpectation, action2ExecutionExpectation, presentExpectation], timeout: 1, enforceOrder: true)
         XCTAssertEqual(
             stateMachine.state,
             .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), package, isFirst: true)
@@ -414,25 +417,25 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(["action1", "action2", "present"], executionSequence)
     }
 
-    func test_stateIsFailing_whenRetry_transitionsToRestoreStateAndRetryEffect() throws {
+    func test_stateIsFailing_whenRetry_transitionsToRestoreStateAndRetryEffect() async throws {
         let presentExpectation = expectation(description: "Experience presented")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
+        let package: ExperiencePackage = await experience.package(presentExpectation: presentExpectation)
         let originalState: State = .beginningStep(experience, .initial, package, isFirst: true)
         let retryEffect: SideEffect = .retryPresentation(experience, .initial, package)
         let initialState: State = .failing(targetState: originalState, retryEffect: retryEffect)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
         let listingObserver = ListingObserver()
         stateMachine.addObserver(listingObserver)
         let action: Action = .retry
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
         // the retry should transition back to the original state (.beginningStep),
         // call the retry effect to present, and then transition to renderingStep
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [presentExpectation], timeout: 1)
         XCTAssertEqual(
             listingObserver.results,
             [
@@ -442,34 +445,34 @@ class ExperienceStateMachineTests: XCTestCase {
         )
     }
 
-    func test_stateIsFailing_whenEndExperience_transitionsToIdling() throws {
+    func test_stateIsFailing_whenEndExperience_transitionsToIdling() async throws {
         let presentExpectation = expectation(description: "Experience presented")
         presentExpectation.isInverted = true
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package()
+        let package: ExperiencePackage = await experience.package()
         let originalState: State = .beginningStep(experience, .initial, package, isFirst: true)
         let retryEffect: SideEffect = .retryPresentation(experience, .initial, package)
         let initialState: State = .failing(targetState: originalState, retryEffect: retryEffect)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
         let listingObserver = ListingObserver()
         stateMachine.addObserver(listingObserver)
         let action: Action = .endExperience(markComplete: false)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
         // the endExperience action should move straight to .idling, concluding the previous failed attempt.
         // and no presentation effect should be re-attempted
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [presentExpectation], timeout: 1)
         XCTAssertEqual(listingObserver.results, [.success(.idling)])
     }
 
-    func test_stateIsFailing_whenStartExperience_transitionsToIdlingThenStartsNewExperience() throws {
+    func test_stateIsFailing_whenStartExperience_transitionsToIdlingThenStartsNewExperience() async throws {
         let failedPresentExpectation = expectation(description: "Failed experience presented")
         failedPresentExpectation.isInverted = true
         let failedExperience = ExperienceData.mock
-        let failedPackage: ExperiencePackage = failedExperience.package(presentExpectation: failedPresentExpectation)
+        let failedPackage: ExperiencePackage = await failedExperience.package(presentExpectation: failedPresentExpectation)
         let failedStepIndex = Experience.StepIndex(group: 0, item: 1)
         let initialState: State = .failing(
             targetState: .beginningStep(failedExperience, failedStepIndex, failedPackage, isFirst: true),
@@ -478,23 +481,23 @@ class ExperienceStateMachineTests: XCTestCase {
 
         let presentExpectation = expectation(description: "Experience presented")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
-        appcues.traitComposer.onPackage = { _, stepIndex in
+        let package: ExperiencePackage = await experience.package(presentExpectation: presentExpectation)
+        await appcues.traitComposer.setPackage { _, stepIndex in
             XCTAssertEqual(stepIndex, .initial)
             return package
         }
 
         let action: Action = .startExperience(experience)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
         let listingObserver = ListingObserver()
         stateMachine.addObserver(listingObserver)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
         // the start experience should move the existing failed state back to idling, then start the new experience
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [failedPresentExpectation, presentExpectation], timeout: 1)
         XCTAssertEqual(
             listingObserver.results,
             [
@@ -508,67 +511,73 @@ class ExperienceStateMachineTests: XCTestCase {
 
     // MARK: Error Transitions
 
-    func test_stateIsIdling_whenStartExperienceWithNoSteps_noTransition() throws {
+    func test_stateIsIdling_whenStartExperienceWithNoSteps_noTransition() async throws {
         // Arrange
         let experience = Experience(id: UUID(), name: "Empty experience", type: "mobile", publishedAt: 1632142800000, context: nil, traits: [], steps: [], redirectURL: nil, nextContentID: nil, renderContext: .modal)
         let initialState: State = .idling
         let action: Action = .startExperience(ExperienceData(experience, trigger: .showCall))
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "Experience has 0 steps")
+        }
 
         // Assert
         XCTAssertEqual(stateMachine.state, initialState)
     }
 
-    func test_stateIsIdling_whenStartFailedExperience_noTransition() throws {
+    func test_stateIsIdling_whenStartFailedExperience_noTransition() async throws {
         // Arrange
         let failedExperience = FailedExperience(id: UUID(), name: "Invalid experience", type: "mobile", publishedAt: 1632142800000, context: nil, error: "could not decode")
         let initialState: State = .idling
         let experienceData = ExperienceData(failedExperience.skeletonExperience, trigger: .showCall, error: failedExperience.error)
         let action: Action = .startExperience(experienceData)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "could not decode")
+        }
 
         // Assert
         XCTAssertEqual(stateMachine.state, initialState)
     }
 
-    func test_stateIsIdling_whenStartExperienceDelegateBlocks_noTransition() throws {
+    func test_stateIsIdling_whenStartExperienceDelegateBlocks_noTransition() async throws {
         // Arrange
         let experience = ExperienceData.mock
-        appcues.traitComposer.onPackage = { _, _ in experience.package() }
+        await appcues.traitComposer.setPackage { _, _ in experience.package() }
 
         let initialState: State = .idling
         let action: Action = .startExperience(experience)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         let mockDelegate = MockAppcuesExperienceDelegate(canDisplay: false)
         stateMachine.clientAppcuesDelegate = mockDelegate
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
         XCTAssertEqual(stateMachine.state, initialState)
     }
 
-    func test_stateIsIdling_whenStartExperiencePackageFails_transitionsToIdling() throws {
+    func test_stateIsIdling_whenStartExperiencePackageFails_transitionsToIdling() async throws {
         // Arrange
         let experience = ExperienceData.mock
-        appcues.traitComposer.onPackage = { _, stepIndex in
+        await appcues.traitComposer.setPackage { _, stepIndex in
             throw AppcuesTraitError(description: "Presenting capability trait required")
         }
 
         let initialState: State = .idling
         let action: Action = .startExperience(experience)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "Presenting capability trait required")
+        }
 
         // Assert
         XCTAssertEqual(
@@ -577,12 +586,12 @@ class ExperienceStateMachineTests: XCTestCase {
         )
     }
 
-    func test_stateIsIdling_whenStartStepFails_transitionsToIdling() throws {
+    func test_stateIsIdling_whenStartStepFails_transitionsToIdling() async throws {
         // Arrange
         let presentThrowExpectation = expectation(description: "Experience presented attempt")
         let experience = ExperienceData.mock
-        appcues.traitComposer.onPackage = { _, stepIndex in
-            return experience.package(
+        await appcues.traitComposer.setPackage { _, stepIndex in
+            experience.package(
                 onPresent: {
                     presentThrowExpectation.fulfill()
                     throw AppcuesTraitError(description: "present fail", recoverable: false)
@@ -593,13 +602,13 @@ class ExperienceStateMachineTests: XCTestCase {
 
         let initialState: State = .idling
         let action: Action = .startExperience(experience)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [presentThrowExpectation], timeout: 1)
         XCTAssertEqual(
             stateMachine.state,
             .idling
@@ -607,12 +616,12 @@ class ExperienceStateMachineTests: XCTestCase {
     }
 
     // This is the error case where something like a carousel swipe or paging dot interaction trigger a step change
-    func test_stateIsRenderingStep_whenPageChangeFails_transitionsToIdling() throws {
+    func test_stateIsRenderingStep_whenPageChangeFails_transitionsToIdling() async throws {
         // Arrange
         let presentExpectation = expectation(description: "Experience presented")
         let dismissExpectation = expectation(description: "Experience dismissed")
         let experience = ExperienceData.mock
-        let package: ExperiencePackage = experience.package(
+        let package: ExperiencePackage = await experience.package(
             onPresent: { presentExpectation.fulfill() },
             onDismiss: { dismissExpectation.fulfill() },
             stepDecorator: { _, prev in
@@ -622,44 +631,44 @@ class ExperienceStateMachineTests: XCTestCase {
                 }
             }
         )
-        appcues.traitComposer.onPackage = { _, stepIndex in
+        await appcues.traitComposer.setPackage { _, stepIndex in
             return package
         }
 
         let initialState: State = .idling
         let action: Action = .startExperience(experience)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
         // Need to do a proper transition instead of initialState so the pageMonitor observer is actually added
-        try stateMachine.transition(action)
-        wait(for: [presentExpectation], timeout: 1)
+        try await stateMachine.transition(action)
+        await fulfillment(of: [presentExpectation], timeout: 1)
 
         package.pageMonitor.set(currentPage: 1)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [dismissExpectation], timeout: 1)
         XCTAssertEqual(
             stateMachine.state,
             .idling
         )
     }
 
-    func test_stateIsRenderingStep_whenStartStepPackageFails_transitionsToIdling() throws {
+    func test_stateIsRenderingStep_whenStartStepPackageFails_transitionsToIdling() async throws {
         // Arrange
         let experience = ExperienceData.mock
-        appcues.traitComposer.onPackage = { _, stepIndex in
+        await appcues.traitComposer.setPackage { _, stepIndex in
             throw AppcuesTraitError(description: "Presenting capability trait required")
         }
 
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         // Step ID in a different container
         let targetID = try XCTUnwrap(UUID(uuidString: "03652bd5-f0cb-44f0-9274-e95b4441d857"))
         let action: Action = .startStep(.stepID(targetID))
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        try await stateMachine.transition(action)
 
         // Assert
         XCTAssertEqual(
@@ -668,102 +677,114 @@ class ExperienceStateMachineTests: XCTestCase {
         )
     }
 
-    func test_stateIsRenderingStep_whenStartExperience_noTransition() throws {
+    func test_stateIsRenderingStep_whenStartExperience_noTransition() async throws {
         // Arrange
         let experience = ExperienceData.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), experience.package(), isFirst: false)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), await experience.package(), isFirst: false)
         let action: Action = .startExperience(ExperienceData.mock)
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "experience already active")
+        }
 
         // Assert
         XCTAssertEqual(stateMachine.state, initialState)
     }
 
-    func test_stateIsRenderingStep_whenStartStepInvalid_noTransition() throws {
+    func test_stateIsRenderingStep_whenStartStepInvalid_noTransition() async throws {
         // Arrange
         let experience = ExperienceData.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), experience.package(), isFirst: false)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 1), await experience.package(), isFirst: false)
         let action: Action = .startStep(StepReference.index(1000))
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "Step at index(1000) does not exist")
+        }
 
         // Assert
         XCTAssertEqual(stateMachine.state, initialState)
     }
 
-    func test_stateIsEndingStep_whenStartStepInvalid_noTransition() throws {
+    func test_stateIsEndingStep_whenStartStepInvalid_noTransition() async throws {
         // Note: in actual usage, the invalid StepReference should be caught before transitioning to .endingStep
         // (see test_stateIsRenderingStep_whenStartStepInvalid_noTransition above)
 
         // Arrange
         let experience = ExperienceData.mock
-        let initialState: State = .endingStep(experience, Experience.StepIndex(group: 0, item: 1), experience.package(), markComplete: true)
+        let initialState: State = .endingStep(experience, Experience.StepIndex(group: 0, item: 1), await experience.package(), markComplete: true)
         let action: Action = .startStep(StepReference.index(1000))
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "Step at index(1000) does not exist")
+        }
 
         // Assert
         XCTAssertEqual(stateMachine.state, initialState)
     }
 
-    func test_stateIsRenderingStep_whenReportErrorWithRetryEffect_transitionsToFailing() throws {
+    func test_stateIsRenderingStep_whenReportErrorWithRetryEffect_transitionsToFailing() async throws {
         // Arrange
         let experience = ExperienceData.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         let effect: ExperienceStateMachine.SideEffect = .continuation(.reset)
         let action: Action = .reportError(
             error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
             retryEffect: effect
         )
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "no transition in state machine")
+        }
 
         // Assert
         XCTAssertEqual(stateMachine.state, .failing(targetState: initialState, retryEffect: effect))
     }
 
-    func test_stateIsRenderingStep_whenReportErrorWithoutRetryEffect_transitionsToIdling() throws {
+    func test_stateIsRenderingStep_whenReportErrorWithoutRetryEffect_transitionsToIdling() async throws {
         // Arrange
         let experience = ExperienceData.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         let action: Action = .reportError(
             error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
             retryEffect: nil
         )
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "no transition in state machine")
+        }
 
         // Assert
         XCTAssertEqual(stateMachine.state, .idling)
         XCTAssertEqual(stateMachine.stateObservers.count, 0, "observer is removed on fatal error and return to idling")
     }
 
-    func testExperienceErrorNotifiesObserver() throws {
+    func testExperienceErrorNotifiesObserver() async throws {
         // Arrange
         let experience = ExperienceData.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         let effect: ExperienceStateMachine.SideEffect = .continuation(.reset)
         let action: Action = .reportError(
             error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
             retryEffect: effect
         )
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
         let listingObserver = ListingObserver()
         stateMachine.addObserver(listingObserver)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "no transition in state machine")
+        }
 
         // Assert
         XCTAssertEqual(
@@ -775,20 +796,22 @@ class ExperienceStateMachineTests: XCTestCase {
         )
     }
 
-    func testFatalExperienceErrorNotifiesObserver() throws {
+    func testFatalExperienceErrorNotifiesObserver() async throws {
         // Arrange
         let experience = ExperienceData.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         let action: Action = .reportError(
             error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
             retryEffect: nil
         )
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
         let listingObserver = ListingObserver()
         stateMachine.addObserver(listingObserver)
 
         // Act
-        try stateMachine.transition(action)
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "no transition in state machine")
+        }
 
         // Assert
         XCTAssertEqual(
@@ -801,23 +824,25 @@ class ExperienceStateMachineTests: XCTestCase {
         XCTAssertEqual(stateMachine.stateObservers.count, 0, "observer is removed when reset to idling")
     }
 
-    func test_stateIsRenderingStep_whenReset_noTransition() throws {
+    func test_stateIsRenderingStep_whenReset_noTransition() async throws {
         // Invalid action for given state
 
         // Arrange
         let experience = ExperienceData.mock
-        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), experience.package(), isFirst: false)
+        let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         let action: Action = .reset
-        let stateMachine = givenState(is: initialState)
+        let stateMachine = await givenState(is: initialState)
 
         // Act/Assert
-        XCTAssertThrowsError(try stateMachine.transition(action))
+        await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
+            XCTAssertNotNil($0 as? ExperienceStateMachine.InvalidTransition)
+        }
         XCTAssertEqual(stateMachine.state, initialState)
     }
 
     // MARK: - Helpers
 
-    func givenState(is state: ExperienceStateMachine.State) -> ExperienceStateMachine {
+    func givenState(is state: ExperienceStateMachine.State) async -> ExperienceStateMachine {
         let stateMachine = ExperienceStateMachine(container: appcues.container, initialState: state)
         XCTAssertEqual(stateMachine.state, state)
         return stateMachine
@@ -864,9 +889,8 @@ private extension ExperienceStateMachineTests {
             onExecute = config?.onExecute?.block
         }
 
-        func execute(completion: @escaping () -> Void) {
+        func execute() async {
             onExecute?()
-            completion()
         }
     }
 

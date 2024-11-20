@@ -14,13 +14,12 @@ class SessionMonitorTests: XCTestCase {
     var sessionMonitor: SessionMonitor!
     var appcues: MockAppcues!
 
-    override func setUp() {
-        let config = Appcues.Config(accountID: "00000", applicationID: "abc")
-        appcues = MockAppcues(config: config)
+    override func setUpWithError() throws {
+        appcues = MockAppcues()
         sessionMonitor = SessionMonitor(container: appcues.container)
     }
 
-    override func tearDown() {
+    override func tearDownWithError() throws {
         // SessionMonitor uses the shared NotificationCenter.default when listening to system
         // foreground/background notifications - we need to unhook these listeners after each test
         // so that no instance lingers around and fulfills expectations more than once due to
@@ -53,7 +52,7 @@ class SessionMonitorTests: XCTestCase {
         XCTAssertFalse(appcues.isActive)
     }
 
-    func testReset() throws {
+    func testReset() async throws {
         // Arrange
         appcues.storage.userID = "user123"
         let sessionStarted = sessionMonitor.start()
@@ -67,11 +66,11 @@ class SessionMonitorTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(sessionStarted)
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onFlushExpectation], timeout: 1)
         XCTAssertFalse(appcues.isActive)
     }
 
-    func testBackground() throws {
+    func testBackground() async throws {
         // Arrange
         appcues.storage.userID = "user123"
         let sessionStarted = sessionMonitor.start()
@@ -81,15 +80,16 @@ class SessionMonitorTests: XCTestCase {
         }
 
         // Act
-        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: self, userInfo: nil)
+        // Xcode 15 requires `await`
+        await NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: self, userInfo: nil)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onFlushExpectation], timeout: 1)
         XCTAssertTrue(appcues.isActive)
         XCTAssertTrue(sessionStarted)
     }
 
-    func testBackgroundNoSession() throws {
+    func testBackgroundNoSession() async throws {
         // Arrange
         let onFlushExpectation = expectation(description: "analytics tracker flushed")
         onFlushExpectation.isInverted = true
@@ -98,10 +98,11 @@ class SessionMonitorTests: XCTestCase {
         }
 
         // Act
-        NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: self, userInfo: nil)
+        // Xcode 15 requires `await`
+        await NotificationCenter.default.post(name: UIApplication.didEnterBackgroundNotification, object: self, userInfo: nil)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onFlushExpectation], timeout: 1)
         XCTAssertFalse(appcues.isActive)
     }
 }

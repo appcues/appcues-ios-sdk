@@ -26,28 +26,20 @@ class AppcuesRequestReviewActionTests: XCTestCase {
         XCTAssertNotNil(action)
     }
 
-    func testExecute() throws {
+    func testExecute() async throws {
         // Arrange
-        var completionCount = 0
         let action = AppcuesRequestReviewAction(appcues: appcues)
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        try await action?.execute()
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteReturnsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesRequestReviewAction(appcues: nil))
 
         // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        try await action.execute()
     }
 }
 

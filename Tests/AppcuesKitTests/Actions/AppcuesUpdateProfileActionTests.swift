@@ -58,9 +58,8 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
 
     }
 
-    func testExecute() throws {
+    func testExecute() async throws {
         // Arrange
-        var completionCount = 0
         var identifyCount = 0
         appcues.onIdentify = { userID, properties in
             XCTAssertEqual(userID, "user-id")
@@ -81,23 +80,20 @@ class AppcuesUpdateProfileActionTests: XCTestCase {
         )
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(identifyCount, 1)
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteThrowsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesUpdateProfileAction(fromDecoderWith: nil, properties: ["profile_attribute": "value"]))
 
-        // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await action.execute()) {
+            XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "No appcues instance")
+        }
     }
 }
 

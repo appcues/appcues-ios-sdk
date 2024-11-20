@@ -59,36 +59,31 @@ class AppcuesContinueActionTests: XCTestCase {
         guard case .offset(1) = defaultAction?.stepReference else { return XCTFail() }
     }
 
-    func testExecute() throws {
+    func testExecute() async throws {
         // Arrange
-        var completionCount = 0
         var showStepCount = 0
-        appcues.experienceRenderer.onShowStep = { stepRef, _, completion in
+        appcues.experienceRenderer.onShowStep = { stepRef, _ in
             if case .offset(1) = stepRef {
                 showStepCount += 1
             }
-            completion?()
         }
         let action = AppcuesContinueAction(appcues: appcues)
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(showStepCount, 1)
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteThrowsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesContinueAction(appcues: nil))
 
-        // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await action.execute()) {
+            XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "No appcues instance")
+        }
     }
 }
 

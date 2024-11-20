@@ -28,54 +28,46 @@ class AppcuesCloseActionTests: XCTestCase {
         XCTAssertNotNil(directInitAction)
     }
 
-    func testExecute() throws {
+    func testExecute() async throws {
         // Arrange
-        var completionCount = 0
         var dismissCount = 0
-        appcues.experienceRenderer.onDismiss = { _, markComplete, completion in
+        appcues.experienceRenderer.onDismiss = { _, markComplete in
             XCTAssertFalse(markComplete)
             dismissCount += 1
-            completion?(.success(()))
         }
         let action = AppcuesCloseAction(appcues: appcues)
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(dismissCount, 1)
     }
 
-    func testExecuteMarkComplete() throws {
+    func testExecuteMarkComplete() async throws {
         // Arrange
-        var completionCount = 0
         var dismissCount = 0
-        appcues.experienceRenderer.onDismiss = { _, markComplete, completion in
+        appcues.experienceRenderer.onDismiss = { _, markComplete in
             XCTAssertTrue(markComplete)
             dismissCount += 1
-            completion?(.success(()))
         }
         let action = AppcuesCloseAction(appcues: appcues, markComplete: true)
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(dismissCount, 1)
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteThrowsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesCloseAction(appcues: nil))
 
-        // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await action.execute()) {
+            XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "No appcues instance")
+        }
     }
 }
 

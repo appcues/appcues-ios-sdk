@@ -27,7 +27,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         XCTAssertEqual(action?.skipValidation, false)
     }
 
-    func testExecuteValidForm() throws {
+    func testExecuteValidForm() async throws {
         // Arrange
         let expectedFormItem = ExperienceData.FormItem(model: ExperienceComponent.TextInputModel(
             id: UUID(),
@@ -44,7 +44,6 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             attributeName: nil,
             style: nil))
 
-        var completionCount = 0
         var updates: [TrackingUpdate] = []
 
         let experience = ExperienceData.mockWithForm(defaultValue: "default value")
@@ -61,10 +60,9 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         let action = AppcuesSubmitFormAction(appcues: appcues)
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(updates.count, 2)
 
         XCTAssertEqual(updates[0].type, .profile(interactive: false))
@@ -94,9 +92,8 @@ class AppcuesSubmitFormActionTests: XCTestCase {
     }
 
 
-    func testExecuteUnpublishedExperience() throws {
+    func testExecuteUnpublishedExperience() async throws {
         // Arrange
-        var completionCount = 0
         var loggedUpdates: [TrackingUpdate] = []
 
         appcues.experienceRenderer.onExperienceData = { _ in
@@ -117,20 +114,17 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         let action = AppcuesSubmitFormAction(appcues: appcues)
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(loggedUpdates.count, 2)
 
         XCTAssertEqual(loggedUpdates[0].type, .profile(interactive: false))
         XCTAssertEqual(loggedUpdates[1].type, .event(name: "appcues:v2:step_interaction", interactive: false))
     }
 
-    func testExecuteEarlyReturn() throws {
+    func testExecuteEarlyReturn() async throws {
         // Arrange
-        var completionCount = 0
-
         appcues.experienceRenderer.onExperienceData = { _ in
             ExperienceData.mockWithForm(defaultValue: nil)
         }
@@ -146,25 +140,20 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         let action = AppcuesSubmitFormAction(appcues: appcues)
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        try await action?.execute()
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteThrowsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesSubmitFormAction(appcues: nil))
 
         // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        await XCTAssertThrowsAsyncError(try await action.execute()) {
+            XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "No appcues instance")
+        }
     }
 
-    func testTransformQueueEarlyReturn() throws {
+    func testTransformQueueEarlyReturn() async throws {
         // Arrange
         appcues.experienceRenderer.onExperienceData = { _ in
             ExperienceData.mockWithForm(defaultValue: nil)
@@ -187,7 +176,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         XCTAssertEqual(updatedQueue.count, 4, "no change to queue")
     }
 
-    func testTransformQueueValidForm() throws {
+    func testTransformQueueValidForm() async throws {
         // Arrange
         appcues.experienceRenderer.onExperienceData = { _ in
             ExperienceData.mockWithForm(defaultValue: "123")
@@ -209,7 +198,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         XCTAssertEqual(updatedQueue.count, 4, "no change to queue")
     }
 
-    func testTransformQueueInvalidForm() throws {
+    func testTransformQueueInvalidForm() async throws {
         // Arrange
         appcues.experienceRenderer.onExperienceData = { _ in
             ExperienceData.mockWithForm(defaultValue: nil)
@@ -232,7 +221,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         XCTAssertTrue(updatedQueue[0] === action0, "only the action before submit-form remains")
     }
 
-    func testTransformQueueInvalidFormSkipValidation() throws {
+    func testTransformQueueInvalidFormSkipValidation() async throws {
         // Arrange
         appcues.experienceRenderer.onExperienceData = { _ in
             ExperienceData.mockWithForm(defaultValue: nil)
@@ -258,7 +247,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         XCTAssertTrue(updatedQueue[3] === action2)
     }
 
-    func testCustomProfileAttribute() throws {
+    func testCustomProfileAttribute() async throws {
         // Arrange
         var updates: [TrackingUpdate] = []
 
@@ -275,7 +264,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         let action = AppcuesSubmitFormAction(appcues: appcues)
 
         // Act
-        action?.execute(completion: { })
+        try await action?.execute()
 
         // Assert
         [

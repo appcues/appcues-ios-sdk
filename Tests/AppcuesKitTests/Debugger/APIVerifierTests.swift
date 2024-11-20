@@ -22,7 +22,8 @@ class APIVerifierTests: XCTestCase {
         apiVerifier = APIVerifier(networking: networking)
     }
 
-    func testSuccess() throws {
+    @MainActor
+    func testSuccess() async throws {
         // Arrange
         let expectation = XCTestExpectation(description: "Publishes values then finishes")
         var values: [StatusItem] = []
@@ -36,21 +37,22 @@ class APIVerifierTests: XCTestCase {
             }
             .store(in: &cancellables)
 
-        networking.onGet = { endpoint, _, completion in
-            completion(.success(ActivityResponse(ok: true)))
+        networking.onGet = { endpoint, _ in
+            ActivityResponse(ok: true)
         }
 
         // Act
-        apiVerifier.verifyAPI()
+        await apiVerifier.verifyAPI()
 
         // Assert
-        wait(for: [expectation], timeout: 1)
+        await fulfillment(of: [expectation], timeout: 1)
         XCTAssertEqual(values.count, 2, "a pending value and a success one")
         XCTAssertEqual(values[safe: 0]?.status, .pending)
         XCTAssertEqual(values[safe: 1]?.status, .verified)
     }
 
-    func testFailure() throws {
+    @MainActor
+    func testFailure() async throws {
         // Arrange
         let expectation = expectation(description: "Publishes values then finishes")
         var values: [StatusItem] = []
@@ -64,15 +66,15 @@ class APIVerifierTests: XCTestCase {
             }
             .store(in: &cancellables)
 
-        networking.onGet = { endpoint, _, completion in
-            completion(.failure(NetworkingError.nonSuccessfulStatusCode(500, nil)))
+        networking.onGet = { endpoint, _ in
+            throw NetworkingError.nonSuccessfulStatusCode(500, nil)
         }
 
         // Act
-        apiVerifier.verifyAPI()
+        await apiVerifier.verifyAPI()
 
         // Assert
-        wait(for: [expectation], timeout: 1)
+        await fulfillment(of: [expectation], timeout: 1)
         XCTAssertEqual(values.count, 2, "a pending value and an unverified one")
         XCTAssertEqual(values[safe: 0]?.status, .pending)
         XCTAssertEqual(values[safe: 1]?.status, .unverified)

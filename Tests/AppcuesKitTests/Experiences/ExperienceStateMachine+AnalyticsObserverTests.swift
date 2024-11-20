@@ -14,11 +14,13 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
     var appcues: MockAppcues!
     private var updates: [TrackingUpdate] = []
     var observer: ExperienceStateMachine.AnalyticsObserver!
+    var analyticsExpectation: XCTestExpectation!
 
     override func setUpWithError() throws {
         appcues = MockAppcues()
         appcues.analyticsPublisher.onPublish = { update in
             self.updates.append(update)
+            self.analyticsExpectation?.fulfill()
         }
         observer = ExperienceStateMachine.AnalyticsObserver(container: appcues.container)
     }
@@ -27,10 +29,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Reset fixed UUID
         UUID.generator = UUID.init
 
+        analyticsExpectation = nil
         updates = []
     }
 
-    func testEvaluateIdlingState() throws {
+    func testEvaluateIdlingState() async throws {
         // Act
         let isCompleted = observer.evaluateIfSatisfied(result: .success(.idling))
 
@@ -39,7 +42,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertEqual(updates.count, 0)
     }
 
-    func testEvaluateBeginningExperienceState() throws {
+    func testEvaluateBeginningExperienceState() async throws {
         // Act
         let isCompleted = observer.evaluateIfSatisfied(result: .success(.beginningExperience(ExperienceData.mock)))
 
@@ -48,25 +51,30 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertEqual(updates.count, 0)
     }
 
-    func testEvaluateBeginningStepState() throws {
+    func testEvaluateBeginningStepState() async throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.beginningStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), isFirst: true)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.beginningStep(ExperienceData.mock, .initial, await ExperienceData.mock.package(), isFirst: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(updates.count, 0)
     }
 
-    func testEvaluateRenderingFirstStepState() throws {
+    func testEvaluateRenderingFirstStepState() async throws {
         // Precondition
         XCTAssertNil(appcues.storage.lastContentShownAt)
 
+        // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
+        analyticsExpectation.expectedFulfillmentCount = 2
+
         // Act
         let experience = ExperienceData.mock
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, experience.package(), isFirst: true)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, await experience.package(), isFirst: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 2)
         let lastUpdate = try XCTUnwrap(updates.last)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_seen", interactive: false))
@@ -99,13 +107,17 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
-    func testEvaluateRenderingStepState() throws {
+    func testEvaluateRenderingStepState() async throws {
+        // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
+
         // Act
         let experience = ExperienceData.mock
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, experience.package(), isFirst: false)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, await experience.package(), isFirst: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_seen", interactive: false))
@@ -137,13 +149,17 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
-    func testEvaluateEndingStepState() throws {
+    func testEvaluateEndingStepState() async throws {
+        // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
+
         // Act
         let experience = ExperienceData.mock
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(experience, .initial, experience.package(), markComplete: true)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(experience, .initial, await experience.package(), markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
 
         let lastUpdate = try XCTUnwrap(updates.last)
@@ -176,22 +192,26 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
-    func testEvaluateEndingStepStateWhenIncomplete() throws {
+    func testEvaluateEndingStepStateWhenIncomplete() async throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mock, .initial, ExperienceData.mock.package(), markComplete: false)))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mock, .initial, await ExperienceData.mock.package(), markComplete: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
         XCTAssertEqual(updates.count, 0)
     }
 
-    func testEvaluateEndingExperienceState() throws {
+    func testEvaluateEndingExperienceState() async throws {
+        // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
+
         // Act
         let experience = ExperienceData.mock
         let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(experience, .initial, markComplete: false)))
 
         // Assert
         XCTAssertFalse(isCompleted)
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_dismissed", interactive: false))
@@ -223,13 +243,17 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
-    func testEvaluateEndingExperienceStateMarkComplete() throws {
+    func testEvaluateEndingExperienceStateMarkComplete() async throws {
+        // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
+
         // Act
         let experience = ExperienceData.mock
         let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(experience, .initial, markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_completed", interactive: false))
@@ -256,13 +280,17 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
-    func testEvaluateEndingExperienceLastStepState() throws {
+    func testEvaluateEndingExperienceLastStepState() async throws {
+        // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
+
         // Act
         let experience = ExperienceData.mock
         let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(experience, Experience.StepIndex(group: 1, item: 0), markComplete: true)))
 
         // Assert
         XCTAssertFalse(isCompleted)
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_completed", interactive: false))
@@ -289,8 +317,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
-    func testEvaluateExperienceError() throws {
+    func testEvaluateExperienceError() async throws {
         // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
         let experience = ExperienceData.mock
         UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
@@ -299,6 +328,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:experience_error", interactive: false))
@@ -329,8 +359,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
-    func testEvaluateStepError() throws {
+    func testEvaluateStepError() async throws {
         // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
         let experience = ExperienceData.mock
         UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
@@ -339,6 +370,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(isCompleted)
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
         XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_error", interactive: false))
@@ -374,7 +406,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
-    func testEvaluateNoTransitionError() throws {
+    func testEvaluateNoTransitionError() async throws {
         // Act
         let isCompleted = observer.evaluateIfSatisfied(result: .failure(.noTransition(currentState: .idling)))
 
@@ -383,8 +415,10 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertEqual(updates.count, 0)
     }
 
-    func testExperienceErrorAndRecovery() throws {
+    func testExperienceErrorAndRecovery() async throws {
         // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
+        analyticsExpectation.expectedFulfillmentCount = 2
         UUID.generator = { UUID(uuidString: "2e044aa2-130f-4260-80c2-a36092a88aff")! }
 
         let experienceData = ExperienceData.mock
@@ -394,6 +428,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         observer.trackErrorRecovery(ifErrorOn: experienceData)
 
         // Assert
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 2)
         let errorUpdate = try XCTUnwrap(updates.first)
         let recoveryUpdate = try XCTUnwrap(updates.last)
@@ -426,7 +461,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         ].verifyPropertiesMatch(recoveryUpdate.properties)
     }
 
-    func testUnpublishedExperienceErrorAndRecovery() throws {
+    func testUnpublishedExperienceErrorAndRecovery() async throws {
         // Arrange
         UUID.generator = { UUID(uuidString: "2e044aa2-130f-4260-80c2-a36092a88aff")! }
 
@@ -440,11 +475,14 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         XCTAssertEqual(updates.count, 0)
     }
 
-    func testStepErrorAndRecovery() throws {
+    func testStepErrorAndRecovery() async throws {
         // Arrange
+        analyticsExpectation = expectation(description: "analytics updated")
+        analyticsExpectation.expectedFulfillmentCount = 4
+
         UUID.generator = { UUID(uuidString: "aa47c304-7a42-40e4-8cbf-6d7d8f46c31c")! }
         let experience = ExperienceData.mock
-        let package = experience.package()
+        let package = await experience.package()
 
         // Act
         // simulates the same recoverable step error occurring multiple times, then a successful render of the step
@@ -453,11 +491,12 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         _ = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, package, isFirst: true)))
 
         // Assert
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 4) // step_error, experience_started, step_recovered, step_seen
-        let stepError = updates[0]
-        let experienceStarted = updates[1]
-        let stepRecovered = updates[2]
-        let stepSeen = updates[3]
+        let stepError = try XCTUnwrap(updates[safe: 0])
+        let experienceStarted = try XCTUnwrap(updates[safe: 1])
+        let stepRecovered = try XCTUnwrap(updates[safe: 2])
+        let stepSeen = try XCTUnwrap(updates[safe: 3])
         XCTAssertEqual(stepError.type, .event(name: "appcues:v2:step_error", interactive: false))
         XCTAssertEqual(experienceStarted.type, .event(name: "appcues:v2:experience_started", interactive: false))
         XCTAssertEqual(stepRecovered.type, .event(name: "appcues:v2:step_recovered", interactive: false))

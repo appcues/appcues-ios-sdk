@@ -14,7 +14,7 @@ class PushMonitorTests: XCTestCase {
     var pushMonitor: PushMonitor!
     var appcues: MockAppcues!
 
-    override func setUp() {
+    override func setUpWithError() throws {
         let config = Appcues.Config(accountID: "00000", applicationID: "<app-id>")
         appcues = MockAppcues(config: config)
         pushMonitor = PushMonitor(container: appcues.container)
@@ -86,7 +86,7 @@ class PushMonitorTests: XCTestCase {
         XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
     }
 
-    func testSetPushTokenActiveSession() throws {
+    func testSetPushTokenActiveSession() async throws {
         // Arrange
         appcues.sessionID = UUID()
         let token = "some-token".data(using: .utf8)
@@ -101,11 +101,11 @@ class PushMonitorTests: XCTestCase {
         pushMonitor.setPushToken(token)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [eventExpectation], timeout: 1)
         XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
     }
 
-    func testSetPushTokenNoAnalyticsWhenSameValue() throws {
+    func testSetPushTokenNoAnalyticsWhenSameValue() async throws {
         // Arrange
         appcues.storage.pushToken = "736f6d652d746f6b656e"
         appcues.sessionID = UUID()
@@ -120,22 +120,17 @@ class PushMonitorTests: XCTestCase {
         pushMonitor.setPushToken(token)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [eventExpectation], timeout: 1)
         XCTAssertEqual(appcues.storage.pushToken, "736f6d652d746f6b656e")
     }
     // MARK: Receive Handler
 
-    func testReceiveActiveSession() throws {
+    func testReceiveActiveSession() async throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.appcuesPush
         let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
         let analyticsExpectation = expectation(description: "push open event")
-        let completionExpectation = expectation(description: "completion called")
-
-        let completion = {
-            completionExpectation.fulfill()
-        }
 
         appcues.analyticsPublisher.onPublish = { update in
             XCTAssertEqual(update.type, .event(name: Events.Push.pushOpened.rawValue, interactive: false))
@@ -146,14 +141,14 @@ class PushMonitorTests: XCTestCase {
         appcues.sessionID = UUID()
 
         // Act
-        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response)
 
         // Assert
-        waitForExpectations(timeout: 1.0)
         XCTAssertTrue(result)
+        await fulfillment(of: [analyticsExpectation], timeout: 1)
     }
 
-    func testReceiveActions() throws {
+    func testReceiveActions() async throws {
         // Arrange
         var userInfo = Dictionary<AnyHashable, Any>.appcuesPush
         userInfo["appcues_deep_link_url"] = "app://some-link"
@@ -163,7 +158,6 @@ class PushMonitorTests: XCTestCase {
         let analyticsExpectation = expectation(description: "push open event")
         let linkCompletionExpectation = expectation(description: "link opened")
         let loadCompletionExpectation = expectation(description: "experience loaded")
-        let completionExpectation = expectation(description: "completion called")
 
         appcues.analyticsPublisher.onPublish = { update in
             XCTAssertEqual(update.type, .event(name: Events.Push.pushOpened.rawValue, interactive: false))
@@ -184,74 +178,57 @@ class PushMonitorTests: XCTestCase {
         navigationDelegate.onNavigate = { url, external in
             XCTAssertEqual(url.absoluteString, "app://some-link")
             linkCompletionExpectation.fulfill()
+            return true
         }
 
-        appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { experienceID, published, trigger in
             XCTAssertEqual(experienceID, "<some-experience>")
             XCTAssertTrue(published)
             XCTAssertEqual(trigger, .pushNotification(notificationID: "DEADBEEF-0000-0000-0000-000000000001"))
             loadCompletionExpectation.fulfill()
-            completion?(.success(()))
-        }
-
-        let completion = {
-            completionExpectation.fulfill()
         }
 
         appcues.storage.userID = "default-00000"
         appcues.sessionID = UUID()
 
         // Act
-        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response)
 
         // Assert
-        waitForExpectations(timeout: 1.0)
         XCTAssertTrue(result)
+        await fulfillment(of: [analyticsExpectation, linkCompletionExpectation, loadCompletionExpectation], timeout: 1, enforceOrder: true)
     }
 
-    func testReceiveMalformed() throws {
+    func testReceiveMalformed() async throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.basicPush
         let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
-        let completion = {
-            XCTFail("completion should not be called")
-        }
-
         // Act
-        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response)
 
         // Assert
         XCTAssertFalse(result)
     }
 
-    func testReceiveNoAppcues() throws {
+    func testReceiveNoAppcues() async throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.appcuesPush
         let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
-        let completion = {
-            XCTFail("completion should not be called")
-        }
         appcues = nil
 
         // Act
-        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response)
 
         // Assert
         XCTAssertFalse(result)
     }
 
-    func testReceiveUserIdMismatch() throws {
+    func testReceiveUserIdMismatch() async throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.appcuesPush
         let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
-
-        let completionExpectation = expectation(description: "completion called")
-
-        let completion = {
-            completionExpectation.fulfill()
-        }
 
         appcues.analyticsPublisher.onPublish = { update in
             XCTFail("no push opened analytic expected")
@@ -261,67 +238,52 @@ class PushMonitorTests: XCTestCase {
         appcues.sessionID = UUID()
 
         // Act
-        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response)
 
         // Assert
-        waitForExpectations(timeout: 1.0)
         XCTAssertTrue(result)
     }
 
-    func testReceiveNoSession() throws {
+    func testReceiveNoSession() async throws {
         // Arrange
         let userInfo = Dictionary<AnyHashable, Any>.appcuesPush
         let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
-        let completionExpectation = expectation(description: "completion called")
-
         appcues.analyticsPublisher.onPublish = { update in
             XCTFail("no push opened analytic expected")
-        }
-
-        let completion = {
-            completionExpectation.fulfill()
         }
 
         appcues.storage.userID = "default-00000"
         appcues.sessionID = nil
 
         // Act
-        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response)
 
         // Assert
-        waitForExpectations(timeout: 1.0)
         XCTAssertTrue(result)
     }
 
-    func testReceiveTestPush() throws {
+    func testReceiveTestPush() async throws {
         // Arrange
         var userInfo = Dictionary<AnyHashable, Any>.appcuesPush
         userInfo["appcues_test"] = "true"
         let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
-        let completionExpectation = expectation(description: "completion called")
-
         appcues.analyticsPublisher.onPublish = { update in
             XCTFail("no push opened analytic expected for test push")
-        }
-
-        let completion = {
-            completionExpectation.fulfill()
         }
 
         appcues.storage.userID = "default-00000"
         appcues.sessionID = UUID()
 
         // Act
-        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response)
 
         // Assert
-        waitForExpectations(timeout: 1.0)
         XCTAssertTrue(result)
     }
 
-    func testDeferredHandlingMatchingUser() throws {
+    func testDeferredHandlingMatchingUser() async throws {
         // Arrange
         var userInfo = Dictionary<AnyHashable, Any>.appcuesPush
         userInfo["appcues_deep_link_url"] = "app://some-link"
@@ -331,11 +293,6 @@ class PushMonitorTests: XCTestCase {
         let analyticsExpectation = expectation(description: "push open event")
         let linkCompletionExpectation = expectation(description: "link opened")
         let loadCompletionExpectation = expectation(description: "experience loaded")
-        let completionExpectation = expectation(description: "completion called")
-
-        let completion = {
-            completionExpectation.fulfill()
-        }
 
         appcues.storage.userID = "default-00000"
         appcues.sessionID = nil
@@ -345,7 +302,7 @@ class PushMonitorTests: XCTestCase {
         }
 
         // Store a deferred notification
-        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response)
 
         appcues.analyticsPublisher.onPublish = { update in
             XCTAssertEqual(update.type, .event(name: Events.Push.pushOpened.rawValue, interactive: false))
@@ -357,53 +314,46 @@ class PushMonitorTests: XCTestCase {
         navigationDelegate.onNavigate = { url, external in
             XCTAssertEqual(url.absoluteString, "app://some-link")
             linkCompletionExpectation.fulfill()
+            return true
         }
 
-        appcues.contentLoader.onLoad = { experienceID, published, trigger, completion in
+        appcues.contentLoader.onLoad = { experienceID, published, trigger in
             XCTAssertEqual(experienceID, "<some-experience>")
             XCTAssertTrue(published)
             XCTAssertEqual(trigger, .pushNotification(notificationID: "DEADBEEF-0000-0000-0000-000000000001"))
             loadCompletionExpectation.fulfill()
-            completion?(.success(()))
         }
 
         // Act
         let didHandleDeferred = pushMonitor.attemptDeferredNotificationResponse()
 
         // Assert
-        waitForExpectations(timeout: 1.0)
         XCTAssertTrue(result)
         XCTAssertTrue(didHandleDeferred)
+        await fulfillment(of: [analyticsExpectation, linkCompletionExpectation, loadCompletionExpectation], timeout: 1, enforceOrder: true)
     }
 
-    func testDeferredHandlingNonMatchingUser() throws {
+    func testDeferredHandlingNonMatchingUser() async throws {
         // Arrange
         var userInfo = Dictionary<AnyHashable, Any>.appcuesPush
         userInfo["appcues_deep_link_url"] = "app://some-link"
         userInfo["appcues_experience_id"] = "<some-experience>"
         let response = try XCTUnwrap(UNNotificationResponse.mock(userInfo: userInfo))
 
-        let completionExpectation = expectation(description: "completion called")
-
         appcues.analyticsPublisher.onPublish = { update in
             XCTFail("no push opened analytic expected")
-        }
-
-        let completion = {
-            completionExpectation.fulfill()
         }
 
         appcues.storage.userID = "non-matching-user"
         appcues.sessionID = nil
 
         // Store a deferred notification
-        let result = pushMonitor.didReceiveNotification(response: response, completionHandler: completion)
+        let result = pushMonitor.didReceiveNotification(response: response)
 
         // Act
         let didHandleDeferred = pushMonitor.attemptDeferredNotificationResponse()
 
         // Assert
-        waitForExpectations(timeout: 1.0)
         XCTAssertTrue(result)
         XCTAssertFalse(didHandleDeferred)
     }
@@ -451,10 +401,9 @@ extension Dictionary where Key == AnyHashable, Value == Any {
 }
 
 private class MockNavigationDelegate: AppcuesNavigationDelegate {
-    var onNavigate: ((URL, Bool) -> Void)?
-    func navigate(to url: URL, openExternally: Bool, completion: @escaping (Bool) -> Void) {
-        onNavigate?(url, openExternally)
-        completion(true)
+    var onNavigate: ((URL, Bool) -> Bool)?
+    func navigate(to url: URL, openExternally: Bool) async -> Bool {
+        onNavigate?(url, openExternally) ?? false
     }
 }
 
@@ -472,8 +421,8 @@ private extension UNNotificationResponse {
         userInfo: [AnyHashable: Any],
         actionIdentifier: String = UNNotificationDefaultActionIdentifier
     ) -> UNNotificationResponse? {
-        guard let response = UNNotificationResponse(coder: KeyedArchiver()),
-              let notification = UNNotification(coder: KeyedArchiver()) else {
+        guard let response = UNNotificationResponse(coder: KeyedArchiver(requiringSecureCoding: false)),
+              let notification = UNNotification(coder: KeyedArchiver(requiringSecureCoding: false)) else {
             return nil
         }
 

@@ -33,57 +33,51 @@ class ActivityProcessorTests: XCTestCase {
         }
     }
 
-    func testSyncActivityProcessed() throws {
+    func testSyncActivityProcessed() async throws {
         // test for basic processing - standard activity is processed synchronously and POSTed to network
 
         // Arrange
         let onPostExpectation = expectation(description: "Activity request")
-        let resultCallbackExpectation = expectation(description: "Process result")
         let activity = generateMockActivity(userID: "user1", event: Event(name: "eventName", attributes: ["my_key": "my_value", "another_key": 33]))
-        appcues.networking.onPost = { endpoint, authorization, body, requestId, completion in
-            do {
-                let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                guard case .qualify(activity.userID) = apiEndpoint else { return XCTFail() }
-                try XCTUnwrap(body).verifyMatch(activity: activity)
-                onPostExpectation.fulfill()
-                completion(.success(QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)))
-            } catch {
-                XCTFail()
-            }
+        appcues.networking.onPost = { endpoint, authorization, body, requestId in
+            let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
+            guard case .qualify(activity.userID) = apiEndpoint else { return XCTFail() }
+            try XCTUnwrap(body).verifyMatch(activity: activity)
+            onPostExpectation.fulfill()
+            return QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)
         }
 
         // Act
-        processor.process(activity) { result in
-            guard case let .success(taco) = result else { return XCTFail() }
-            XCTAssertEqual(true, taco.performedQualification)
-            XCTAssertEqual(1, taco.experiences.count)
-            XCTAssertEqual(self.mockExperience.name, taco.experiences.first?.parsed.0.name)
-            resultCallbackExpectation.fulfill()
-        }
+        let result = try await processor.process(activity)
+
+        XCTAssertEqual(true, result.performedQualification)
+        XCTAssertEqual(1, result.experiences.count)
+        XCTAssertEqual(self.mockExperience.name, result.experiences.first?.parsed.0.name)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onPostExpectation], timeout: 1)
     }
 
-    func testActivitySignatureCaptured() throws {
+    func testActivitySignatureCaptured() async throws {
         // test that an Activity with a userSignature gets that signature properly sent to the network call
 
         // Arrange
         let onPostExpectation = expectation(description: "Activity request")
         let activity = generateMockActivity(userID: "user1", event: Event(name: "eventName"), userSignature: "user-signature")
-        appcues.networking.onPost = { endpoint, authorization, body, requestId, completion in
+        appcues.networking.onPost = { endpoint, authorization, body, requestId in
             guard case .bearer("user-signature") = authorization else { return XCTFail() }
             onPostExpectation.fulfill()
+            return QualifyResponse(experiences: [], performedQualification: false, qualificationReason: nil, experiments: nil)
         }
 
         // Act
-        processor.process(activity) { _ in }
+        _ = try await processor.process(activity)
 
         // Assert
-        waitForExpectations(timeout: 1)
-    }
+        await fulfillment(of: [onPostExpectation], timeout: 1)
+   }
 
-    func testFailedActivityRetryNextFlush() throws {
+    func testFailedActivityRetryNextFlush() async throws {
         // test for standard retry behavior - if an item fails to process, it is retried on the next
         // attempt to flush a new activity - the old item is retried first to maintain chronological order
 
@@ -91,247 +85,206 @@ class ActivityProcessorTests: XCTestCase {
         let onPostExpectation1 = expectation(description: "Activity request 1")
         let onPostExpectation2 = expectation(description: "Activity request 2")
         let retryExpectation = expectation(description: "Activity retry request")
-        let resultCallbackExpectation1 = expectation(description: "Process result 1")
-        let resultCallbackExpectation2 = expectation(description: "Process result 2")
         let activity1 = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
         let activity2 = generateMockActivity(userID: "user2", event: Event(name: "event2", attributes: ["my_key": "my_value2", "another_key": 34]))
         var postCount = 0
 
-        appcues.networking.onPost = { endpoint, authorization, body, requestId, completion in
-            do {
-                postCount += 1
-                if postCount == 1 {
-                    // first attempt we'll simulate failure
-                    completion(.failure(URLError(URLError.notConnectedToInternet)))
-                    onPostExpectation1.fulfill()
-                } else if postCount == 2 {
-                    // this should be the retry attempt - non synchronous for activity 1
-                    // the callback will not be forward back to caller (happens in background retry)
-                    let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                    guard case let .activity(userID) = apiEndpoint else { return XCTFail() }
-                    XCTAssertEqual("user1", userID)
-                    try XCTUnwrap(body).verifyMatch(activity: activity1)
-                    completion(.success(QualifyResponse(experiences: [], performedQualification: false, qualificationReason: nil, experiments: nil)))
-                    retryExpectation.fulfill()
-                } else if postCount == 3 {
-                    // this should be the synchronous attempt for activity 2
-                    let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                    guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
-                    XCTAssertEqual("user2", userID)
-                    try XCTUnwrap(body).verifyMatch(activity: activity2)
-                    completion(.success(QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)))
-                    onPostExpectation2.fulfill()
-                } else {
+        appcues.networking.onPost = { endpoint, authorization, body, requestId in
+            postCount += 1
+            switch postCount {
+            case 1:
+                // first attempt we'll simulate failure
+                onPostExpectation1.fulfill()
+                throw URLError(.notConnectedToInternet)
+            case 2:
+                // this should be the retry attempt - non synchronous for activity 1
+                // the callback will not be forward back to caller (happens in background retry)
+                let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
+                guard case let .activity(userID) = apiEndpoint else {
                     XCTFail()
+                    throw URLError(.unsupportedURL)
                 }
-            } catch {
+                XCTAssertEqual("user1", userID)
+                try XCTUnwrap(body).verifyMatch(activity: activity1)
+                retryExpectation.fulfill()
+                return QualifyResponse(experiences: [], performedQualification: false, qualificationReason: nil, experiments: nil)
+            case 3:
+                // this should be the synchronous attempt for activity 2
+                let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
+                guard case let .qualify(userID) = apiEndpoint else {
+                    XCTFail()
+                    throw URLError(.unsupportedURL)
+                }
+                XCTAssertEqual("user2", userID)
+                try XCTUnwrap(body).verifyMatch(activity: activity2)
+                onPostExpectation2.fulfill()
+                return QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)
+            default:
                 XCTFail()
+                throw URLError(.unsupportedURL)
             }
         }
 
         // Act
-        processor.process(activity1) { result in
-            guard case .failure = result else { return XCTFail() }
-            resultCallbackExpectation1.fulfill()
-        }
-        processor.process(activity2) { result in
-            guard case let .success(taco) = result else { return XCTFail() }
-            XCTAssertEqual(true, taco.performedQualification)
-            XCTAssertEqual(1, taco.experiences.count)
-            XCTAssertEqual(self.mockExperience.name, taco.experiences.first?.parsed.0.name)
-            resultCallbackExpectation2.fulfill()
-
-        }
+        await XCTAssertThrowsAsyncError(try await processor.process(activity1))
+        let result = try await processor.process(activity2)
+        XCTAssertEqual(true, result.performedQualification)
+        XCTAssertEqual(1, result.experiences.count)
+        XCTAssertEqual(self.mockExperience.name, result.experiences.first?.parsed.0.name)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onPostExpectation1, retryExpectation, onPostExpectation2], timeout: 1)
     }
 
-    func testItemsBiggerThanMaxSizeRemovedAndNotSent() throws {
+    func testItemsBiggerThanMaxSizeRemovedAndNotSent() async throws {
         // verify that the config value for max size is respected, and items beyond this are not retried, and get cleaned out
 
         // Arrange
         appcues.config.activityStorageMaxSize = 0
-        let onPostExpectation1 = expectation(description: "Activity request 1")
-        let onPostExpectation2 = expectation(description: "Activity request 2")
-        let resultCallbackExpectation1 = expectation(description: "Process result 1")
-        let resultCallbackExpectation2 = expectation(description: "Process result 2")
         let activity1 = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
         let activity2 = generateMockActivity(userID: "user2", event: Event(name: "event2", attributes: ["my_key": "my_value2", "another_key": 34]))
         var postCount = 0
 
-        appcues.networking.onPost = { endpoint, authorization, body, requestId, completion in
-            do {
-                postCount += 1
-                if postCount == 1 {
-                    // first attempt we'll simulate failure
-                    completion(.failure(URLError(URLError.notConnectedToInternet)))
-                    onPostExpectation1.fulfill()
-                } else if postCount == 2 {
-                    // this should be the synchronous attempt for activity 2 - no retry made
-                    let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                    guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
-                    XCTAssertEqual("user2", userID)
-                    try XCTUnwrap(body).verifyMatch(activity: activity2)
-                    completion(.success(QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)))
-                    onPostExpectation2.fulfill()
-                } else {
-                    XCTFail()
-                }
-            } catch {
+        appcues.networking.onPost = { endpoint, authorization, body, requestId in
+            postCount += 1
+            switch postCount {
+            case 1:
+                // first attempt we'll simulate failure
+                throw URLError(.notConnectedToInternet)
+            case 2:
+                // this should be the synchronous attempt for activity 2 - no retry made
+                let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
+                guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
+                XCTAssertEqual("user2", userID)
+                try XCTUnwrap(body).verifyMatch(activity: activity2)
+                return QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)
+            default:
                 XCTFail()
+                throw URLError(.unsupportedURL)
             }
         }
 
-        // Act
-        processor.process(activity1) { result in
-            guard case .failure = result else { return XCTFail() }
-            XCTAssertEqual(1, self.mockStorage.count) // failed item will stay around
-            resultCallbackExpectation1.fulfill()
-        }
-        processor.process(activity2) { result in
-            guard case let .success(taco) = result else { return XCTFail() }
-            XCTAssertEqual(true, taco.performedQualification)
-            XCTAssertEqual(1, taco.experiences.count)
-            XCTAssertEqual(self.mockExperience.name, taco.experiences.first?.parsed.0.name)
-            XCTAssertEqual(0, self.mockStorage.count) // all cleared out
-            resultCallbackExpectation2.fulfill()
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await processor.process(activity1))
+        XCTAssertEqual(1, self.mockStorage.count) // failed item will stay around
 
-        }
-
-        // Assert
-        waitForExpectations(timeout: 1)
+        let result = try await processor.process(activity2)
+        XCTAssertEqual(true, result.performedQualification)
+        XCTAssertEqual(1, result.experiences.count)
+        XCTAssertEqual(self.mockExperience.name, result.experiences.first?.parsed.0.name)
+        XCTAssertEqual(0, self.mockStorage.count) // all cleared out
     }
 
-    func testClientNetworkIssuesTriggerRetry() throws {
-        let resultCallbackExpectation = expectation(description: "Process result")
+    func testClientNetworkIssuesTriggerRetry() async throws {
         let networkIssues = [URLError.notConnectedToInternet, URLError.timedOut, URLError.dataNotAllowed, URLError.internationalRoamingOff]
         var currentError = URLError(networkIssues.first!)
-        resultCallbackExpectation.expectedFulfillmentCount = networkIssues.count
 
-        appcues.networking.onPost = { endpoint, authorization, body, requestId, completion in
-            completion(.failure(currentError))
+        appcues.networking.onPost = { endpoint, authorization, body, requestId in
+            throw currentError
+        }
+        appcues.networking.onPostEmptyResponse = { _, _, _ in
+            throw currentError
         }
 
         // Act
         for issue in networkIssues {
             let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
             currentError = URLError(issue)
-            processor.process(activity) { result in
-                guard case .failure = result else { return XCTFail() }
-                resultCallbackExpectation.fulfill()
+            do {
+                _ = try await processor.process(activity)
+            } catch {
+                if error as! URLError != currentError { XCTFail("unexpected error") }
             }
         }
 
         // Assert
-        waitForExpectations(timeout: 1)
+        
         XCTAssertEqual(networkIssues.count, mockStorage.count)
     }
 
-    func testOtherNetworkIssuesDoNotTriggerRetry() throws {
-        let resultCallbackExpectation = expectation(description: "Process result")
+    func testOtherNetworkIssuesDoNotTriggerRetry() async throws {
         let networkIssues = [URLError.badServerResponse, URLError.unknown, URLError.userAuthenticationRequired, URLError.httpTooManyRedirects]
         var currentError = URLError(networkIssues.first!)
-        resultCallbackExpectation.expectedFulfillmentCount = networkIssues.count
 
-        appcues.networking.onPost = { endpoint, authorization, body, requestId, completion in
-            completion(.failure(currentError))
+        appcues.networking.onPostEmptyResponse = { _, _, _ in
+            throw currentError
+        }
+        appcues.networking.onPost = { endpoint, authorization, body, requestId in
+            throw currentError
         }
 
         // Act
         for issue in networkIssues {
             let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
             currentError = URLError(issue)
-            processor.process(activity) { result in
-                guard case .failure = result else { return XCTFail() }
-                resultCallbackExpectation.fulfill()
+            do {
+                _ = try await processor.process(activity)
+            } catch {
+                if error as! URLError != currentError { XCTFail("unexpected error") }
             }
         }
 
         // Assert
-        waitForExpectations(timeout: 1)
         XCTAssertEqual(0, mockStorage.count)
     }
 
-    func testItemsOlderThanMaxAgeRemovedAndNotSent() throws {
+    func testItemsOlderThanMaxAgeRemovedAndNotSent() async throws {
         // verify that the config value for max age is respected, and items beyond this are not retried, and get cleaned out
 
         // Arrange
         appcues.config.activityStorageMaxAge = 1
-        let onPostExpectation1 = expectation(description: "Activity request 1")
-        let onPostExpectation2 = expectation(description: "Activity request 2")
-        let resultCallbackExpectation1 = expectation(description: "Process result 1")
-        let resultCallbackExpectation2 = expectation(description: "Process result 2")
         let activity1 = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
         let activity2 = generateMockActivity(userID: "user2", event: Event(name: "event2", attributes: ["my_key": "my_value2", "another_key": 34]))
         var postCount = 0
 
-        appcues.networking.onPost = { endpoint, authorization, body, requestId, completion in
-            do {
-                postCount += 1
-                if postCount == 1 {
-                    // first attempt we'll simulate failure
-                    completion(.failure(URLError(URLError.notConnectedToInternet)))
-                    onPostExpectation1.fulfill()
-                } else if postCount == 2 {
-                    // this should be the synchronous attempt for activity 2 - no retry made
-                    let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
-                    guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
-                    XCTAssertEqual("user2", userID)
-                    try XCTUnwrap(body).verifyMatch(activity: activity2)
-                    completion(.success(QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)))
-                    onPostExpectation2.fulfill()
-                } else {
-                    XCTFail()
-                }
-            } catch {
+        appcues.networking.onPost = { endpoint, authorization, body, requestId in
+            postCount += 1
+            switch postCount {
+            case 1:
+                // first attempt we'll simulate failure
+                throw URLError(.notConnectedToInternet)
+            case 2:
+                // this should be the synchronous attempt for activity 2 - no retry made
+                let apiEndpoint = try XCTUnwrap(endpoint as? APIEndpoint)
+                guard case let .qualify(userID) = apiEndpoint else { return XCTFail() }
+                XCTAssertEqual("user2", userID)
+                try XCTUnwrap(body).verifyMatch(activity: activity2)
+                return QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)
+            default:
                 XCTFail()
+                throw URLError(.unsupportedURL)
             }
         }
 
-        // Act
-        processor.process(activity1) { result in
-            guard case .failure = result else { return XCTFail() }
-            XCTAssertEqual(1, self.mockStorage.count) // failed item will stay around
-            resultCallbackExpectation1.fulfill()
-        }
-        wait(for: 1.2)
-        processor.process(activity2) { result in
-            guard case let .success(taco) = result else { return XCTFail() }
-            XCTAssertEqual(true, taco.performedQualification)
-            XCTAssertEqual(1, taco.experiences.count)
-            XCTAssertEqual(self.mockExperience.name, taco.experiences.first?.parsed.0.name)
-            XCTAssertEqual(0, self.mockStorage.count) // all cleared out
-            resultCallbackExpectation2.fulfill()
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await processor.process(activity1))
+        XCTAssertEqual(1, self.mockStorage.count) // failed item will stay around
 
-        }
+        try await Task.sleep(nanoseconds: 1_000_000_000 * 2)
 
-        // Assert
-        waitForExpectations(timeout: 1)
+        let result = try await processor.process(activity2)
+        XCTAssertEqual(true, result.performedQualification)
+        XCTAssertEqual(1, result.experiences.count)
+        XCTAssertEqual(self.mockExperience.name, result.experiences.first?.parsed.0.name)
+        XCTAssertEqual(0, self.mockStorage.count) // all cleared out
     }
 
-    func testActivitySentIfStorageSizeZero() throws {
+    func testActivitySentIfStorageSizeZero() async throws {
         // ensure even if config option used to disable all storage/retry - the current item being processed is still sent
 
         // Arrange
         appcues.config.activityStorageMaxSize = 0
-        let onPostExpectation = expectation(description: "Activity request 1")
-        let resultCallbackExpectation = expectation(description: "Process result 1")
         let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
 
-        appcues.networking.onPost = { endpoint, authorization, body, requestId, completion in
-            completion(.success(QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)))
-            onPostExpectation.fulfill()
+        appcues.networking.onPost = { endpoint, authorization, body, requestId in
+            return QualifyResponse(experiences: [.decoded(self.mockExperience)], performedQualification: true, qualificationReason: nil, experiments: nil)
         }
 
         // Act
-        processor.process(activity) { result in
-            guard case .success = result else { return XCTFail() }
-            resultCallbackExpectation.fulfill()
-        }
+        let result = try await processor.process(activity)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        XCTAssertNotNil(result)
     }
 
     func testThreadSafety() throws {
@@ -341,14 +294,17 @@ class ActivityProcessorTests: XCTestCase {
         completeExpectation.expectedFulfillmentCount = 100
         let activity = generateMockActivity(userID: "user1", event: Event(name: "event1", attributes: ["my_key": "my_value1", "another_key": 33]))
 
+        appcues.networking.onPost = { endpoint, authorization, body, requestId in
+            return QualifyResponse(experiences: [], performedQualification: false, qualificationReason: nil, experiments: nil)
+        }
+
         // Act
         // Process activity on 100 threads
         for _ in 0..<100 {
             dispatchGroup.enter()
-            DispatchQueue.global().async {
-                self.processor.process(activity) { _ in
-                    completeExpectation.fulfill()
-                }
+            Task.detached {
+                _ = try await self.processor.process(activity)
+                completeExpectation.fulfill()
                 dispatchGroup.leave()
             }
         }

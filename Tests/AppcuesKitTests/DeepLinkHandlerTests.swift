@@ -44,24 +44,24 @@ class DeepLinkHandlerTests: XCTestCase {
         XCTAssertNotNil(DeepLinkHandler.Action(url: URL(string: "appcues-democues://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b")!, isSessionActive: true, applicationID: "abc"))
     }
 
-    func testHandlePreviewFailToast() throws {
+    func testHandlePreviewFailToast() async throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/experience_preview/invalid-id"))
 
-        var loaderCalled = false
-        appcues.contentLoader.onLoad = { id, published, trigger, completion in
+        let loaderExpectation = expectation(description: "Loader called")
+        appcues.contentLoader.onLoad = { id, published, trigger in
             XCTAssertEqual(id, "invalid-id")
             XCTAssertFalse(published)
             guard case .preview = trigger else { return XCTFail() }
-            loaderCalled = true
-            completion?(.failure(NetworkingError.nonSuccessfulStatusCode(404, nil)))
+            loaderExpectation.fulfill()
+            throw NetworkingError.nonSuccessfulStatusCode(404, nil)
         }
 
-        var toastShown = false
+        let toastExpectation = expectation(description: "Toast shown")
         appcues.debugger.onShowToast = { toast in
             XCTAssertEqual(toast.style, .failure)
-            toastShown = true
+            toastExpectation.fulfill()
         }
 
         // Act
@@ -69,22 +69,20 @@ class DeepLinkHandlerTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(handled)
-        XCTAssertTrue(loaderCalled)
-        XCTAssertTrue(toastShown)
+        await fulfillment(of: [loaderExpectation, toastExpectation], timeout: 1, enforceOrder: true)
     }
 
-    func testHandlePreviewURLWithActiveScene() throws {
+    func testHandlePreviewURLWithActiveScene() async throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/experience_preview/f0edab83-5257-47a5-81fc-80389d14905b"))
 
-        var loaderCalled = false
-        appcues.contentLoader.onLoad = { id, published, trigger, completion in
+        let loaderExpectation = expectation(description: "Loader called")
+        appcues.contentLoader.onLoad = { id, published, trigger in
             XCTAssertEqual(id, "f0edab83-5257-47a5-81fc-80389d14905b")
             XCTAssertFalse(published)
             guard case .preview = trigger else { return XCTFail() }
-            loaderCalled = true
-            completion?(.success(()))
+            loaderExpectation.fulfill()
         }
 
         // Act
@@ -92,44 +90,43 @@ class DeepLinkHandlerTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(handled)
-        XCTAssertTrue(loaderCalled)
+        await fulfillment(of: [loaderExpectation], timeout: 1)
     }
 
-    func testHandleContentURLWithInactiveScene() throws {
+    func testHandleContentURLWithInactiveScene() async throws {
         // Arrange
         appcues.sessionID = UUID()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/experience_content/f0edab83-5257-47a5-81fc-80389d14905b"))
 
-        var loaderCalled = false
-        appcues.contentLoader.onLoad = { id, published, trigger, completion in
+        let loaderExpectation = expectation(description: "Loaded called")
+        appcues.contentLoader.onLoad = { id, published, trigger in
             XCTAssertEqual(id, "f0edab83-5257-47a5-81fc-80389d14905b")
             XCTAssertTrue(published)
             guard case .deepLink = trigger else { return XCTFail() }
-            loaderCalled = true
-            completion?(.success(()))
+            loaderExpectation.fulfill()
         }
 
         // Act
         let handled = deepLinkHandler.didHandleURL(url)
-        NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
+        // Xcode 15 requires `await`
+        await NotificationCenter.default.post(name: UIScene.didActivateNotification, object: nil)
 
         // Assert
         XCTAssertTrue(handled)
-        XCTAssertTrue(loaderCalled)
+        await fulfillment(of: [loaderExpectation], timeout: 2)
     }
 
-    func testHandlePushPreview() throws {
+    func testHandlePushPreview() async throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/push_preview/f0edab83-5257-47a5-81fc-80389d14905b?key=value"))
 
-        var loaderCalled = false
-        appcues.contentLoader.onLoadPush = { id, published, queryItems, completion in
+        let loaderExpectation = expectation(description: "Loaded called")
+        appcues.contentLoader.onLoadPush = { id, published, queryItems in
             XCTAssertEqual(id, "f0edab83-5257-47a5-81fc-80389d14905b")
             XCTAssertEqual(queryItems, [URLQueryItem(name: "key", value: "value")])
             XCTAssertFalse(published)
-            loaderCalled = true
-            completion?(.success(()))
+            loaderExpectation.fulfill()
         }
 
         // Act
@@ -137,21 +134,20 @@ class DeepLinkHandlerTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(handled)
-        XCTAssertTrue(loaderCalled)
+        await fulfillment(of: [loaderExpectation], timeout: 1)
     }
 
-    func testHandlePushContent() throws {
+    func testHandlePushContent() async throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/push_content/f0edab83-5257-47a5-81fc-80389d14905b"))
 
-        var loaderCalled = false
-        appcues.contentLoader.onLoadPush = { id, published, queryItems, completion in
+        let loaderExpectation = expectation(description: "Loaded called")
+        appcues.contentLoader.onLoadPush = { id, published, queryItems in
             XCTAssertEqual(id, "f0edab83-5257-47a5-81fc-80389d14905b")
             XCTAssertEqual(queryItems.count, 0)
             XCTAssertTrue(published)
-            loaderCalled = true
-            completion?(.success(()))
+            loaderExpectation.fulfill()
         }
 
         // Act
@@ -159,19 +155,19 @@ class DeepLinkHandlerTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(handled)
-        XCTAssertTrue(loaderCalled)
+        await fulfillment(of: [loaderExpectation], timeout: 1)
     }
 
-    func testHandleDebugURLWithActiveScene() throws {
+    func testHandleDebugURLWithActiveScene() async throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/debugger"))
 
-        var debuggerShown = false
+        let debuggerExpectation = expectation(description: "Debugger shown")
         appcues.debugger.onShow = { mode in
             guard case let .debugger(destination) = mode else { return XCTFail() }
             XCTAssertNil(destination)
-            debuggerShown = true
+            debuggerExpectation.fulfill()
         }
 
         // Act
@@ -179,19 +175,19 @@ class DeepLinkHandlerTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(handled)
-        XCTAssertTrue(debuggerShown)
+        await fulfillment(of: [debuggerExpectation], timeout: 1)
     }
 
-    func testHandleDebugURLWithActiveSceneAndDestination() throws {
+    func testHandleDebugURLWithActiveSceneAndDestination() async throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/debugger/fonts"))
 
-        var debuggerShown = false
+        let debuggerExpectation = expectation(description: "Debugger shown")
         appcues.debugger.onShow = { mode in
             guard case let .debugger(destination) = mode else { return XCTFail() }
             XCTAssertEqual(destination, DebugDestination.fonts)
-            debuggerShown = true
+            debuggerExpectation.fulfill()
         }
 
         // Act
@@ -199,18 +195,18 @@ class DeepLinkHandlerTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(handled)
-        XCTAssertTrue(debuggerShown)
+        await fulfillment(of: [debuggerExpectation], timeout: 1)
     }
 
-    func testHandleScreenCapture() throws {
+    func testHandleScreenCapture() async throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/capture_screen?token=123"))
 
-        var debuggerShown = false
+        let debuggerExpectation = expectation(description: "Debugger shown")
         appcues.debugger.onShow = { mode in
             guard case .screenCapture = mode else { return XCTFail() }
-            debuggerShown = true
+            debuggerExpectation.fulfill()
         }
 
         // Act
@@ -218,18 +214,18 @@ class DeepLinkHandlerTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(handled)
-        XCTAssertTrue(debuggerShown)
+        await fulfillment(of: [debuggerExpectation], timeout: 1)
     }
 
-    func testHandleDebugDeepLinkVerification() throws {
+    func testHandleDebugDeepLinkVerification() async throws {
         // Arrange
         deepLinkHandler.topControllerGetting = MockTopControllerGetting()
         let url = try XCTUnwrap(URL(string: "appcues-abc://sdk/verify/token-123"))
 
-        var debuggerVerificationCalled = false
+        let debuggerExpectation = expectation(description: "Debugger verification called")
         appcues.debugger.onVerify = { token in
             XCTAssertEqual(token, "token-123")
-            debuggerVerificationCalled = true
+            debuggerExpectation.fulfill()
         }
 
         // Act
@@ -237,7 +233,7 @@ class DeepLinkHandlerTests: XCTestCase {
 
         // Assert
         XCTAssertTrue(handled)
-        XCTAssertTrue(debuggerVerificationCalled)
+        await fulfillment(of: [debuggerExpectation], timeout: 1)
     }
 
     func testHandleNonAppcuesURL() throws {

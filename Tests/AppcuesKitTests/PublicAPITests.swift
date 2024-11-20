@@ -13,7 +13,8 @@ import AppcuesKit
 /// If this test class fails to compile, that indicates a breaking change in the public API.
 class PublicAPITests: XCTestCase {
 
-    func testAPI() throws {
+    @MainActor
+    func testAPI() async throws {
         Appcues.elementTargeting = SampleElementTargeting()
 
         _ = AppcuesElementSelector().evaluateMatch(for: AppcuesElementSelector())
@@ -65,10 +66,8 @@ class PublicAPITests: XCTestCase {
         appcuesInstance.screen(title: "screen")
         appcuesInstance.screen(title: "screen", properties: ["test": "value"])
 
-        appcuesInstance.show(experienceID: "12345")
-        appcuesInstance.show(experienceID: "12345") { success, error in
-            print(success, error)
-        }
+        // error expected because this isn't mocking anything
+        await XCTAssertThrowsAsyncError(try await appcuesInstance.show(experienceID: "12345"))
 
         appcuesInstance.setPushToken(nil)
 
@@ -88,7 +87,7 @@ class PublicAPITests: XCTestCase {
 }
 
 class SampleElementTargeting: AppcuesElementTargeting {
-    func captureLayout() -> AppcuesViewElement? {
+    func captureLayout() async -> AppcuesViewElement? {
         let elementWithDisplayName = AppcuesViewElement(
             x: 0,
             y: 0,
@@ -185,7 +184,7 @@ class SampleAnalyticsDelegate: AppcuesAnalyticsDelegate {
 }
 
 class SampleNavigationDelegate: AppcuesNavigationDelegate {
-    func navigate(to url: URL, openExternally: Bool, completion: @escaping (Bool) -> Void) {
-        completion(true)
+    func navigate(to url: URL, openExternally: Bool) async -> Bool {
+        true
     }
 }

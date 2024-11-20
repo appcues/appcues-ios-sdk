@@ -14,9 +14,8 @@ class AutoPropertyDecoratorTests: XCTestCase {
     var appcues: MockAppcues!
     var decorator: AutoPropertyDecorator!
 
-    override func setUp() {
-        let config = Appcues.Config(accountID: "00000", applicationID: "abc")
-        appcues = MockAppcues(config: config)
+    override func setUpWithError() throws {
+        appcues = MockAppcues()
         appcues.sessionID = UUID()
         decorator = AutoPropertyDecorator(container: appcues.container)
     }
@@ -91,7 +90,7 @@ class AutoPropertyDecoratorTests: XCTestCase {
         XCTAssertNil(decorated.deviceAutoProperties)
     }
 
-    func testAdditionalAutoProperty() throws {
+    func testAdditionalAutoProperty() async throws {
         // Arrange
         // need to make a custom config and decorator based off of it for this test
         let config = Appcues.Config(accountID: "00000", applicationID: "abc")

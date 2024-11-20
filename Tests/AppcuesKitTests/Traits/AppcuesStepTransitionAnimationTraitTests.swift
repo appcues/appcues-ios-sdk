@@ -18,7 +18,6 @@ class AppcuesStepTransitionAnimationTraitTests: XCTestCase {
 
     var containerController: AppcuesExperienceContainerViewController!
 
-
     override func setUpWithError() throws {
         appcues = MockAppcues()
         metadataUpdates = []
@@ -27,6 +26,7 @@ class AppcuesStepTransitionAnimationTraitTests: XCTestCase {
         containerController = DefaultContainerViewController(stepControllers: [], pageMonitor: AppcuesExperiencePageMonitor(numberOfPages: 0, currentPage: 0))
     }
 
+    @MainActor
     func testInit() throws {
         // Act
         let trait = AppcuesStepTransitionAnimationTrait(appcues: appcues)
@@ -79,6 +79,7 @@ class AppcuesStepTransitionAnimationTraitTests: XCTestCase {
         XCTAssertEqual(AppcuesStepTransitionAnimationTrait.Easing(metadataValue: "easeInOut"), .easeInOut)
     }
 
+    @MainActor
     func testDecorate() throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesStepTransitionAnimationTrait(appcues: appcues))
@@ -96,6 +97,7 @@ class AppcuesStepTransitionAnimationTraitTests: XCTestCase {
         XCTAssertEqual(latestMetadata["animationEasing"], "linear")
     }
 
+    @MainActor
     func testUndecorate() throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesStepTransitionAnimationTrait(appcues: appcues))

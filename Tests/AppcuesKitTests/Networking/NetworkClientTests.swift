@@ -42,9 +42,8 @@ class NetworkClientTests: XCTestCase {
     }
 
 
-    func testGetSuccess() throws {
+    func testGetSuccess() async throws {
         // Arrange
-        let expectation = expectation(description: "Request complete")
         MockURLProtocol.requestHandler = { request in
             XCTAssertEqual(request.url?.absoluteString, "https://api.appcues.net/healthz")
             XCTAssertNil(request.httpBody)
@@ -54,20 +53,15 @@ class NetworkClientTests: XCTestCase {
         }
 
         // Act
-        networkClient.get(from: APIEndpoint.health, authorization: nil) { (result: Result<Bool, Error>) in
-            if case .success = result {
-                expectation.fulfill()
-            }
-        }
+        let result: Bool = try await networkClient.get(from: APIEndpoint.health, authorization: nil)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        XCTAssertTrue(result)
     }
 
-    func testPostSuccess() throws {
+    func testPostSuccess() async throws {
         // Arrange
-        let expectation = expectation(description: "Request complete")
-        MockURLProtocol.requestHandler = { request in   
+        MockURLProtocol.requestHandler = { request in
             XCTAssertEqual(request.url?.absoluteString, "https://api.appcues.net/v1/accounts/00000/users/test/activity")
 
             let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
@@ -82,20 +76,15 @@ class NetworkClientTests: XCTestCase {
 
         // Act
         let data = try NetworkClient.encoder.encode(model)
-        networkClient.post(to: APIEndpoint.activity(userID: "test"), authorization: nil, body: data, requestId: nil) { (result: Result<Bool, Error>) in
-            if case .success = result {
-                expectation.fulfill()
-            }
-        }
+        let result: Bool = try await networkClient.post(to: APIEndpoint.activity(userID: "test"), authorization: nil, body: data, requestId: nil)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        XCTAssertTrue(result)
     }
 
-    func testPostAuthorization() throws {
+    func testPostAuthorization() async throws {
         // Arrange
         let userSignature = "abc"
-        let expectation = expectation(description: "Request complete")
         MockURLProtocol.requestHandler = { request in
             XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer \(userSignature)")
 
@@ -111,21 +100,20 @@ class NetworkClientTests: XCTestCase {
 
         // Act
         let data = try NetworkClient.encoder.encode(model)
-        networkClient.post(to: APIEndpoint.activity(userID: "test"),
-                           authorization: .bearer(userSignature),
-                           body: data,
-                           requestId: nil) { (result: Result<Bool, Error>) in
-            expectation.fulfill()
-        }
+        let result: Bool = try await networkClient.post(
+            to: APIEndpoint.activity(userID: "test"),
+            authorization: .bearer(userSignature),
+            body: data,
+            requestId: nil
+        )
 
         // Assert
-        waitForExpectations(timeout: 1)
+        XCTAssertTrue(result)
     }
 
-    func testGetAuthorization() throws {
+    func testGetAuthorization() async throws {
         // Arrange
         let userSignature = "abc"
-        let expectation = expectation(description: "Request complete")
         MockURLProtocol.requestHandler = { request in
             XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer \(userSignature)")
 
@@ -134,12 +122,10 @@ class NetworkClientTests: XCTestCase {
         }
 
         // Act
-        networkClient.get(from: APIEndpoint.health, authorization: .bearer(userSignature)) { (result: Result<Bool, Error>) in
-            expectation.fulfill()
-        }
+        let result: Bool = try await networkClient.get(from: APIEndpoint.health, authorization: .bearer(userSignature))
 
         // Assert
-        waitForExpectations(timeout: 1)
+        XCTAssertTrue(result)
     }
 
 }

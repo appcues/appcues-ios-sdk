@@ -26,34 +26,31 @@ class AppcuesRequestPushActionTests: XCTestCase {
         XCTAssertNotNil(action)
     }
 
-    func testExecute() throws {
+    func testExecute() async throws {
         // Arrange
         var refreshCount = 0
-        var completionCount = 0
         let action = AppcuesRequestPushAction(appcues: appcues)
 
         appcues.pushMonitor.onRefreshPushStatus = {
             refreshCount += 1
+            return .authorized
         }
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
         XCTAssertEqual(refreshCount, 1)
-        XCTAssertEqual(completionCount, 1)
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteThrowsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesRequestPushAction(appcues: nil))
 
-        // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await action.execute()) {
+            XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "No appcues instance")
+        }
     }
 }
 

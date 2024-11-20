@@ -14,6 +14,13 @@ class AnalyticsTrackerTests: XCTestCase {
     var tracker: AnalyticsTracker!
     var appcues: MockAppcues!
 
+    let emptySuccessResponse = QualifyResponse(
+        experiences: [],
+        performedQualification: true,
+        qualificationReason: .screenView,
+        experiments: nil
+    )
+
     override func setUpWithError() throws {
         let config = Appcues.Config(accountID: "00000", applicationID: "abc")
             .anonymousIDFactory({ "my-anonymous-id" })
@@ -26,15 +33,16 @@ class AnalyticsTrackerTests: XCTestCase {
         // Activity structure and pushed through to the ActivityProcessor.
     }
 
-    func testIdentifyTracking() throws {
+    func testIdentifyTracking() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
 
         // In the case of a profile update, verify the update is sent to the activity processor as
         // an Activity with the expected properties, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(activity.profileUpdate)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         let update = TrackingUpdate(type: .profile(interactive: true), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
@@ -43,18 +51,19 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: update)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testIdentifyWithSignature() throws {
+    func testIdentifyWithSignature() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
 
         // In the case of a profile update, verify the update is sent to the activity processor as
         // an Activity with the expected properties, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             XCTAssertEqual("user-signature", activity.userSignature)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
         appcues.storage.userSignature = "user-signature"
         let update = TrackingUpdate(type: .profile(interactive: true), isInternal: false)
@@ -63,20 +72,21 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: update)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testIdentifyWithGroup() throws {
+    func testIdentifyWithGroup() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
 
         // In the case of a profile update, immediately followed by a group update, verify that the
         // updates get merged together in a single Activity that gets sent to the ActivityProcessor
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             ["userProp":1].verifyPropertiesMatch(activity.profileUpdate)
             ["groupProp":2].verifyPropertiesMatch(activity.groupUpdate)
             XCTAssertEqual("test-group", activity.groupID)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         let profileUpdate = TrackingUpdate(type: .profile(interactive: true), properties: ["userProp":1], isInternal: false)
@@ -88,10 +98,10 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: groupUpdate)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testIdentifyWithDifferentUser() throws {
+    func testIdentifyWithDifferentUser() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
         onRequestExpectation.expectedFulfillmentCount = 2
@@ -101,7 +111,7 @@ class AnalyticsTrackerTests: XCTestCase {
         // In the case of a profile update, immediately followed by another identify with a different
         // user, there should be no batching of the Activity, as the first user profile update must
         // be sent, then the second update with the new user.
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             updateCount += 1
             if updateCount == 1 {
                 ["userProp":1].verifyPropertiesMatch(activity.profileUpdate)
@@ -111,6 +121,7 @@ class AnalyticsTrackerTests: XCTestCase {
                 XCTAssertEqual("user-2", activity.userID)
             }
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         let profileUpdate1 = TrackingUpdate(type: .profile(interactive: true), properties: ["userProp":1], isInternal: false)
@@ -123,20 +134,21 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: profileUpdate2)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testIdentifyWithScreen() throws {
+    func testIdentifyWithScreen() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
         let expectedEvents = [Event(name: "appcues:screen_view", attributes: ["screenTitle":"screen-name"])]
 
         // In the case of a profile update, immediately followed by a screen view, verify that the
         // updates get merged together in a single Activity that gets sent to the ActivityProcessor
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             ["userProp":1].verifyPropertiesMatch(activity.profileUpdate)
             expectedEvents.verifyMatchingEvents(activity.events)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         let profileUpdate = TrackingUpdate(type: .profile(interactive: true), properties: ["userProp":1], isInternal: false)
@@ -147,10 +159,10 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: screenUpdate)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testIdentifyWithDelayThenScreen() throws {
+    func testIdentifyWithDelayThenScreen() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
         onRequestExpectation.expectedFulfillmentCount = 2
@@ -160,7 +172,7 @@ class AnalyticsTrackerTests: XCTestCase {
         // In the case of a profile update, followed after by a screen update that
         // occurs > than the 50ms batch time on identify, there should be two requests
         // sent with two different Activity payloads
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             updateCount += 1
             if updateCount == 1 {
                 ["userProp":1].verifyPropertiesMatch(activity.profileUpdate)
@@ -169,6 +181,7 @@ class AnalyticsTrackerTests: XCTestCase {
                 expectedEvents.verifyMatchingEvents(activity.events)
             }
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         let profileUpdate = TrackingUpdate(type: .profile(interactive: true), properties: ["userProp":1], isInternal: false)
@@ -176,23 +189,24 @@ class AnalyticsTrackerTests: XCTestCase {
 
         // Act
         tracker.track(update: profileUpdate)
-        wait(for: 0.1) // 50 ms batch time is supported for profile update above - wait longer than 50ms to avoid batch
+        try await Task.sleep(nanoseconds: 1_000_000_000 / 10) // 50 ms batch time is supported for profile update above - wait longer than 50ms (100ms) to avoid batch
         tracker.track(update: screenUpdate)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testGroupTracking() throws {
+    func testGroupTracking() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
 
         // In the case of a group update, verify the update is sent to the activity processor as
         // an Activity with the expected properties, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             ["my_key":"my_value", "another_key": 33].verifyPropertiesMatch(activity.groupUpdate)
             XCTAssertEqual("test-group", activity.groupID)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         let update = TrackingUpdate(type: .group("test-group"), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
@@ -202,18 +216,19 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: update)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testGroupWithSignature() throws {
+    func testGroupWithSignature() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
 
         // In the case of a group update, verify the update is sent to the activity processor as
         // an Activity with the expected properties, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             XCTAssertEqual("user-signature", activity.userSignature)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         appcues.storage.userSignature = "user-signature"
@@ -223,19 +238,20 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: update)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testTrackEventRequestBody() throws {
+    func testTrackEventRequestBody() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
         let expectedEvents = [Event(name: "eventName", attributes: ["my_key": "my_value", "another_key": 33])]
 
         // In the case of a tracked event, verify the update is sent to the activity processor as
         // an Activity with the expected event structure, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             expectedEvents.verifyMatchingEvents(activity.events)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         let update = TrackingUpdate(type: .event(name: "eventName", interactive: true), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
@@ -244,18 +260,19 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: update)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testTrackEventWithSignature() throws {
+    func testTrackEventWithSignature() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
 
         // In the case of a tracked event, verify the update is sent to the activity processor as
         // an Activity with the expected event structure, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             XCTAssertEqual("user-signature", activity.userSignature)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         appcues.storage.userSignature = "user-signature"
@@ -265,19 +282,20 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: update)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testTrackScreenRequestBody() throws {
+    func testTrackScreenRequestBody() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
         let expectedEvents = [Event(screen: "My test page", attributes: ["my_key":"my_value", "another_key": 33])]
 
         // In the case of a tracked screen, verify the update is sent to the activity processor as
         // an Activity with the expected screen event structure, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             expectedEvents.verifyMatchingEvents(activity.events)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         let update = TrackingUpdate(type: .screen("My test page"), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
@@ -286,18 +304,19 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: update)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testTrackScreenWithSignature() throws {
+    func testTrackScreenWithSignature() async throws {
         // Arrange
         let onRequestExpectation = expectation(description: "Valid request")
 
         // In the case of a tracked screen, verify the update is sent to the activity processor as
         // an Activity with the expected screen event structure, synchronous (sync=true)
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             XCTAssertEqual("user-signature", activity.userSignature)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         appcues.storage.userSignature = "user-signature"
@@ -307,10 +326,10 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: update)
 
         // Assert
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRequestExpectation], timeout: 1)
     }
 
-    func testQueuedEvents() throws {
+    func testQueuedEvents() async throws {
         // Arrange
         appcues.config.flushAfterDuration = 2
 
@@ -321,9 +340,10 @@ class AnalyticsTrackerTests: XCTestCase {
             Event(name: "appcues:v2:step_interaction", attributes: ["another_key": 100])
         ]
 
-        appcues.activityProcessor.onProcess = { activity, completion in
+        appcues.activityProcessor.onProcess = { activity in
             expectedEvents.verifyMatchingEvents(activity.events)
             onRequestExpectation.fulfill()
+            return self.emptySuccessResponse
         }
 
         let update1 = TrackingUpdate(type: .event(name: "appcues:v2:step_interaction", interactive: false), properties: ["my_key":"my_value", "another_key": 33], isInternal: false)
@@ -340,10 +360,10 @@ class AnalyticsTrackerTests: XCTestCase {
         tracker.track(update: update2)
 
         // Assert
-        wait(for: [minTimeExpectation, onRequestExpectation], timeout: appcues.config.flushAfterDuration + 1, enforceOrder: true)
+        await fulfillment(of: [minTimeExpectation, onRequestExpectation], timeout: appcues.config.flushAfterDuration + 1, enforceOrder: true)
     }
 
-    func testProcessEmptyResponse() throws {
+    func testProcessEmptyResponse() async throws {
         let onRenderExpectation = expectation(description: "Experience renderer successfully called")
         let successResponse = QualifyResponse(
             experiences: [],
@@ -352,8 +372,8 @@ class AnalyticsTrackerTests: XCTestCase {
             experiments: nil
         )
 
-        appcues.activityProcessor.onProcess = { activity, completion in
-            completion(.success(successResponse))
+        appcues.activityProcessor.onProcess = { activity in
+            successResponse
         }
 
         appcues.experienceRenderer.onProcessAndShow = { data, trigger in
@@ -367,10 +387,10 @@ class AnalyticsTrackerTests: XCTestCase {
         // Act
         tracker.track(update: update)
 
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRenderExpectation], timeout: 1)
     }
 
-    func testProcessExperienceResponse() throws {
+    func testProcessExperienceResponse() async throws {
         let onRenderExpectation = expectation(description: "Experience renderer successfully called")
         let successResponse = QualifyResponse(
             experiences: [.decoded(Experience.mock)],
@@ -379,8 +399,8 @@ class AnalyticsTrackerTests: XCTestCase {
             experiments: nil
         )
 
-        appcues.activityProcessor.onProcess = { activity, completion in
-            completion(.success(successResponse))
+        appcues.activityProcessor.onProcess = { activity in
+            successResponse
         }
 
         appcues.experienceRenderer.onProcessAndShow = { data, trigger in
@@ -394,7 +414,7 @@ class AnalyticsTrackerTests: XCTestCase {
         // Act
         tracker.track(update: update)
 
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [onRenderExpectation], timeout: 1)
     }
 }
 

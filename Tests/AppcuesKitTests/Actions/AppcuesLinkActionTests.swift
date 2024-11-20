@@ -38,9 +38,8 @@ class AppcuesLinkActionTests: XCTestCase {
         XCTAssertTrue(action.openExternally)
     }
 
-    func testExecuteWebLink() throws {
+    func testExecuteWebLink() async throws {
         // Arrange
-        var completionCount = 0
         var presentCount = 0
         let mockURLOpener = MockURLOpener()
         mockURLOpener.onPresent = { vc in
@@ -51,16 +50,14 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(presentCount, 1)
     }
 
-    func testExecuteExternalWebLink() throws {
+    func testExecuteExternalWebLink() async throws {
         // Arrange
-        var completionCount = 0
         var openCount = 0
         let mockURLOpener = MockURLOpener()
         mockURLOpener.onOpen = { url in
@@ -71,16 +68,14 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
     }
 
-    func testExecuteSchemeLink() throws {
+    func testExecuteSchemeLink() async throws {
         // Arrange
-        var completionCount = 0
         var openCount = 0
         let mockURLOpener = MockURLOpener()
         mockURLOpener.onOpen = { url in
@@ -91,16 +86,14 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1, "A non http(s) link must always open externally, even if that means overriding the config")
     }
 
-    func testExecuteUniversalLink() throws {
+    func testExecuteUniversalLink() async throws {
         // Arrange
-        var completionCount = 0
         var openCount = 0
         let mockURLOpener = MockURLOpener()
         mockURLOpener.onUniversalOpen = { url in
@@ -115,16 +108,14 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
     }
 
-    func testExecuteUniversalLinkDisabled() throws {
+    func testExecuteUniversalLinkDisabled() async throws {
         // Arrange
-        var completionCount = 0
         var openCount = 0
         let mockURLOpener = MockURLOpener()
         mockURLOpener.onUniversalOpen = { url in
@@ -141,16 +132,14 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
     }
 
-    func testExecuteUniversalLinkAllowList() throws {
+    func testExecuteUniversalLinkAllowList() async throws {
         // Arrange
-        var completionCount = 0
         var openCount = 0
         let mockURLOpener = MockURLOpener()
         mockURLOpener.universalLinkHostAllowList = ["appcues.com"]
@@ -166,16 +155,14 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
     }
 
-    func testExecuteUniversalLinkNotOnAllowList() throws {
+    func testExecuteUniversalLinkNotOnAllowList() async throws {
         // Arrange
-        var completionCount = 0
         var openCount = 0
         let mockURLOpener = MockURLOpener()
         mockURLOpener.universalLinkHostAllowList = ["myapp.com"]
@@ -191,23 +178,22 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
     }
 
 
-    func testExecuteWebLinkWithNavigationDelegate() throws {
+    func testExecuteWebLinkWithNavigationDelegate() async throws {
         // Arrange
-        var completionCount = 0
         var openCount = 0
         let mockNavigationDelegate = MockNavigationDelegate()
         mockNavigationDelegate.onNavigate = { url, openExternally in
             XCTAssertEqual(url.absoluteString, "https://appcues.com")
             XCTAssertTrue(openExternally)
             openCount += 1
+            return true
         }
         appcues.navigationDelegate = mockNavigationDelegate
 
@@ -224,22 +210,21 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
     }
 
-    func testExecuteSchemeLinkWithNavigationDelegate() throws {
+    func testExecuteSchemeLinkWithNavigationDelegate() async throws {
         // Arrange
-        var completionCount = 0
         var openCount = 0
         let mockNavigationDelegate = MockNavigationDelegate()
         mockNavigationDelegate.onNavigate = { url, openExternally in
             XCTAssertEqual(url.absoluteString, "deeplink://test")
             XCTAssertFalse(openExternally)
             openCount += 1
+            return true
         }
         appcues.navigationDelegate = mockNavigationDelegate
 
@@ -256,31 +241,28 @@ class AppcuesLinkActionTests: XCTestCase {
         action?.urlOpener = mockURLOpener
 
         // Act
-        action?.execute(completion: { completionCount += 1 })
+        try await action?.execute()
 
         // Assert
-        XCTAssertEqual(completionCount, 1)
         XCTAssertEqual(openCount, 1)
     }
 
-    func testExecuteCompletesWithoutAppcuesInstance() throws {
+    func testExecuteThrowsWithoutAppcuesInstance() async throws {
         // Arrange
-        var completionCount = 0
         let action = try XCTUnwrap(AppcuesLinkAction(appcues: nil, path: "https://appcues.com"))
 
-        // Act
-        action.execute(completion: { completionCount += 1 })
-
-        // Assert
-        XCTAssertEqual(completionCount, 1)
+        // Act/Assert
+        await XCTAssertThrowsAsyncError(try await action.execute()) {
+            XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "No appcues instance")
+        }
     }
 }
 
 private class MockNavigationDelegate: AppcuesNavigationDelegate {
-    var onNavigate: ((URL, Bool) -> Void)?
-    func navigate(to url: URL, openExternally: Bool, completion: @escaping (Bool) -> Void) {
-        onNavigate?(url, openExternally)
-        completion(true)
+
+    var onNavigate: ((URL, Bool) -> Bool)?
+    func navigate(to url: URL, openExternally: Bool) async -> Bool {
+        onNavigate?(url, openExternally) ?? false
     }
 }
 
@@ -291,9 +273,8 @@ extension AppcuesLinkActionTests {
         var universalLinkHostAllowList: [String]?
 
         var onOpen: ((URL) -> Void)?
-        func open(_ url: URL, completionHandler: @escaping (() -> Void)) {
+        func open(_ url: URL) async {
             onOpen?(url)
-            completionHandler()
         }
 
         var onUniversalOpen: ((URL) -> Bool)?
