@@ -16,6 +16,7 @@ internal class AppcuesCarouselTrait: AppcuesContainerCreatingTrait {
     required init?(configuration: AppcuesExperiencePluginConfiguration) {
     }
 
+    @MainActor
     func createContainer(
         for stepControllers: [UIViewController],
         with pageMonitor: AppcuesExperiencePageMonitor

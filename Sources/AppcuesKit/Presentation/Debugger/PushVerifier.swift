@@ -137,7 +137,9 @@ internal class PushVerifier {
         }
 
         if errors.isEmpty {
-            verifyServerComponents(token: token)
+            Task {
+                await verifyServerComponents(token: token)
+            }
         }
 
         pushVerificationToken = nil
@@ -146,10 +148,9 @@ internal class PushVerifier {
     private func requestPush() {
         let options: UNAuthorizationOptions = [.alert, .sound, .badge]
         UNUserNotificationCenter.current().requestAuthorization(options: options) { _, _ in
-            self.pushMonitor.refreshPushStatus { _ in
-                DispatchQueue.main.async {
-                    self.verifyPush()
-                }
+            Task {
+                await self.pushMonitor.refreshPushStatus()
+                self.verifyPush()
             }
         }
     }
@@ -259,38 +260,32 @@ internal class PushVerifier {
         }
     }
 
-    private func verifyServerComponents(token: String) {
+    private func verifyServerComponents(token: String) async {
         let body = PushRequest(
             deviceID: storage.deviceID
         )
 
         let data = try? NetworkClient.encoder.encode(body)
 
-        networking.post(
-            to: APIEndpoint.pushTest,
-            authorization: nil,
-            body: data,
-            requestId: nil
-        ) { [weak self] (result: Result<PushTestResponse, Error>) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    if self?.errors.isEmpty == true {
-                        self?.subject.send(StatusItem(status: .verified, title: PushVerifier.title))
-                    }
-                case .failure(let error):
-                    switch error {
-                    case let NetworkingError.nonSuccessfulStatusCode(statusCode, data?):
-                        if let errorModel = try? NetworkClient.decoder.decode(PushTestError.self, from: data) {
-                            self?.errors.append(.serverError(statusCode, errorModel.error))
-                        } else {
-                            self?.errors.append(.serverError(statusCode, nil))
-                        }
-                    default:
-                        self?.errors.append(.serverError(0, nil))
-                    }
-                }
+        do {
+            let _: PushTestResponse = try await networking.post(
+                to: APIEndpoint.pushTest,
+                authorization: nil,
+                body: data,
+                requestId: nil
+            )
+
+            if errors.isEmpty == true {
+                subject.send(StatusItem(status: .verified, title: PushVerifier.title))
             }
+        } catch let NetworkingError.nonSuccessfulStatusCode(statusCode, data?) {
+            if let errorModel = try? NetworkClient.decoder.decode(PushTestError.self, from: data) {
+                errors.append(.serverError(statusCode, errorModel.error))
+            } else {
+                errors.append(.serverError(statusCode, nil))
+            }
+        } catch {
+            errors.append(.serverError(0, nil))
         }
     }
 }

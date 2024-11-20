@@ -9,13 +9,11 @@
 import Foundation
 
 internal class ActionRegistry {
-    typealias Completion = () -> Void
-
     private var actions: [String: AppcuesExperienceAction.Type] = [:]
 
     private var isProcessing = false
     private var actionQueue: [AppcuesExperienceAction] = [] {
-        didSet { processFirstAction() }
+        didSet { Task { try await processFirstAction() } }
     }
 
     private weak var appcues: Appcues?
@@ -47,19 +45,20 @@ internal class ActionRegistry {
         return true
     }
 
-    private func processFirstAction() {
+    private func processFirstAction() async throws {
         guard !isProcessing else { return }
 
-        if let actionInstance = actionQueue.first {
-            isProcessing = true
-            actionInstance.execute {
-                DispatchQueue.main.async {
-                    // On completion, remove the action, which triggers the didSet to process the remaining action handlers.
-                    self.isProcessing = false
-                    self.actionQueue.removeFirst()
-                }
-            }
+        isProcessing = true
+        guard let actionInstance = actionQueue.first else {
+            isProcessing = false
+            return
         }
+
+        try await actionInstance.execute()
+
+        // On completion, remove the action, which triggers the didSet to process the remaining action handlers.
+        self.isProcessing = false
+        self.actionQueue.removeFirst()
     }
 
     /// Enqueue an array of experience action data models to be executed. This version is for non-interactive action execution,
@@ -67,9 +66,8 @@ internal class ActionRegistry {
     func enqueue(
         actionModels: [Experience.Action],
         level: AppcuesExperiencePluginConfiguration.Level,
-        renderContext: RenderContext,
-        completion: @escaping () -> Void
-    ) {
+        renderContext: RenderContext
+    ) async throws {
         let actionInstances = actionModels.compactMap {
             actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration(
                 $0.configDecoder,
@@ -78,13 +76,13 @@ internal class ActionRegistry {
                 appcues: appcues
             ))
         }
-        execute(transformQueue(actionInstances), completion: completion)
+        try await execute(transformQueue(actionInstances))
     }
 
     /// Enqueue the action instances.
     /// This version is used for push action handlers.
-    func enqueue(actionInstances: [AppcuesExperienceAction], completion: @escaping () -> Void) {
-        execute(transformQueue(actionInstances), completion: completion)
+    func enqueue(actionInstances: [AppcuesExperienceAction]) async throws {
+        try await execute(transformQueue(actionInstances))
     }
 
     /// Enqueue the action instances generated from a factory function to be executed.
@@ -124,10 +122,8 @@ internal class ActionRegistry {
             destination: primaryAction?.destination ?? ""
         )
 
-        // Directly enqueue the interactionAction separately from the others so that it can't be modified by the queue transformation.
-        actionQueue.append(interactionAction)
-
-        actionQueue.append(contentsOf: transformQueue(actionInstances))
+        // Enqueue the interactionAction separately from the others so that it can't be modified by the queue transformation.
+        actionQueue.append(contentsOf: [interactionAction] + transformQueue(actionInstances))
     }
 
     // Queue transforms are applied in the order of the original queue,
@@ -142,17 +138,13 @@ internal class ActionRegistry {
         }
     }
 
-    private func execute(_ models: [AppcuesExperienceAction], completion: (() -> Void)? = nil) {
+    private func execute(_ models: [AppcuesExperienceAction]) async throws {
         var models = models
 
-        guard !models.isEmpty else {
-            completion?()
-            return
-        }
+        guard !models.isEmpty else { return }
 
         let next = models.removeFirst()
-        next.execute {
-            self.execute(models, completion: completion)
-        }
+        try await next.execute()
+        try await self.execute(models)
     }
 }

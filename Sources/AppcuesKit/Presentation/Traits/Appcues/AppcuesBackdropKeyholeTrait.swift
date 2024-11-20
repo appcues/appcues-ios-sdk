@@ -35,7 +35,8 @@ internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
         }
     }
 
-    func decorate(backdropView: UIView) throws {
+    @MainActor
+    func decorate(backdropView: UIView) async throws {
         guard let metadataDelegate = metadataDelegate else {
             // nothing to draw without a targetRectangle from the metadata dictionary
             backdropView.layer.mask = nil
@@ -52,6 +53,7 @@ internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
         }
     }
 
+    @MainActor
     func undecorate(backdropView: UIView) throws {
         guard let metadataDelegate = metadataDelegate else {
             backdropView.layer.mask = nil
@@ -61,6 +63,7 @@ internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
         metadataDelegate.unset(keys: [ "keyholeShape", "keyholeSpread" ])
     }
 
+    @MainActor
     // swiftlint:disable:next function_body_length
     private func handle(backdropView: UIView, metadata: AppcuesTraitMetadata) {
         guard backdropView.bounds != .zero else { return }

@@ -35,12 +35,11 @@ internal class AppcuesUpdateProfileAction: AppcuesExperienceAction {
         self.properties = properties
     }
 
-    func execute(completion: ActionRegistry.Completion) {
-        guard let appcues = appcues else { return completion() }
+    func execute() async throws {
+        guard let appcues = appcues else { throw AppcuesTraitError(description: "No appcues instance") }
 
         let userID = appcues.container.resolve(DataStoring.self).userID
         appcues.identify(userID: userID, properties: properties)
-        completion()
     }
 }
 

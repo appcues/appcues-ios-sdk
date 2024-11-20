@@ -28,7 +28,8 @@ internal class AppcuesBackdropTrait: AppcuesBackdropDecoratingTrait {
         self.backgroundColor = backgroundColor
     }
 
-    func decorate(backdropView: UIView) throws {
+    @MainActor
+    func decorate(backdropView: UIView) async throws {
         guard let metadataDelegate = metadataDelegate else {
             handleAdd(backdropColor: backgroundColor, to: backdropView)
             return
@@ -41,6 +42,7 @@ internal class AppcuesBackdropTrait: AppcuesBackdropDecoratingTrait {
         }
     }
 
+    @MainActor
     func undecorate(backdropView: UIView) throws {
         guard let metadataDelegate = metadataDelegate else {
             backdropBackgroundView?.removeFromSuperview()
@@ -51,6 +53,7 @@ internal class AppcuesBackdropTrait: AppcuesBackdropDecoratingTrait {
         metadataDelegate.unset(keys: [ "backdropBackgroundColor" ])
     }
 
+    @MainActor
     private func handleAdd(backdropColor: UIColor?, to backdropView: UIView) {
         if let backdropBackgroundView = self.backdropBackgroundView {
             backdropBackgroundView.backgroundColor = backdropColor

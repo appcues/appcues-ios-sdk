@@ -352,6 +352,7 @@ internal class DebugView: UIView {
         return true
     }
 
+    @MainActor
     private func handlePanToDismiss(_ recognizer: UIPanGestureRecognizer) -> Bool {
         let distanceFromSnapPoint = recognizer.location(in: self).distance(from: dismissView.snapPoint)
         let isInDismissRange: Bool = canDismiss && distanceFromSnapPoint < dismissView.snapRange

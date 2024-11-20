@@ -9,15 +9,15 @@
 import UIKit
 
 internal protocol ExperienceRendering: AnyObject {
-    func start(owner: StateMachineOwning, forContext context: RenderContext)
-    func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger)
-    func processAndShow(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?)
-    func show(step stepRef: StepReference, inContext context: RenderContext, completion: (() -> Void)?)
-    func dismiss(inContext context: RenderContext, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?)
+    func start(owner: StateMachineOwning, forContext context: RenderContext) async throws
+    func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger) async throws
+    func processAndShow(experience: ExperienceData) async throws
+    func show(step stepRef: StepReference, inContext context: RenderContext) async throws
+    func dismiss(inContext context: RenderContext, markComplete: Bool) async throws
     func experienceData(forContext context: RenderContext) -> ExperienceData?
     func stepIndex(forContext context: RenderContext) -> Experience.StepIndex?
     func owner(forContext context: RenderContext) -> StateMachineOwning?
-    func resetAll()
+    func resetAll() async throws
 }
 
 internal enum RenderContext: Hashable, CustomStringConvertible {
@@ -78,31 +78,32 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         stateMachines[ownerFor: .modal] = self
     }
 
-    func start(owner: StateMachineOwning, forContext context: RenderContext) {
+    func start(owner: StateMachineOwning, forContext context: RenderContext) async throws {
         guard let container = appcues?.container else { return }
 
         // If there's already a frame for the context, reset it back to its unregistered state.
         if let existingFrameView = stateMachines[ownerFor: context] as? AppcuesFrameView {
-            existingFrameView.reset()
+            await existingFrameView.reset()
         }
 
         // If the machine being started is already registered for a different context,
         // reset it back to its unregistered state before potentially showing new content.
         if owner.stateMachine != nil, let frameView = owner as? AppcuesFrameView {
-            frameView.reset()
+            await frameView.reset()
         }
 
         owner.stateMachine = ExperienceStateMachine(container: container)
         stateMachines[ownerFor: context] = owner
+
         // A preview experience takes priority over qualified experiences.
         if let pendingPreviewExperience = pendingPreviewExperiences[context] {
-            show(experience: pendingPreviewExperience, completion: nil)
+            try await show(experience: pendingPreviewExperience)
         } else if let pendingExperiences = potentiallyRenderableExperiences[context] {
-            show(qualifiedExperiences: pendingExperiences, completion: nil)
+            try await show(qualifiedExperiences: pendingExperiences)
         }
     }
 
-    func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger) {
+    func processAndShow(qualifiedExperiences: [ExperienceData], reason: ExperienceTrigger) async throws {
         let shouldClearCache = reason == .qualification(reason: .screenView)
         if shouldClearCache {
             potentiallyRenderableExperiences = [:]
@@ -113,15 +114,25 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         let grouped = Dictionary(grouping: qualifiedExperiences) { $0.renderContext }
         potentiallyRenderableExperiences = potentiallyRenderableExperiences.merging(grouped)
 
-        potentiallyRenderableExperiences.forEach { _, qualifiedExperiences in
-            show(qualifiedExperiences: qualifiedExperiences, completion: nil)
+        // Try in each render context and don't let one failure block the others
+        var errors: [Error] = []
+        for (_, qualifiedExperiences) in potentiallyRenderableExperiences {
+            do {
+                try await show(qualifiedExperiences: qualifiedExperiences)
+            } catch {
+                errors.append(error)
+            }
         }
 
         // No caching required for modals since they can't be lazy-loaded.
         potentiallyRenderableExperiences.removeValue(forKey: .modal)
+
+        if let error = errors.first {
+            throw error
+        }
     }
 
-    func processAndShow(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
+    func processAndShow(experience: ExperienceData) async throws {
         let reason = experience.trigger
 
         if reason == .preview {
@@ -131,27 +142,20 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
             potentiallyRenderableExperiences[experience.renderContext] = [experience]
         }
 
-        show(experience: experience, completion: completion)
+        try await show(experience: experience)
     }
 
-    private func show(experience: ExperienceData, completion: ((Result<Void, Error>) -> Void)?) {
-        guard Thread.isMainThread else {
-            DispatchQueue.main.async { self.show(experience: experience, completion: completion) }
-            return
-        }
-
+    private func show(experience: ExperienceData) async throws {
         guard let stateMachine = stateMachines[experience.renderContext] else {
             analyticsObserver.trackRecoverableError(
                 experience: experience,
                 message: "no render context for \(experience.renderContext.description)"
             )
-            completion?(.failure(ExperienceRendererError.renderDeferred(experience.renderContext, experience.model)))
-            return
+            throw ExperienceRendererError.renderDeferred(experience.renderContext, experience.model)
         }
 
         guard experience.instanceID != stateMachine.state.currentExperienceData?.instanceID else {
             // This experience is already showing
-            completion?(.success(()))
             return
         }
 
@@ -160,31 +164,18 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
             // we should not continue. So track experiment_entered analytics for it (always)..
             track(experiment: experience.experiment)
             // and exit early
-            completion?(.failure(ExperienceRendererError.experimentControl))
-            return
+            throw ExperienceRendererError.experimentControl
         }
 
         if experience.priority == .normal && stateMachine.state != .idling {
-            dismiss(inContext: experience.renderContext, markComplete: false) { result in
-                switch result {
-                case .success:
-                    self.show(experience: experience, completion: completion)
-                case .failure(let error):
-                    completion?(.failure(error))
-                }
-            }
-            return
+            try await dismiss(inContext: experience.renderContext, markComplete: false)
         }
 
         // all the pre-requisite checks are complete - start the experience
-        start(experience, in: stateMachine, completion: completion)
+        try await start(experience, in: stateMachine)
     }
 
-    private func start(
-        _ experience: ExperienceData,
-        in stateMachine: ExperienceStateMachine,
-        completion: ((Result<Void, Error>) -> Void)?
-    ) {
+    private func start(_ experience: ExperienceData, in stateMachine: ExperienceStateMachine) async throws {
         // if we get here, either we did not have an experiment, or it is active and did not exit early (not control group).
         // if an active experiment does exist, it should now track the experiment_entered analytic
         track(experiment: experience.experiment)
@@ -203,126 +194,51 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         analyticsObserver.trackErrorRecovery(ifErrorOn: experience)
         stateMachine.clientAppcuesPresentationDelegate = appcues?.presentationDelegate
         stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
-        stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
-            switch result {
-            case .success(.renderingStep):
-                DispatchQueue.main.async { completion?(.success(())) }
-                return true
-            case let .failure(error):
-                DispatchQueue.main.async { completion?(.failure(error)) }
-                return true
-            default:
-                // Keep observing until we get to the target state
-                return false
-            }
-        }
+
+        try await stateMachine.transition(.startExperience(experience))
     }
 
-    private func show(qualifiedExperiences: [ExperienceData], completion: ((Result<Void, Error>) -> Void)?) {
+    private func show(qualifiedExperiences: [ExperienceData]) async throws {
         guard let experience = qualifiedExperiences.first else {
             // If given an empty list of qualified experiences, complete with a success because this function has completed without error.
             // This function only recurses on a non-empty case, so this block only applies to the initial external call.
-            completion?(.success(()))
             return
         }
 
-        show(experience: experience) { result in
-            switch result {
-            case .success:
-                completion?(result)
-            case .failure(ExperienceRendererError.noStateMachine):
-                // If there's no state machine available, there's no point in trying the remaining experiences for the same context
-                completion?(result)
-            case .failure:
-                let remainingExperiences = qualifiedExperiences.dropFirst()
-                if remainingExperiences.isEmpty {
-                    completion?(result)
-                } else {
-                    self.show(qualifiedExperiences: Array(remainingExperiences), completion: completion)
-                }
+        do {
+            try await show(experience: experience)
+        } catch ExperienceRendererError.noStateMachine {
+            // If there's no state machine available, there's no point in trying the remaining experiences for the same context
+            throw ExperienceRendererError.noStateMachine
+        } catch {
+            let remainingExperiences = qualifiedExperiences.dropFirst()
+            if remainingExperiences.isEmpty {
+                throw error
+            } else {
+                try await self.show(qualifiedExperiences: Array(remainingExperiences))
             }
         }
     }
 
-    func show(step stepRef: StepReference, inContext context: RenderContext, completion: (() -> Void)?) {
-        guard Thread.isMainThread else {
-            DispatchQueue.main.async {
-                self.show(step: stepRef, inContext: context, completion: completion)
-            }
-            return
-        }
-
+    func show(step stepRef: StepReference, inContext context: RenderContext) async throws {
         guard let stateMachine = stateMachines[context] else {
-            completion?()
             return
         }
 
-        stateMachine.transitionAndObserve(.startStep(stepRef)) { result in
-            switch result {
-            case .success(.renderingStep):
-                DispatchQueue.main.async { completion?() }
-                return true
-            case .success(.idling):
-                if stepRef == .offset(1) {
-                    // If the experience is dismissed and resets to the idling state,
-                    // then by definition the progression to the next step has completed.
-                    DispatchQueue.main.async { completion?() }
-                    return true
-                }
-                return false
-            case .failure:
-                // Done observing, something went wrong
-                DispatchQueue.main.async { completion?() }
-                return true
-            default:
-                // Keep observing until we get to the target state
-                return false
-            }
-        }
+        try await stateMachine.transition(.startStep(stepRef))
     }
 
-    func dismiss(inContext context: RenderContext, markComplete: Bool, completion: ((Result<Void, Error>) -> Void)?) {
-        guard Thread.isMainThread else {
-            DispatchQueue.main.async {
-                self.dismiss(inContext: context, markComplete: markComplete, completion: completion)
-            }
-            return
-        }
-
+    func dismiss(inContext context: RenderContext, markComplete: Bool) async throws {
         guard let stateMachine = stateMachines[context] else {
-            completion?(.failure(ExperienceRendererError.noStateMachine))
-            return
+            throw ExperienceRendererError.noStateMachine
         }
 
-        stateMachine.transitionAndObserve(.endExperience(markComplete: markComplete)) { [weak self] result in
-            switch result {
-            case .success(.idling):
-                self?.pendingPreviewExperiences.removeValue(forKey: context)
-                self?.potentiallyRenderableExperiences.removeValue(forKey: context)
-                DispatchQueue.main.async { completion?(.success(())) }
-                return true
+        // TODO: handle scenario where we're currently presenting
+        // https://github.com/appcues/appcues-ios-sdk/pull/185
+        try await stateMachine.transition(.endExperience(markComplete: markComplete))
 
-            // These two cases handle dismissing an experience that's in the process of presenting a step group.
-            case .success(.renderingStep):
-                DispatchQueue.main.async { [weak self] in
-                    self?.dismiss(inContext: context, markComplete: markComplete, completion: completion)
-                }
-                return true
-            case .failure(.noTransition(currentState: .beginningExperience)),
-                    .failure(.noTransition(.beginningStep)):
-                // If no valid transition because the experience is starting, we want to wait for a valid point to dismiss
-                // (ie the .renderingStep case above) instead of completing with an error like the case below.
-                return false
-
-            case .failure(let error):
-                // Done observing, something went wrong
-                DispatchQueue.main.async { completion?(.failure(error)) }
-                return true
-            default:
-                // Keep observing until we get to the target state
-                return false
-            }
-        }
+        pendingPreviewExperiences.removeValue(forKey: context)
+        potentiallyRenderableExperiences.removeValue(forKey: context)
     }
 
     func experienceData(forContext context: RenderContext) -> ExperienceData? {
@@ -337,24 +253,19 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         stateMachines[ownerFor: context]
     }
 
-    func resetAll() {
-        guard Thread.isMainThread else {
-            DispatchQueue.main.async { self.resetAll() }
-            return
-        }
-
+    func resetAll() async {
         pendingPreviewExperiences.removeAll()
         potentiallyRenderableExperiences.removeAll()
 
-        stateMachines.forEach { _, stateMachineOwning in
-            stateMachineOwning.reset()
+        await stateMachines.asyncForEach { _, stateMachineOwning in
+            try? await stateMachineOwning.reset()
         }
     }
 
     /// Reset only the owned `Self.stateMachine` instance in conformance to `StateMachineOwning`.
-    func reset() {
+    func reset() async {
         stateMachine?.removeAnalyticsObserver()
-        dismiss(inContext: .modal, markComplete: false, completion: nil)
+        try? await dismiss(inContext: .modal, markComplete: false)
     }
 
     private func track(experiment: Experiment?) {

@@ -26,6 +26,7 @@ internal class AppcuesPagingDotsTrait: AppcuesContainerDecoratingTrait {
         self.style = config?.style
     }
 
+    @MainActor
     func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         guard containerController.pageMonitor.numberOfPages > 1 else { return }
 
@@ -77,11 +78,12 @@ internal class AppcuesPagingDotsTrait: AppcuesContainerDecoratingTrait {
         self.view = pageWrapView
     }
 
+    @MainActor
     func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
         view?.removeFromSuperview()
     }
 
-    @objc
+    @MainActor @objc
     func updateCurrentPage(sender: UIPageControl) {
         containerController?.navigate(to: sender.currentPage, animated: false)
     }

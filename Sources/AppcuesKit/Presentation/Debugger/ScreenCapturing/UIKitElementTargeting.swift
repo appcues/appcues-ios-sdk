@@ -129,9 +129,9 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
     // Inject a window for testing purposes
     var window: UIWindow?
 
-    func captureLayout() -> AppcuesViewElement? {
-        let captureWindow = (window ?? UIApplication.shared.windows.first { !$0.isAppcuesWindow })
-        return captureWindow?.asViewElement()
+    func captureLayout() async -> AppcuesViewElement? {
+        let captureWindow = await UIApplication.shared.appWindow
+        return await (window ?? captureWindow)?.asViewElement()
     }
 
     func inflateSelector(from properties: [String: String]) -> AppcuesElementSelector? {
@@ -160,11 +160,11 @@ internal extension UIView {
         )
     }
 
-    func asViewElement() -> AppcuesViewElement? {
-        return self.asViewElement(in: self.bounds, safeAreaInsets: self.safeAreaInsets, autoTag: nil)
+    func asViewElement() async -> AppcuesViewElement? {
+        return await self.asViewElement(in: self.bounds, safeAreaInsets: self.safeAreaInsets, autoTag: nil)
     }
 
-    private func asViewElement(in bounds: CGRect, safeAreaInsets: UIEdgeInsets, autoTag: String?) -> AppcuesViewElement? {
+    private func asViewElement(in bounds: CGRect, safeAreaInsets: UIEdgeInsets, autoTag: String?) async -> AppcuesViewElement? {
         let absolutePosition = self.convert(self.bounds, to: nil)
 
         // discard views that are not visible in the screenshot image
@@ -179,16 +179,24 @@ internal extension UIView {
 
         var tabCount = 0
 
-        let children: [AppcuesViewElement] = self.subviews.compactMap { subview -> AppcuesViewElement? in
-            // discard hidden views and subviews within
-            guard !subview.isHidden else { return nil }
+        var children: [AppcuesViewElement] = []
+        for subview in self.subviews {
+            guard !subview.isHidden else {
+                continue
+            }
+
             var childTabIndex: Int?
             if subview.displayType == "UITabBarButton" {
                 tabCount += 1
                 childTabIndex = tabCount - 1
             }
             let childAutoTag = getAutoTag(tabIndex: childTabIndex)
-            return subview.asViewElement(in: bounds, safeAreaInsets: childInsets, autoTag: childAutoTag)
+
+            guard let viewElement = await subview.asViewElement(in: bounds, safeAreaInsets: childInsets, autoTag: childAutoTag) else {
+                continue
+            }
+
+            children.append(viewElement)
         }
 
         // find the rect of the visible area of the view within the safe area

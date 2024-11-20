@@ -23,8 +23,5 @@ internal protocol AppcuesExperienceAction {
     init?(configuration: AppcuesExperiencePluginConfiguration)
 
     /// Execute the action.
-    /// - Parameter completion: A block to call after the execution is completed.
-    ///
-    /// The `completion` block must be called to ensure any additional actions are also executed.
-    func execute(completion: @escaping () -> Void)
+    func execute() async throws
 }

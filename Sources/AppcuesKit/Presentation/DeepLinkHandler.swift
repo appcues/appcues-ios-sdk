@@ -86,13 +86,7 @@ internal class DeepLinkHandler: DeepLinkHandling {
             return false
         }
 
-        if Thread.isMainThread {
-            dispatch(action: action)
-        } else {
-            DispatchQueue.main.async {
-                self.dispatch(action: action)
-            }
-        }
+        dispatch(action: action)
 
         return true
     }
@@ -100,7 +94,9 @@ internal class DeepLinkHandler: DeepLinkHandling {
     private func dispatch(action: Action) {
         if topControllerGetting.hasActiveWindowScenes {
             // UIScene is already active and we can handle the action immediately.
-            handle(action: action)
+            Task {
+                await handle(action: action)
+            }
         } else if actionsToHandle.isEmpty {
             actionsToHandle.insert(action)
 
@@ -116,52 +112,52 @@ internal class DeepLinkHandler: DeepLinkHandling {
         }
     }
 
-    private func handle(action: Action) {
+    private func handle(action: Action) async {
         switch action {
         case let .preview(experienceID, queryItems):
-            container?.resolve(ContentLoading.self).load(
-                experienceID: experienceID,
-                published: false,
-                queryItems: queryItems,
-                trigger: .preview,
-                completion: experiencePreviewCompletion
-            )
+            do {
+                try await container?.resolve(ContentLoading.self).load(
+                    experienceID: experienceID,
+                    published: false,
+                    queryItems: queryItems,
+                    trigger: .preview
+                )
+            } catch {
+                await handleExperiencePreviewError(error: error)
+            }
         case let .show(experienceID, queryItems):
-            container?.resolve(ContentLoading.self).load(
+            try? await container?.resolve(ContentLoading.self).load(
                 experienceID: experienceID,
                 published: true,
                 queryItems: queryItems,
-                trigger: .deepLink,
-                completion: nil
+                trigger: .deepLink
             )
         case let .pushPreview(id, queryItems):
-            container?.resolve(ContentLoading.self).loadPush(
-                id: id,
-                published: false,
-                queryItems: queryItems,
-                completion: pushPreviewCompletion
-            )
+            do {
+                try await container?.resolve(ContentLoading.self).loadPush(
+                    id: id,
+                    published: false,
+                    queryItems: queryItems
+                )
+            } catch {
+                await handlePushPreviewError(error: error)
+            }
         case let .pushContent(id):
-            container?.resolve(ContentLoading.self).loadPush(
+            try? await container?.resolve(ContentLoading.self).loadPush(
                 id: id,
                 published: true,
-                queryItems: [],
-                completion: nil
+                queryItems: []
             )
         case .debugger(let destination):
-            container?.resolve(UIDebugging.self).show(mode: .debugger(destination))
+            await container?.resolve(UIDebugging.self).show(mode: .debugger(destination))
         case .verifyInstall(let token):
-            container?.resolve(UIDebugging.self).verifyInstall(token: token)
+            await container?.resolve(UIDebugging.self).verifyInstall(token: token)
         case .captureScreen(let token):
-            container?.resolve(UIDebugging.self).show(mode: .screenCapture(.bearer(token)))
+            await container?.resolve(UIDebugging.self).show(mode: .screenCapture(.bearer(token)))
         }
     }
 
-    private func experiencePreviewCompletion(_ result: Result<Void, Error>) {
-        guard case let .failure(error) = result else {
-            return
-        }
-
+    private func handleExperiencePreviewError(error: Error) async {
         let message: String
         switch error {
         case let ExperienceRendererError.renderDeferred(context, experience):
@@ -178,14 +174,10 @@ internal class DeepLinkHandler: DeepLinkHandling {
         }
 
         let toast = DebugToast(message: .custom(text: message), style: .failure)
-        container?.resolve(UIDebugging.self).showToast(toast)
+        await container?.resolve(UIDebugging.self).showToast(toast)
     }
 
-    private func pushPreviewCompletion(_ result: Result<Void, Error>) {
-        guard case let .failure(error) = result else {
-            return
-        }
-
+    private func handlePushPreviewError(error: Error) async {
         let message: String
         switch error {
         case NetworkingError.nonSuccessfulStatusCode(404, _):
@@ -197,16 +189,21 @@ internal class DeepLinkHandler: DeepLinkHandling {
         }
 
         let toast = DebugToast(message: .custom(text: message), style: .failure)
-        container?.resolve(UIDebugging.self).showToast(toast)
+        await container?.resolve(UIDebugging.self).showToast(toast)
     }
 
     @objc
     private func sceneDidActivate() {
-        actionsToHandle.forEach(handle(action:))
+        Task {
+            for action in actionsToHandle {
+                await handle(action: action)
+            }
 
-        // Reset after handling to avoid handling notifications multiple times.
-        self.actionsToHandle.removeAll()
-        NotificationCenter.default.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
+            // Reset after handling to avoid handling notifications multiple times.
+            self.actionsToHandle.removeAll()
+            // Xcode 15 requires `await`
+            await NotificationCenter.default.removeObserver(self, name: UIScene.didActivateNotification, object: nil)
+        }
     }
 }
 

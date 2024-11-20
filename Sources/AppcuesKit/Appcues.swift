@@ -73,9 +73,9 @@ public class Appcues: NSObject {
     /// 2. Implementing `UIApplicationDelegate.application(_:didRegisterForRemoteNotificationsWithDeviceToken:)`
     /// to call ``setPushToken(_:)``
     /// 3. Ensuring `UNUserNotificationCenter.current().delegate` is set
-    /// 4. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:)`
-    /// to call ``didReceiveNotification(response:completionHandler:)``
-    /// 5. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:willPresent:withCompletionHandler:)`
+    /// 4. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:didReceive:)`
+    /// to call ``didReceiveNotification(response:)``
+    /// 5. Implementing `UNUserNotificationCenterDelegate.userNotificationCenter(_:willPresent:)`
     /// to show notification while the app is in the foreground
     @objc
     public static func enableAutomaticPushConfig() {
@@ -165,7 +165,9 @@ public class Appcues: NSObject {
         storage.groupID = nil
 
         let experienceRenderer = container.resolve(ExperienceRendering.self)
-        experienceRenderer.resetAll()
+        Task {
+            try await experienceRenderer.resetAll()
+        }
 
         notificationCenter.post(name: .appcuesReset, object: self, userInfo: nil)
     }
@@ -192,27 +194,16 @@ public class Appcues: NSObject {
     /// Forces specific Appcues experience to appear for the current user by passing in the ID.
     /// - Parameters:
     ///   - experienceID: ID of the experience.
-    ///   - completion: The block to execute after the attempt to show the content has completed.
-    ///   This block has a `Bool` parameter which indicates if the attempt to show the content succeeded.
-    ///   If it was not successful, a non-nil `Error` parameter will also be included.
     ///
     /// This method ignores any targeting that is set on the experience.
     @objc
-    public func show(experienceID: String, completion: ((Bool, Error?) -> Void)? = nil) {
+    public func show(experienceID: String) async throws {
         guard isActive else {
             config.logger.error("An active Appcues session is required to show an Appcues experience")
-            completion?(false, AppcuesError.noActiveSession)
-            return
+            throw AppcuesError.noActiveSession
         }
 
-        contentLoader.load(experienceID: experienceID, published: true, queryItems: [], trigger: .showCall) { result in
-            switch result {
-            case .success:
-                completion?(true, nil)
-            case .failure(let error):
-                completion?(false, error)
-            }
-        }
+        try await contentLoader.load(experienceID: experienceID, published: true, queryItems: [], trigger: .showCall)
     }
 
     /// Provide the APNs device token to Appcues.
@@ -259,8 +250,10 @@ public class Appcues: NSObject {
     public func register(frameID: String, for view: AppcuesFrameView, on parentViewController: UIViewController) {
         view.configure(parentViewController: parentViewController)
 
-        let experienceRenderer = container.resolve(ExperienceRendering.self)
-        experienceRenderer.start(owner: view, forContext: .embed(frameID: frameID))
+        Task {
+            let experienceRenderer = container.resolve(ExperienceRendering.self)
+            try await experienceRenderer.start(owner: view, forContext: .embed(frameID: frameID))
+        }
     }
 
     /// Launches the Appcues debugger over your app's UI.
@@ -268,7 +261,9 @@ public class Appcues: NSObject {
     /// See <doc:Debugging> for usage information.
     @objc
     public func debug() {
-        uiDebugger.show(mode: .debugger(nil))
+        Task {
+            await uiDebugger.show(mode: .debugger(nil))
+        }
     }
 
     /// Enables automatic screen tracking.
@@ -298,25 +293,22 @@ public class Appcues: NSObject {
     /// Verifies if a user's response to a delivered notification is handled by the Appcues SDK.
     /// - Parameters:
     ///   - response: The user’s response to the notification.
-    ///   - completionHandler: The block to execute when you have finished processing the user’s response.
     /// - Returns: `true` if Appcues successfully processed the user's response.
     ///
     /// If the notification is an Appcues push notification, this function may launch an experience or otherwise alter the UI state.
     ///
-    /// If `true` is returned, Appcues will execute the `completionHandler` block.
-    /// Otherwise you should execute the block when you finish processing the user's response.
-    ///
     /// This function is intended to be called added at the top of your
     /// `UNUserNotificationCenterDelegate`'s `userNotificationCenter(_:didReceive:withCompletionHandler:)` function:
     /// ```swift
-    /// if <#appcuesInstance#>.didReceiveNotification(response: response, completionHandler: completionHandler) {
+    /// if <#appcuesInstance#>.didReceiveNotification(response: response) {
+    ///     completionHandler()
     ///     return
     /// }
     /// // App logic here
     /// completionHandler()
     /// ```
-    public func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool {
-        return container.resolve(PushMonitoring.self).didReceiveNotification(response: response, completionHandler: completionHandler)
+    public func didReceiveNotification(response: UNNotificationResponse) -> Bool {
+        return container.resolve(PushMonitoring.self).didReceiveNotification(response: response)
     }
 
     func initializeContainer() {

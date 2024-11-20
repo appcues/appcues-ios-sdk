@@ -37,6 +37,7 @@ internal protocol AppcuesStepDecoratingTrait: AppcuesExperienceTrait {
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
+    @MainActor
     func decorate(stepController: UIViewController) throws
 }
 
@@ -55,6 +56,7 @@ internal protocol AppcuesContainerCreatingTrait: AppcuesExperienceTrait {
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
+    @MainActor
     func createContainer(
         for stepControllers: [UIViewController],
         with pageMonitor: AppcuesExperiencePageMonitor
@@ -70,6 +72,7 @@ internal protocol AppcuesContainerDecoratingTrait: AppcuesExperienceTrait {
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
+    @MainActor
     func decorate(containerController: AppcuesExperienceContainerViewController) throws
 
     /// Remove the decoration from a container view controller.
@@ -81,6 +84,7 @@ internal protocol AppcuesContainerDecoratingTrait: AppcuesExperienceTrait {
     ///
     /// If this method cannot properly remove the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending presentation of the experience.
+    @MainActor
     func undecorate(containerController: AppcuesExperienceContainerViewController) throws
 }
 
@@ -96,7 +100,8 @@ internal protocol AppcuesBackdropDecoratingTrait: AppcuesExperienceTrait {
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
-    func decorate(backdropView: UIView) throws
+    @MainActor
+    func decorate(backdropView: UIView) async throws
 
     /// Remove the decoration from a backdrop view.
     /// - Parameter backdropView: The `UIView` to modify.
@@ -107,6 +112,7 @@ internal protocol AppcuesBackdropDecoratingTrait: AppcuesExperienceTrait {
     ///
     /// If this method cannot properly remove the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending presentation of the experience.
+    @MainActor
     func undecorate(backdropView: UIView) throws
 }
 
@@ -120,11 +126,13 @@ internal protocol AppcuesWrapperCreatingTrait: AppcuesExperienceTrait {
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
+    @MainActor
     func createWrapper(around containerController: AppcuesExperienceContainerViewController) throws -> UIViewController
 
     /// Return the backdrop view used by the given wrapper, if any.
     /// - Parameter wrapperController: The wrapper view controller.
     /// - Returns: The `UIView` being used for the backdrop, or `nil` if no backdrop is used for this wrapper.
+    @MainActor
     func getBackdrop(for wrapperController: UIViewController) -> UIView?
 }
 
@@ -134,15 +142,14 @@ internal protocol AppcuesPresentingTrait: AppcuesExperienceTrait {
 
     /// Shows the view controller for an experience.
     /// - Parameter viewController: The view controller to present.
-    /// - Parameter completion: The block to execute after the presentation is completed.
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
-    func present(viewController: UIViewController, completion: (() -> Void)?) throws
+    @MainActor
+    func present(viewController: UIViewController) async throws
 
     /// Removes the view controller for an experience.
     /// - Parameter viewController: The view controller to remove.
-    /// - Parameter completion: The block to execute after the removal is completed.
-    /// This block has no return value and takes no parameters. You may specify nil for this parameter.
-    func remove(viewController: UIViewController, completion: (() -> Void)?)
+    @MainActor
+    func remove(viewController: UIViewController) async
 }

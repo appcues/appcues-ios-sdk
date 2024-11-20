@@ -48,12 +48,12 @@ extension ExperienceStateMachine {
         }
 
         // swiftlint:disable cyclomatic_complexity
-        func transition(for action: Action, traitComposer: TraitComposing) -> Transition? {
+        func transition(for action: Action, traitComposer: TraitComposing) async -> Transition? {
             switch (self, action) {
             case let (.idling, .startExperience(experience)):
                 return Transition.fromIdlingToBeginningExperience(experience)
             case let (.beginningExperience(experience), .startStep(.index(0))):
-                return Transition.fromBeginningExperienceToBeginningStep(experience, traitComposer)
+                return await Transition.fromBeginningExperienceToBeginningStep(experience, traitComposer)
             case let (.beginningStep(experience, stepIndex, package, isFirst), .renderStep):
                 return Transition(toState: .renderingStep(experience, stepIndex, package, isFirst: isFirst))
             case let (.renderingStep(experience, stepIndex, package, _), .startStep(stepRef)):
@@ -69,7 +69,7 @@ extension ExperienceStateMachine {
                     sideEffect: .dismissContainer(package, continuation: .reset)
                 )
             case let (.endingStep(experience, currentIndex, _, _), .startStep(stepRef)):
-                return Transition.fromEndingStepToBeginningStep(experience, currentIndex, stepRef, traitComposer)
+                return await Transition.fromEndingStepToBeginningStep(experience, currentIndex, stepRef, traitComposer)
             case let (.endingExperience(experience, _, markComplete), .reset):
                 var sideEffect: SideEffect?
                 if markComplete {
@@ -171,10 +171,10 @@ extension ExperienceStateMachine.Transition {
        )
     }
 
-    static func fromBeginningExperienceToBeginningStep(_ experience: ExperienceData, _ traitComposer: TraitComposing) -> Self {
+    static func fromBeginningExperienceToBeginningStep(_ experience: ExperienceData, _ traitComposer: TraitComposing) async -> Self {
         let stepIndex = Experience.StepIndex.initial
         do {
-            let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
+            let package = try await traitComposer.package(experience: experience, stepIndex: stepIndex)
 
             let navigationActions: [Experience.Action]
             if experience.trigger.shouldNavigateBeforeRender {
@@ -223,7 +223,7 @@ extension ExperienceStateMachine.Transition {
 
     static func fromEndingStepToBeginningStep(
         _ experience: ExperienceData, _ currentIndex: Experience.StepIndex, _ stepRef: StepReference, _ traitComposer: TraitComposing
-    ) -> Self {
+    ) async -> Self {
         guard let stepIndex = stepRef.resolve(experience: experience, currentIndex: currentIndex) else {
             return .init(
                 toState: nil,
@@ -236,7 +236,7 @@ extension ExperienceStateMachine.Transition {
 
         do {
             // moving to a new step group / container, we may need to navigate the app to a new screen
-            let package = try traitComposer.package(experience: experience, stepIndex: stepIndex)
+            let package = try await traitComposer.package(experience: experience, stepIndex: stepIndex)
             return .init(
                 toState: .beginningStep(experience, stepIndex, package, isFirst: false),
                 sideEffect: .presentContainer(experience, stepIndex, package, navigationActions)

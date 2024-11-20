@@ -18,3 +18,9 @@ public extension UIWindow {
         self is DebugUIWindow || self is ModalContextManager.AppcuesUIWindow
     }
 }
+
+extension UIApplication {
+    var appWindow: UIWindow? {
+        windows.first { !$0.isAppcuesWindow }
+    }
+}

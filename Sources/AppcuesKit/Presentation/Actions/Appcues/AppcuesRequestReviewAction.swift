@@ -17,13 +17,11 @@ internal class AppcuesRequestReviewAction: AppcuesExperienceAction {
         // No config
     }
 
-    func execute(completion: @escaping ActionRegistry.Completion) {
-        if #available(iOS 14.0, *), let windowScene = UIApplication.shared.mainWindowScene {
-            SKStoreReviewController.requestReview(in: windowScene)
+    func execute() async throws {
+        if #available(iOS 14.0, *), let windowScene = await UIApplication.shared.mainWindowScene {
+            await SKStoreReviewController.requestReview(in: windowScene)
         } else {
             SKStoreReviewController.requestReview()
         }
-
-        completion()
     }
 }

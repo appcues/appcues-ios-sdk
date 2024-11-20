@@ -40,22 +40,6 @@ extension Result where Success == ExperienceStateMachine.State, Failure == Exper
 extension ExperienceStateMachine {
     typealias Callback = (ExperienceStateObserver.StateResult) -> Bool
 
-    class StateObserver: ExperienceStateObserver {
-        private let instanceID: UUID?
-        private let callback: Callback
-
-        init(filter: UUID?, _ evaluateIfSatisfied: @escaping Callback) {
-            self.instanceID = filter
-            self.callback = evaluateIfSatisfied
-        }
-
-        func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
-            guard result.matches(instanceID: instanceID) else { return false }
-
-            return callback(result)
-        }
-    }
-
     class AnalyticsObserver: ExperienceStateObserver {
         private let analyticsPublisher: AnalyticsPublishing
         private let storage: DataStoring

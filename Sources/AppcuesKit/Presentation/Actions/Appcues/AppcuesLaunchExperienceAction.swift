@@ -39,14 +39,10 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
         self.trigger = trigger
     }
 
-    func execute(completion: @escaping ActionRegistry.Completion) {
-        guard let appcues = appcues else {
-            return completion()
-        }
+    func execute() async throws {
+        guard let appcues = appcues else { throw AppcuesTraitError(description: "No appcues instance") }
 
         let contentLoader = appcues.container.resolve(ContentLoading.self)
-        contentLoader.load(experienceID: experienceID, published: true, queryItems: [], trigger: trigger) { _  in
-            completion()
-        }
+        try await contentLoader.load(experienceID: experienceID, published: true, queryItems: [], trigger: trigger)
     }
 }

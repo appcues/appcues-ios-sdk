@@ -35,10 +35,10 @@ internal class AppcuesCloseAction: AppcuesExperienceAction {
         self.markComplete = markComplete
     }
 
-    func execute(completion: @escaping ActionRegistry.Completion) {
-        guard let appcues = appcues else { return completion() }
+    func execute() async throws {
+        guard let appcues = appcues else { throw AppcuesTraitError(description: "No appcues instance") }
 
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.dismiss(inContext: renderContext, markComplete: markComplete) { _ in completion() }
+        try await experienceRenderer.dismiss(inContext: renderContext, markComplete: markComplete)
     }
 }

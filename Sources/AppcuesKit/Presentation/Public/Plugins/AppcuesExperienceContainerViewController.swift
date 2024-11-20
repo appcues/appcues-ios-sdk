@@ -24,6 +24,7 @@ internal protocol AppcuesExperienceContainer {
     ///
     /// The implementation of this method should result in
     /// ``AppcuesExperienceContainerEventHandler/containerNavigated(from:to:)`` being called.
+    @MainActor
     func navigate(to pageIndex: Int, animated: Bool)
 }
 

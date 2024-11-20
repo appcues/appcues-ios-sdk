@@ -41,6 +41,7 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
         self.buttonStyle = config?.buttonStyle
     }
 
+    @MainActor
     func decorate(containerController: AppcuesExperienceContainerViewController) throws {
         self.containerController = containerController
 
@@ -54,12 +55,14 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
         containerController.isModalInPresentation = ignoreBackdropTap
     }
 
+    @MainActor
     func undecorate(containerController: AppcuesExperienceContainerViewController) throws {
         view?.removeFromSuperview()
         containerController.isModalInPresentation = true
     }
 
-    func decorate(backdropView: UIView) throws {
+    @MainActor
+    func decorate(backdropView: UIView) async throws {
         if !ignoreBackdropTap {
             let recognizer = gestureRecognizer ?? UITapGestureRecognizer(target: self, action: #selector(dismissExperience))
 
@@ -68,6 +71,7 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
         }
     }
 
+    @MainActor
     func undecorate(backdropView: UIView) throws {
         if let gestureRecognizer = gestureRecognizer {
             backdropView.removeGestureRecognizer(gestureRecognizer)
@@ -79,7 +83,9 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
         guard let appcues = appcues else { return }
 
         let experienceRenderer = appcues.container.resolve(ExperienceRendering.self)
-        experienceRenderer.dismiss(inContext: renderContext, markComplete: false, completion: nil)
+        Task {
+            try await experienceRenderer.dismiss(inContext: renderContext, markComplete: false)
+        }
     }
 }
 

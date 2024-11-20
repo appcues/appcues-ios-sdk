@@ -25,6 +25,7 @@ internal class DeepLinkVerifier {
         self.applicationID = applicationID
     }
 
+    @MainActor
     func verifyDeepLink(token: UUID = UUID()) {
         subject.send(StatusItem(status: .pending, title: title, subtitle: nil))
 
@@ -44,6 +45,7 @@ internal class DeepLinkVerifier {
             .contains { $0 == "appcues-\(applicationID)" }
     }
 
+    @MainActor
     private func verifyDeepLinkHandling(token: String) {
         guard let url = URL(string: "appcues-\(applicationID)://sdk/verify/\(token)") else {
             subject.send(StatusItem(status: .unverified, title: title, subtitle: "Error 0: Failed to set up verification"))
@@ -62,6 +64,7 @@ internal class DeepLinkVerifier {
         }
     }
 
+    @MainActor
     func receivedVerification(token: String) {
         if token == deepLinkVerificationToken {
             subject.send(StatusItem(status: .verified, title: title, subtitle: nil))

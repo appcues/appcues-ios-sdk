@@ -65,7 +65,9 @@ public class AppcuesExperienceActions {
     }
 
     private func enqueue(_ action: AppcuesExperienceAction) {
-        guard let actionRegistry = appcues?.container.resolve(ActionRegistry.self) else { return }
-        actionRegistry.enqueue(actionInstances: [action]) {}
+        Task {
+            guard let actionRegistry = appcues?.container.resolve(ActionRegistry.self) else { return }
+            try await actionRegistry.enqueue(actionInstances: [action])
+        }
     }
 }

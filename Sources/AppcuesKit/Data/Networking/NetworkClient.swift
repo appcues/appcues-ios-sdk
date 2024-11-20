@@ -11,29 +11,25 @@ import Foundation
 internal protocol Networking: AnyObject {
     func get<T: Decodable>(
         from endpoint: Endpoint,
-        authorization: Authorization?,
-        completion: @escaping (_ result: Result<T, Error>) -> Void
-    )
+        authorization: Authorization?
+    ) async throws -> T
     func post<T: Decodable>(
         to endpoint: Endpoint,
         authorization: Authorization?,
         body: Data?,
-        requestId: UUID?,
-        completion: @escaping (_ result: Result<T, Error>) -> Void
-    )
+        requestId: UUID?
+    ) async throws -> T
     func post(
         to endpoint: Endpoint,
         authorization: Authorization?,
-        body: Data?,
-        completion: @escaping (_ result: Result<Void, Error>) -> Void
-    )
+        body: Data?
+    ) async throws
     func put(
         to endpoint: Endpoint,
         authorization: Authorization?,
         body: Data,
-        contentType: String,
-        completion: @escaping (_ result: Result<Void, Error>) -> Void
-    )
+        contentType: String
+    ) async throws
 }
 
 internal class NetworkClient: Networking {
@@ -45,33 +41,21 @@ internal class NetworkClient: Networking {
         self.storage = container.resolve(DataStoring.self)
     }
 
-    func get<T: Decodable>(
-        from endpoint: Endpoint,
-        authorization: Authorization?,
-        completion: @escaping (_ result: Result<T, Error>) -> Void
-    ) {
+    func get<T: Decodable>(from endpoint: any Endpoint, authorization: Authorization?) async throws -> T {
         guard let requestURL = endpoint.url(config: config, storage: storage) else {
-            completion(.failure(NetworkingError.invalidURL))
-            return
+            throw NetworkingError.invalidURL
         }
 
         var request = URLRequest(url: requestURL)
         request.httpMethod = "GET"
         request.authorize(authorization)
 
-        handleRequest(request, requestId: nil, completion: completion)
+        return try await handleRequest(request, requestId: nil)
     }
 
-    func post<T: Decodable>(
-        to endpoint: Endpoint,
-        authorization: Authorization?,
-        body: Data?,
-        requestId: UUID?,
-        completion: @escaping (_ result: Result<T, Error>) -> Void
-    ) {
+    func post<T: Decodable>(to endpoint: any Endpoint, authorization: Authorization?, body: Data?, requestId: UUID?) async throws -> T {
         guard let requestURL = endpoint.url(config: config, storage: storage) else {
-            completion(.failure(NetworkingError.invalidURL))
-            return
+            throw NetworkingError.invalidURL
         }
 
         var request = URLRequest(url: requestURL)
@@ -79,18 +63,12 @@ internal class NetworkClient: Networking {
         request.httpBody = body
         request.authorize(authorization)
 
-        handleRequest(request, requestId: requestId, completion: completion)
+        return try await handleRequest(request, requestId: requestId)
     }
 
-    func post(
-        to endpoint: Endpoint,
-        authorization: Authorization?,
-        body: Data?,
-        completion: @escaping (_ result: Result<Void, Error>) -> Void
-    ) {
+    func post(to endpoint: any Endpoint, authorization: Authorization?, body: Data?) async throws {
         guard let requestURL = endpoint.url(config: config, storage: storage) else {
-            completion(.failure(NetworkingError.invalidURL))
-            return
+            throw NetworkingError.invalidURL
         }
 
         var request = URLRequest(url: requestURL)
@@ -98,19 +76,12 @@ internal class NetworkClient: Networking {
         request.httpBody = body
         request.authorize(authorization)
 
-        handleRequest(request, completion: completion)
+        return try await handleRequest(request)
     }
 
-    func put(
-        to endpoint: Endpoint,
-        authorization: Authorization?,
-        body: Data,
-        contentType: String,
-        completion: @escaping (Result<Void, Error>) -> Void
-    ) {
+    func put(to endpoint: any Endpoint, authorization: Authorization?, body: Data, contentType: String) async throws {
         guard let requestURL = endpoint.url(config: config, storage: storage) else {
-            completion(.failure(NetworkingError.invalidURL))
-            return
+            throw NetworkingError.invalidURL
         }
 
         var request = URLRequest(url: requestURL)
@@ -119,86 +90,53 @@ internal class NetworkClient: Networking {
         request.setValue(contentType, forHTTPHeaderField: "Content-Type")
         request.authorize(authorization)
 
-        handleRequest(request, completion: completion)
+        return try await handleRequest(request)
     }
 
     // version that decodes the response into the given type T
-    private func handleRequest<T: Decodable>(
-        _ urlRequest: URLRequest,
-        requestId: UUID?,
-        completion: @escaping (_ result: Result<T, Error>) -> Void
-    ) {
+    private func handleRequest<T: Decodable>(_ urlRequest: URLRequest, requestId: UUID?) async throws -> T {
         SdkMetrics.requested(requestId)
-        let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
-            SdkMetrics.responded(requestId)
-            let url = (response?.url ?? urlRequest.url)?.absoluteString ?? "<unknown>"
-            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
-            let logData = String(data: error?.data ?? data ?? Data.empty, encoding: .utf8) ?? ""
-
-            self?.config.logger.debug("RESPONSE: %{public}d %{public}@\n%{private}@", statusCode, url, logData)
-
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-
-            if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
-                completion(.failure(NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode, data)))
-                return
-            }
-
-            guard let data = data else {
-                completion(.failure(NetworkingError.noData))
-                return
-            }
-
-            do {
-                let responseObject = try Self.decoder.decode(T.self, from: data)
-                completion(.success(responseObject))
-            } catch {
-                completion(.failure(error))
-            }
-        }
 
         if let method = urlRequest.httpMethod, let url = urlRequest.url?.absoluteString {
             let data = String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? ""
             config.logger.debug("REQUEST: %{public}@ %{public}@\n%{private}@", method, url, data)
         }
 
-        dataTask.resume()
+        let (data, response) = try await config.urlSession.data(for: urlRequest)
+
+        SdkMetrics.responded(requestId)
+        let url = (response.url ?? urlRequest.url)?.absoluteString ?? "<unknown>"
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+        let logData = String(data: data, encoding: .utf8) ?? ""
+
+        config.logger.debug("RESPONSE: %{public}d %{public}@\n%{private}@", statusCode, url, logData)
+
+        if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
+            throw NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode, data)
+        }
+
+        let responseObject = try Self.decoder.decode(T.self, from: data)
+        return responseObject
     }
 
     // version that does not decode any response object, assumes empty or discards
-    private func handleRequest(
-        _ urlRequest: URLRequest,
-        completion: @escaping (_ result: Result<Void, Error>) -> Void
-    ) {
-        let dataTask = config.urlSession.dataTask(with: urlRequest) { [weak self] data, response, error in
-            let url = (response?.url ?? urlRequest.url)?.absoluteString ?? "<unknown>"
-            let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
-            let logData = String(data: error?.data ?? data ?? Data.empty, encoding: .utf8) ?? ""
-
-            self?.config.logger.debug("RESPONSE: %{public}d %{public}@\n%{private}@", statusCode, url, logData)
-
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-
-            if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
-                completion(.failure(NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode, data)))
-                return
-            }
-
-            completion(.success(()))
-        }
-
+    private func handleRequest(_ urlRequest: URLRequest) async throws {
         if let method = urlRequest.httpMethod, let url = urlRequest.url?.absoluteString {
             let data = String(data: urlRequest.httpBody ?? Data(), encoding: .utf8) ?? ""
             config.logger.debug("REQUEST: %{public}@ %{public}@\n%{private}@", method, url, data)
         }
 
-        dataTask.resume()
+        let (data, response) = try await config.urlSession.data(for: urlRequest)
+
+        let url = (response.url ?? urlRequest.url)?.absoluteString ?? "<unknown>"
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+        let logData = String(data: data, encoding: .utf8) ?? ""
+
+        config.logger.debug("RESPONSE: %{public}d %{public}@\n%{private}@", statusCode, url, logData)
+
+        if let httpResponse = response as? HTTPURLResponse, !httpResponse.isSuccessStatusCode {
+            throw NetworkingError.nonSuccessfulStatusCode(httpResponse.statusCode, data)
+        }
     }
 
 }

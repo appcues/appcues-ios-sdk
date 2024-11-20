@@ -9,7 +9,7 @@
 import UIKit
 
 internal protocol TraitComposing: AnyObject {
-    func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage
+    @MainActor func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage
 }
 
 internal class TraitComposer: TraitComposing {
@@ -28,6 +28,7 @@ internal class TraitComposer: TraitComposing {
         config = container.resolve(Appcues.Config.self)
     }
 
+    @MainActor
     // swiftlint:disable:next function_body_length
     func package(experience: ExperienceData, stepIndex: Experience.StepIndex) throws -> ExperiencePackage {
         let stepModels: [Experience.Step.Child] = experience.steps[stepIndex.group].items
@@ -107,7 +108,7 @@ internal class TraitComposer: TraitComposing {
         let wrapperController = try decomposedTraits.wrapperCreating?.createWrapper(around: containerController) ?? containerController
         let backdropView = decomposedTraits.wrapperCreating?.getBackdrop(for: wrapperController)
 
-        let stepDecoratingTraitUpdater: (Int, Int?) throws -> Void = { newIndex, previousIndex in
+        let stepDecoratingTraitUpdater: (Int, Int?) async throws -> Void = { newIndex, previousIndex in
             // Remove old decorations
             if let previousIndex = previousIndex {
                 try stepModelsWithTraits[previousIndex].decomposedTraits.containerDecorating.forEach {
@@ -127,8 +128,8 @@ internal class TraitComposer: TraitComposing {
             }
 
             if let backdropView = backdropView {
-                try stepModelsWithTraits[newIndex].decomposedTraits.backdropDecorating.forEach {
-                    try $0.decorate(backdropView: backdropView)
+                for trait in stepModelsWithTraits[newIndex].decomposedTraits.backdropDecorating {
+                    try await trait.decorate(backdropView: backdropView)
                 }
             }
 
@@ -146,8 +147,8 @@ internal class TraitComposer: TraitComposing {
             containerController: containerController,
             wrapperController: wrapperController,
             pageMonitor: pageMonitor,
-            presenter: { try presentingTrait.present(viewController: wrapperController, completion: $0) },
-            dismisser: { presentingTrait.remove(viewController: wrapperController, completion: $0) }
+            presenter: { try await presentingTrait.present(viewController: wrapperController) },
+            dismisser: { await presentingTrait.remove(viewController: wrapperController) }
         )
     }
 }

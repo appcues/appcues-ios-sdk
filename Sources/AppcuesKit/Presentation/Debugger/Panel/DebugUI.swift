@@ -116,7 +116,9 @@ internal enum DebugUI {
         var body: some View {
             ListItemRowView(item: statusItem) {
                 Button {
-                    apiVerifier.verifyAPI()
+                    Task {
+                        await apiVerifier.verifyAPI()
+                    }
                 } label: {
                     Image(systemName: "arrow.triangle.2.circlepath").imageScale(.small)
                 }

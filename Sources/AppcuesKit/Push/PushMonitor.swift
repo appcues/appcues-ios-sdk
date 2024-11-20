@@ -17,9 +17,10 @@ internal protocol PushMonitoring: AnyObject {
 
     func setPushToken(_ deviceToken: Data?)
 
-    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)?)
+    @discardableResult
+    func refreshPushStatus() async -> UNAuthorizationStatus
 
-    func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool
+    func didReceiveNotification(response: UNNotificationResponse) -> Bool
     @discardableResult
     func attemptDeferredNotificationResponse() -> Bool
 }
@@ -55,8 +56,10 @@ internal class PushMonitor: PushMonitoring {
         self.storage = container.resolve(DataStoring.self)
         self.analyticsPublisher = container.resolve(AnalyticsPublishing.self)
 
-        refreshPushStatus()
-        getPushEnvironment()
+        Task {
+            getPushEnvironment()
+            await refreshPushStatus()
+        }
 
         NotificationCenter.default.addObserver(
             self,
@@ -70,7 +73,9 @@ internal class PushMonitor: PushMonitoring {
 
     @objc
     private func applicationWillEnterForeground(notification: Notification) {
-        refreshPushStatus()
+        Task {
+            await refreshPushStatus()
+        }
     }
 
     func setPushToken(_ deviceToken: Data?) {
@@ -86,32 +91,31 @@ internal class PushMonitor: PushMonitoring {
         }
     }
 
-    func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)? = nil) {
+    @discardableResult
+    func refreshPushStatus() async -> UNAuthorizationStatus {
         // Skip call to UNUserNotificationCenter.current() in tests to avoid crashing in package tests
         #if DEBUG
         guard ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil else {
-            completion?(pushAuthorizationStatus)
-            return
+            return pushAuthorizationStatus
         }
         #endif
 
-        UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
-            let shouldPublish = self?.appcues?.sessionID != nil && self?.pushAuthorizationStatus != settings.authorizationStatus
-            self?.pushAuthorizationStatus = settings.authorizationStatus
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
 
-            if shouldPublish {
-                self?.analyticsPublisher.publish(TrackingUpdate(
-                    type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: true),
-                    isInternal: true
-                ))
-            }
+        let shouldPublish = appcues?.sessionID != nil && pushAuthorizationStatus != settings.authorizationStatus
+        pushAuthorizationStatus = settings.authorizationStatus
 
-            completion?(settings.authorizationStatus)
+        if shouldPublish {
+            analyticsPublisher.publish(TrackingUpdate(
+                type: .event(name: Events.Device.deviceUpdated.rawValue, interactive: true),
+                isInternal: true
+            ))
         }
+
+        return settings.authorizationStatus
     }
 
-    // `completionHandler` should be called iff the function returns true.
-    func didReceiveNotification(response: UNNotificationResponse, completionHandler: @escaping () -> Void) -> Bool {
+    func didReceiveNotification(response: UNNotificationResponse) -> Bool {
         let userInfo = response.notification.request.content.userInfo
 
         config.logger.info("Push response received:\n%{private}@", userInfo.description)
@@ -131,30 +135,21 @@ internal class PushMonitor: PushMonitoring {
             // This is a synthetic notification response from PushVerifier.
             let pushVerifier = appcues.container.resolve(PushVerifier.self)
             pushVerifier.receivedVerification(token: parsedNotification.notificationID)
-
-            completionHandler()
             return true
         }
 
         // If there's no active session store the notification for potential handling after the next user is identified
         guard appcues.isActive else {
             deferredNotification = parsedNotification
-
-            completionHandler()
             return true
         }
 
         // If there's an active session and a user ID mismatch, don't do anything with the notification
         guard parsedNotification.userID == storage.userID else {
-            completionHandler()
             return true
         }
 
-        executeNotificationResponse(
-            appcues: appcues,
-            parsedNotification: parsedNotification,
-            completionHandler: completionHandler
-        )
+        executeNotificationResponse(appcues: appcues, parsedNotification: parsedNotification)
 
         return true
     }
@@ -172,16 +167,12 @@ internal class PushMonitor: PushMonitoring {
             return false
         }
 
-        executeNotificationResponse(appcues: appcues, parsedNotification: parsedNotification) {}
+        executeNotificationResponse(appcues: appcues, parsedNotification: parsedNotification)
 
         return true
     }
 
-    private func executeNotificationResponse(
-        appcues: Appcues,
-        parsedNotification: ParsedNotification,
-        completionHandler: @escaping () -> Void
-    ) {
+    private func executeNotificationResponse(appcues: Appcues, parsedNotification: ParsedNotification) {
         if !parsedNotification.isTest {
             let properties: [String: Any?] = [
                 "push_notification_id": parsedNotification.notificationID,
@@ -212,8 +203,12 @@ internal class PushMonitor: PushMonitoring {
             ))
         }
 
-        let actionRegistry = appcues.container.resolve(ActionRegistry.self)
-        actionRegistry.enqueue(actionInstances: actions, completion: completionHandler)
+        let immutableActions = actions
+
+        Task {
+            let actionRegistry = appcues.container.resolve(ActionRegistry.self)
+            try? await actionRegistry.enqueue(actionInstances: immutableActions)
+        }
     }
 
     private func getPushEnvironment() {
