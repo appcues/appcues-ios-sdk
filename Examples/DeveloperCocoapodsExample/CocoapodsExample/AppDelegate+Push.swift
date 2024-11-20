@@ -27,28 +27,20 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
 
     // 3: Pass the user's response to a delivered notification to Appcues
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter,
-        didReceive response: UNNotificationResponse,
-        withCompletionHandler completionHandler: @escaping () -> Void
-    ) {
-        if Appcues.shared.didReceiveNotification(response: response, completionHandler: completionHandler) {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        if Appcues.shared.didReceiveNotification(response: response) {
             return
         }
 
-        completionHandler()
+        // Handle non-Appcues notifications
     }
 
     // 4: Configure handling for notifications that arrive while the app is in the foreground
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter,
-        willPresent notification: UNNotification,
-        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-    ) {
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         if #available(iOS 14.0, *) {
-            completionHandler([.banner, .list])
+            return [.banner, .list]
         } else {
-            completionHandler(.alert)
+            return .alert
         }
     }
 }
