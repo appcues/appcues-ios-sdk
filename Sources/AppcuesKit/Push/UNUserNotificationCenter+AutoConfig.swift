@@ -12,7 +12,17 @@ import UserNotifications
 // This is a placeholder delegate implementation in case there's no UNUserNotificationCenter.delegate set in the app
 internal class AppcuesUNUserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
     static var shared = AppcuesUNUserNotificationCenterDelegate()
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        completionHandler()
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([])
+    }
 }
+
+private var originalDelegateGetter: IMP?
 
 extension UNUserNotificationCenter {
 
@@ -26,6 +36,7 @@ extension UNUserNotificationCenter {
             return
         }
 
+        originalDelegateGetter = method_getImplementation(originalScrollViewMethod)
         method_exchangeImplementations(originalScrollViewMethod, swizzledScrollViewMethod)
     }
 
@@ -36,13 +47,17 @@ extension UNUserNotificationCenter {
 
         // this call looks recursive, but it is not, it is calling the swapped implementation
         // to get the actual delegate value that has been assigned, if any - can be nil
-        if let existingDelegate = appcues__getNotificationCenterDelegate() {
+        if let existingDelegate = unsafeBitCast(originalDelegateGetter, to: (@convention(c) (AnyObject, Selector) -> UNUserNotificationCenterDelegate?).self)(self, #selector(getter: UNUserNotificationCenter.delegate)) {
             delegate = existingDelegate
         } else {
             // if it is nil, then we assign our own delegate implementation so there is
             // something hooked in to listen to notifications
             delegate = AppcuesUNUserNotificationCenterDelegate.shared
+            // Temporarily set the original implementation back to avoid recursive call
+            method_setImplementation(class_getInstanceMethod(UNUserNotificationCenter.self, #selector(getter: UNUserNotificationCenter.delegate))!, originalDelegateGetter!)
             self.delegate = delegate
+            // Swap the implementations back
+            method_setImplementation(class_getInstanceMethod(UNUserNotificationCenter.self, #selector(getter: UNUserNotificationCenter.delegate))!, method_getImplementation(class_getInstanceMethod(UNUserNotificationCenter.self, #selector(appcues__getNotificationCenterDelegate))!))
         }
 
         Swizzler.swizzle(
@@ -70,8 +85,6 @@ extension UNUserNotificationCenter {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        // this gives swizzling something to replace, if the existing delegate doesn't already
-        // implement this function.
         completionHandler()
     }
 
@@ -81,8 +94,6 @@ extension UNUserNotificationCenter {
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        // this gives swizzling something to replace, if the existing delegate doesn't already
-        // implement this function.
         completionHandler([])
     }
 
