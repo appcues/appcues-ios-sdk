@@ -34,6 +34,8 @@ extension UNUserNotificationCenter {
     private func appcues__getNotificationCenterDelegate() -> UNUserNotificationCenterDelegate? {
         let delegate: UNUserNotificationCenterDelegate
 
+        var shouldSetDelegate = false
+
         // this call looks recursive, but it is not, it is calling the swapped implementation
         // to get the actual delegate value that has been assigned, if any - can be nil
         if let existingDelegate = appcues__getNotificationCenterDelegate() {
@@ -42,7 +44,7 @@ extension UNUserNotificationCenter {
             // if it is nil, then we assign our own delegate implementation so there is
             // something hooked in to listen to notifications
             delegate = AppcuesUNUserNotificationCenterDelegate.shared
-            self.delegate = delegate
+            shouldSetDelegate = true
         }
 
         Swizzler.swizzle(
@@ -60,6 +62,15 @@ extension UNUserNotificationCenter {
             placeholderSelector: #selector(appcues__placeholderUserNotificationCenterWillPresent),
             swizzleSelector: #selector(appcues__userNotificationCenterWillPresent)
         )
+
+        // If we need to set a non-nil implementation where there previously was not one,
+        // swap the swizzled getter back first, then assign, then restore the swizzled getter.
+        // This is done to avoid infinite recursion in some cases.
+        if shouldSetDelegate {
+            UNUserNotificationCenter.swizzleNotificationCenterGetDelegate()
+            self.delegate = delegate
+            UNUserNotificationCenter.swizzleNotificationCenterGetDelegate()
+        }
 
         return delegate
     }
