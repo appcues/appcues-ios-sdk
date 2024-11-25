@@ -32,7 +32,7 @@ internal class StepRecoveryObserver: ExperienceStateObserver {
         AppcuesScrollViewDelegate.shared.detach()
     }
 
-    func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
+    func stateChanged(to result: StateResult) {
         switch result {
         case .failure(.step(_, _, _, recoverable: true)):
             // a recoverable step error has been observed, so we begin attempting
@@ -48,9 +48,6 @@ internal class StepRecoveryObserver: ExperienceStateObserver {
         default:
             break
         }
-
-        // recovery observer never stops observing
-        return false
     }
 
     private func startRetryHandler() {

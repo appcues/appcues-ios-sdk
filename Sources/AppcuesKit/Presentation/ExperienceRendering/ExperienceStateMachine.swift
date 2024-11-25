@@ -18,10 +18,13 @@ internal class ExperienceStateMachine {
 
     private(set) var state: State {
         didSet {
-            // Call each observer and filter out ones that been satisfied
-            stateObservers = stateObservers.filter { !$0.evaluateIfSatisfied(result: .success(state)) }
+            stateObservers.forEach { $0.stateChanged(to: .success(state)) }
+            continuation?.yield(state)
         }
     }
+
+    private(set) var stateStream: AsyncStream<State>
+    private var continuation: AsyncStream<State>.Continuation?
 
     weak var clientAppcuesPresentationDelegate: AppcuesPresentationDelegate?
     weak var clientControllerPresentationDelegate: AppcuesPresentationDelegate?
@@ -35,6 +38,11 @@ internal class ExperienceStateMachine {
         actionRegistry = container.resolve(ActionRegistry.self)
 
         state = initialState
+
+        // needed to avoid the closure capturing 'self' before all members were initialized
+        var localContinuation: AsyncStream<State>.Continuation?
+        stateStream = AsyncStream<State> { localContinuation = $0 }
+        self.continuation = localContinuation
     }
 
     func transition(_ action: Action) async throws {
@@ -282,10 +290,7 @@ extension ExperienceStateMachine {
                 await package.dismisser()
                 try? await machine.transition(action)
             case let .error(error):
-                // Call each observer with the error as a failure and filter out ones that been satisfied
-                machine.stateObservers = machine.stateObservers.filter {
-                    !$0.evaluateIfSatisfied(result: .failure(error))
-                }
+                machine.stateObservers.forEach { $0.stateChanged(to: .failure(error)) }
                 throw error
             case let .processActions(actionFactory):
                 machine.actionRegistry.enqueue(actionFactory: actionFactory)
