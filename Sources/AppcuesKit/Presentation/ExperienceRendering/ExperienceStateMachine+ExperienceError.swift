@@ -10,7 +10,6 @@ import Foundation
 
 extension ExperienceStateMachine {
     enum ExperienceError: Error {
-        case noTransition(currentState: State)
         case experienceAlreadyActive(ignoredExperience: ExperienceData)
         case experience(ExperienceData, String)
         case step(ExperienceData, Experience.StepIndex, String, recoverable: Bool = false)
@@ -20,8 +19,6 @@ extension ExperienceStateMachine {
 extension ExperienceStateMachine.ExperienceError: Equatable {
     static func == (lhs: ExperienceStateMachine.ExperienceError, rhs: ExperienceStateMachine.ExperienceError) -> Bool {
         switch (lhs, rhs) {
-        case (.noTransition, .noTransition):
-            return true
         case let (.experienceAlreadyActive(experience1), .experienceAlreadyActive(experience2)):
             return experience1.id == experience2.id
         case let (.experience(experience1, message1), .experience(experience2, message2)):
@@ -38,8 +35,6 @@ extension ExperienceStateMachine.ExperienceError: CustomStringConvertible, Custo
 
     var description: String {
         switch self {
-        case .noTransition:
-            return "no transition in state machine"
         case .experienceAlreadyActive:
             return "experience already active"
         case let .experience(_, message), let .step(_, _, message, _):
@@ -49,8 +44,6 @@ extension ExperienceStateMachine.ExperienceError: CustomStringConvertible, Custo
 
     var debugDescription: String {
         switch self {
-        case .noTransition:
-            return ".noTransition"
         case let .experienceAlreadyActive(experience):
             return ".experienceAlreadyActive(ignoredExperienceID: \(experience.id.uuidString))"
         case let .experience(experience, message):

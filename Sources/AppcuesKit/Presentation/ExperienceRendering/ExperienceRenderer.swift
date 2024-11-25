@@ -233,12 +233,26 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
             throw ExperienceRendererError.noStateMachine
         }
 
-        // TODO: handle scenario where we're currently presenting
-        // https://github.com/appcues/appcues-ios-sdk/pull/185
-        try await stateMachine.transition(.endExperience(markComplete: markComplete))
-
-        pendingPreviewExperiences.removeValue(forKey: context)
-        potentiallyRenderableExperiences.removeValue(forKey: context)
+        do {
+            try await stateMachine.transition(.endExperience(markComplete: markComplete))
+            pendingPreviewExperiences.removeValue(forKey: context)
+            potentiallyRenderableExperiences.removeValue(forKey: context)
+        } catch let error as ExperienceStateMachine.InvalidTransition {
+            // Handle dismissing an experience that's in the process of presenting a step group.
+            switch error.fromState {
+            case .beginningExperience, .beginningStep:
+                // Want to wait for .renderingStep case to dismiss and return
+                for await currentState in stateMachine.stateStream {
+                    if case .renderingStep = currentState {
+                        break
+                    }
+                }
+                // Retry now that we're in a valid state
+                try await dismiss(inContext: context, markComplete: markComplete)
+            default:
+                throw error
+            }
+        }
     }
 
     func experienceData(forContext context: RenderContext) -> ExperienceData? {

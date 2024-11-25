@@ -10,7 +10,7 @@ import Foundation
 
 internal protocol ExperienceStateObserver: AnyObject {
     typealias StateResult = Result<ExperienceStateMachine.State, ExperienceStateMachine.ExperienceError>
-    func evaluateIfSatisfied(result: StateResult) -> Bool
+    func stateChanged(to result: StateResult)
 }
 
 extension Result where Success == ExperienceStateMachine.State, Failure == ExperienceStateMachine.ExperienceError {
@@ -20,7 +20,7 @@ extension Result where Success == ExperienceStateMachine.State, Failure == Exper
         guard let instanceID = instanceID else { return true }
 
         switch self {
-        case .success(.idling), .failure(.noTransition):
+        case .success(.idling):
             return true
         case .success(.failing(let targetState, _)):
             return targetState.currentExperienceData?.instanceID == instanceID
@@ -50,7 +50,7 @@ extension ExperienceStateMachine {
         }
 
         // swiftlint:disable:next function_body_length
-        func evaluateIfSatisfied(result: ExperienceStateObserver.StateResult) -> Bool {
+        func stateChanged(to result: StateResult) {
             switch result {
             case .success(.idling):
                 break
@@ -112,14 +112,9 @@ extension ExperienceStateMachine {
                 )
             case let .failure(.step(experience, stepIndex, message, recoverable)):
                 trackStepError(experience: experience, stepIndex: stepIndex, message: message, recoverable: recoverable)
-            case .failure(.noTransition):
-                break
             case .failure(.experienceAlreadyActive):
                 break
             }
-
-            // Always continue observing
-            return false
         }
 
         private func track(experienceEvent name: Events.Experience, properties: [String: Any], shouldPublish: Bool) {
@@ -201,8 +196,6 @@ private extension ExperienceStateObserver.StateResult {
 private extension ExperienceStateMachine.ExperienceError {
     var shouldPublish: Bool {
         switch self {
-        case .noTransition:
-            return false
         case .experienceAlreadyActive:
             return false
         case let .experience(experience, _):
