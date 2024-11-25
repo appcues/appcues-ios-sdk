@@ -35,28 +35,25 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateIdlingState() async throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.idling))
+        observer.stateChanged(to: .success(.idling))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         XCTAssertEqual(updates.count, 0)
     }
 
     func testEvaluateBeginningExperienceState() async throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.beginningExperience(ExperienceData.mock)))
+        observer.stateChanged(to: .success(.beginningExperience(ExperienceData.mock)))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         XCTAssertEqual(updates.count, 0)
     }
 
     func testEvaluateBeginningStepState() async throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.beginningStep(ExperienceData.mock, .initial, await ExperienceData.mock.package(), isFirst: true)))
+        observer.stateChanged(to: .success(.beginningStep(ExperienceData.mock, .initial, await ExperienceData.mock.package(), isFirst: true)))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         XCTAssertEqual(updates.count, 0)
     }
 
@@ -70,10 +67,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Act
         let experience = ExperienceData.mock
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, await experience.package(), isFirst: true)))
+        observer.stateChanged(to: .success(.renderingStep(experience, .initial, await experience.package(), isFirst: true)))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 2)
         let lastUpdate = try XCTUnwrap(updates.last)
@@ -113,10 +109,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Act
         let experience = ExperienceData.mock
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, await experience.package(), isFirst: false)))
+        observer.stateChanged(to: .success(.renderingStep(experience, .initial, await experience.package(), isFirst: false)))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
@@ -155,10 +150,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Act
         let experience = ExperienceData.mock
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(experience, .initial, await experience.package(), markComplete: true)))
+        observer.stateChanged(to: .success(.endingStep(experience, .initial, await experience.package(), markComplete: true)))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
 
@@ -194,10 +188,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
     func testEvaluateEndingStepStateWhenIncomplete() async throws {
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingStep(ExperienceData.mock, .initial, await ExperienceData.mock.package(), markComplete: false)))
+        observer.stateChanged(to: .success(.endingStep(ExperienceData.mock, .initial, await ExperienceData.mock.package(), markComplete: false)))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         XCTAssertEqual(updates.count, 0)
     }
 
@@ -207,10 +200,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Act
         let experience = ExperienceData.mock
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(experience, .initial, markComplete: false)))
+        observer.stateChanged(to: .success(.endingExperience(experience, .initial, markComplete: false)))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
@@ -249,10 +241,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Act
         let experience = ExperienceData.mock
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(experience, .initial, markComplete: true)))
+        observer.stateChanged(to: .success(.endingExperience(experience, .initial, markComplete: true)))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
@@ -286,10 +277,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Act
         let experience = ExperienceData.mock
-        let isCompleted = observer.evaluateIfSatisfied(result: .success(.endingExperience(experience, Experience.StepIndex(group: 1, item: 0), markComplete: true)))
+        observer.stateChanged(to: .success(.endingExperience(experience, Experience.StepIndex(group: 1, item: 0), markComplete: true)))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
@@ -324,10 +314,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.experience(experience, "error")))
+        observer.stateChanged(to: .failure(.experience(experience, "error")))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
@@ -366,10 +355,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
         // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.step(experience, .initial, "error")))
+        observer.stateChanged(to: .failure(.step(experience, .initial, "error")))
 
         // Assert
-        XCTAssertFalse(isCompleted)
         await fulfillment(of: [analyticsExpectation], timeout: 1)
         XCTAssertEqual(updates.count, 1)
         let lastUpdate = try XCTUnwrap(updates.last)
@@ -404,15 +392,6 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             ),
             "can successfully remap the property dict"
         )
-    }
-
-    func testEvaluateNoTransitionError() async throws {
-        // Act
-        let isCompleted = observer.evaluateIfSatisfied(result: .failure(.noTransition(currentState: .idling)))
-
-        // Assert
-        XCTAssertFalse(isCompleted)
-        XCTAssertEqual(updates.count, 0)
     }
 
     func testExperienceErrorAndRecovery() async throws {
@@ -486,9 +465,9 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
 
         // Act
         // simulates the same recoverable step error occurring multiple times, then a successful render of the step
-        _ = observer.evaluateIfSatisfied(result: .failure(.step(experience, .initial, "recoverable step error", recoverable: true)))
-        _ = observer.evaluateIfSatisfied(result: .failure(.step(experience, .initial, "recoverable step error", recoverable: true)))
-        _ = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, package, isFirst: true)))
+        observer.stateChanged(to: .failure(.step(experience, .initial, "recoverable step error", recoverable: true)))
+        observer.stateChanged(to: .failure(.step(experience, .initial, "recoverable step error", recoverable: true)))
+        observer.stateChanged(to: .success(.renderingStep(experience, .initial, package, isFirst: true)))
 
         // Assert
         await fulfillment(of: [analyticsExpectation], timeout: 1)

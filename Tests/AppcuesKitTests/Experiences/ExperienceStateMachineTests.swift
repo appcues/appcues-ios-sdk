@@ -734,14 +734,14 @@ class ExperienceStateMachineTests: XCTestCase {
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         let effect: ExperienceStateMachine.SideEffect = .continuation(.reset)
         let action: Action = .reportError(
-            error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
+            error: ExperienceStateMachine.ExperienceError.experience(experience, "error"),
             retryEffect: effect
         )
         let stateMachine = await givenState(is: initialState)
 
         // Act
         await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
-            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "no transition in state machine")
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "error")
         }
 
         // Assert
@@ -753,14 +753,14 @@ class ExperienceStateMachineTests: XCTestCase {
         let experience = ExperienceData.mock
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         let action: Action = .reportError(
-            error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
+            error: ExperienceStateMachine.ExperienceError.experience(experience, "error"),
             retryEffect: nil
         )
         let stateMachine = await givenState(is: initialState)
 
         // Act
         await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
-            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "no transition in state machine")
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "error")
         }
 
         // Assert
@@ -774,7 +774,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         let effect: ExperienceStateMachine.SideEffect = .continuation(.reset)
         let action: Action = .reportError(
-            error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
+            error: ExperienceStateMachine.ExperienceError.experience(experience, "error"),
             retryEffect: effect
         )
         let stateMachine = await givenState(is: initialState)
@@ -783,7 +783,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
         // Act
         await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
-            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "no transition in state machine")
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "error")
         }
 
         // Assert
@@ -791,7 +791,7 @@ class ExperienceStateMachineTests: XCTestCase {
             listingObserver.results,
             [
                 .success(.failing(targetState: initialState, retryEffect: effect)),
-                .failure(.noTransition(currentState: initialState))
+                .failure(.experience(experience, "error"))
             ]
         )
     }
@@ -801,7 +801,7 @@ class ExperienceStateMachineTests: XCTestCase {
         let experience = ExperienceData.mock
         let initialState: State = .renderingStep(experience, Experience.StepIndex(group: 0, item: 0), await experience.package(), isFirst: false)
         let action: Action = .reportError(
-            error: ExperienceStateMachine.ExperienceError.noTransition(currentState: initialState),
+            error: ExperienceStateMachine.ExperienceError.experience(experience, "error"),
             retryEffect: nil
         )
         let stateMachine = await givenState(is: initialState)
@@ -810,7 +810,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
         // Act
         await XCTAssertThrowsAsyncError(try await stateMachine.transition(action)) {
-            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "no transition in state machine")
+            XCTAssertEqual(($0 as? ExperienceStateMachine.ExperienceError)?.description, "error")
         }
 
         // Assert
@@ -818,7 +818,7 @@ class ExperienceStateMachineTests: XCTestCase {
             listingObserver.results,
             [
                 .success(.idling),
-                .failure(.noTransition(currentState: initialState))
+                .failure(.experience(experience, "error"))
             ]
         )
         XCTAssertEqual(stateMachine.stateObservers.count, 0, "observer is removed when reset to idling")
@@ -869,9 +869,8 @@ private class MockAppcuesExperienceDelegate: AppcuesExperienceDelegate {
 
 private class ListingObserver: ExperienceStateObserver {
     var results: [StateResult] = []
-    func evaluateIfSatisfied(result: StateResult) -> Bool {
+    func stateChanged(to result: StateResult) {
         results.append(result)
-        return false
     }
 }
 
