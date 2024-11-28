@@ -27,7 +27,7 @@ internal class ToastUIWindow: UIWindow {
     }()
     // used to schedule toast dismissal, and invalidate in cases where retry and new toast
     // are necessary
-    private var toastDismissTimer: Timer?
+    private var toastDismissTimer: Task<Void, Never>?
 
     override init(windowScene: UIWindowScene) {
         super.init(windowScene: windowScene)
@@ -97,13 +97,16 @@ internal class ToastUIWindow: UIWindow {
     func showToast(_ toast: DebugToast) {
         // stop any pending dismiss when we are starting a new toast presentation
         // it will get reset to the desired timeout after the new toast is set visible
-        toastDismissTimer?.invalidate()
+        toastDismissTimer?.cancel()
 
         toastView.configure(content: toast)
         toastView.set(visibility: true, animated: true) {
             // using a timer here so we can cancel and extend the toast on each subsequent retry attempt
-            self.toastDismissTimer = Timer.scheduledTimer(withTimeInterval: toast.duration, repeats: false) { [weak self] _ in
-                self?.toastView.set(visibility: false, animated: true, completion: nil)
+            self.toastDismissTimer = Task { [weak self] in
+                try? await Task.sleep(nanoseconds: UInt64(1_000_000_000 * toast.duration))
+                if !Task.isCancelled {
+                    self?.toastView.set(visibility: false, animated: true, completion: nil)
+                }
             }
         }
     }
