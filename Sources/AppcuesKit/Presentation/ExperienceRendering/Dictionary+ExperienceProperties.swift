@@ -74,7 +74,7 @@ extension Events.Experience {
         let message: String?
         let id: UUID
 
-        init(message: String?, id: UUID = UUID.create()) {
+        init(message: String?, id: UUID = UUID()) {
             self.message = message
             self.id = id
         }
@@ -82,7 +82,7 @@ extension Events.Experience {
         // Conveniently init with `"message"` or `"\(messageVar)"` instead of `Events.Experience.ErrorBody(message: messageVar)`.
         init(stringLiteral value: String) {
             message = value
-            id = UUID.create()
+            id = UUID()
         }
     }
 }

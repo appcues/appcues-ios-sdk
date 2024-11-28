@@ -10,7 +10,7 @@ import UIKit
 import QuartzCore
 
 internal class AppcuesEffectsTrait: AppcuesBackdropDecoratingTrait {
-    static var type: String = "@appcues/effects"
+    static let type: String = "@appcues/effects"
 
     var metadataDelegate: AppcuesTraitMetadataDelegate?
 

@@ -13,7 +13,7 @@ internal class AppcuesBackdropTrait: AppcuesBackdropDecoratingTrait {
         let backgroundColor: ExperienceComponent.Style.DynamicColor
     }
 
-    static var type: String = "@appcues/backdrop"
+    static let type: String = "@appcues/backdrop"
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 

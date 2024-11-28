@@ -8,15 +8,8 @@
 
 import Foundation
 
-// Allows overriding of UUID creation for deterministic testing.
 extension UUID {
-    static var generator: () -> UUID = UUID.init
-
     var appcuesFormatted: String {
         return uuidString.lowercased()
-    }
-
-    static func create() -> UUID {
-        return UUID.generator()
     }
 }

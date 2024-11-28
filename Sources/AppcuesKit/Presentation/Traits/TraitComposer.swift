@@ -218,7 +218,7 @@ extension TraitComposer {
     }
 
     class DefaultContainerCreatingTrait: AppcuesContainerCreatingTrait {
-        static var type: String = "_defaultContainerCreatingTrait"
+        static let type: String = "_defaultContainerCreatingTrait"
 
         weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 

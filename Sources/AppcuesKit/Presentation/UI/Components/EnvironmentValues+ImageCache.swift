@@ -10,7 +10,7 @@ import SwiftUI
 
 internal struct ImageCacheKey: EnvironmentKey {
     // This is mutable so a custom cache can be injected for testing.
-    static var defaultValue = SessionImageCache()
+    nonisolated(unsafe) static var defaultValue = SessionImageCache()
 }
 
 extension EnvironmentValues {

@@ -14,7 +14,7 @@ internal class AppcuesStepTransitionAnimationTrait: AppcuesContainerDecoratingTr
         let easing: Easing?
     }
 
-    static var type: String = "@appcues/step-transition-animation"
+    static let type: String = "@appcues/step-transition-animation"
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 

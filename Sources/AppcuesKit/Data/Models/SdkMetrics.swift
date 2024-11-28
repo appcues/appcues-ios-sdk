@@ -12,7 +12,8 @@ internal struct SdkMetrics {
 
     private static let syncQueue = DispatchQueue(label: "appcues-sdk-metrics")
 
-    private static var metrics: [UUID: SdkMetrics] = [:]
+    // Protected by syncQueue
+    nonisolated(unsafe) private static var metrics: [UUID: SdkMetrics] = [:]
 
     // the time when the tracking was first captured by the SDK - the call to `track(event)` for instance
     private var trackedAt: Date?

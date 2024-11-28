@@ -13,7 +13,7 @@ internal class UIKitScreenTracker {
 
     // used to ignore SDK presented screens (experiences we create) for the purpose
     // of automatic screen tracking
-    internal static var untrackedScreenKey: UInt8 = 0
+    nonisolated(unsafe) internal static var untrackedScreenKey: UInt8 = 0
 
     private var lastTrackedScreen: String?
 
