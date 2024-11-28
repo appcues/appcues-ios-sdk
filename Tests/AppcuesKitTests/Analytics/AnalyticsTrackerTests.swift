@@ -418,6 +418,9 @@ class AnalyticsTrackerTests: XCTestCase {
     }
 }
 
+/// Empty type to facilitate verifyPropertiesMatch checking with String
+struct SomeUUID {}
+
 // Helpers to test an Activity request body is as expected
 extension Dictionary where Key == String, Value == Any {
 
@@ -431,6 +434,9 @@ extension Dictionary where Key == String, Value == Any {
             switch(self[key], other[key]) {
             case let (val1 as ExperienceData.StepState, val2 as ExperienceData.StepState):
                 XCTAssertEqual(val1, val2, file: file, line: line)
+            case let (_ as SomeUUID, val2 as String):
+                // Ensure val2 is a valid UUID (specific value doesn't matter because it's uniquely generated
+                XCTAssertNotNil(UUID(uuidString: val2), file: file, line: line)
             case let (val1 as String, val2 as String):
                 XCTAssertEqual(val1, val2, file: file, line: line)
             case let (val1 as NSNumber, val2 as NSNumber):

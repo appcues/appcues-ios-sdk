@@ -26,9 +26,6 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        // Reset fixed UUID
-        UUID.generator = UUID.init
-
         analyticsExpectation = nil
         updates = []
     }
@@ -311,7 +308,6 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Arrange
         analyticsExpectation = expectation(description: "analytics updated")
         let experience = ExperienceData.mock
-        UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
         // Act
         observer.stateChanged(to: .failure(.experience(experience, "error")))
@@ -331,9 +327,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "localeName": "English",
             "localeId": "en",
             "message": "error",
-            "errorId": "a6d6e248-faff-4789-a03c-bd7f520c1181"
+            "errorId": SomeUUID()
         ].verifyPropertiesMatch(lastUpdate.properties)
 
+        // Pull the error ID from the update being tested because it's uniquely generated
+        let errorID = try XCTUnwrap(UUID(uuidString: lastUpdate.properties?["errorId"] as? String ?? ""))
         XCTAssertEqual(
             try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
             StructuredLifecycleProperties(
@@ -341,7 +339,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 experienceID: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
                 experienceName: "Mock Experience: Group with 3 steps, Single step",
                 experienceInstanceID: experience.instanceID,
-                errorID: UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181"),
+                errorID: errorID,
                 message: "error"
             ),
             "can successfully remap the property dict"
@@ -352,7 +350,6 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Arrange
         analyticsExpectation = expectation(description: "analytics updated")
         let experience = ExperienceData.mock
-        UUID.generator = { UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181")! }
 
         // Act
         observer.stateChanged(to: .failure(.step(experience, .initial, "error")))
@@ -375,9 +372,11 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0",
             "message": "error",
-            "errorId": "a6d6e248-faff-4789-a03c-bd7f520c1181"
+            "errorId": SomeUUID()
         ].verifyPropertiesMatch(lastUpdate.properties)
 
+        // Pull the error ID from the update being tested because it's uniquely generated
+        let errorID = try XCTUnwrap(UUID(uuidString: lastUpdate.properties?["errorId"] as? String ?? ""))
         XCTAssertEqual(
             try XCTUnwrap(StructuredLifecycleProperties(update: lastUpdate)),
             StructuredLifecycleProperties(
@@ -387,7 +386,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
                 experienceInstanceID: experience.instanceID,
                 stepID: UUID(uuidString: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
                 stepIndex: Experience.StepIndex(group: 0, item: 0),
-                errorID: UUID(uuidString: "A6D6E248-FAFF-4789-A03C-BD7F520C1181"),
+                errorID: errorID,
                 message: "error"
             ),
             "can successfully remap the property dict"
@@ -398,7 +397,6 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         // Arrange
         analyticsExpectation = expectation(description: "analytics updated")
         analyticsExpectation.expectedFulfillmentCount = 2
-        UUID.generator = { UUID(uuidString: "2e044aa2-130f-4260-80c2-a36092a88aff")! }
 
         let experienceData = ExperienceData.mock
 
@@ -422,7 +420,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "trigger": "show_call",
             "localeName": "English",
             "localeId": "en",
-            "errorId": "2e044aa2-130f-4260-80c2-a36092a88aff",
+            "errorId": SomeUUID(),
             "message": "oh no"
         ].verifyPropertiesMatch(errorUpdate.properties)
 
@@ -436,14 +434,12 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "trigger": "show_call",
             "localeName": "English",
             "localeId": "en",
-            "errorId": "2e044aa2-130f-4260-80c2-a36092a88aff"
+            "errorId": SomeUUID()
         ].verifyPropertiesMatch(recoveryUpdate.properties)
     }
 
     func testUnpublishedExperienceErrorAndRecovery() async throws {
         // Arrange
-        UUID.generator = { UUID(uuidString: "2e044aa2-130f-4260-80c2-a36092a88aff")! }
-
         let experienceData = ExperienceData(.mock, trigger: .showCall, published: false)
 
         // Act
@@ -459,7 +455,6 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         analyticsExpectation = expectation(description: "analytics updated")
         analyticsExpectation.expectedFulfillmentCount = 4
 
-        UUID.generator = { UUID(uuidString: "aa47c304-7a42-40e4-8cbf-6d7d8f46c31c")! }
         let experience = ExperienceData.mock
         let package = await experience.package()
 
@@ -493,7 +488,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0",
             "message": "recoverable step error",
-            "errorId": "aa47c304-7a42-40e4-8cbf-6d7d8f46c31c"
+            "errorId": SomeUUID()
         ].verifyPropertiesMatch(stepError.properties)
         [
             "experienceName": "Mock Experience: Group with 3 steps, Single step",
@@ -507,7 +502,7 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
             "stepType": "modal",
             "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
             "stepIndex": "0,0",
-            "errorId": "aa47c304-7a42-40e4-8cbf-6d7d8f46c31c"
+            "errorId": SomeUUID()
         ].verifyPropertiesMatch(stepRecovered.properties)
     }
 
