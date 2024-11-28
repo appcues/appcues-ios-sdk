@@ -174,10 +174,10 @@ internal class ExperienceStepViewController: UIViewController {
             switch edge {
             case .top:
                 self?.stickySpacing.top = size.height
-                self?.stepView.scrollView.scrollIndicatorInsets.top = size.height + (self?.padding.top ?? 0)
+                self?.stepView.scrollView.verticalScrollIndicatorInsets.top = size.height + (self?.padding.top ?? 0)
             case .bottom:
                 self?.stickySpacing.bottom = size.height
-                self?.stepView.scrollView.scrollIndicatorInsets.bottom = size.height + (self?.padding.bottom ?? 0)
+                self?.stepView.scrollView.verticalScrollIndicatorInsets.bottom = size.height + (self?.padding.bottom ?? 0)
             }
         }
     }
