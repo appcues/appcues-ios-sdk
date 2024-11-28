@@ -41,7 +41,7 @@ internal enum StepReference: Equatable {
 
 extension Experience {
     struct StepIndex: Equatable, Comparable, CustomStringConvertible {
-        static var initial = StepIndex(group: 0, item: 0)
+        static let initial = StepIndex(group: 0, item: 0)
 
         var group: Int
         var item: Int

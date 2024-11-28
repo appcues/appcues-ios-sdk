@@ -20,7 +20,7 @@ public class Appcues: NSObject {
     /// experiences, such as anchored tooltips. By default, the SDK uses a strategy for native iOS UIKit applications.
     public static var elementTargeting: AppcuesElementTargeting = UIKitElementTargeting()
 
-    internal static var customComponentRegistry = CustomComponentRegistry()
+    internal static let customComponentRegistry = CustomComponentRegistry()
 
     let container = DIContainer()
     let config: Appcues.Config

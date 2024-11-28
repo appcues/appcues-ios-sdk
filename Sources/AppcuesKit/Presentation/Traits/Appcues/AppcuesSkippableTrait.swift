@@ -16,7 +16,7 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
         let buttonStyle: ExperienceComponent.Style?
     }
 
-    static var type: String = "@appcues/skippable"
+    static let type: String = "@appcues/skippable"
 
     weak var metadataDelegate: AppcuesTraitMetadataDelegate?
 

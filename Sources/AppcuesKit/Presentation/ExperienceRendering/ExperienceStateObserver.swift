@@ -131,7 +131,7 @@ extension ExperienceStateMachine {
             // and the observer is only attached on published flows
             guard experience.recoverableErrorID == nil else { return }
 
-            let errorID = UUID.create()
+            let errorID = UUID()
             if recoverable {
                 experience.recoverableErrorID = errorID
             }
@@ -159,7 +159,7 @@ extension ExperienceStateMachine {
         func trackRecoverableError(experience: ExperienceData, message: String) {
             guard experience.published, experience.recoverableErrorID == nil else { return }
 
-            let errorID = UUID.create()
+            let errorID = UUID()
             experience.recoverableErrorID = errorID
             let errorProperties = Dictionary(
                 propertiesFrom: experience,

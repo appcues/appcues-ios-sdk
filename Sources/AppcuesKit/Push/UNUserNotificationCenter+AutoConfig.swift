@@ -11,7 +11,7 @@ import UserNotifications
 
 // This is a placeholder delegate implementation in case there's no UNUserNotificationCenter.delegate set in the app
 internal class AppcuesUNUserNotificationCenterDelegate: NSObject, UNUserNotificationCenterDelegate {
-    static var shared = AppcuesUNUserNotificationCenterDelegate()
+    static let shared = AppcuesUNUserNotificationCenterDelegate()
 }
 
 extension UNUserNotificationCenter {
