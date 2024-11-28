@@ -99,7 +99,8 @@ internal class FleetingLogView: UIView {
             view.transform = .identity
         }
 
-        Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] _ in
+        Task { [weak self] in
+            try? await Task.sleep(nanoseconds: UInt64(1_000_000_000 * 3))
             self?.removeMessage(view: view)
         }
     }

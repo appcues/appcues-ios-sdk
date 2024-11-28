@@ -24,8 +24,8 @@ internal class DebugView: UIView {
 
     private var initialTouchOffsetFromCenter: CGPoint = .zero
 
-    private var dismissViewTimer: Timer?
-    private var canDismiss: Bool { dismissViewTimer?.isValid == false }
+    private var dismissViewTimer: Task<Void, Never>?
+    private var canDismiss: Bool { dismissView.alpha == 1 }
     private var isSnappedToDismissZone = false
 
     private var panelViewHideAnimator: UIViewPropertyAnimator?
@@ -359,8 +359,11 @@ internal class DebugView: UIView {
 
         switch recognizer.state {
         case .began:
-            dismissViewTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: false) { _ in
-                self.dismissView.animateVisibility(visible: true, animated: true)
+            dismissViewTimer = Task { [weak self] in
+                try? await Task.sleep(nanoseconds: UInt64(1_000_000_000 * 0.3))
+                if !Task.isCancelled {
+                    self?.dismissView.animateVisibility(visible: true, animated: true)
+                }
             }
         case .changed:
             if isInDismissRange {
@@ -382,7 +385,7 @@ internal class DebugView: UIView {
 
             isSnappedToDismissZone = isInDismissRange
         case .ended:
-            dismissViewTimer?.invalidate()
+            dismissViewTimer?.cancel()
             dismissViewTimer = nil
 
             dismissView.animateVisibility(visible: false, animated: true)
