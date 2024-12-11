@@ -101,10 +101,8 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
     private func decorate(_ update: TrackingUpdate) -> TrackingUpdate {
         var update = update
 
-        // Apply decorations, removing any decorators that have been released from memory.
-        decorators.removeAll {
+        decorators.forEach {
             update = $0.value?.decorate(update) ?? update
-            return $0.value == nil
         }
 
         return update
@@ -112,10 +110,8 @@ internal class AnalyticsPublisher: AnalyticsPublishing {
 
     private func notifySubscribers(_ update: TrackingUpdate) {
 
-        // Call subscribers, removing any subscribers that have been released from memory.
-        subscribers.removeAll {
+        subscribers.forEach {
             $0.value?.track(update: update)
-            return $0.value == nil
         }
     }
 }
