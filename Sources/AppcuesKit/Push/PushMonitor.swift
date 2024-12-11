@@ -87,17 +87,9 @@ internal class PushMonitor: PushMonitoring {
     }
 
     func refreshPushStatus(completion: ((UNAuthorizationStatus) -> Void)? = nil) {
-        // Skip call to UNUserNotificationCenter.current() in tests to avoid crashing in package tests
-        #if DEBUG
-        guard ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil else {
-            completion?(pushAuthorizationStatus)
-            return
-        }
-        #endif
-
-        UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
-            let shouldPublish = self?.appcues?.sessionID != nil && self?.pushAuthorizationStatus != settings.authorizationStatus
-            self?.pushAuthorizationStatus = settings.authorizationStatus
+        let handler: ((UNAuthorizationStatus) -> Void) = { [weak self] newStatus in
+            let shouldPublish = self?.appcues?.sessionID != nil && self?.pushAuthorizationStatus != newStatus
+            self?.pushAuthorizationStatus = newStatus
 
             if shouldPublish {
                 self?.analyticsPublisher.publish(TrackingUpdate(
@@ -106,7 +98,19 @@ internal class PushMonitor: PushMonitoring {
                 ))
             }
 
-            completion?(settings.authorizationStatus)
+            completion?(newStatus)
+        }
+
+        // Skip call to UNUserNotificationCenter.current() in tests to avoid crashing in package tests
+        #if DEBUG
+        guard ProcessInfo.processInfo.environment["XCTestBundlePath"] == nil else {
+            handler(pushAuthorizationStatus)
+            return
+        }
+        #endif
+
+        UNUserNotificationCenter.current().getNotificationSettings { settings in
+            DispatchQueue.main.async { handler(settings.authorizationStatus) }
         }
     }
 
