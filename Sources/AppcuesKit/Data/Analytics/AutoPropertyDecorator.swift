@@ -36,7 +36,8 @@ internal class AutoPropertyDecorator: AnalyticsDecorating {
             "_osVersion": UIDevice.current.systemVersion,
             "_deviceType": UIDevice.current.userInterfaceIdiom.analyticsName,
             "_deviceModel": UIDevice.current.modelName,
-            "_timezoneOffset": TimeZone.current.minutesFromGMT()
+            "_timezoneOffset": TimeZone.current.minutesFromGMT(),
+            "_timezoneCode": TimeZone.current.identifier
         ]
     }()
 
