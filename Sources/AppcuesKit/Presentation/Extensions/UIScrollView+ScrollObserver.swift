@@ -71,10 +71,30 @@ internal class AppcuesScrollViewDelegate: NSObject, UIScrollViewDelegate {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: workItem)
         }
     }
+
+    // MARK: UIScrollViewDelegate
+    // these are called by scroll views that don't have an assigned delegate that needs to be swizzled.
+
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        AppcuesScrollViewDelegate.shared.didBeginDragging()
+    }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        AppcuesScrollViewDelegate.shared.scrollEnded()
+    }
+
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if !decelerate {
+            AppcuesScrollViewDelegate.shared.scrollEnded()
+        }
+    }
 }
 
 @available(iOS 13.0, *)
 extension UIScrollView {
+    
+    // this set includes `AppcuesScrollViewDelegate.shared` by default since it doesn't need to be swizzled
+    private static var swizzledClasses: Set<String> = ["\(type(of: AppcuesScrollViewDelegate.shared))"]
 
     static func swizzleScrollViewGetDelegate() {
         // this will swap in a new getter for UIScrollView.delegate - giving our code a chance to hook
@@ -96,48 +116,48 @@ extension UIScrollView {
     private func appcues__getScrollViewDelegate() -> UIScrollViewDelegate? {
         let delegate: UIScrollViewDelegate
 
-        var shouldSetDelegate = false
-
         // this call looks recursive, but it is not, it is calling the swapped implementation
         // to get the actual delegate value that has been assigned, if any - can be nil
         if let existingDelegate = appcues__getScrollViewDelegate() {
             delegate = existingDelegate
+
+            let type = "\(type(of: existingDelegate))"
+            if !UIScrollView.swizzledClasses.contains(type) {
+                UIScrollView.swizzledClasses.insert(type)
+
+                Swizzler.swizzle(
+                    targetInstance: delegate,
+                    targetSelector: NSSelectorFromString("scrollViewWillBeginDragging:"),
+                    replacementOwner: UIScrollView.self,
+                    placeholderSelector: #selector(appcues__placeholderScrollViewWillBeginDragging),
+                    swizzleSelector: #selector(appcues__scrollViewWillBeginDragging)
+                )
+
+                Swizzler.swizzle(
+                    targetInstance: delegate,
+                    targetSelector: NSSelectorFromString("scrollViewDidEndDecelerating:"),
+                    replacementOwner: UIScrollView.self,
+                    placeholderSelector: #selector(appcues__placeholderScrollViewDidEndDecelerating),
+                    swizzleSelector: #selector(appcues__scrollViewDidEndDecelerating)
+                )
+
+                Swizzler.swizzle(
+                    targetInstance: delegate,
+                    targetSelector: NSSelectorFromString("scrollViewDidEndDragging:willDecelerate:"),
+                    replacementOwner: UIScrollView.self,
+                    placeholderSelector: #selector(appcues__placeholderScrollViewDidEndDragging),
+                    swizzleSelector: #selector(appcues__scrollViewDidEndDragging)
+                )
+            }
         } else {
             // if it is nil, then we assign our own delegate implementation so there is
             // something hooked in to listen to scroll
             delegate = AppcuesScrollViewDelegate.shared
-            shouldSetDelegate = true
-        }
 
-        Swizzler.swizzle(
-            targetInstance: delegate,
-            targetSelector: NSSelectorFromString("scrollViewWillBeginDragging:"),
-            replacementOwner: UIScrollView.self,
-            placeholderSelector: #selector(appcues__placeholderScrollViewWillBeginDragging),
-            swizzleSelector: #selector(appcues__scrollViewWillBeginDragging)
-        )
-
-        Swizzler.swizzle(
-            targetInstance: delegate,
-            targetSelector: NSSelectorFromString("scrollViewDidEndDecelerating:"),
-            replacementOwner: UIScrollView.self,
-            placeholderSelector: #selector(appcues__placeholderScrollViewDidEndDecelerating),
-            swizzleSelector: #selector(appcues__scrollViewDidEndDecelerating)
-        )
-
-        Swizzler.swizzle(
-            targetInstance: delegate,
-            targetSelector: NSSelectorFromString("scrollViewDidEndDragging:willDecelerate:"),
-            replacementOwner: UIScrollView.self,
-            placeholderSelector: #selector(appcues__placeholderScrollViewDidEndDragging),
-            swizzleSelector: #selector(appcues__scrollViewDidEndDragging)
-        )
-
-        // If we need to set a non-nil implementation where there previously was not one,
-        // swap the swizzled getter back first, then assign, then restore the swizzled getter.
-        // This is done to avoid infinite recursion in some cases observed, where a UICollectionView,
-        // for example, may call the getter during the execution of the setter.
-        if shouldSetDelegate {
+            // If we need to set a non-nil implementation where there previously was not one,
+            // swap the swizzled getter back first, then assign, then restore the swizzled getter.
+            // This is done to avoid infinite recursion in some cases observed, where a UICollectionView,
+            // for example, may call the getter during the execution of the setter.
             UIScrollView.swizzleScrollViewGetDelegate()
             self.delegate = delegate
             UIScrollView.swizzleScrollViewGetDelegate()
