@@ -56,10 +56,17 @@ internal enum Swizzler {
             )
         }
 
+        // this should never be nil since the method gets added above
+        guard let originalMethod = originalMethod ?? class_getInstanceMethod(targetClass, targetSelector) else { return }
+
         // swizzle the new implementation to inject our own custom logic
 
         // this should never be nil as it would be a developer error, but we must nil check this call
         guard let swizzleMethod = class_getInstanceMethod(replacementOwner, swizzleSelector) else { return }
+
+        // implementations must be different (otherwise the target selector already has the implementation we want) and
+        // without this check we would add the implementation again which will cause an infinite loop
+        guard method_getImplementation(originalMethod) != method_getImplementation(swizzleMethod) else { return }
 
         // add the swizzled version - this will only succeed once for this instance, if its already there, we've already
         // swizzled, and we can exit early in the next guard
@@ -71,7 +78,6 @@ internal enum Swizzler {
         )
 
         guard addMethodResult,
-              let originalMethod = originalMethod ?? class_getInstanceMethod(targetClass, targetSelector),
               let swizzledMethod = class_getInstanceMethod(targetClass, swizzleSelector) else {
             return
         }
