@@ -3,7 +3,7 @@
 Pod::Spec.new do |s|
   s.name             = 'Appcues'
   s.module_name      = 'AppcuesKit'
-  s.version          = '4.3.3'
+  s.version          = '4.3.4'
   s.summary          = 'Appcues iOS SDK allows you to integrate Appcues experiences into your native iOS apps'
 
   s.description      = <<-DESC
