@@ -32,7 +32,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         // Arrange
         let expectedFormItem = ExperienceData.FormItem(model: ExperienceComponent.TextInputModel(
             id: UUID(),
-            label: ExperienceComponent.TextModel(id: UUID(), text: "Form label", style: nil),
+            label: ExperienceComponent.TextModel(id: UUID(), text: "Form label - mock", style: nil),
             errorLabel: nil,
             placeholder: nil,
             defaultValue: "default value",
@@ -72,7 +72,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
         XCTAssertEqual(updates[1].type, .event(name: "appcues:v2:step_interaction", interactive: false))
 
         [
-            "_appcuesForm_form-label": "default value"
+            "_appcuesForm_form-label-mock": "default value"
         ].verifyPropertiesMatch(updates[0].properties)
 
         [
@@ -280,7 +280,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
 
         // Assert
         [
-            "_appcuesForm_form-label": "default value",
+            "_appcuesForm_form-label-mock": "default value",
             "myAttribute": "default value"
         ].verifyPropertiesMatch(updates[0].properties)
     }
