@@ -186,21 +186,27 @@ extension UIScrollView {
 
     @objc
     func appcues__scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        appcues__scrollViewWillBeginDragging(scrollView)
+        if responds(to: #selector(appcues__scrollViewWillBeginDragging(_:))) {
+            appcues__scrollViewWillBeginDragging(scrollView)
+        }
 
         AppcuesScrollViewDelegate.shared.didBeginDragging()
     }
 
     @objc
     func appcues__scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        appcues__scrollViewDidEndDecelerating(scrollView)
+        if responds(to: #selector(appcues__scrollViewDidEndDecelerating(_:))) {
+            appcues__scrollViewDidEndDecelerating(scrollView)
+        }
 
         AppcuesScrollViewDelegate.shared.scrollEnded()
     }
 
     @objc
     func appcues__scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        appcues__scrollViewDidEndDragging(scrollView, willDecelerate: decelerate)
+        if responds(to: #selector(appcues__scrollViewDidEndDragging(_:willDecelerate:))) {
+            appcues__scrollViewDidEndDragging(scrollView, willDecelerate: decelerate)
+        }
 
         if !decelerate {
             AppcuesScrollViewDelegate.shared.scrollEnded()
