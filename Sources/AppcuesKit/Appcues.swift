@@ -215,10 +215,15 @@ public class Appcues: NSObject {
 
     /// Track a custom event for an action taken by a user.
     /// - Parameters:
-    ///   - name: Name of the event.
+    ///   - name: Name of the event, cannot be empty.
     ///   - properties: Optional properties that provide additional context about the event.
     @objc
     public func track(name: String, properties: [String: Any]? = nil) {
+        guard !name.isEmpty else {
+            config.logger.error("Invalid event name - empty string")
+            return
+        }
+
         analyticsPublisher.publish(TrackingUpdate(type: .event(name: name, interactive: true), properties: properties, isInternal: false))
 
     }
