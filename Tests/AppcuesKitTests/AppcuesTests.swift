@@ -199,6 +199,16 @@ class AppcuesTests: XCTestCase {
         XCTAssertNil(lastUpdate.properties)
     }
 
+    func testTrackEmptyStringIgnored() throws {
+        // Arrange
+        appcues.analyticsPublisher.onPublish = { update in
+            XCTFail("No publish expected. Got \(update.type)")
+        }
+
+        // Act
+        appcues.track(name: "")
+    }
+
     func testSdkVersion() throws {
         // Act
         let version = appcues.version()
