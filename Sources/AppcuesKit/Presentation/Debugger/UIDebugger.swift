@@ -184,7 +184,7 @@ extension UIDebugger: DebugViewDelegate, ScreenCaptureUI {
             debugViewController?.apiVerifier.verifyAPI()
         case let .screenCapture(authorization):
             screenCapturer.captureScreen(
-                window: UIApplication.shared.windows.first(where: { !$0.isAppcuesWindow }),
+                window: UIApplication.shared.mainAppWindow,
                 authorization: authorization,
                 captureUI: self
             )
