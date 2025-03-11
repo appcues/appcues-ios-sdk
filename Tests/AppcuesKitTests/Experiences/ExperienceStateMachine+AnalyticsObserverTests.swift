@@ -100,6 +100,33 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         )
     }
 
+    func testEvaluateRenderingFirstStepStateFromWorkflow() throws {
+        // Act
+        let experience = ExperienceData(.mockFromWorkflow, trigger: .qualification(reason: .screenView))
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, experience.package(), isFirst: true)))
+
+        // Assert
+        XCTAssertFalse(isCompleted)
+        XCTAssertEqual(updates.count, 2)
+        let lastUpdate = try XCTUnwrap(updates.last)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_seen", interactive: false))
+        [
+            "experienceName": "Single step experience",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "trigger": "screen_view",
+            "localeName": "English",
+            "localeId": "en",
+            "workflowId": "c2e376fb-f7ba-4d0c-bf87-1c7cfd1f5a94",
+            "workflowTaskId": "b16d3d86-9299-4bcd-9a04-e2a18d9c9a33",
+            "stepType": "modal",
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "stepIndex": "0,0"
+        ].verifyPropertiesMatch(lastUpdate.properties)
+    }
+
     func testEvaluateRenderingStepState() throws {
         // Act
         let experience = ExperienceData.mock
