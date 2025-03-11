@@ -45,6 +45,14 @@ extension Dictionary where Key == String, Value == Any {
             properties["localeId"] = localeId
         }
 
+        if let workflowId = experience.context?.workflowId {
+            properties["workflowId"] = workflowId
+        }
+
+        if let workflowTaskId = experience.context?.workflowTaskId {
+            properties["workflowTaskId"] = workflowTaskId
+        }
+
         // frameID is added primarily for use by the debugger
         if case let .embed(frameID) = experience.renderContext {
             properties["frameID"] = frameID
