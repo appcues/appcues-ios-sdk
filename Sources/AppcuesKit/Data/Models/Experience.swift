@@ -136,6 +136,8 @@ internal struct Experience {
     struct Context: Decodable {
         let localeId: String?
         let localeName: String?
+        let workflowId: String?
+        let workflowTaskId: String?
     }
 
     let id: UUID
