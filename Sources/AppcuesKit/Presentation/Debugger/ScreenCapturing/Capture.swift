@@ -95,22 +95,17 @@ extension Capture: Encodable {
 
 extension UIImage {
     func annotate(with targetRects: [CGRect]) -> UIImage {
-        let imageSize = self.size
-        UIGraphicsBeginImageContextWithOptions(imageSize, false, 0)
-        defer {
-            UIGraphicsEndImageContext()
+        let renderer = UIGraphicsImageRenderer(size: self.size)
+        
+        return renderer.image { context in
+            self.draw(at: CGPoint.zero)
+
+            context.cgContext.setFillColor(UIColor(red: 227 / 255, green: 242 / 255, blue: 255 / 255, alpha: 0.5).cgColor)
+            context.cgContext.setStrokeColor(UIColor(red: 20 / 255, green: 146 / 255, blue: 255 / 255, alpha: 1).cgColor)
+
+            context.cgContext.addRects(targetRects)
+            context.cgContext.drawPath(using: .fillStroke)
         }
-        guard let context = UIGraphicsGetCurrentContext() else { return self }
-
-        self.draw(at: CGPoint.zero)
-
-        context.setFillColor(UIColor(red: 227 / 255, green: 242 / 255, blue: 255 / 255, alpha: 0.5).cgColor)
-        context.setStrokeColor(UIColor(red: 20 / 255, green: 146 / 255, blue: 255 / 255, alpha: 1).cgColor)
-
-        context.addRects(targetRects)
-        context.drawPath(using: .fillStroke)
-
-        return UIGraphicsGetImageFromCurrentImageContext() ?? self
     }
 }
 
