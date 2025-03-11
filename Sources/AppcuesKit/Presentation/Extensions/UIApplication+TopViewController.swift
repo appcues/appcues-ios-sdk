@@ -45,27 +45,25 @@ extension UIApplication: TopControllerGetting {
         }
     }
 
-    // Note: multitasking with two instances of the same app side by side will have both designated as `.foregroundActive`,
-    // and as a result the returned window may not be the one expected.
-    private var activeKeyWindow: UIWindow? {
+    // The main app window might not always be the key window because various Appcues windows can become the key window,
+    // so use the key window if it's not an Appcues window, otherwise try and find the best alternative.
+    var mainAppWindow: UIWindow? {
+        let allWindows: [UIWindow]
+
         if #available(iOS 13.0, *) {
-            return self.activeWindowScenes
-                .flatMap { $0.windows }
-                .first { $0.isKeyWindow }
+            allWindows = mainWindowScene?.windows ?? []
         } else {
-            return keyWindow
+            allWindows = self.windows
         }
+
+        let appWindows = allWindows.filter { !$0.isAppcuesWindow }
+
+        return appWindows.first { $0.isKeyWindow }
+        ?? appWindows.first { $0.frame != .zero && $0.rootViewController != nil }
     }
 
     func topViewController() -> UIViewController? {
-        var window: UIWindow? = activeKeyWindow
-
-        // swiftlint:disable:next force_unwrapping
-        if window == nil || window!.isAppcuesWindow {
-            window = UIApplication.shared.windows.first { !$0.isAppcuesWindow }
-        }
-
-        guard let rootViewController = window?.rootViewController else { return nil }
+        guard let rootViewController = mainAppWindow?.rootViewController else { return nil }
         return topViewController(controller: rootViewController)
     }
 

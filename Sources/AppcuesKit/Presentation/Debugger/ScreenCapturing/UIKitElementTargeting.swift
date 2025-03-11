@@ -131,7 +131,7 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
     var window: UIWindow?
 
     func captureLayout() -> AppcuesViewElement? {
-        let captureWindow = (window ?? UIApplication.shared.windows.first { !$0.isAppcuesWindow })
+        let captureWindow = window ?? UIApplication.shared.mainAppWindow
         return captureWindow?.asViewElement()
     }
 

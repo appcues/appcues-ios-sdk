@@ -159,7 +159,7 @@ extension AppcuesTargetInteractionTrait {
             super.init(frame: .zero)
 
             if trait.enablePassThrough {
-                self.appWindow = UIApplication.shared.windows.first { !$0.isAppcuesWindow }
+                self.appWindow = UIApplication.shared.mainAppWindow
             } else {
                 self.addGestureRecognizer(tapRecognizer)
                 self.addGestureRecognizer(longPressRecognizer)
