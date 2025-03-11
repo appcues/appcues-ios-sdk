@@ -38,13 +38,11 @@ internal extension UIView {
     }
 
     func screenshot() -> UIImage? {
-        UIGraphicsBeginImageContextWithOptions(frame.size, false, 1)
-        defer {
-            UIGraphicsEndImageContext()
+        guard frame.size != .zero else { return nil }
+
+        let renderer = UIGraphicsImageRenderer(size: frame.size)
+        return renderer.image { context in
+            drawHierarchy(in: self.bounds, afterScreenUpdates: false)
         }
-
-        drawHierarchy(in: self.bounds, afterScreenUpdates: false)
-
-        return UIGraphicsGetImageFromCurrentImageContext()
     }
 }
