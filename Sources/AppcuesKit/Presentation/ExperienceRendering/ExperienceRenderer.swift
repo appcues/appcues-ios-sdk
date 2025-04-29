@@ -57,6 +57,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
     /// State machine for `RenderContext.modal`
     var stateMachine: ExperienceStateMachine?
     var renderContext: RenderContext?
+    let retainContent = false
 
     private var stateMachines = StateMachineDirectory()
     private var pendingPreviewExperiences: [RenderContext: ExperienceData] = [:]
@@ -205,9 +206,10 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         analyticsObserver.trackErrorRecovery(ifErrorOn: experience)
         stateMachine.clientAppcuesPresentationDelegate = appcues?.presentationDelegate
         stateMachine.clientAppcuesDelegate = appcues?.experienceDelegate
-        stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { result in
+        stateMachine.transitionAndObserve(.startExperience(experience), filter: experience.instanceID) { [weak self] result in
             switch result {
             case .success(.renderingStep):
+                self?.cleanUpRetain(for: experience.renderContext)
                 DispatchQueue.main.async { completion?(.success(())) }
                 return true
             case let .failure(error):
@@ -217,6 +219,16 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
                 // Keep observing until we get to the target state
                 return false
             }
+        }
+    }
+
+    private func cleanUpRetain(for renderContext: RenderContext) {
+        guard let owner = stateMachines[ownerFor: renderContext] else {
+            return
+        }
+
+        if !owner.retainContent {
+            potentiallyRenderableExperiences.removeValue(forKey: renderContext)
         }
     }
 
