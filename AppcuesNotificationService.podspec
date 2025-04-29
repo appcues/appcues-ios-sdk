@@ -2,7 +2,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'AppcuesNotificationService'
-  s.version          = '4.3.6'
+  s.version          = '4.3.7'
   s.summary          = 'Provide rich push notifications via Appcues'
 
   s.description      = <<-DESC
