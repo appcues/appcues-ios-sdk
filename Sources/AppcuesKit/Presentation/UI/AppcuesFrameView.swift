@@ -37,6 +37,13 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
     // Managed by the StateMachineDirectory
     internal var renderContext: RenderContext?
 
+    /// When retainContent is `true` (default), the embed frame content is cached and re-rendered through any
+    /// re-register of this frame until the next `screen_view` qualification occurs. This default behavior enables
+    /// common cell-reuse type of use cases, such as embeds in a `UITableView` or `UICollectionView`.
+    /// Set this value `false` to require each new register of the same frame ID to qualify for new content
+    /// independently of any previous usage of the frame view.
+    public var retainContent = true
+
     private var _stateMachine: Any?
     @available(iOS 13.0, *)
     internal var stateMachine: ExperienceStateMachine? {
@@ -73,6 +80,15 @@ public class AppcuesFrameView: UIView, StateMachineOwning {
         super.init(frame: frame)
         isHidden = true
         configureConstraints(isEmpty: true)
+    }
+
+    /// Creates a frame view with the specified frame rectangle.
+    /// - Parameters:
+    ///   - frame: The frame rectangle for the view.
+    ///   - retainContent: Whether content shown in this frame should be retained across multiple re-registers.
+    public convenience init(frame: CGRect = .zero, retainContent: Bool = true) {
+        self.init(frame: frame)
+        self.retainContent = retainContent
     }
 
     private func configureConstraints(isEmpty: Bool) {

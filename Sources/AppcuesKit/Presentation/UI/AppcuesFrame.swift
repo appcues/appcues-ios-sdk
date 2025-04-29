@@ -13,16 +13,18 @@ import SwiftUI
 public struct AppcuesFrame: UIViewControllerRepresentable {
     weak var appcues: Appcues?
     let frameID: String
+    let retainContent: Bool
 
     /// Creates a frame with the given identifier.
-    public init(appcues: Appcues?, frameID: String) {
+    public init(appcues: Appcues?, frameID: String, retainContent: Bool = true) {
         self.appcues = appcues
         self.frameID = frameID
+        self.retainContent = retainContent
     }
 
     /// Creates the view controller object and configures its initial state.
     public func makeUIViewController(context: Context) -> UIViewController {
-        let viewController = AppcuesFrameVC()
+        let viewController = AppcuesFrameVC(retainContent: retainContent)
         appcues?.register(frameID: frameID, for: viewController.frameView, on: viewController)
         return viewController
     }
@@ -36,7 +38,18 @@ public struct AppcuesFrame: UIViewControllerRepresentable {
 @available(iOS 13.0, *)
 extension AppcuesFrame {
     class AppcuesFrameVC: UIViewController {
-        lazy var frameView = AppcuesFrameView()
+        let retainContent: Bool
+        lazy var frameView = AppcuesFrameView(retainContent: retainContent)
+
+        init(retainContent: Bool) {
+            self.retainContent = retainContent
+            super.init(nibName: nil, bundle: nil)
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
 
         override func loadView() {
             view = frameView

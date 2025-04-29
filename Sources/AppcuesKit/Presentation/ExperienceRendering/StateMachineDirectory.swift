@@ -10,6 +10,10 @@ import Foundation
 
 internal protocol StateMachineOwning: AnyObject {
     var renderContext: RenderContext? { get set }
+
+    /// Whether to cache qualified experiences for this context until dismissal or a new screen view.
+    var retainContent: Bool { get }
+
     @available(iOS 13.0, *)
     var stateMachine: ExperienceStateMachine? { get set }
 
