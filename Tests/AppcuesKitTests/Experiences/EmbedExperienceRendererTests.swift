@@ -179,6 +179,37 @@ class EmbedExperienceRendererTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
     
+    func testShownEmbedWithRetainDisabledRemovedFromCache() throws {
+        // Arrange
+        let experience = ExperienceData.mockEmbed(frameID: "frame1", trigger: screenTrigger)
+
+        let presentExpectation = expectation(description: "Experience presented")
+        let preconditionPackage: ExperiencePackage = experience.package(presentExpectation: presentExpectation)
+        appcues.traitComposer.onPackage = { _, _ in preconditionPackage }
+
+        let eventExpectation = expectation(description: "experience started")
+        appcues.analyticsPublisher.onPublish = { update in
+            if case .event(name: "appcues:v2:experience_started", interactive: false) = update.type {
+                eventExpectation.fulfill()
+            }
+        }
+
+        let frame = AppcuesFrameView(retainContent: false)
+        // Simulate the relevant part of Appcues.register(frameID:)
+        experienceRenderer.start(owner: frame, forContext: .embed(frameID: "frame1"))
+
+        // Act
+        experienceRenderer.processAndShow(qualifiedExperiences: [experience], reason: screenTrigger)
+
+        wait(for: [presentExpectation], timeout: 1)
+
+        // Same frame registers again, but this time has no content available because it wasn't retained.
+        // Simulate the relevant part of Appcues.register(frameID:)
+        experienceRenderer.start(owner: frame, forContext: .embed(frameID: "frame1"))
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
 
     /// Tests the case where a frame is registered and the de-inited before an embed qualifies.
     func testFrameMemoryRetain() throws {
