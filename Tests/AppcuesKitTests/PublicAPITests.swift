@@ -85,11 +85,13 @@ class PublicAPITests: XCTestCase {
         }
 
         let frameView = AppcuesFrameView(frame: .zero)
+        let frameViewRetain = AppcuesFrameView(retainContent: false)
         appcuesInstance.register(frameID: "frame1", for: frameView, on: UIViewController())
         frameView.presentationDelegate = presentationDelegate
 
         if #available(iOS 13.0, *) {
             let frame = AppcuesFrame(appcues: appcuesInstance, frameID: "frame1")
+            let frameRetain = AppcuesFrame(appcues: appcuesInstance, frameID: "frame1", retainContent: false)
         }
     }
 }
