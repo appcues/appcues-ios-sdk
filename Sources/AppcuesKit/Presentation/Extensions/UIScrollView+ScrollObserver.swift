@@ -92,7 +92,7 @@ internal class AppcuesScrollViewDelegate: NSObject, UIScrollViewDelegate {
 
 @available(iOS 13.0, *)
 extension UIScrollView {
-    
+
     // this set includes `AppcuesScrollViewDelegate.shared` by default since it doesn't need to be swizzled
     private static var swizzledClasses: Set<String> = ["\(type(of: AppcuesScrollViewDelegate.shared))"]
 
@@ -114,6 +114,11 @@ extension UIScrollView {
     // this is our custom getter logic for the UIScrollView.delegate
     @objc
     private func appcues__getScrollViewDelegate() -> UIScrollViewDelegate? {
+        // exclude UITextView type from our custom getter
+        guard !(self is UITextView) else {
+            return appcues__getScrollViewDelegate()
+        }
+
         let delegate: UIScrollViewDelegate
 
         // this call looks recursive, but it is not, it is calling the swapped implementation
