@@ -9,6 +9,7 @@
 import XCTest
 @testable import AppcuesKit
 
+@available(iOS 13.0, *)
 final class SwizzlerTests: XCTestCase {
 
     override func setUpWithError() throws {
@@ -16,10 +17,10 @@ final class SwizzlerTests: XCTestCase {
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        // Reverse swizzle
+        UIScrollView.swizzleScrollViewGetDelegate()
     }
 
-    @available(iOS 13.0, *)
     func testDelegateSubclassSwizzlingInfiniteLoop() throws {
         // Arrange
         let scrollView = UIScrollView()
@@ -36,8 +37,22 @@ final class SwizzlerTests: XCTestCase {
         // This shouldn't loop forever!
         swizzledDelegateMethod(scrollView)
     }
+
+    func testIgnoredViewTypes() throws {
+        // Arrange
+        let scrollView = UIScrollView()
+        let textView = UITextView()
+
+        // Act
+        UIScrollView.swizzleScrollViewGetDelegate()
+
+        // Assert
+        XCTAssertTrue(scrollView.delegate is AppcuesScrollViewDelegate)
+        XCTAssertNil(textView.delegate)
+    }
 }
 
+@available(iOS 13.0, *)
 private extension SwizzlerTests {
     class ScrollViewDelegate1: NSObject, UIScrollViewDelegate {}
     class ScrollViewDelegate2: ScrollViewDelegate1 {}
