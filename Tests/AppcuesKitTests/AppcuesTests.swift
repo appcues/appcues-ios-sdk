@@ -142,6 +142,18 @@ class AppcuesTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testIdentifyRefreshesPushStatus() throws {
+        // Arrange
+        var refreshPushCount = 0
+        appcues.pushMonitor.onRefreshPushStatus = { refreshPushCount += 1 }
+
+        // Act
+        appcues.identify(userID: "test-user")
+
+        // Assert
+        XCTAssertEqual(refreshPushCount, 1)
+    }
+
     func testReset() throws {
         // Act
         appcues.identify(userID: "test-user", properties: ["foo": 100])
