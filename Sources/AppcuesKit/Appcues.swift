@@ -463,6 +463,9 @@ public class Appcues: NSObject {
 
         let pushMonitor = container.resolve(PushMonitoring.self)
         pushMonitor.attemptDeferredNotificationResponse()
+        // Refresh push status asynchronously so status any changes can still be tracked,
+        // but without slowing down the publishing of other events.
+        pushMonitor.refreshPushStatus(completion: nil)
     }
 }
 
