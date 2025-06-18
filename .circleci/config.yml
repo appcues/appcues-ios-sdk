@@ -19,9 +19,9 @@ orbs:
 #        EXECUTORS
 # -------------------------
 executors:
-  xcode_15:
+  xcode_16:
     macos:
-      xcode: 15.1.0
+      xcode: 16.4.0
     resource_class: macos.m1.medium.gen1
     working_directory: /Users/distiller/project
     shell: /bin/bash --login -o pipefail
@@ -45,15 +45,22 @@ commands:
     description: 'Checkout from git and install gem and mint dependencies'
     steps:
       - checkout
+      - run:
+          name: Select ruby version
+          command: |
+            rbenv versions
+            rbenv global 3.1.7
+            rbenv rehash
+            ruby -v
       - restore_cache:
           name: Restore gem cache
-          key: 3-gems-{{ checksum "Gemfile.lock" }}
+          key: 4-gems-{{ checksum "Gemfile.lock" }}
       - run:
           name: Install gem dependencies
           command: bundle check || bundle install --deployment --path vendor/bundle
       - save_cache:
           name: Save gem cache
-          key: 3-gems-{{ checksum "Gemfile.lock" }}
+          key: 4-gems-{{ checksum "Gemfile.lock" }}
           paths:
             - vendor/bundle
       - run:
@@ -61,7 +68,7 @@ commands:
           command: brew install mint
       - restore_cache:
           name: Restore swift build package cache
-          key: 6-mint-{{ checksum "Mintfile" }}
+          key: 7-mint-{{ checksum "Mintfile" }}
       - run:
           name: Install swift build packages
           command: mint bootstrap
@@ -69,7 +76,7 @@ commands:
           no_output_timeout: 30m
       - save_cache:
           name: Save swift build package cache
-          key: 6-mint-{{ checksum "Mintfile" }}
+          key: 7-mint-{{ checksum "Mintfile" }}
           paths:
             - ~/.mint
 
@@ -78,7 +85,7 @@ commands:
 # -------------------------
 jobs:
   additional-branch-validation:
-    executor: xcode_15
+    executor: xcode_16
     steps:
       - install_with_cache
       - run:
@@ -89,7 +96,7 @@ jobs:
           template: basic_fail_1
           channel: team-mobile-bots
   deploy_example:
-    executor: xcode_15
+    executor: xcode_16
     steps:
       - install_with_cache
       - run:
