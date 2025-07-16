@@ -10,6 +10,7 @@ import XCTest
 @testable import AppcuesKit
 
 @available(iOS 13.0, *)
+@MainActor
 class AppcuesTargetRectangleTraitTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -40,13 +41,13 @@ class AppcuesTargetRectangleTraitTests: XCTestCase {
         XCTAssertNotNil(trait)
     }
 
-    func testDecorate() throws {
+    func testDecorate() async throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesTargetRectangleTrait(appcues: appcues))
         trait.metadataDelegate = metadataDelegate
 
         // Act
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Assert
@@ -56,13 +57,13 @@ class AppcuesTargetRectangleTraitTests: XCTestCase {
         XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 0, y: 0, width: 0, height: 0))
     }
 
-    func testFrameCalculation() throws {
+    func testFrameCalculation() async throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesTargetRectangleTrait(appcues: appcues, x: -10, y: 20, width: 100, height: 60, relativeX: 0.5, relativeY: 0.5))
         trait.metadataDelegate = metadataDelegate
 
         // Act
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Assert
@@ -72,12 +73,12 @@ class AppcuesTargetRectangleTraitTests: XCTestCase {
         XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 240, y: 520, width: 100, height: 60))
     }
 
-    func testFrameRecalculation() throws {
+    func testFrameRecalculation() async throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesTargetRectangleTrait(appcues: appcues, x: -10, y: 20, width: 100, height: 60, relativeX: 0.5, relativeY: 0.5))
         trait.metadataDelegate = metadataDelegate
 
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Act
@@ -92,12 +93,12 @@ class AppcuesTargetRectangleTraitTests: XCTestCase {
         XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 490, y: 270, width: 100, height: 60))
     }
 
-    func testUndecorate() throws {
+    func testUndecorate() async throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesTargetRectangleTrait(appcues: appcues))
         trait.metadataDelegate = metadataDelegate
 
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Act
