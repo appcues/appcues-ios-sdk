@@ -97,7 +97,7 @@ class PublicAPITests: XCTestCase {
 }
 
 class SampleElementTargeting: AppcuesElementTargeting {
-    func captureLayout() -> AppcuesViewElement? {
+    func captureLayout() async -> AppcuesViewElement? {
         let elementWithDisplayName = AppcuesViewElement(
             x: 0,
             y: 0,

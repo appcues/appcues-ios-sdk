@@ -162,6 +162,12 @@ class AppcuesTargetElementTraitTests: XCTestCase {
 
     func testFrameRecalculation() async throws {
         // Arrange
+        let metadataExpectation = expectation(description: "metadata received")
+        metadataExpectation.expectedFulfillmentCount = 2
+        metadataDelegate.registerHandler(for: "wait", animating: false) { metadata in
+            metadataExpectation.fulfill()
+        }
+
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
         let view1 = UIView(frame: CGRect(x: 20, y: 20, width: 100, height: 100), accessibilityIdentifier: "myID")
@@ -184,6 +190,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let updatedSafeArea = rootViewController.view.bounds.inset(by: rootViewController.view.safeAreaInsets)
 
         // Assert
+        await fulfillment(of: [metadataExpectation], timeout: 1)
         XCTAssertEqual(metadataUpdates.count, 2)
         let latestMetadata = try XCTUnwrap(metadataUpdates.last)
 
