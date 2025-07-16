@@ -36,7 +36,7 @@ internal class AppcuesBackdropKeyholeTrait: AppcuesBackdropDecoratingTrait {
         }
     }
 
-    func decorate(backdropView: UIView) throws {
+    func decorate(backdropView: UIView) async throws {
         guard let metadataDelegate = metadataDelegate else {
             // nothing to draw without a targetRectangle from the metadata dictionary
             backdropView.layer.mask = nil

@@ -42,7 +42,7 @@ internal class AppcuesTargetElementTrait: AppcuesBackdropDecoratingTrait {
         self.retryIntervals = config.retryIntervals ?? [ 300, 600, 900, 1_200 ]
     }
 
-    func decorate(backdropView: UIView) throws {
+    func decorate(backdropView: UIView) async throws {
         // Determine if the selector can be resolved to a view, failing the step if not.
         let targetRect = try calculateRect()
         // The first decorate call on the first step in a group will have a nil window because the views aren't added yet,

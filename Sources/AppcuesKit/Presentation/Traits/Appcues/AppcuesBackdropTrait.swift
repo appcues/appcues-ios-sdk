@@ -29,7 +29,7 @@ internal class AppcuesBackdropTrait: AppcuesBackdropDecoratingTrait {
         self.backgroundColor = backgroundColor
     }
 
-    func decorate(backdropView: UIView) throws {
+    func decorate(backdropView: UIView) async throws {
         guard let metadataDelegate = metadataDelegate else {
             handleAdd(backdropColor: backgroundColor, to: backdropView)
             return

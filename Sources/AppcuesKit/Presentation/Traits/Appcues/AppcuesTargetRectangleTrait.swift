@@ -38,7 +38,7 @@ internal class AppcuesTargetRectangleTrait: AppcuesBackdropDecoratingTrait {
         self.config = config
     }
 
-    func decorate(backdropView: UIView) throws {
+    func decorate(backdropView: UIView) async throws {
         // The first decorate call on the first step in a group will have a nil window because the views aren't added yet,
         // so skip setting a targetRectangle until we have proper bounds. The change handler below will take care of that.
         if backdropView.window != nil {
