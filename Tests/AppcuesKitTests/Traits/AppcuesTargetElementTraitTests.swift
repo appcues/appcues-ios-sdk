@@ -10,6 +10,7 @@ import XCTest
 @testable import AppcuesKit
 
 @available(iOS 13.0, *)
+@MainActor
 class AppcuesTargetElementTraitTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -54,27 +55,27 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertNotNil(trait)
     }
 
-    func testDecorateThrowsInvalidSelector() throws {
+    func testDecorateThrowsInvalidSelector() async throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: [:]))
 
         // Act/Assert
-        XCTAssertThrowsError(try trait.decorate(backdropView: backdropView)) {
+        await XCTAssertThrowsErrorAsync(try await trait.decorate(backdropView: backdropView)) {
             XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "Invalid selector [:]")
         }
     }
 
-    func testDecorateThrowsNoLayout() throws {
+    func testDecorateThrowsNoLayout() async throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
 
         // Act/Assert
-        XCTAssertThrowsError(try trait.decorate(backdropView: backdropView)) {
+        await XCTAssertThrowsErrorAsync(try await trait.decorate(backdropView: backdropView)) {
             XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "Could not read application layout information")
         }
     }
 
-    func testDecorateThrowsNoMatch() throws {
+    func testDecorateThrowsNoMatch() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -90,12 +91,12 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
 
         // Act/Assert
-        XCTAssertThrowsError(try trait.decorate(backdropView: backdropView)) {
+        await XCTAssertThrowsErrorAsync(try await trait.decorate(backdropView: backdropView)) {
             XCTAssertEqual(($0 as? AppcuesTraitError)?.description, #"No view matching selector ["accessibilityIdentifier": "myID"]"#)
         }
     }
 
-    func testDecorateThrowsMultipleMatch() throws {
+    func testDecorateThrowsMultipleMatch() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -107,12 +108,12 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
 
         // Act/Assert
-        XCTAssertThrowsError(try trait.decorate(backdropView: backdropView)) {
+        await XCTAssertThrowsErrorAsync(try await trait.decorate(backdropView: backdropView)) {
             XCTAssertEqual(($0 as? AppcuesTraitError)?.description, #"multiple non-distinct views (2) matched selector ["accessibilityIdentifier": "myID"]"#)
         }
     }
 
-    func testDecorate() throws {
+    func testDecorate() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -124,7 +125,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         trait.metadataDelegate = metadataDelegate
 
         // Act
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Assert
@@ -134,7 +135,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(latestMetadata["targetRectangle"], safeArea.intersection(frame))
     }
 
-    func testDecorateMultipleMatches() throws {
+    func testDecorateMultipleMatches() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -149,7 +150,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         trait.metadataDelegate = metadataDelegate
 
         // Act
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Assert
@@ -159,7 +160,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(latestMetadata["targetRectangle"], safeArea.intersection(frame2))
     }
 
-    func testFrameRecalculation() throws {
+    func testFrameRecalculation() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -169,7 +170,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
         trait.metadataDelegate = metadataDelegate
 
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         let updatedFrame = CGRect(x: 500, y: 20, width: 100, height: 100)
@@ -189,7 +190,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(latestMetadata["targetRectangle"], updatedSafeArea.intersection(updatedFrame))
     }
 
-    func testUndecorate() throws {
+    func testUndecorate() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -199,7 +200,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
         trait.metadataDelegate = metadataDelegate
 
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
 
@@ -284,7 +285,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(tabBarChildren[4].displayName, "tab[2]")
     }
 
-    func testTabBarDecorate() throws {
+    func testTabBarDecorate() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -306,7 +307,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         trait.metadataDelegate = metadataDelegate
 
         // Act
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Assert
