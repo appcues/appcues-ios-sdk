@@ -34,9 +34,16 @@ internal class ScreenCapturer {
             return
         }
 
+        Task {
+            await doCapture(window: window, authorization: authorization, captureUI: captureUI)
+        }
+    }
+
+    @MainActor
+    private func doCapture(window: UIWindow?, authorization: Authorization, captureUI: ScreenCaptureUI) async {
         guard let window = window,
               let screenshot = window.screenshot(),
-              let layout = Appcues.elementTargeting.captureLayout() else {
+              let layout = await Appcues.elementTargeting.captureLayout() else {
             let toast = DebugToast(message: .screenCaptureFailure, style: .failure)
             captureUI.showToast(toast)
             return

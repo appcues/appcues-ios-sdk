@@ -130,7 +130,8 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
     // Inject a window for testing purposes
     var window: UIWindow?
 
-    func captureLayout() -> AppcuesViewElement? {
+    @MainActor
+    func captureLayout() async -> AppcuesViewElement? {
         let captureWindow = window ?? UIApplication.shared.mainAppWindow
         return captureWindow?.asViewElement()
     }
