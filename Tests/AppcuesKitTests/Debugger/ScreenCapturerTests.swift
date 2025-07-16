@@ -62,14 +62,19 @@ class ScreenCapturerTests: XCTestCase {
 
     func testInitialFailure() throws {
         // Arrange
+        let toastShownExpectation = expectation(description: "Error toast shown")
         var toast: DebugToast?
-        screenCaptureUI.onShowToast = { toast = $0 }
+        screenCaptureUI.onShowToast = {
+            toast = $0
+            toastShownExpectation.fulfill()
+        }
 
         // Act
         // nil window should cause failure
         screenCapturer.captureScreen(window: nil, authorization: authorization, captureUI: screenCaptureUI)
 
         // Assert
+        waitForExpectations(timeout: 1)
         let unwrappedToast = try XCTUnwrap(toast)
         XCTAssertEqual(unwrappedToast.message, .screenCaptureFailure)
         XCTAssertEqual(unwrappedToast.style, .failure)
@@ -311,7 +316,7 @@ private class MockScreenCaptureUI: ScreenCaptureUI {
 }
 
 private class MockElementTargeting: AppcuesElementTargeting {
-    func captureLayout() -> AppcuesViewElement? {
+    func captureLayout() async -> AppcuesViewElement? {
         AppcuesViewElement(x: 0, y: 0, width: 10, height: 10, type: "mock", selector: nil, children: nil)
     }
 
