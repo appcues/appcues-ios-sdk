@@ -227,31 +227,31 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertNil(contentDistanceFromTarget)
     }
 
-    func testElementDisplayName() throws {
+    func testElementDisplayName() async throws {
         let frame = CGRect(x: 20, y: 20, width: 100, height: 100)
 
         let view1 = UIView(frame: frame)
         view1.accessibilityIdentifier = "myAccessibilityID"
-        let view1Element = try XCTUnwrap(view1.asViewElement())
+        let view1Element = try await XCTUnwrapAsync(await view1.asViewElement())
         XCTAssertEqual(view1Element.displayName, "myAccessibilityID")
 
         let view2 = AppcuesTargetView(identifier: "someID")
         view2.frame = frame
-        let view2Element = try XCTUnwrap(view2.asViewElement())
+        let view2Element = try await XCTUnwrapAsync(await view2.asViewElement())
         XCTAssertEqual(view2Element.displayName, "someID")
 
         let view3 = UIView(frame: frame)
         view3.tag = 226
-        let view3Element = try XCTUnwrap(view3.asViewElement())
+        let view3Element = try await XCTUnwrapAsync(await view3.asViewElement())
         XCTAssertEqual(view3Element.displayName, "UIView (tag 226)")
 
         let view4 = UIButton(frame: frame)
         view4.accessibilityLabel = "My Button"
-        let view4Element = try XCTUnwrap(view4.asViewElement())
+        let view4Element = try await XCTUnwrapAsync(await view4.asViewElement())
         XCTAssertEqual(view4Element.displayName, "UIButton (My Button)")
 
         let view5 = UIView(frame: frame)
-        let view5Element = try XCTUnwrap(view5.asViewElement())
+        let view5Element = try await XCTUnwrapAsync(await view5.asViewElement())
         XCTAssertNil(view5Element.displayName)
     }
 
@@ -268,7 +268,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertNil(selector)
     }
 
-    func testTabBarDisplayName() throws {
+    func testTabBarDisplayName() async throws {
         let frame = CGRect(x: 20, y: 20, width: 100, height: 100)
         
         let tabBarView = UITabBar(frame: frame)
@@ -281,7 +281,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         tabBarView.addSubview(UIView()) //should be ignored
         tabBarView.addSubview(tabBarButton3)
 
-        let tabBarViewElement = try XCTUnwrap(tabBarView.asViewElement())
+        let tabBarViewElement = try await XCTUnwrapAsync(await tabBarView.asViewElement())
         XCTAssertNil(tabBarViewElement.displayName)
 
         let tabBarChildren = try XCTUnwrap(tabBarViewElement.children)

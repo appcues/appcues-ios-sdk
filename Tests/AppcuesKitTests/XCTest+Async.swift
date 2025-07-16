@@ -9,6 +9,15 @@
 import XCTest
 
 extension XCTest {
+    func XCTUnwrapAsync<T>(
+        _ expression: @escaping @autoclosure () async -> T?,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) async throws -> T {
+        let value = await expression()
+        return try XCTUnwrap(value, file: file, line: line)
+    }
+
     func XCTAssertThrowsErrorAsync<T: Sendable>(
         _ expression: @autoclosure () async throws -> T,
         _ message: @autoclosure () -> String = "",
