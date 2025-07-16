@@ -337,14 +337,16 @@ extension ExperienceStateMachine {
             if !isRecovering { // guard against adding multiple observers during recovery attempts
                 package.pageMonitor.addObserver { [weak machine, weak package] newIndex, oldIndex in
                     guard let machine = machine, let package = package else { return }
-                    do {
-                        try package.stepDecoratingTraitUpdater(newIndex, oldIndex)
-                        machine.containerNavigated(from: oldIndex, to: newIndex)
-                    } catch {
-                        // Report a fatal error and dismiss the experience
-                        let errorIndex = Experience.StepIndex(group: stepIndex.group, item: newIndex)
-                        machine.handlePresentationError(error, experience: experience, stepIndex: errorIndex, package: package)
-                        package.dismisser({})
+                    Task { @MainActor in
+                        do {
+                            try await package.stepDecoratingTraitUpdater(newIndex, oldIndex)
+                            machine.containerNavigated(from: oldIndex, to: newIndex)
+                        } catch {
+                            // Report a fatal error and dismiss the experience
+                            let errorIndex = Experience.StepIndex(group: stepIndex.group, item: newIndex)
+                            machine.handlePresentationError(error, experience: experience, stepIndex: errorIndex, package: package)
+                            package.dismisser({})
+                        }
                     }
                 }
             }
@@ -352,35 +354,36 @@ extension ExperienceStateMachine {
             // This flag tells automatic screen tracking to ignore screens that the SDK is presenting
             objc_setAssociatedObject(package.wrapperController, &UIKitScreenTracker.untrackedScreenKey, true, .OBJC_ASSOCIATION_RETAIN)
 
+            @MainActor
+            func presentStep() async throws {
+                do {
+                    try await package.stepDecoratingTraitUpdater(stepIndex.item, nil)
+                    try package.presenter {
+                        try? machine.transition(.renderStep)
+                    }
+                } catch {
+                    if let error = error as? AppcuesTraitError,
+                       let retryMilliseconds = error.retryMilliseconds {
+                        try await Task.sleep(nanoseconds: UInt64(retryMilliseconds) * 1_000_000)
+                        try await presentStep()
+                    } else {
+                        throw error
+                    }
+                }
+            }
+
             // The dispatcher call here with asyncAfter is to attempt to let any pending layout operations complete
             // before running this new container presentation. The package.stepDecoratingTraitUpdater in particular may
             // be looking for target elements on the view that need to be fully loaded first, and this container
             // may be presenting after a pre-step navigation action that is finalizing the loading of the new view.
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) {
-
-                func presentStep(onError: @escaping (Error) -> Void) {
-                    do {
-                        try package.stepDecoratingTraitUpdater(stepIndex.item, nil)
-                        try package.presenter {
-                            try? machine.transition(.renderStep)
-                        }
-                    } catch {
-                        if let error = error as? AppcuesTraitError,
-                           let retryMilliseconds = error.retryMilliseconds {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(retryMilliseconds)) {
-                                presentStep(onError: onError)
-                            }
-                        } else {
-                            onError(error)
-                        }
-                    }
-                }
-
+            Task { @MainActor in
                 // Rendering metrics start now, and will include any time spent in error/retry of trait application
                 // inside of the presentStep local helper function.
                 SdkMetrics.renderStart(experience.requestID)
 
-                presentStep { error in
+                do {
+                    try await presentStep()
+                } catch {
                     machine.handlePresentationError(error, experience: experience, stepIndex: stepIndex, package: package)
                 }
             }

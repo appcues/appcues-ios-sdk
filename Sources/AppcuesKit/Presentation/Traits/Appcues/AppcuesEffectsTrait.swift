@@ -23,7 +23,7 @@ internal class AppcuesEffectsTrait: AppcuesBackdropDecoratingTrait {
         self.config = config
     }
 
-    func decorate(backdropView: UIView) throws {
+    func decorate(backdropView: UIView) async throws {
         let effectView: UIView
         switch config.presentationStyle {
         case .confetti:
