@@ -85,6 +85,7 @@ internal protocol AppcuesContainerDecoratingTrait: AppcuesExperienceTrait {
 }
 
 /// A trait that modifies the backdrop `UIView` that may be included in the presented experience.
+@available(iOS 13.0, *)
 @objc
 internal protocol AppcuesBackdropDecoratingTrait: AppcuesExperienceTrait {
 

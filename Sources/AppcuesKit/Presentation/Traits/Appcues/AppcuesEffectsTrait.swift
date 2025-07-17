@@ -9,6 +9,7 @@
 import UIKit
 import QuartzCore
 
+@available(iOS 13.0, *)
 internal class AppcuesEffectsTrait: AppcuesBackdropDecoratingTrait {
     static var type: String = "@appcues/effects"
 
@@ -44,6 +45,7 @@ internal class AppcuesEffectsTrait: AppcuesBackdropDecoratingTrait {
     }
 }
 
+@available(iOS 13.0, *)
 private extension AppcuesEffectsTrait {
     enum PresentationStyle: String, Decodable {
         case confetti
