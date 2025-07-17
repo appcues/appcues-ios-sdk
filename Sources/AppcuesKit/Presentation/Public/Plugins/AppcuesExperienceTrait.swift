@@ -85,6 +85,7 @@ internal protocol AppcuesContainerDecoratingTrait: AppcuesExperienceTrait {
 }
 
 /// A trait that modifies the backdrop `UIView` that may be included in the presented experience.
+@available(iOS 13.0, *)
 @objc
 internal protocol AppcuesBackdropDecoratingTrait: AppcuesExperienceTrait {
 
@@ -96,7 +97,8 @@ internal protocol AppcuesBackdropDecoratingTrait: AppcuesExperienceTrait {
     ///
     /// If this method cannot properly apply the trait behavior, it may throw an error of type ``AppcuesTraitError``,
     /// ending the attempt to display the experience.
-    func decorate(backdropView: UIView) throws
+    @MainActor
+    func decorate(backdropView: UIView) async throws
 
     /// Remove the decoration from a backdrop view.
     /// - Parameter backdropView: The `UIView` to modify.

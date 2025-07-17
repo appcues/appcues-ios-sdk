@@ -60,7 +60,7 @@ internal class AppcuesSkippableTrait: AppcuesContainerDecoratingTrait, AppcuesBa
         containerController.isModalInPresentation = true
     }
 
-    func decorate(backdropView: UIView) throws {
+    func decorate(backdropView: UIView) async throws {
         if !ignoreBackdropTap {
             let recognizer = gestureRecognizer ?? UITapGestureRecognizer(target: self, action: #selector(dismissExperience))
 

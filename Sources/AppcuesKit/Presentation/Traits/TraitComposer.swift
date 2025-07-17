@@ -109,7 +109,7 @@ internal class TraitComposer: TraitComposing {
         let wrapperController = try decomposedTraits.wrapperCreating?.createWrapper(around: containerController) ?? containerController
         let backdropView = decomposedTraits.wrapperCreating?.getBackdrop(for: wrapperController)
 
-        let stepDecoratingTraitUpdater: (Int, Int?) throws -> Void = { newIndex, previousIndex in
+        let stepDecoratingTraitUpdater: (Int, Int?) async throws -> Void = { @MainActor newIndex, previousIndex in
             // Remove old decorations
             if let previousIndex = previousIndex {
                 try stepModelsWithTraits[previousIndex].decomposedTraits.containerDecorating.forEach {
@@ -129,8 +129,8 @@ internal class TraitComposer: TraitComposing {
             }
 
             if let backdropView = backdropView {
-                try stepModelsWithTraits[newIndex].decomposedTraits.backdropDecorating.forEach {
-                    try $0.decorate(backdropView: backdropView)
+                for trait in stepModelsWithTraits[newIndex].decomposedTraits.backdropDecorating {
+                    try await trait.decorate(backdropView: backdropView)
                 }
             }
 

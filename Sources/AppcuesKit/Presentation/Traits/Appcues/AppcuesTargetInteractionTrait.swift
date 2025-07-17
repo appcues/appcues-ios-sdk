@@ -46,7 +46,7 @@ internal class AppcuesTargetInteractionTrait: AppcuesBackdropDecoratingTrait {
         longPressActions = actions.filter { ActionType(rawValue: $0.trigger) == .longPress }
     }
 
-    func decorate(backdropView: UIView) throws {
+    func decorate(backdropView: UIView) async throws {
         guard let metadataDelegate = metadataDelegate else {
             // nothing to do without a targetRectangle from the metadata dictionary
             targetView.removeFromSuperview()

@@ -7,9 +7,11 @@
 //
 
 import XCTest
+import WebKit
 @testable import AppcuesKit
 
 @available(iOS 13.0, *)
+@MainActor
 class AppcuesTargetElementTraitTests: XCTestCase {
 
     var appcues: MockAppcues!
@@ -54,27 +56,27 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertNotNil(trait)
     }
 
-    func testDecorateThrowsInvalidSelector() throws {
+    func testDecorateThrowsInvalidSelector() async throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: [:]))
 
         // Act/Assert
-        XCTAssertThrowsError(try trait.decorate(backdropView: backdropView)) {
+        await XCTAssertThrowsErrorAsync(try await trait.decorate(backdropView: backdropView)) {
             XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "Invalid selector [:]")
         }
     }
 
-    func testDecorateThrowsNoLayout() throws {
+    func testDecorateThrowsNoLayout() async throws {
         // Arrange
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
 
         // Act/Assert
-        XCTAssertThrowsError(try trait.decorate(backdropView: backdropView)) {
+        await XCTAssertThrowsErrorAsync(try await trait.decorate(backdropView: backdropView)) {
             XCTAssertEqual(($0 as? AppcuesTraitError)?.description, "Could not read application layout information")
         }
     }
 
-    func testDecorateThrowsNoMatch() throws {
+    func testDecorateThrowsNoMatch() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -90,12 +92,12 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
 
         // Act/Assert
-        XCTAssertThrowsError(try trait.decorate(backdropView: backdropView)) {
+        await XCTAssertThrowsErrorAsync(try await trait.decorate(backdropView: backdropView)) {
             XCTAssertEqual(($0 as? AppcuesTraitError)?.description, #"No view matching selector ["accessibilityIdentifier": "myID"]"#)
         }
     }
 
-    func testDecorateThrowsMultipleMatch() throws {
+    func testDecorateThrowsMultipleMatch() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -107,12 +109,12 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
 
         // Act/Assert
-        XCTAssertThrowsError(try trait.decorate(backdropView: backdropView)) {
+        await XCTAssertThrowsErrorAsync(try await trait.decorate(backdropView: backdropView)) {
             XCTAssertEqual(($0 as? AppcuesTraitError)?.description, #"multiple non-distinct views (2) matched selector ["accessibilityIdentifier": "myID"]"#)
         }
     }
 
-    func testDecorate() throws {
+    func testDecorate() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -124,7 +126,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         trait.metadataDelegate = metadataDelegate
 
         // Act
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Assert
@@ -134,7 +136,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(latestMetadata["targetRectangle"], safeArea.intersection(frame))
     }
 
-    func testDecorateMultipleMatches() throws {
+    func testDecorateMultipleMatches() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -149,7 +151,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         trait.metadataDelegate = metadataDelegate
 
         // Act
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Assert
@@ -159,8 +161,14 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(latestMetadata["targetRectangle"], safeArea.intersection(frame2))
     }
 
-    func testFrameRecalculation() throws {
+    func testFrameRecalculation() async throws {
         // Arrange
+        let metadataExpectation = expectation(description: "metadata received")
+        metadataExpectation.expectedFulfillmentCount = 2
+        metadataDelegate.registerHandler(for: "wait", animating: false) { metadata in
+            metadataExpectation.fulfill()
+        }
+
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
         let view1 = UIView(frame: CGRect(x: 20, y: 20, width: 100, height: 100), accessibilityIdentifier: "myID")
@@ -169,7 +177,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
         trait.metadataDelegate = metadataDelegate
 
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         let updatedFrame = CGRect(x: 500, y: 20, width: 100, height: 100)
@@ -183,13 +191,14 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let updatedSafeArea = rootViewController.view.bounds.inset(by: rootViewController.view.safeAreaInsets)
 
         // Assert
+        await fulfillment(of: [metadataExpectation], timeout: 1)
         XCTAssertEqual(metadataUpdates.count, 2)
         let latestMetadata = try XCTUnwrap(metadataUpdates.last)
 
         XCTAssertEqual(latestMetadata["targetRectangle"], updatedSafeArea.intersection(updatedFrame))
     }
 
-    func testUndecorate() throws {
+    func testUndecorate() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -199,7 +208,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let trait = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["accessibilityIdentifier":"myID"]))
         trait.metadataDelegate = metadataDelegate
 
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
 
@@ -219,31 +228,31 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertNil(contentDistanceFromTarget)
     }
 
-    func testElementDisplayName() throws {
+    func testElementDisplayName() async throws {
         let frame = CGRect(x: 20, y: 20, width: 100, height: 100)
 
         let view1 = UIView(frame: frame)
         view1.accessibilityIdentifier = "myAccessibilityID"
-        let view1Element = try XCTUnwrap(view1.asViewElement())
+        let view1Element = try await XCTUnwrapAsync(await view1.asViewElement())
         XCTAssertEqual(view1Element.displayName, "myAccessibilityID")
 
         let view2 = AppcuesTargetView(identifier: "someID")
         view2.frame = frame
-        let view2Element = try XCTUnwrap(view2.asViewElement())
+        let view2Element = try await XCTUnwrapAsync(await view2.asViewElement())
         XCTAssertEqual(view2Element.displayName, "someID")
 
         let view3 = UIView(frame: frame)
         view3.tag = 226
-        let view3Element = try XCTUnwrap(view3.asViewElement())
+        let view3Element = try await XCTUnwrapAsync(await view3.asViewElement())
         XCTAssertEqual(view3Element.displayName, "UIView (tag 226)")
 
         let view4 = UIButton(frame: frame)
         view4.accessibilityLabel = "My Button"
-        let view4Element = try XCTUnwrap(view4.asViewElement())
+        let view4Element = try await XCTUnwrapAsync(await view4.asViewElement())
         XCTAssertEqual(view4Element.displayName, "UIButton (My Button)")
 
         let view5 = UIView(frame: frame)
-        let view5Element = try XCTUnwrap(view5.asViewElement())
+        let view5Element = try await XCTUnwrapAsync(await view5.asViewElement())
         XCTAssertNil(view5Element.displayName)
     }
 
@@ -260,7 +269,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertNil(selector)
     }
 
-    func testTabBarDisplayName() throws {
+    func testTabBarDisplayName() async throws {
         let frame = CGRect(x: 20, y: 20, width: 100, height: 100)
         
         let tabBarView = UITabBar(frame: frame)
@@ -273,7 +282,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         tabBarView.addSubview(UIView()) //should be ignored
         tabBarView.addSubview(tabBarButton3)
 
-        let tabBarViewElement = try XCTUnwrap(tabBarView.asViewElement())
+        let tabBarViewElement = try await XCTUnwrapAsync(await tabBarView.asViewElement())
         XCTAssertNil(tabBarViewElement.displayName)
 
         let tabBarChildren = try XCTUnwrap(tabBarViewElement.children)
@@ -284,7 +293,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         XCTAssertEqual(tabBarChildren[4].displayName, "tab[2]")
     }
 
-    func testTabBarDecorate() throws {
+    func testTabBarDecorate() async throws {
         // Arrange
         try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
 
@@ -306,7 +315,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         trait.metadataDelegate = metadataDelegate
 
         // Act
-        try trait.decorate(backdropView: backdropView)
+        try await trait.decorate(backdropView: backdropView)
         metadataDelegate.publish()
 
         // Assert
@@ -315,6 +324,82 @@ class AppcuesTargetElementTraitTests: XCTestCase {
 
         // the rect here is x/y positioned relative to button 3 offset within the tab bar frame
         XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 10, y: 100, width: 40, height: 40))
+    }
+
+    func testWebViewDecorate() async throws {
+        // Arrange
+        try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
+
+        let expectation = expectation(description: "webview loaded")
+        let webView = WKWebView()
+        let delegate = WebViewDelegate(expectation: expectation)
+        webView.navigationDelegate = delegate
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
+
+        let htmlString = """
+        <html>
+        <head><title>Test Page</title></head>
+        <body>
+            <div id="test1" style="position: absolute; top: 50px; left: 50px; width: 10px; height: 10px">
+                Hello, World!
+            </div>
+            <div appcues-id="test2" style="position: absolute; top: 100px; left: 100px; width: 10px; height: 10px">
+                Hello, World!
+            </div>
+        </body>
+        </html>
+        """
+
+        // Load HTML into the WKWebView
+        webView.loadHTMLString(htmlString, baseURL: nil)
+        rootViewController.view.addSubview(webView)
+        webView.pin(to: rootViewController.view)
+
+        await fulfillment(of: [expectation], timeout: 2)
+
+        // Act 1
+        let trait1 = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["tag": "#test1"]))
+        trait1.metadataDelegate = metadataDelegate
+
+        try await trait1.decorate(backdropView: backdropView)
+        metadataDelegate.publish()
+
+        // Assert
+        XCTAssertEqual(metadataUpdates.count, 1)
+        let latestMetadata1 = try XCTUnwrap(metadataUpdates.last)
+        XCTAssertEqual(latestMetadata1["targetRectangle"], CGRect(x: 50, y: 50, width: 10, height: 10))
+
+        // Act 2
+        let trait2 = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["appcuesID": "test2"]))
+        trait2.metadataDelegate = metadataDelegate
+
+        try await trait2.decorate(backdropView: backdropView)
+        metadataDelegate.publish()
+
+        // Assert
+        XCTAssertEqual(metadataUpdates.count, 2)
+        let latestMetadata2 = try XCTUnwrap(metadataUpdates.last)
+        XCTAssertEqual(latestMetadata2["targetRectangle"], CGRect(x: 100, y: 100, width: 10, height: 10))
+
+        let viewElement = try await XCTUnwrapAsync(await webView.asViewElement())
+        XCTAssertNil(viewElement.displayName)
+
+        let webViewChildren = try XCTUnwrap(viewElement.children)
+        XCTAssertEqual(webViewChildren[0].displayName, "#test1")
+        XCTAssertEqual(webViewChildren[1].displayName, "test2")
+    }
+}
+
+private class WebViewDelegate: NSObject, WKNavigationDelegate {
+    let expectation: XCTestExpectation
+
+    init(expectation: XCTestExpectation) {
+        self.expectation = expectation
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // Web view finished loading
+        expectation.fulfill() // Fulfill the expectation when the title matches
     }
 }
 
