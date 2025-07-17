@@ -59,6 +59,10 @@ extension ModalContextManager {
 
             rootViewController = AppcuesWindowRootViewController()
             isHidden = false
+
+            if let appUIStyle = UIApplication.shared.mainAppWindow?.traitCollection.userInterfaceStyle {
+                overrideUserInterfaceStyle = appUIStyle
+            }
         }
 
         @available(*, unavailable)

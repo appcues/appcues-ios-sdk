@@ -17,6 +17,10 @@ internal class DebugUIWindow: UIWindow {
         self.rootViewController = rootViewController
         windowLevel = .statusBar
         isHidden = false
+
+        if let appUIStyle = UIApplication.shared.mainAppWindow?.traitCollection.userInterfaceStyle {
+            overrideUserInterfaceStyle = appUIStyle
+        }
     }
 
     @available(*, unavailable)
