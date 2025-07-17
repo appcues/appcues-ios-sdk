@@ -148,6 +148,7 @@ internal class UIKitElementTargeting: AppcuesElementTargeting {
     }
 }
 
+@available(iOS 13.0, *)
 internal extension UIView {
     private var displayType: String {
         return "\(type(of: self))"
@@ -237,6 +238,7 @@ internal extension UIView {
     }
 }
 
+@available(iOS 13.0, *)
 private extension WKWebView {
     func children(positionAdjustment: CGPoint) async -> [AppcuesViewElement] {
         let script = """
@@ -299,6 +301,7 @@ private extension Optional where Wrapped == String {
     }
 }
 
+@available(iOS 13.0, *)
 internal extension Sequence {
     func asyncCompactMap<T>(_ transform: (Element) async throws -> T?) async rethrows -> [T] {
         var values = [T]()

@@ -11,6 +11,7 @@ import Foundation
 /// A type that describes an element targeting strategy for views in the application UI.
 ///
 /// The default implementation for element targeting can be overridden by setting ``Appcues/elementTargeting``.
+@available(iOS 13.0, *)
 @objc
 public protocol AppcuesElementTargeting {
     /// Capture the layout hierarchy in the currently rendered screen of the application.
@@ -25,6 +26,7 @@ public protocol AppcuesElementTargeting {
     func inflateSelector(from properties: [String: String]) -> AppcuesElementSelector?
 }
 
+@available(iOS 13.0, *)
 internal extension AppcuesElementTargeting {
     // Default implementation that looks at the current view capture and finds any matches.
     // Used during targeted element experiences to find the position in the UI for the experience.
