@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import WebKit
 @testable import AppcuesKit
 
 @available(iOS 13.0, *)
@@ -323,6 +324,82 @@ class AppcuesTargetElementTraitTests: XCTestCase {
 
         // the rect here is x/y positioned relative to button 3 offset within the tab bar frame
         XCTAssertEqual(latestMetadata["targetRectangle"], CGRect(x: 10, y: 100, width: 40, height: 40))
+    }
+
+    func testWebViewDecorate() async throws {
+        // Arrange
+        try XCTUnwrap(Appcues.elementTargeting as? UIKitElementTargeting).window = window
+
+        let expectation = expectation(description: "webview loaded")
+        let webView = WKWebView()
+        let delegate = WebViewDelegate(expectation: expectation)
+        webView.navigationDelegate = delegate
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
+
+        let htmlString = """
+        <html>
+        <head><title>Test Page</title></head>
+        <body>
+            <div id="test1" style="position: absolute; top: 50px; left: 50px; width: 10px; height: 10px">
+                Hello, World!
+            </div>
+            <div appcues-id="test2" style="position: absolute; top: 100px; left: 100px; width: 10px; height: 10px">
+                Hello, World!
+            </div>
+        </body>
+        </html>
+        """
+
+        // Load HTML into the WKWebView
+        webView.loadHTMLString(htmlString, baseURL: nil)
+        rootViewController.view.addSubview(webView)
+        webView.pin(to: rootViewController.view)
+
+        await fulfillment(of: [expectation], timeout: 2)
+
+        // Act 1
+        let trait1 = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["tag": "#test1"]))
+        trait1.metadataDelegate = metadataDelegate
+
+        try await trait1.decorate(backdropView: backdropView)
+        metadataDelegate.publish()
+
+        // Assert
+        XCTAssertEqual(metadataUpdates.count, 1)
+        let latestMetadata1 = try XCTUnwrap(metadataUpdates.last)
+        XCTAssertEqual(latestMetadata1["targetRectangle"], CGRect(x: 50, y: 50, width: 10, height: 10))
+
+        // Act 2
+        let trait2 = try XCTUnwrap(AppcuesTargetElementTrait(appcues: appcues, selector: ["appcuesID": "test2"]))
+        trait2.metadataDelegate = metadataDelegate
+
+        try await trait2.decorate(backdropView: backdropView)
+        metadataDelegate.publish()
+
+        // Assert
+        XCTAssertEqual(metadataUpdates.count, 2)
+        let latestMetadata2 = try XCTUnwrap(metadataUpdates.last)
+        XCTAssertEqual(latestMetadata2["targetRectangle"], CGRect(x: 100, y: 100, width: 10, height: 10))
+
+        let viewElement = try await XCTUnwrapAsync(await webView.asViewElement())
+        XCTAssertNil(viewElement.displayName)
+
+        let webViewChildren = try XCTUnwrap(viewElement.children)
+        XCTAssertEqual(webViewChildren[0].displayName, "#test1")
+        XCTAssertEqual(webViewChildren[1].displayName, "test2")
+    }
+}
+
+private class WebViewDelegate: NSObject, WKNavigationDelegate {
+    let expectation: XCTestExpectation
+
+    init(expectation: XCTestExpectation) {
+        self.expectation = expectation
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // Web view finished loading
+        expectation.fulfill() // Fulfill the expectation when the title matches
     }
 }
 
