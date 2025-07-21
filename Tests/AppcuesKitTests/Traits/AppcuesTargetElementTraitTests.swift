@@ -343,7 +343,7 @@ class AppcuesTargetElementTraitTests: XCTestCase {
             <div id="test1" style="position: absolute; top: 50px; left: 50px; width: 10px; height: 10px">
                 Hello, World!
             </div>
-            <div appcues-id="test2" style="position: absolute; top: 100px; left: 100px; width: 10px; height: 10px">
+            <div data-appcues-id="test2" style="position: absolute; top: 100px; left: 100px; width: 10px; height: 10px">
                 Hello, World!
             </div>
         </body>
