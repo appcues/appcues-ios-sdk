@@ -4,6 +4,20 @@ Learn more about changes to Appcues iOS SDK.
 
 Appcues iOS SDK follow semantic versions. Accordingly, a major version is incremented when an incompatible API change is made. Below are details for each such version change.  
 
+## 4.x to 5.0 Migration Guide
+
+### Overview
+
+Updating to this release will not require any code changes for most SDK installations. Code changes would only be required if your app implemented a custom element targeting strategy.
+
+### Changed
+
+- ``AppcuesElementTargeting/captureLayout()`` is now async.
+
+## 3.x to 4.0 Migration Guide
+
+There are no no code changes required. SDK version 4 introduced support for push notifications.
+
 ## 2.x to 3.0 Migration Guide
 
 ### Overview
