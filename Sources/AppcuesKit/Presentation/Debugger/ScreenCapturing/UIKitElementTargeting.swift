@@ -242,10 +242,10 @@ internal extension UIView {
 private extension WKWebView {
     func children(positionAdjustment: CGPoint) async -> [AppcuesViewElement] {
         let script = """
-        [...document.querySelectorAll('[id], [appcues-id]')].reduce((result, el) => {
+        [...document.querySelectorAll('[id], [data-appcues-id]')].reduce((result, el) => {
             const { x, y, width, height } = el.getBoundingClientRect();
             const tag = el.id ? `#${el.id}` : null;
-            const appcuesID = el.getAttribute('appcues-id')
+            const appcuesID = el.getAttribute('data-appcues-id')
             if (height !== 0 && width !== 0) {
                 result.push({
                     x,
