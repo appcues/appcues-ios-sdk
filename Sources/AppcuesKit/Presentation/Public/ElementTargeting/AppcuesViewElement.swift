@@ -56,6 +56,7 @@ public class AppcuesViewElement: NSObject, Encodable {
     ///   - type: The type of the view.
     ///   - selector: The selector to identify the view.
     ///   - children: The sub-views contained within the view.
+    ///   - displayName: Label for display in the Mobile Builder.
     @objc
     public init(
         x: CGFloat,
