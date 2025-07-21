@@ -40,6 +40,15 @@ Button("Save Profile") {
 .appcuesView(identifier: "btnSaveProfile")
 ```
 
+## Instrumenting Web Views
+
+HTML content loaded in a `WKWebView` is eligible for use with anchored tooltips. Any visible element with an `id` attribute or a `data-appcues-id` attribute will be selectable.
+
+```html
+<button id="my-button" type="button">My Button</button>
+<div data-appcues-id="some-id">...</div>
+```
+
 ## Other Considerations
 
 ### Selector Uniqueness
