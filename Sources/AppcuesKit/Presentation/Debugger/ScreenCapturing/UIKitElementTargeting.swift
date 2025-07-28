@@ -273,6 +273,11 @@ private extension WKWebView {
                 return nil
             }
 
+            let elementFrame = CGRect(x: x, y: y, width: width, height: height)
+            guard self.bounds.contains(CGPoint(x: elementFrame.midX, y: elementFrame.midY)) else {
+                return nil
+            }
+
             let appcuesID = element["appcuesID"] as? String
             let tag = element["tag"] as? String
 
