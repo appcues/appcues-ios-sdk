@@ -188,7 +188,7 @@ internal extension UIView {
         if let webView = self as? WKWebView {
             // Ionic apps seem to specifically ignore the safe area
             let adjustment: CGPoint = webView.scrollView.contentInsetAdjustmentBehavior == .never
-            ? .zero
+            ? absolutePosition.origin
             : absolutePosition.inset(by: childInsets).origin
             children = await webView.children(positionAdjustment: adjustment)
         } else {
