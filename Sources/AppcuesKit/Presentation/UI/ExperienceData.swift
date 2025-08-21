@@ -57,6 +57,14 @@ internal class ExperienceData {
         return state(for: stepID)
     }
 
+    func flatFormState() -> [UUID: String] {
+        formState.steps.values.reduce(into: [UUID: String]()) { result, stepState in
+            stepState.formItems.forEach { surveyBlockId, formItem in
+                result[surveyBlockId] = formItem.getValue()
+            }
+        }
+    }
+
     func delegateMetadata() -> AppcuesPresentationMetadata {
         AppcuesPresentationMetadata(
             id: model.id.appcuesFormatted,
