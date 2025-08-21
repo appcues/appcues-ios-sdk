@@ -63,15 +63,12 @@ internal class ActionRegistry {
         }
     }
 
-    /// Enqueue an array of experience action data models to be executed. This version is for non-interactive action execution,
-    /// such as actions that execute as part of the navigation to a step.
-    func enqueue(
+    func makeInstances(
         actionModels: [Experience.Action],
         level: AppcuesExperiencePluginConfiguration.Level,
-        renderContext: RenderContext,
-        completion: @escaping () -> Void
-    ) {
-        let actionInstances = actionModels.compactMap {
+        renderContext: RenderContext
+    ) -> [AppcuesExperienceAction] {
+        actionModels.compactMap {
             actions[$0.type]?.init(configuration: AppcuesExperiencePluginConfiguration(
                 $0.configDecoder,
                 level: level,
@@ -79,7 +76,6 @@ internal class ActionRegistry {
                 appcues: appcues
             ))
         }
-        execute(transformQueue(actionInstances), completion: completion)
     }
 
     /// Enqueue the action instances.
