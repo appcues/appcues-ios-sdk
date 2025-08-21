@@ -283,7 +283,12 @@ extension ExperienceStateMachine {
             case .continuation(let action):
                 try machine.transition(action)
             case let .presentContainer(experience, stepIndex, package, actions):
-                machine.actionRegistry.enqueue(actionModels: actions, level: .group, renderContext: experience.renderContext) {
+                let actionInstances = machine.actionRegistry.makeInstances(
+                    actionModels: actions,
+                    level: .group,
+                    renderContext: experience.renderContext
+                )
+                machine.actionRegistry.enqueue(actionInstances: actionInstances) {
                     executePresentContainer(
                         machine: machine,
                         experience: experience,
