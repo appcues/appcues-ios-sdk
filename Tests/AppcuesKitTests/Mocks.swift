@@ -207,7 +207,7 @@ extension Experience.Step.Child {
             traits: [],
             actions: [:],
             content: ExperienceComponent.textInput(ExperienceComponent.TextInputModel(
-                id: UUID(uuidString: "f002dc4f-c5fc-4439-8916-0047a5839741")!,
+                id: ExperienceComponent.TextInputModel.mockId,
                 label: ExperienceComponent.TextModel(id: UUID(), text: "Form label - mock", style: nil),
                 errorLabel: nil,
                 placeholder: nil,
@@ -222,7 +222,10 @@ extension Experience.Step.Child {
                 style: nil))
         )
     }
+}
 
+extension ExperienceComponent.TextInputModel {
+    static let mockId = UUID(uuidString: "f002dc4f-c5fc-4439-8916-0047a5839741")!
 }
 
 @available(iOS 13.0, *)

@@ -88,7 +88,7 @@ class AppcuesSubmitFormActionTests: XCTestCase {
             "interactionType": "Form Submitted",
             "interactionData": [
                 "formResponse": ExperienceData.StepState(formItems: [
-                    UUID(uuidString: "f002dc4f-c5fc-4439-8916-0047a5839741")!: expectedFormItem
+                    ExperienceComponent.TextInputModel.mockId: expectedFormItem
                 ])
             ]
         ].verifyPropertiesMatch(updates[1].properties)
