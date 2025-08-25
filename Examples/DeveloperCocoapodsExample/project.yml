@@ -46,6 +46,12 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.appcues.sdk-example-cocoapods
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+    attributes:
+      # necessary for fastlane/xcode16 issue: fastlane rejects an empty TargetAttributes
+      # in update_code_signing_settings. If you open the project with Xcode 16 then TargetAttributes
+      # gets removed if it's empty.
+      # https://github.com/fastlane/fastlane/pull/23872
+      some_flag: false
   NotificationServiceExtension:
     type: app-extension
     platform: iOS
