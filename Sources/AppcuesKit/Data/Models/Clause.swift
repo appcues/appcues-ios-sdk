@@ -137,10 +137,6 @@ extension Clause {
 // MARK: - Decodable
 
 extension Clause: Decodable {
-    private enum ClauseError: Error {
-        case unknownClause
-    }
-
     private enum CodingKeys: CodingKey {
         case and
         // swiftlint:disable:next identifier_name
@@ -152,37 +148,43 @@ extension Clause: Decodable {
     }
 
     init(from decoder: Decoder) throws {
-        do {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            let allKeys = ArraySlice<CodingKeys>(container.allKeys)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let allKeys = ArraySlice<CodingKeys>(container.allKeys)
 
-            guard let onlyKey = allKeys.first else {
-                throw ClauseError.unknownClause
-            }
-
-            guard allKeys.count == 1 else {
-                throw DecodingError.typeMismatch(Clause.self, DecodingError.Context(
-                    codingPath: container.codingPath,
-                    debugDescription: "Invalid number of keys found (\(allKeys.count)), expected one.",
-                    underlyingError: nil
-                ))
-            }
-
-            switch onlyKey {
-            case .and:
-                self = Clause.and(try container.decode([Clause].self, forKey: .and))
-            case .or:
-                self = Clause.or(try container.decode([Clause].self, forKey: .or))
-            case .not:
-                self = Clause.not(try container.decode(Clause.self, forKey: .not))
-
-            case .survey:
-                self = Clause.survey(try container.decode(SurveyClause.self, forKey: .survey))
-            case .token:
-                self = Clause.token(try container.decode(TokenClause.self, forKey: .token))
-            }
-        } catch is ClauseError {
+        guard let onlyKey = allKeys.first else {
             self = Clause.unknown
+            return
+        }
+
+        guard allKeys.count == 1 else {
+            throw DecodingError.typeMismatch(Clause.self, DecodingError.Context(
+                codingPath: container.codingPath,
+                debugDescription: "Invalid number of keys found (\(allKeys.count)), expected one.",
+                underlyingError: nil
+            ))
+        }
+
+        switch onlyKey {
+        case .and:
+            self = Clause.and(try container.decode([Clause].self, forKey: .and))
+        case .or:
+            self = Clause.or(try container.decode([Clause].self, forKey: .or))
+        case .not:
+            self = Clause.not(try container.decode(Clause.self, forKey: .not))
+
+        case .survey:
+            do {
+                self = Clause.survey(try container.decode(SurveyClause.self, forKey: .survey))
+            } catch {
+                // Treat failed survey clause as unknown to gracefully handle incomplete data from the builder
+                self = Clause.unknown
+            }
+        case .token:
+            do {
+                self = Clause.token(try container.decode(TokenClause.self, forKey: .token))
+            } catch {
+                self = Clause.unknown
+            }
         }
     }
 }
