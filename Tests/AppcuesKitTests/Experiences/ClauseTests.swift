@@ -647,12 +647,18 @@ class ClauseTests: XCTestCase {
         """
 
         let data = json.data(using: .utf8)!
+        let clause = try JSONDecoder().decode(Clause.self, from: data)
 
-        // This should throw a decoding error due to invalid UUID
-        XCTAssertThrowsError(try JSONDecoder().decode(Clause.self, from: data))
+        switch clause {
+        case .unknown:
+            // This is expected behavior - invalid survey clause (bad UUID) should decode to .unknown
+            break
+        default:
+            XCTFail("Expected unknown clause")
+        }
     }
 
-    func testDecodeInvalidOperator() throws {
+    func testDecodeInvalidSurveyOperator() throws {
         let json = """
         {
             "survey": {
@@ -664,12 +670,18 @@ class ClauseTests: XCTestCase {
         """
 
         let data = json.data(using: .utf8)!
+        let clause = try JSONDecoder().decode(Clause.self, from: data)
 
-        // This should throw a decoding error due to invalid operator
-        XCTAssertThrowsError(try JSONDecoder().decode(Clause.self, from: data))
+        switch clause {
+        case .unknown:
+            // This is expected behavior - invalid survey clause (bad operator) should decode to .unknown
+            break
+        default:
+            XCTFail("Expected unknown clause")
+        }
     }
 
-    func testDecodeUnknownOperator() throws {
+    func testDecodeInvalidTokenOperator() throws {
         let json = """
         {
             "token": {
@@ -681,9 +693,15 @@ class ClauseTests: XCTestCase {
         """
 
         let data = json.data(using: .utf8)!
+        let clause = try JSONDecoder().decode(Clause.self, from: data)
 
-        // This should throw a decoding error due to unknown operator
-        XCTAssertThrowsError(try JSONDecoder().decode(Clause.self, from: data))
+        switch clause {
+        case .unknown:
+            // This is expected behavior - invalid token clause (bad operator) should decode to .unknown
+            break
+        default:
+            XCTFail("Expected unknown clause")
+        }
     }
 
     // MARK: - Integration Tests
