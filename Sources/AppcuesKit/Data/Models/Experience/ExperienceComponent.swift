@@ -277,6 +277,8 @@ extension ExperienceComponent {
         let attributeName: String?
         // swiftlint:disable:next discouraged_optional_boolean
         let leadingFill: Bool?
+        // swiftlint:disable:next discouraged_optional_boolean
+        let randomizeOptionOrder: Bool?
 
         let style: Style?
 

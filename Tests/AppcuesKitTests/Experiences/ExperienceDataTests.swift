@@ -237,6 +237,7 @@ extension ExperienceComponent.OptionSelectModel {
             pickerStyle: nil,
             attributeName: nil,
             leadingFill: leadingFill,
+            randomizeOptionOrder: nil,
             style: nil
         )
     }
