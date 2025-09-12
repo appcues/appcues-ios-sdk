@@ -23,7 +23,8 @@ internal struct NPSView: View {
             // A bit more flexibility here though to just split the given options
             // in half, taking the ceiling of an odd numbered set - which
             // gives 6 on the first row and 5 on the second row, in the normal display
-            let rows = model.options.chunked(into: (model.options.count + 1) / 2)
+            let options = stepState.formOptions(for: model.id)
+            let rows = options.chunked(into: (options.count + 1) / 2)
             ForEach(rows.indices, id: \.self) { rowIndex in
                 // Each row lays out items horizontally, with spacing defined within the model
                 HStack(spacing: 0) {

@@ -156,12 +156,16 @@ extension ExperienceData {
             )
         }
 
+        func formOptions(for key: UUID) -> [ExperienceComponent.FormOptionModel] {
+            formItems[key]?.options ?? []
+        }
+
         func shouldShowError(for key: UUID) -> Bool {
             shouldShowErrors && !(formItems[key]?.isSatisfied ?? false)
         }
     }
 
-    struct FormItem: Equatable {
+    struct FormItem {
         enum ValueType: Equatable {
             case single(String)
             // A single value, but where the selected state should be set for all values that precede the selected value.
@@ -194,6 +198,8 @@ extension ExperienceData {
         fileprivate let validators: [Validator]
         fileprivate let required: Bool
 
+        let options: [ExperienceComponent.FormOptionModel]?
+
         var isSatisfied: Bool {
             return !validators.contains { !$0.isSatisfied(value: underlyingValue) }
         }
@@ -205,6 +211,7 @@ extension ExperienceData {
             self.underlyingValue = .single(model.defaultValue ?? "")
             self.validators = model.validators()
             self.required = model.required ?? false
+            self.options = nil
         }
 
         init(model: ExperienceComponent.OptionSelectModel) {
@@ -226,6 +233,7 @@ extension ExperienceData {
             }
             self.validators = model.validators()
             self.required = model.trueMinSelections > 0
+            self.options = model.randomizeOptionOrder == true ? model.options.shuffled() : model.options
         }
 
         func getValue() -> String {
@@ -269,6 +277,17 @@ extension ExperienceData {
                 return existingValues.contains(searchValue)
             }
         }
+
+        func getValuePosition() -> String? {
+            guard let options = options else { return nil }
+
+            return getValue()
+                .split(separator: "\n")
+                .map { selectedValue in
+                    String(options.firstIndex { $0.value == selectedValue } ?? -1)
+                }
+                .joined(separator: "\n")
+        }
     }
 }
 
@@ -304,7 +323,7 @@ extension ExperienceData.StepState {
 @available(iOS 13.0, *)
 extension ExperienceData.StepState: Encodable {
     enum ItemKeys: CodingKey {
-        case fieldId, fieldType, fieldRequired, value, label
+        case fieldId, fieldType, fieldRequired, value, label, position
     }
 
     func encode(to encoder: Encoder) throws {
@@ -317,7 +336,20 @@ extension ExperienceData.StepState: Encodable {
             try itemContainer.encode(formItem.required, forKey: .fieldRequired)
             try itemContainer.encode(formItem.getValue(), forKey: .value)
             try itemContainer.encode(formItem.label, forKey: .label)
+
+            if let position = formItem.getValuePosition() {
+                try itemContainer.encode(position, forKey: .position)
+            }
         }
+    }
+}
+
+@available(iOS 13.0, *)
+extension ExperienceData.FormItem: Equatable {
+    static func == (lhs: ExperienceData.FormItem, rhs: ExperienceData.FormItem) -> Bool {
+        lhs.type == rhs.type
+        && lhs.label == rhs.label
+        && lhs.underlyingValue == rhs.underlyingValue
     }
 }
 

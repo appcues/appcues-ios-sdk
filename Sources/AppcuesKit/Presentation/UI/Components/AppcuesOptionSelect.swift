@@ -53,7 +53,7 @@ internal struct AppcuesOptionSelect: View {
         switch (model.selectMode, model.displayFormat) {
         case (.single, .picker):
             Picker(model.label.text, selection: stepState.formBinding(for: model.id)) {
-                ForEach(model.options) { option in
+                ForEach(stepState.formOptions(for: model.id)) { option in
                     option.content.view
                         .tag(option.value)
                 }
@@ -76,7 +76,7 @@ internal struct AppcuesOptionSelect: View {
     @ViewBuilder private var items: some View {
         let primaryColor = stepState.shouldShowError(for: model.id) ? Color(dynamicColor: model.errorLabel?.style?.foregroundColor) : nil
 
-        ForEach(model.options) { option in
+        ForEach(stepState.formOptions(for: model.id)) { option in
             let binding = stepState.formBinding(for: model.id, value: option.value)
             SelectToggleView(
                 selected: binding,
