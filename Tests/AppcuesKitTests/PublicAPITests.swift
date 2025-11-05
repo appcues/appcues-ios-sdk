@@ -18,6 +18,8 @@ class PublicAPITests: XCTestCase {
             Appcues.elementTargeting = SampleElementTargeting()
         }
 
+        Appcues.registerCustomComponent(identifier: "sample", type: SampleCustomComponent.self)
+
         _ = AppcuesElementSelector().evaluateMatch(for: AppcuesElementSelector())
 
         let config = Appcues.Config(accountID: "12345", applicationID: "abc")
@@ -196,5 +198,15 @@ class SampleAnalyticsDelegate: AppcuesAnalyticsDelegate {
 class SampleNavigationDelegate: AppcuesNavigationDelegate {
     func navigate(to url: URL, openExternally: Bool, completion: @escaping (Bool) -> Void) {
         completion(true)
+    }
+}
+
+class SampleCustomComponent: UIViewController, AppcuesCustomComponentViewController {
+    required init?(configuration: AppcuesExperiencePluginConfiguration, actionController: AppcuesExperienceActions) {
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }
