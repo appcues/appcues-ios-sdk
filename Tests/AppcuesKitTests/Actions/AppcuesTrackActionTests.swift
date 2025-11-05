@@ -95,6 +95,68 @@ class AppcuesTrackActionTests: XCTestCase {
         // Assert
         XCTAssertEqual(completionCount, 1)
     }
+
+    func testDecodeFromJSON() throws {
+        // Arrange
+        let modelData = """
+        {
+            "on": "tap",
+            "type": "@appcues/track",
+            "config": {
+                "eventName": "Test Event",
+                "attributes": {
+                    "boolean": false,
+                    "string": "test",
+                    "int": 100,
+                    "double": 2.5,
+                    "unsupportedArray": [1, 2],
+                    "unsupportedObject": {"key": "value"}
+                }
+            }
+        }
+        """.data(using: .utf8)!
+
+        // Act
+        let action = try XCTUnwrap(JSONDecoder().decode(Experience.Action.self, from: modelData))
+        let instance = try XCTUnwrap(AppcuesTrackAction(
+            configuration: AppcuesExperiencePluginConfiguration(action.configDecoder, level: .step, renderContext: .modal, appcues: appcues)
+        ))
+
+        // Assert
+        XCTAssertEqual(instance.eventName, "Test Event")
+        XCTAssertNotNil(instance.attributes)
+        // Only supported types should be included
+        XCTAssertEqual(instance.attributes?.count, 4)
+        XCTAssertEqual(instance.attributes?["boolean"] as? Bool, false)
+        XCTAssertEqual(instance.attributes?["string"] as? String, "test")
+        XCTAssertEqual(instance.attributes?["int"] as? Int, 100)
+        XCTAssertEqual(instance.attributes?["double"] as? Double, 2.5)
+        XCTAssertNil(instance.attributes?["unsupportedArray"])
+        XCTAssertNil(instance.attributes?["unsupportedObject"])
+    }
+
+    func testDecodeFromJSONWithNoAttributes() throws {
+        // Arrange
+        let modelData = """
+        {
+            "on": "tap",
+            "type": "@appcues/track",
+            "config": {
+                "eventName": "Test Event"
+            }
+        }
+        """.data(using: .utf8)!
+
+        // Act
+        let action = try XCTUnwrap(JSONDecoder().decode(Experience.Action.self, from: modelData))
+        let instance = try XCTUnwrap(AppcuesTrackAction(
+            configuration: AppcuesExperiencePluginConfiguration(action.configDecoder, level: .step, renderContext: .modal, appcues: appcues)
+        ))
+
+        // Assert
+        XCTAssertEqual(instance.eventName, "Test Event")
+        XCTAssertNil(instance.attributes)
+    }
 }
 
 @available(iOS 13.0, *)
