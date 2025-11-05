@@ -143,6 +143,91 @@ class ContentLoaderTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
+    func testLoadPushPublished() throws {
+        // Arrange
+        appcues.networking.onPostEmptyResponse = { endpoint, authorization, body, completion in
+            XCTAssertEqual(
+                endpoint.url(config: self.appcues.config, storage: self.appcues.storage),
+                APIEndpoint.pushContent(id: "123").url(config: self.appcues.config, storage: self.appcues.storage)
+            )
+            
+            // Verify the request body
+            if let body = body,
+               let json = try? JSONSerialization.jsonObject(with: body) as? [String: Any] {
+                XCTAssertEqual(json["device_id"] as? String, self.appcues.storage.deviceID)
+                XCTAssertEqual(json["query"] as? String, "xyz")
+            } else {
+                XCTFail("Request body should not be nil")
+            }
+            
+            completion(.success(()))
+        }
+
+        let completionExpectation = expectation(description: "Completion called")
+
+        // Act
+        contentLoader.loadPush(id: "123", published: true, queryItems: [URLQueryItem(name: "query", value: "xyz")]) { result in
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testLoadPushUnpublished() throws {
+        // Arrange
+        appcues.networking.onPostEmptyResponse = { endpoint, authorization, body, completion in
+            XCTAssertEqual(
+                endpoint.url(config: self.appcues.config, storage: self.appcues.storage),
+                APIEndpoint.pushPreview(id: "123").url(config: self.appcues.config, storage: self.appcues.storage)
+            )
+            
+            // Verify the request body includes query items
+            if let body = body,
+               let json = try? JSONSerialization.jsonObject(with: body) as? [String: Any] {
+                XCTAssertEqual(json["device_id"] as? String, self.appcues.storage.deviceID)
+            } else {
+                XCTFail("Request body should not be nil")
+            }
+            
+            completion(.success(()))
+        }
+
+        let completionExpectation = expectation(description: "Completion called")
+
+        // Act
+        contentLoader.loadPush(id: "123", published: false, queryItems: []) { result in
+            if case .success = result {
+                completionExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+    func testLoadPushFail() throws {
+        // Arrange
+        appcues.networking.onPostEmptyResponse = { endpoint, authorization, body, completion in
+            completion(.failure(URLError(.resourceUnavailable)))
+        }
+
+        let completionExpectation = expectation(description: "Completion called")
+
+        // Act
+        contentLoader.loadPush(id: "123", published: true, queryItems: []) { result in
+            if case .failure = result {
+                completionExpectation.fulfill()
+            }
+        }
+
+        // Assert
+        waitForExpectations(timeout: 1)
+    }
+
+
     func testPushRequestEncode() throws {
         // Arrange
         let model = PushRequest(
