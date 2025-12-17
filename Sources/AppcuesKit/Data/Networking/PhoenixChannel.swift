@@ -34,7 +34,7 @@ internal class PhoenixChannel {
     private var messageRef: UInt64 = 0
     private var pendingHeartbeatRef: String?
     private var heartbeatTimeoutTimer: Timer?
-    private var reconnectWorkItem: DispatchWorkItem?
+    private var reconnectScheduled = false
 
     private let heartbeatInterval: TimeInterval = 30.0
     private let heartbeatTimeout: TimeInterval = 10.0
@@ -56,15 +56,22 @@ internal class PhoenixChannel {
     ) {
         let topic = "sdk:\(accountID):\(userID)"
 
-        // If already connected to the same topic, just call completion
-        if isConnected && currentTopic == topic {
-            completion(.success(()))
+        // If already connected or connecting to the same topic, just call completion
+        if (isConnected || isConnecting) && currentTopic == topic {
+            // If still connecting, queue the completion to be called when join completes
+            if isConnecting, let existingCompletion = pendingJoinCompletion {
+                pendingJoinCompletion = { result in
+                    existingCompletion(result)
+                    completion(result)
+                }
+            } else {
+                completion(.success(()))
+            }
             return
         }
 
-        // Cancel any pending reconnection attempts
-        reconnectWorkItem?.cancel()
-        reconnectWorkItem = nil
+        // Clear reconnection flag
+        reconnectScheduled = false
 
         // Disconnect existing connection if any
         disconnectInternal()
@@ -88,7 +95,6 @@ internal class PhoenixChannel {
         }
 
         // Create WebSocket task
-        config.logger.debug("PHOENIX: Connecting to %{public}@", socketURL.absoluteString)
         let task = urlSession.webSocketTask(with: socketURL)
         webSocketTask = task
 
@@ -105,19 +111,14 @@ internal class PhoenixChannel {
 
     /// Disconnect from the socket
     func disconnect() {
-        // Cancel any pending reconnection
-        reconnectWorkItem?.cancel()
-        reconnectWorkItem = nil
+        // Clear reconnection flag and topic to prevent reconnection
+        reconnectScheduled = false
+        currentTopic = nil
 
         disconnectInternal()
-
-        // Clear topic to prevent reconnection
-        currentTopic = nil
     }
 
     private func disconnectInternal() {
-        config.logger.debug("PHOENIX: Disconnecting (isConnected=%{public}@)", String(isConnected))
-
         let wasConnected = isConnected
         isConnected = false
         isConnecting = false
@@ -149,14 +150,6 @@ internal class PhoenixChannel {
                 self.joinRef ?? "nil",
                 String(isConnected)
             )
-
-            // Trigger reconnection if we have a topic but aren't connected
-            if currentTopic != nil && !isConnected {
-                config.logger.debug(
-                    "PHOENIX: Triggering reconnection due to send attempt while disconnected")
-                scheduleReconnect()
-            }
-
             return ""
         }
 
@@ -180,14 +173,9 @@ internal class PhoenixChannel {
         // Add token if available
         if let token = storage.userSignature {
             joinPayload["token"] = token
-            config.logger.debug("PHOENIX: Joining with authentication token")
-        } else {
-            config.logger.debug("PHOENIX: Joining without authentication token")
         }
 
         let message: [Any] = [ref, ref, topic, "phx_join", joinPayload]
-
-        config.logger.debug("PHOENIX: Attempting to join channel %{public}@", topic)
 
         // Set up timeout
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(10)) { [weak self] in
@@ -222,7 +210,6 @@ internal class PhoenixChannel {
             return
         }
 
-        config.logger.debug("PHOENIX: Leaving channel %{public}@", topic)
         let ref = nextRef()
         let message: [Any] = [joinRef, ref, topic, "phx_leave", [:]]
         sendMessage(message)
@@ -230,9 +217,6 @@ internal class PhoenixChannel {
 
     private func startHeartbeat() {
         stopHeartbeat()
-
-        config.logger.debug(
-            "PHOENIX: Starting heartbeat timer (interval=%{public}f seconds)", heartbeatInterval)
 
         // Create timer on main thread to ensure it fires
         DispatchQueue.main.async { [weak self] in
@@ -253,8 +237,6 @@ internal class PhoenixChannel {
     }
 
     private func stopHeartbeat() {
-        config.logger.debug("PHOENIX: Stopping heartbeat timer")
-
         DispatchQueue.main.async { [weak self] in
             self?.heartbeatTimer?.invalidate()
             self?.heartbeatTimer = nil
@@ -277,7 +259,6 @@ internal class PhoenixChannel {
         }
 
         let ref = nextRef()
-        config.logger.debug("PHOENIX: Sending heartbeat with ref=%{public}@", ref)
 
         // Phoenix heartbeat goes to the "phoenix" topic with empty joinRef
         let message: [Any] = ["", ref, "phoenix", "heartbeat", [:] as [String: Any]]
@@ -356,12 +337,8 @@ internal class PhoenixChannel {
 
                 // Ignore POSIX error 57 (Socket is not connected) during connection phase
                 // This is a transient error that occurs during WebSocket handshake
-                if nsError.domain == NSPOSIXErrorDomain && nsError.code == 57 {
-                    if self.isConnecting {
-                        self.config.logger.debug(
-                            "PHOENIX: Ignoring transient socket error during connection")
-                        return
-                    }
+                if nsError.domain == NSPOSIXErrorDomain && nsError.code == 57 && self.isConnecting {
+                    return
                 }
 
                 // Mark as disconnected
@@ -377,9 +354,6 @@ internal class PhoenixChannel {
     }
 
     private func handleMessage(_ text: String) {
-        // Log the raw message for debugging
-        config.logger.debug("PHOENIX: Raw message: %{private}@", text)
-
         guard let data = text.data(using: .utf8),
             let json = try? JSONSerialization.jsonObject(with: data) as? [Any],
             json.count >= 5,
@@ -388,7 +362,6 @@ internal class PhoenixChannel {
             let event = json[3] as? String,
             let payload = json[4] as? [String: Any]
         else {
-            config.logger.debug("PHOENIX: Invalid message format: %{private}@", text)
             return
         }
 
@@ -396,39 +369,20 @@ internal class PhoenixChannel {
 
         // Handle phoenix system topic messages (like heartbeat responses)
         if topic == "phoenix" {
-            if event == "phx_reply" {
-                // Check if this is a heartbeat reply
-                if let pendingHeartbeatRef = pendingHeartbeatRef, ref == pendingHeartbeatRef {
-                    config.logger.debug("PHOENIX: Heartbeat acknowledged (ref=%{public}@)", ref)
-                    self.pendingHeartbeatRef = nil
-                    heartbeatTimeoutTimer?.invalidate()
-                    heartbeatTimeoutTimer = nil
-                }
+            if event == "phx_reply", let pendingHeartbeatRef = pendingHeartbeatRef,
+                ref == pendingHeartbeatRef
+            {
+                self.pendingHeartbeatRef = nil
+                heartbeatTimeoutTimer?.invalidate()
+                heartbeatTimeoutTimer = nil
             }
             return
         }
 
         // Ignore messages for topics we're not currently connected to (stale messages)
         guard topic == currentTopic else {
-            config.logger.debug(
-                "PHOENIX: Ignoring message for stale topic %{public}@ (current: %{public}@)", topic,
-                currentTopic ?? "nil")
             return
         }
-
-        // Ignore stale error responses (from old connections/joinRefs)
-        if event == "phx_reply",
-            let status = payload["status"] as? String, status == "error",
-            let response = payload["response"] as? [String: Any],
-            let reason = response["reason"] as? String, reason == "unmatched topic"
-        {
-            config.logger.debug(
-                "PHOENIX: Ignoring stale 'unmatched topic' error for ref=%{public}@", ref)
-            return
-        }
-
-        config.logger.debug(
-            "PHOENIX: Received %{public}@ on %{public}@ (ref=%{public}@)", event, topic, ref)
 
         switch event {
         case "phx_reply":
@@ -436,7 +390,6 @@ internal class PhoenixChannel {
             if ref == joinRef {
                 if let status = payload["status"] as? String, status == "ok" {
                     // Join successful
-                    config.logger.debug("PHOENIX: Successfully joined channel %{public}@", topic)
                     isConnected = true
                     isConnecting = false
                     if let completion = pendingJoinCompletion {
@@ -512,7 +465,8 @@ internal class PhoenixChannel {
             delegate?.phoenixChannel(self, didReceiveError: error)
 
         case "phx_close":
-            config.logger.debug("PHOENIX: Channel closed")
+            isConnected = false
+            joinRef = nil
             scheduleReconnect()
 
         default:
@@ -531,30 +485,13 @@ internal class PhoenixChannel {
         do {
             let data = try JSONSerialization.data(withJSONObject: message)
             let string = String(data: data, encoding: .utf8) ?? ""
-            config.logger.debug("PHOENIX: Sending %{private}@", string)
 
             webSocketTask.send(.string(string)) { [weak self] error in
-                guard let self = self else { return }
-
                 if let error = error {
-                    let nsError = error as NSError
-                    self.config.logger.error(
-                        "PHOENIX: Send failed - domain=%{public}@, code=%{public}d, message=%{public}@",
-                        nsError.domain,
-                        nsError.code,
+                    self?.config.logger.error(
+                        "PHOENIX: Send failed - %{public}@",
                         error.localizedDescription
                     )
-
-                    // Check if this is a socket disconnection error
-                    if nsError.domain == NSPOSIXErrorDomain && nsError.code == 57 {
-                        // Socket is not connected - mark as disconnected and trigger reconnection
-                        self.config.logger.error(
-                            "PHOENIX: Socket disconnected, triggering reconnection")
-                        self.isConnected = false
-                        self.joinRef = nil
-                        self.scheduleReconnect()
-                    }
-
                     completion?(.failure(error))
                 } else {
                     completion?(.success(()))
@@ -567,30 +504,25 @@ internal class PhoenixChannel {
     }
 
     private func scheduleReconnect() {
-        // Don't schedule multiple reconnections
-        guard currentTopic != nil, !isConnected else { return }
+        // Don't schedule if already scheduled, no topic, or already connected
+        guard currentTopic != nil, !isConnected, !reconnectScheduled else { return }
 
-        config.logger.debug("PHOENIX: Scheduling reconnection in 5 seconds")
+        reconnectScheduled = true
 
-        // Simple reconnection - in production you'd want exponential backoff
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(5)) { [weak self] in
-            guard let self = self, self.currentTopic != nil, !self.isConnected else { return }
+            guard let self = self else { return }
+
+            self.reconnectScheduled = false
+
+            // Check if still need to reconnect
+            guard self.currentTopic != nil, !self.isConnected else { return }
 
             let accountID = self.config.accountID
             let userID = self.storage.userID
 
-            if !userID.isEmpty {
-                self.config.logger.debug("PHOENIX: Attempting reconnection")
-                self.connect(accountID: accountID, userID: userID) { result in
-                    switch result {
-                    case .success:
-                        self.config.logger.debug("PHOENIX: Reconnection successful")
-                    case .failure(let error):
-                        self.config.logger.error(
-                            "PHOENIX: Reconnection failed: %{public}@", "\(error)")
-                    }
-                }
-            }
+            guard !userID.isEmpty else { return }
+
+            self.connect(accountID: accountID, userID: userID) { _ in }
         }
     }
 
