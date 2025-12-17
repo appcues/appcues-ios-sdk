@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -162,8 +162,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1430;
-				TargetAttributes = {
-				};
 			};
 			buildConfigurationList = 3307568C9084A060E694F2E4 /* Build configuration list for PBXProject "AppcuesSPMExample" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -176,9 +174,11 @@
 				"pt-BR",
 			);
 			mainGroup = 00D57936BE4D8040097BA252;
+			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F95E3E563418244E3D063AA9 /* XCLocalSwiftPackageReference "../.." */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -222,7 +222,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which mint >/dev/null; then\nxcrun --sdk macosx mint run swiftlint@0.50.3\nelse\necho \"warning: Mint not installed, install from https://github.com/yonaskolb/Mint\"\nfi ";
+			shellScript = "if which mint >/dev/null; then\nxcrun --sdk macosx mint run swiftlint@0.62.2\nelse\necho \"warning: Mint not installed, install from https://github.com/yonaskolb/Mint\"\nfi ";
 		};
 /* End PBXShellScriptBuildPhase section */
 
