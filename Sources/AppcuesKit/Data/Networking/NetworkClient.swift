@@ -220,6 +220,17 @@ extension NetworkClient {
         return session
     }
 
+    static var webSocketURLSession: URLSession {
+        let configuration = URLSessionConfiguration.default
+        // WebSocket connections should not have a resource timeout
+        configuration.timeoutIntervalForResource = TimeInterval.infinity
+        // Keep request timeout reasonable for initial connection
+        configuration.timeoutIntervalForRequest = 60
+        
+        let session = URLSession(configuration: configuration, delegate: nil, delegateQueue: nil)
+        return session
+    }
+
     static var encoder: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.dateEncodingStrategy = .custom { date, encoder throws in

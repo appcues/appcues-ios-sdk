@@ -29,13 +29,15 @@ public extension Appcues {
 
         var urlSession: URLSession = NetworkClient.defaultURLSession
 
+        var webSocketURLSession: URLSession = NetworkClient.webSocketURLSession
+
         var logger: Logging = OSLog.disabled
 
         var anonymousIDFactory: () -> String = {
             (UIDevice.current.identifierForVendor ?? UUID()).appcuesFormatted
         }
 
-        var sessionTimeout: UInt = 300 // 5 minutes by default
+        var sessionTimeout: UInt = 300  // 5 minutes by default
 
         var activityStorageMaxSize: UInt = 25
 
@@ -51,6 +53,14 @@ public extension Appcues {
         var enableTextScaling = false
 
         var enableStepRecoveryObserver = true
+
+        var useSocket = false
+
+        var socketHost: URL = {
+            // swiftlint:disable force_unwrapping
+            URL(string: "wss://api.appcues.net")!
+            // swiftlint:enable force_unwrapping
+        }()
 
         /// Create an Appcues SDK configuration
         /// - Parameter accountID: Appcues Account ID - a string containing an integer, copied from the Account settings page in Studio.
@@ -168,7 +178,8 @@ public extension Appcues {
         @discardableResult
         @objc
         public func additionalAutoProperties(_ additionalAutoProperties: [String: Any]) -> Self {
-            self.additionalAutoProperties = self.additionalAutoProperties.merging(additionalAutoProperties)
+            self.additionalAutoProperties = self.additionalAutoProperties.merging(
+                additionalAutoProperties)
             return self
         }
 
@@ -224,6 +235,23 @@ public extension Appcues {
         @objc
         public func enableStepRecoveryObserver(_ enabled: Bool) -> Self {
             self.enableStepRecoveryObserver = enabled
+            return self
+        }
+
+        /// Set the socket connection preference for the configuration.
+        ///
+        /// When this option is enabled, the SDK will use a WebSocket connection with Phoenix channels
+        /// instead of REST API calls for activity qualification. This enables real-time streaming of
+        /// qualified content.
+        ///
+        /// The default value for this configuration is `false`.
+        ///
+        /// - Parameter enabled: Whether socket connection is enabled.
+        /// - Returns: The `Configuration` object.
+        @discardableResult
+        @objc
+        public func useSocket(_ enabled: Bool) -> Self {
+            self.useSocket = enabled
             return self
         }
     }

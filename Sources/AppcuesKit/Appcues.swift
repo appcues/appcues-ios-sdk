@@ -205,6 +205,13 @@ public class Appcues: NSObject {
         storage.isAnonymous = true
         storage.groupID = nil
 
+        // Disconnect socket if using socket mode
+        if config.useSocket {
+            if #available(iOS 13.0, *), let socketProcessor = container.resolve(ActivityProcessing.self) as? SocketActivityProcessor {
+                socketProcessor.disconnect()
+            }
+        }
+
         if #available(iOS 13.0, *) {
             let experienceRenderer = container.resolve(ExperienceRendering.self)
             experienceRenderer.resetAll()
@@ -400,7 +407,17 @@ public class Appcues: NSObject {
         container.registerLazy(UIKitScreenTracker.self, initializer: UIKitScreenTracker.init)
         container.registerLazy(AutoPropertyDecorator.self, initializer: AutoPropertyDecorator.init)
         container.registerLazy(NotificationCenter.self, initializer: NotificationCenter.init)
-        container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
+        // Conditionally register socket or REST activity processor
+        if config.useSocket {
+            if #available(iOS 13.0, *) {
+                container.registerLazy(ActivityProcessing.self, initializer: SocketActivityProcessor.init)
+            } else {
+                // Fallback to REST if iOS < 13.0
+                container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
+            }
+        } else {
+            container.registerLazy(ActivityProcessing.self, initializer: ActivityProcessor.init)
+        }
         container.registerLazy(ActivityStoring.self, initializer: ActivityFileStorage.init)
         container.registerLazy(AnalyticsBroadcaster.self, initializer: AnalyticsBroadcaster.init)
         container.registerLazy(PushMonitoring.self, initializer: PushMonitor.init)
@@ -449,6 +466,17 @@ public class Appcues: NSObject {
         storage.isAnonymous = isAnonymous
         storage.userSignature = properties?.removeValue(forKey: "appcues:user_id_signature") as? String
         analyticsPublisher.publish(TrackingUpdate(type: .profile(interactive: true), properties: properties, isInternal: false))
+
+        // Connect socket if using socket mode
+        if config.useSocket {
+            if #available(iOS 13.0, *), let socketProcessor = container.resolve(ActivityProcessing.self) as? SocketActivityProcessor {
+                socketProcessor.connect(accountID: config.accountID, userID: userID) { result in
+                    if case .failure(let error) = result {
+                        self.config.logger.error("Failed to connect socket: %{public}@", "\(error)")
+                    }
+                }
+            }
+        }
 
         // Track a device update on re-identify of the same user, since these will not trigger a new
         // session start, but they do allow a force update of any device props that may have changed
