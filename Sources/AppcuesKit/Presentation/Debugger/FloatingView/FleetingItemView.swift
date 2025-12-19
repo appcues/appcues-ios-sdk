@@ -30,7 +30,8 @@ internal class FleetingItemView: UIView {
 
     private var iconImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(textStyle: .caption1, scale: .small)
+        imageView.preferredSymbolConfiguration = UIImage.SymbolConfiguration(
+            textStyle: .caption1, scale: .small)
         imageView.setContentHuggingPriority(.required, for: .horizontal)
         imageView.setContentHuggingPriority(.required, for: .vertical)
         imageView.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -38,7 +39,7 @@ internal class FleetingItemView: UIView {
         return imageView
     }()
 
-    init(message: String, symbolName: String?) {
+    init(message: String, symbolName: String?, backgroundColor: UIColor? = nil) {
         super.init(frame: .zero)
 
         messageLabel.text = message
@@ -49,21 +50,27 @@ internal class FleetingItemView: UIView {
         stackView.addArrangedSubview(iconImageView)
         stackView.addArrangedSubview(messageLabel)
 
-        let blurEffect = UIBlurEffect(style: .systemMaterial)
-        let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect)
+        if let backgroundColor = backgroundColor {
+            // Use solid background color
+            self.backgroundColor = backgroundColor
+            addSubview(stackView)
+            stackView.pin(to: self)
+        } else {
+            // Use blur effect for default appearance
+            let blurEffect = UIBlurEffect(style: .systemMaterial)
+            let vibrancyEffect = UIVibrancyEffect(blurEffect: blurEffect)
 
-        let blurredEffectView = UIVisualEffectView(effect: blurEffect)
-        let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
+            let blurredEffectView = UIVisualEffectView(effect: blurEffect)
+            let vibrancyEffectView = UIVisualEffectView(effect: vibrancyEffect)
 
-        vibrancyEffectView.contentView.addSubview(stackView)
-        blurredEffectView.contentView.addSubview(vibrancyEffectView)
-        addSubview(blurredEffectView)
+            vibrancyEffectView.contentView.addSubview(stackView)
+            blurredEffectView.contentView.addSubview(vibrancyEffectView)
+            addSubview(blurredEffectView)
 
-        addSubview(blurredEffectView)
-
-        stackView.pin(to: vibrancyEffectView.contentView)
-        vibrancyEffectView.pin(to: blurredEffectView.contentView)
-        blurredEffectView.pin(to: self)
+            stackView.pin(to: vibrancyEffectView.contentView)
+            vibrancyEffectView.pin(to: blurredEffectView.contentView)
+            blurredEffectView.pin(to: self)
+        }
 
         layer.masksToBounds = true
     }

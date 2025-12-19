@@ -52,7 +52,7 @@ internal class FleetingLogView: UIView {
         addSubview(stackView)
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor)
+            stackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             // Additional constraints are set depending on orientation
         ])
 
@@ -70,7 +70,7 @@ internal class FleetingLogView: UIView {
         layer.mask?.frame = bounds
     }
 
-    func addMessage(_ message: String, symbolName: String? = nil) {
+    func addMessage(_ message: String, symbolName: String? = nil, backgroundColor: UIColor? = nil) {
         guard !isLocked else { return }
 
         var translationX = stackView.frame.width
@@ -78,7 +78,8 @@ internal class FleetingLogView: UIView {
             translationX *= -1
         }
 
-        let view = FleetingItemView(message: message, symbolName: symbolName)
+        let view = FleetingItemView(
+            message: message, symbolName: symbolName, backgroundColor: backgroundColor)
         view.setOrientation(orientation)
         view.isHidden = true
         view.transform = CGAffineTransform(translationX: translationX, y: 0)
@@ -116,7 +117,8 @@ internal class FleetingLogView: UIView {
             animations: {
                 view.transform = CGAffineTransform(translationX: translationX, y: 0)
                 view.isHidden = true
-            }, completion: { _ in
+            },
+            completion: { _ in
                 view.removeFromSuperview()
             }
         )

@@ -6,15 +6,16 @@
 //  Copyright © 2021 Appcues. All rights reserved.
 //
 
-import UIKit
-import SwiftUI
 import Combine
+import SwiftUI
+import UIKit
 
 @available(iOS 13.0, *)
 internal protocol UIDebugging: AnyObject {
     func verifyInstall(token: String)
     func show(mode: DebugMode)
     func showToast(_ toast: DebugToast)
+    func logQualifyMetrics(_ metrics: QualifyResponse.Metrics)
 }
 
 /// Methods used by ScreenCapturer
@@ -40,8 +41,8 @@ internal enum DebugDestination {
 
 // controls different flavors of the debugger that can be launched
 internal enum DebugMode {
-    case debugger(DebugDestination?)      // diagnostics and analytics tools
-    case screenCapture(Authorization)     // capture screen image and layout for element targeting
+    case debugger(DebugDestination?)  // diagnostics and analytics tools
+    case screenCapture(Authorization)  // capture screen image and layout for element targeting
 }
 
 @available(iOS 13.0, *)
@@ -80,7 +81,8 @@ internal class UIDebugger: UIDebugging {
             experienceRenderer: container.resolve(ExperienceRendering.self)
         )
 
-        notificationCenter.addObserver(self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
+        notificationCenter.addObserver(
+            self, selector: #selector(appcuesReset), name: .appcuesReset, object: nil)
     }
 
     func verifyInstall(token: String) {
@@ -137,7 +139,8 @@ internal class UIDebugger: UIDebugging {
             }
             .store(in: &cancellable)
 
-        debugWindow = DebugUIWindow(windowScene: windowScene, rootViewController: rootViewController)
+        debugWindow = DebugUIWindow(
+            windowScene: windowScene, rootViewController: rootViewController)
     }
 
     func hide() {
@@ -168,6 +171,30 @@ internal class UIDebugger: UIDebugging {
         toastWindow?.showToast(toast)
     }
 
+    func logQualifyMetrics(_ metrics: QualifyResponse.Metrics) {
+        guard Thread.isMainThread else {
+            DispatchQueue.main.async {
+                self.logQualifyMetrics(metrics)
+            }
+            return
+        }
+
+        guard case .debugger = debugViewController?.mode else { return }
+
+        if let profileReads = metrics.dynamoProfileReads, profileReads > 0 {
+            debugViewController?.logFleeting(
+                message: "Profile Read",
+                symbolName: "cylinder.fill",
+                backgroundColor: UIColor.systemYellow.withAlphaComponent(0.3))
+        }
+        if let historyReads = metrics.dynamoEventHistoryReads, historyReads > 0 {
+            debugViewController?.logFleeting(
+                message: "Event History \(historyReads)",
+                symbolName: "cylinder.fill",
+                backgroundColor: UIColor.systemOrange.withAlphaComponent(0.5))
+        }
+    }
+
     @objc
     private func appcuesReset(notification: Notification) {
         debugViewController?.viewModel.reset()
@@ -182,7 +209,7 @@ extension UIDebugger: DebugViewDelegate, ScreenCaptureUI {
             hide()
         case .open:
             debugViewController?.apiVerifier.verifyAPI()
-        case let .screenCapture(authorization):
+        case .screenCapture(let authorization):
             screenCapturer.captureScreen(
                 window: UIApplication.shared.mainAppWindow,
                 authorization: authorization,

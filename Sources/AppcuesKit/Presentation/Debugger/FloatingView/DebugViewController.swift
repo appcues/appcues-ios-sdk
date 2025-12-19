@@ -6,8 +6,8 @@
 //  Copyright © 2021 Appcues. All rights reserved.
 //
 
-import UIKit
 import SwiftUI
+import UIKit
 
 @available(iOS 13.0, *)
 internal class DebugViewController: UIViewController {
@@ -73,12 +73,13 @@ internal class DebugViewController: UIViewController {
 
         // One time setup for debugger mode
         if panelViewController == nil, case .debugger = mode {
-            let viewController = UIHostingController(rootView: DebugUI.MainPanelView(
-                apiVerifier: apiVerifier,
-                deepLinkVerifier: deepLinkVerifier,
-                pushVerifier: pushVerifier,
-                viewModel: viewModel
-            ).environmentObject(logger))
+            let viewController = UIHostingController(
+                rootView: DebugUI.MainPanelView(
+                    apiVerifier: apiVerifier,
+                    deepLinkVerifier: deepLinkVerifier,
+                    pushVerifier: pushVerifier,
+                    viewModel: viewModel
+                ).environmentObject(logger))
             addChild(viewController)
             debugView.panelWrapperView.addSubview(viewController.view)
             viewController.didMove(toParent: self)
@@ -86,7 +87,7 @@ internal class DebugViewController: UIViewController {
             panelViewController = viewController
         }
 
-        if case let .debugger(destination) = mode {
+        if case .debugger(let destination) = mode {
             viewModel.navigationDestination = destination
             if destination != nil {
                 open(animated: true)
@@ -99,7 +100,8 @@ internal class DebugViewController: UIViewController {
     }
 
     func hide(animated: Bool, notify: Bool = false) {
-        debugView.setFloatingView(visible: false, animated: animated, programmatically: true, notify: notify)
+        debugView.setFloatingView(
+            visible: false, animated: animated, programmatically: true, notify: notify)
     }
 
     func open(animated: Bool) {
@@ -110,8 +112,9 @@ internal class DebugViewController: UIViewController {
         debugView.setPanelInterface(open: false, animated: animated, programmatically: true)
     }
 
-    func logFleeting(message: String, symbolName: String?) {
-        debugView.fleetingLogView.addMessage(message, symbolName: symbolName)
+    func logFleeting(message: String, symbolName: String?, backgroundColor: UIColor? = nil) {
+        debugView.fleetingLogView.addMessage(
+            message, symbolName: symbolName, backgroundColor: backgroundColor)
     }
 
     func confirmCapture(screen: Capture, completion: @escaping (Result<String, Error>) -> Void) {
@@ -142,7 +145,8 @@ extension DebugViewController: FloatingViewDelegate {
         switch mode {
         case .debugger:
             let isCurrentlyOpen = debugView.floatingView.center == debugView.floatingViewOpenCenter
-            debugView.setPanelInterface(open: !isCurrentlyOpen, animated: true, programmatically: false)
+            debugView.setPanelInterface(
+                open: !isCurrentlyOpen, animated: true, programmatically: false)
             debugView.fleetingLogView.clear()
         case .screenCapture(let authorization):
             delegate?.debugView(did: .screenCapture(authorization))
@@ -151,8 +155,8 @@ extension DebugViewController: FloatingViewDelegate {
 }
 
 @available(iOS 13.0, *)
-private extension DebugMode {
-    var accessibilityLabel: String {
+extension DebugMode {
+    fileprivate var accessibilityLabel: String {
         switch self {
         case .debugger:
             return "Appcues Debug Panel"
@@ -161,11 +165,11 @@ private extension DebugMode {
         }
     }
 
-    var imageAsset: ImageAsset {
+    fileprivate var imageAsset: ImageAsset {
         switch self {
         case .debugger:
             return Asset.Image.debugIcon
-        case.screenCapture:
+        case .screenCapture:
             return Asset.Image.captureScreen
         }
     }

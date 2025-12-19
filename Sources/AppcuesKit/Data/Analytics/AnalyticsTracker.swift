@@ -54,7 +54,8 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
         // valid session exists - see decorateAndPublish in AnalyticsPublisher
         guard let sessionID = appcues?.sessionID else { return }
 
-        let activity = Activity(from: update, config: config, storage: storage, sessionID: sessionID)
+        let activity = Activity(
+            from: update, config: config, storage: storage, sessionID: sessionID)
 
         switch update.policy {
         // used by normal interactive screen/track calls
@@ -62,7 +63,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             syncQueue.sync {
                 backgroundFlushWorkItem?.cancel()
                 backgroundActivity.append(activity)
-                flushBackgroundActivity(trackedAt: update.timestamp) // immediately flush, eligible for qualification, so track timing
+                flushBackgroundActivity(trackedAt: update.timestamp)  // immediately flush, eligible for qualification, so track timing
             }
 
         // used by identify, group and session_started event
@@ -72,7 +73,8 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 // no timing tracking on pending background activity
                 flushBackgroundActivity()
                 // immediately flush, eligible for qualification, so track timing
-                sendWithPriorityQueue(activity, startQueue: waitForBatch, trackedAt: update.timestamp)
+                sendWithPriorityQueue(
+                    activity, startQueue: waitForBatch, trackedAt: update.timestamp)
             }
 
         // used by non-interactive tracking - flow events
@@ -82,11 +84,12 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                 if backgroundFlushWorkItem == nil {
                     let workItem = DispatchWorkItem { [weak self] in
                         self?.syncQueue.sync {
-                            self?.flushBackgroundActivity() // no timing tracking on background activity flush
+                            self?.flushBackgroundActivity()  // no timing tracking on background activity flush
                         }
                     }
                     backgroundFlushWorkItem = workItem
-                    DispatchQueue.main.asyncAfter(deadline: .now() + config.flushAfterDuration, execute: workItem)
+                    DispatchQueue.main.asyncAfter(
+                        deadline: .now() + config.flushAfterDuration, execute: workItem)
                 }
             }
         }
@@ -143,7 +146,7 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             return
         }
         // if the queue items are for a different user
-        if (priorityActivity.contains(where: { $0.userID != activity.userID })) {
+        if priorityActivity.contains(where: { $0.userID != activity.userID }) {
             // flush immediately...
             priorityFlushWorkItem = nil
             flushPriorityActivity()
@@ -177,9 +180,16 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
             switch result {
             case .success(let qualifyResponse):
                 if #available(iOS 13.0, *) {
+                    // Log metrics to debugger if present
+                    if let metrics = qualifyResponse.metrics {
+                        let debugger = self?.container?.resolve(UIDebugging.self)
+                        debugger?.logQualifyMetrics(metrics)
+                    }
+
                     let experienceRenderer = self?.container?.resolve(ExperienceRendering.self)
                     experienceRenderer?.processAndShow(
-                        qualifiedExperiences: self?.process(qualifyResponse: qualifyResponse, activity: activity) ?? [],
+                        qualifiedExperiences: self?.process(
+                            qualifyResponse: qualifyResponse, activity: activity) ?? [],
                         reason: .qualification(reason: qualifyResponse.qualificationReason)
                     )
 
@@ -188,12 +198,14 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
                         SdkMetrics.remove(activity.requestID)
                     }
                 } else {
-                    self?.config.logger.info("iOS 13 or above is required to render an Appcues experience")
+                    self?.config.logger.info(
+                        "iOS 13 or above is required to render an Appcues experience")
                     // nothing will render, we can remove tracking
                     SdkMetrics.remove(activity.requestID)
                 }
             case .failure(let error):
-                self?.config.logger.error("Failed processing qualify response: %{public}@", "\(error)")
+                self?.config.logger.error(
+                    "Failed processing qualify response: %{public}@", "\(error)")
                 SdkMetrics.remove(activity.requestID)
             }
         }
@@ -219,27 +231,36 @@ internal class AnalyticsTracker: AnalyticsTracking, AnalyticsSubscribing {
 }
 
 extension Activity {
-    init(from update: TrackingUpdate, config: Appcues.Config, storage: DataStoring, sessionID: UUID) {
+    init(from update: TrackingUpdate, config: Appcues.Config, storage: DataStoring, sessionID: UUID)
+    {
         switch update.type {
-        case let .event(name, _):
+        case .event(let name, _):
             self.init(
                 accountID: config.accountID,
                 appID: config.applicationID,
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
-                events: [Event(name: name, attributes: update.properties, context: update.context, logger: config.logger)],
+                events: [
+                    Event(
+                        name: name, attributes: update.properties, context: update.context,
+                        logger: config.logger)
+                ],
                 profileUpdate: update.identityAutoProperties,
                 groupID: storage.groupID,
                 userSignature: storage.userSignature,
                 logger: config.logger
             )
-        case let .screen(title):
+        case .screen(let title):
             self.init(
                 accountID: config.accountID,
                 appID: config.applicationID,
                 sessionID: sessionID.appcuesFormatted,
                 userID: storage.userID,
-                events: [Event(screen: title, attributes: update.properties, context: update.context, logger: config.logger)],
+                events: [
+                    Event(
+                        screen: title, attributes: update.properties, context: update.context,
+                        logger: config.logger)
+                ],
                 profileUpdate: update.identityAutoProperties,
                 groupID: storage.groupID,
                 userSignature: storage.userSignature,
@@ -299,12 +320,12 @@ extension Activity {
     }
 }
 
-private extension Array where Element == Activity {
-    mutating func merge() -> Activity? {
+extension Array where Element == Activity {
+    fileprivate mutating func merge() -> Activity? {
         // if size is zero or one, return first - which is either nil or the single element
         guard let first = first, count > 1 else { return first }
         let additional = suffix(from: 1)
-        let merged = additional.reduce(into: first) { accumulating, update  in
+        let merged = additional.reduce(into: first) { accumulating, update in
             accumulating.append(update)
         }
         return merged

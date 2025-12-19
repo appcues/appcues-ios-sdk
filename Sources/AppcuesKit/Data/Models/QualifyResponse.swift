@@ -18,11 +18,18 @@ internal struct QualifyResponse {
         case screenView = "screen_view"
     }
 
+    /// Server diagnostics metrics.
+    struct Metrics: Codable {
+        let dynamoProfileReads: Int?
+        let dynamoEventHistoryReads: Int?
+    }
+
     /// Mobile experience JSON structure.
     let experiences: [LossyExperience]
     let performedQualification: Bool
     let qualificationReason: QualificationReason?
     let experiments: [Experiment]?
+    let metrics: Metrics?
 }
 
 extension QualifyResponse: Decodable {
@@ -31,14 +38,17 @@ extension QualifyResponse: Decodable {
         case performedQualification
         case qualificationReason
         case experiments
+        case metrics
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         performedQualification = try container.decode(Bool.self, forKey: .performedQualification)
         // Optional try so that an unknown reason is treated as nil rather than failing the decode.
-        qualificationReason = try? container.decode(QualificationReason.self, forKey: .qualificationReason)
+        qualificationReason = try? container.decode(
+            QualificationReason.self, forKey: .qualificationReason)
         experiments = try? container.decode([Experiment].self, forKey: .experiments)
+        metrics = try? container.decode(Metrics.self, forKey: .metrics)
 
         // special handling for experiences, to be lenient of malformed JSON for any particular
         // item in the array, and preserve any valid items in priority order - don't let one bad

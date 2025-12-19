@@ -15,6 +15,7 @@ internal struct SocketQualifyResponse {
     let performedQualification: Bool
     let qualificationReason: QualifyResponse.QualificationReason?
     let experiments: [Experiment]?
+    let metrics: QualifyResponse.Metrics?
 }
 
 extension SocketQualifyResponse: Decodable {
@@ -23,6 +24,7 @@ extension SocketQualifyResponse: Decodable {
         case performedQualification
         case qualificationReason
         case experiments
+        case metrics
     }
 
     init(from decoder: Decoder) throws {
@@ -34,6 +36,7 @@ extension SocketQualifyResponse: Decodable {
         qualificationReason = try? container.decode(
             QualifyResponse.QualificationReason.self, forKey: .qualificationReason)
         experiments = try? container.decode([Experiment].self, forKey: .experiments)
+        metrics = try? container.decode(QualifyResponse.Metrics.self, forKey: .metrics)
 
         // special handling for content (socket uses "content" instead of "experiences")
         // to be lenient of malformed JSON for any particular item in the array, and preserve
@@ -79,7 +82,8 @@ extension SocketQualifyResponse {
             experiences: experiences,
             performedQualification: performedQualification,
             qualificationReason: qualificationReason,
-            experiments: experiments
+            experiments: experiments,
+            metrics: metrics
         )
     }
 }
