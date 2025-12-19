@@ -165,9 +165,9 @@ internal class SocketActivityProcessor: ActivityProcessing, PhoenixChannelDelega
         phoenixChannel.connect(accountID: accountID, userID: userID, completion: completion)
     }
 
-    /// Disconnect socket (called on reset)
+    /// Leave channel but keep socket alive for reuse (called on reset)
     func disconnect() {
-        phoenixChannel.disconnect()
+        phoenixChannel.leaveChannelOnly()
         syncQueue.sync {
             pendingQualifyRequests.removeAll()
             processingItems.removeAll()

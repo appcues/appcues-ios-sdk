@@ -17,6 +17,7 @@ internal protocol PhoenixChannelDelegate: AnyObject {
 
 /// Phoenix channel client implementing Phoenix protocol v2.0.0
 @available(iOS 13.0, *)
+// swiftlint:disable:next type_body_length
 internal class PhoenixChannel {
     weak var delegate: PhoenixChannelDelegate?
 
@@ -73,9 +74,32 @@ internal class PhoenixChannel {
         // Clear reconnection flag
         reconnectScheduled = false
 
-        // Disconnect existing connection if any
-        disconnectInternal()
+        // If we have an existing socket and are connected to a different topic,
+        // leave the old channel first, then join the new one on the same socket
+        if let existingSocket = webSocketTask, isConnected, let oldTopic = currentTopic,
+            oldTopic != topic
+        {
+            // Leave old channel first
+            leaveChannel()
+            currentTopic = topic
+            isConnected = false
+            isConnecting = true
+            pendingJoinCompletion = completion
+            joinChannel(topic: topic)
+            return
+        }
 
+        // If we have a socket but aren't connected, just join the new channel
+        if webSocketTask != nil {
+            currentTopic = topic
+            isConnected = false
+            isConnecting = true
+            pendingJoinCompletion = completion
+            joinChannel(topic: topic)
+            return
+        }
+
+        // No existing socket - create a new one
         currentTopic = topic
 
         // Build socket URL
@@ -109,7 +133,27 @@ internal class PhoenixChannel {
         joinChannel(topic: topic)
     }
 
-    /// Disconnect from the socket
+    /// Leave the current channel but keep the socket connection alive for reuse
+    func leaveChannelOnly() {
+        reconnectScheduled = false
+
+        let wasConnected = isConnected
+        isConnected = false
+        isConnecting = false
+        stopHeartbeat()
+
+        // Leave the channel if we were connected
+        if wasConnected, webSocketTask != nil {
+            leaveChannel()
+        }
+
+        // Clear state but keep socket alive
+        currentTopic = nil
+        joinRef = nil
+        pendingJoinCompletion = nil
+    }
+
+    /// Disconnect from the socket completely
     func disconnect() {
         // Clear reconnection flag and topic to prevent reconnection
         reconnectScheduled = false
