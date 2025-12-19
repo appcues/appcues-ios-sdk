@@ -27,7 +27,9 @@ extension SocketQualifyResponse: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        performedQualification = try container.decode(Bool.self, forKey: .performedQualification)
+        // Default to true if not present, matching server behavior
+        performedQualification =
+            (try? container.decode(Bool.self, forKey: .performedQualification)) ?? true
         // Optional try so that an unknown reason is treated as nil rather than failing the decode.
         qualificationReason = try? container.decode(
             QualifyResponse.QualificationReason.self, forKey: .qualificationReason)
