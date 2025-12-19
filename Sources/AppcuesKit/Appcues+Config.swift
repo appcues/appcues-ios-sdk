@@ -254,5 +254,17 @@ public extension Appcues {
             self.useSocket = enabled
             return self
         }
+
+        /// Set the socket host for the configuration.
+        /// - Parameter socketHost: Domain of the socket host.
+        /// - Returns: The `Configuration` object.
+        ///
+        /// Any path values in the provided `URL` will be discarded.
+        @discardableResult
+        @objc
+        public func socketHost(_ socketHost: URL) -> Self {
+            self.socketHost = socketHost
+            return self
+        }
     }
 }

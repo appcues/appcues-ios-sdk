@@ -89,14 +89,13 @@ internal class PhoenixChannel {
             return
         }
 
-        // If we have a socket but aren't connected, just join the new channel
+        // If we have a socket but aren't connected, it might be dead
+        // Recreate it to be safe (URLSessionWebSocketTask doesn't expose connection state)
         if webSocketTask != nil {
-            currentTopic = topic
-            isConnected = false
-            isConnecting = true
-            pendingJoinCompletion = completion
-            joinChannel(topic: topic)
-            return
+            // Clean up potentially dead socket
+            webSocketTask?.cancel(with: .goingAway, reason: nil)
+            webSocketTask = nil
+            // Fall through to create a new socket
         }
 
         // No existing socket - create a new one
@@ -385,6 +384,10 @@ internal class PhoenixChannel {
                     return
                 }
 
+                // Clean up dead socket - server closed the connection
+                self.webSocketTask?.cancel(with: .goingAway, reason: nil)
+                self.webSocketTask = nil
+
                 // Mark as disconnected
                 self.isConnected = false
                 self.isConnecting = false
@@ -509,6 +512,9 @@ internal class PhoenixChannel {
             delegate?.phoenixChannel(self, didReceiveError: error)
 
         case "phx_close":
+            // Server closed the channel - clean up socket and reconnect
+            webSocketTask?.cancel(with: .goingAway, reason: nil)
+            webSocketTask = nil
             isConnected = false
             joinRef = nil
             scheduleReconnect()
