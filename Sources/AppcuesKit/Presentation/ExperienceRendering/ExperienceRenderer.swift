@@ -378,7 +378,7 @@ internal class ExperienceRenderer: ExperienceRendering, StateMachineOwning {
         }
 
         analyticsPublisher.publish(TrackingUpdate(
-            type: .event(name: "appcues:experiment_entered", interactive: false),
+            type: .event(name: Events.Experiment.experimentEntered.rawValue, interactive: false),
             properties: [
                 "experimentId": experiment.experimentID.appcuesFormatted,
                 "experimentGroup": experiment.group,

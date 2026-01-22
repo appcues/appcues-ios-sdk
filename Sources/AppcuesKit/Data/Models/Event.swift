@@ -33,7 +33,7 @@ internal struct Event {
     }
 
     init(screen screenTitle: String, attributes: [String: Any]? = nil, context: [String: Any]? = nil, logger: Logging = OSLog.disabled) {
-        name = "appcues:screen_view"
+        name = Events.Screen.screenView.rawValue
         timestamp = Date()
 
         var extendedAttributes = attributes ?? [:]

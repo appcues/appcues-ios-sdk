@@ -22,6 +22,14 @@ internal enum Events {
         case pushOpened = "appcues:push_opened"
     }
 
+    enum Screen: String {
+        case screenView = "appcues:screen_view"
+    }
+
+    enum Experiment: String {
+        case experimentEntered = "appcues:experiment_entered"
+    }
+
     enum Experience: String {
         case stepSeen = "appcues:v2:step_seen"
         case stepInteraction = "appcues:v2:step_interaction"
