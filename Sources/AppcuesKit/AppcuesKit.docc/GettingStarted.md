@@ -49,3 +49,16 @@ Add ``AppcuesFrameView`` instances in your application layouts to support embedd
 
 See <doc:URLSchemeConfiguring> for setup instructions and then refer to <doc:Debugging> for usage details.
 
+## Configuring Hosting Environment
+
+By default, the Appcues SDK will send data to the United States (US) hosting environment, and no additional configuration is required. To specify a different hosting environment, use ``Appcues/Config/apiHost(_:)`` and ``Appcues/Config/settingsHost(_:)``.
+
+### EU Hosting Environment Configuration
+
+To send data to the European Union (EU) hosting environment, use the following configuration when initializing the SDK:
+
+```swift
+let appcuesConfig = Appcues.Config(accountID: <#APPCUES_ACCOUNT_ID#>, applicationID: <#APPCUES_APPLICATION_ID#>)
+    .apiHost(URL(string: "https://api.eu.appcues.net")!)
+    .settingsHost(URL(string: "https://fast.eu.appcues.com")!)
+```
