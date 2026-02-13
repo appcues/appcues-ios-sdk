@@ -285,12 +285,11 @@ class AppcuesTargetElementTraitTests: XCTestCase {
         let tabBarViewElement = try await XCTUnwrapAsync(await tabBarView.asViewElement())
         XCTAssertNil(tabBarViewElement.displayName)
 
-        let tabBarChildren = try XCTUnwrap(tabBarViewElement.children)
+        let tabBarChildren = try XCTUnwrap(tabBarViewElement.children).filter { $0.type == "UITabBarButton" }
+        XCTAssertEqual(tabBarChildren.count, 3)
         XCTAssertEqual(tabBarChildren[0].displayName, "tab[0]")
         XCTAssertEqual(tabBarChildren[1].displayName, "tab[1]")
-        XCTAssertNil(tabBarChildren[2].displayName)
-        XCTAssertNil(tabBarChildren[3].displayName)
-        XCTAssertEqual(tabBarChildren[4].displayName, "tab[2]")
+        XCTAssertEqual(tabBarChildren[2].displayName, "tab[2]")
     }
 
     func testTabBarDecorate() async throws {
