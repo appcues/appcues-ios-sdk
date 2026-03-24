@@ -35,14 +35,14 @@ internal struct AppcuesButton: View {
                 }
                 // Applying the Button padding and frame to the label ensures the proper button highlight effect
                 // on touchDown everywhere within the button frame.
-                .applyInternalLayout(style)
+                .modifier(AppcuesInternalLayoutModifier(style: style))
         }
-        .applyForegroundStyle(style)
-        .applyBorderStyle(style)
-        .applyBackgroundStyle(style)
-        .applyCornerRadius(style)
-        .applyShadow(style)
-        .applyExternalLayout(style)
+        .modifier(AppcuesForegroundStyleModifier(style: style))
+        .modifier(AppcuesBorderStyleModifier(style: style))
+        .modifier(AppcuesBackgroundStyleModifier(style: style))
+        .modifier(AppcuesCornerRadiusModifier(style: style))
+        .modifier(AppcuesShadowModifier(style: style))
+        .modifier(AppcuesExternalLayoutModifier(style: style))
         .setupActions(on: viewModel, for: model)
     }
 }
