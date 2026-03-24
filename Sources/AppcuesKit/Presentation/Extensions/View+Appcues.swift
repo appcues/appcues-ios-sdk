@@ -29,8 +29,17 @@ extension View {
             }
     }
 
-    func applyForegroundStyle(_ style: AppcuesStyle) -> some View {
-        self
+    func applyAllAppcues(_ style: AppcuesStyle) -> some View {
+        modifier(AppcuesAllStylesModifier(style: style))
+    }
+}
+
+@available(iOS 13.0, *)
+internal struct AppcuesForegroundStyleModifier: ViewModifier {
+    let style: AppcuesStyle
+
+    func body(content: Content) -> some View {
+        content
             .ifLet(style.font) { view, val in
                 view.font(val)
             }
@@ -41,9 +50,14 @@ extension View {
                 view.foregroundColor(val)
             }
     }
+}
 
-    func applyInternalLayout(_ style: AppcuesStyle) -> some View {
-        self
+@available(iOS 13.0, *)
+internal struct AppcuesInternalLayoutModifier: ViewModifier {
+    let style: AppcuesStyle
+
+    func body(content: Content) -> some View {
+        content
             .padding(style.padding)
             .frame(width: style.width, height: style.height)
             .if(style.fillWidth) { view in
@@ -54,9 +68,14 @@ extension View {
             // sized frame is being used
             .padding(style.borderInset * -1)
     }
+}
 
-    func applyBackgroundStyle(_ style: AppcuesStyle) -> some View {
-        self
+@available(iOS 13.0, *)
+internal struct AppcuesBackgroundStyleModifier: ViewModifier {
+    let style: AppcuesStyle
+
+    func body(content: Content) -> some View {
+        content
             // Order for the backgrounds matters. Images > Gradients > Color.
             .ifLet(style.backgroundImage) { view, val in
                 let model = ExperienceComponent.ImageModel(from: val)
@@ -87,9 +106,14 @@ extension View {
                 }
             }
     }
+}
 
-    func applyBorderStyle(_ style: AppcuesStyle) -> some View {
-        self
+@available(iOS 13.0, *)
+internal struct AppcuesBorderStyleModifier: ViewModifier {
+    let style: AppcuesStyle
+
+    func body(content: Content) -> some View {
+        content
             .ifLet(style.borderColor, style.borderWidth) { view, color, width in
                 view
                     // The border should account for space in the layout, not just be an overlay.
@@ -105,19 +129,29 @@ extension View {
                             // half of the width is outside the view bounds. Add padding for that to
                             // ensure the border never gets half cropped out.
                             .padding(width / 2)
-                )
+                    )
             }
     }
+}
 
-    func applyCornerRadius(_ style: AppcuesStyle) -> some View {
-        self
+@available(iOS 13.0, *)
+internal struct AppcuesCornerRadiusModifier: ViewModifier {
+    let style: AppcuesStyle
+
+    func body(content: Content) -> some View {
+        content
             .ifLet(style.cornerRadius) { view, val in
                 view.cornerRadius(val)
             }
     }
+}
 
-    func applyShadow(_ style: AppcuesStyle) -> some View {
-        self
+@available(iOS 13.0, *)
+internal struct AppcuesShadowModifier: ViewModifier {
+    let style: AppcuesStyle
+
+    func body(content: Content) -> some View {
+        content
             .ifLet(style.shadow) { view, val in
                 view.shadow(
                     color: Color(dynamicColor: val.color) ?? Color(.sRGBLinear, white: 0, opacity: 0.33),
@@ -127,23 +161,33 @@ extension View {
                 )
             }
     }
+}
 
-    func applyExternalLayout(_ style: AppcuesStyle) -> some View {
-        self
+@available(iOS 13.0, *)
+internal struct AppcuesExternalLayoutModifier: ViewModifier {
+    let style: AppcuesStyle
+
+    func body(content: Content) -> some View {
+        content
             .padding(style.margin)
     }
+}
 
-    func applyAllAppcues(_ style: AppcuesStyle) -> some View {
+@available(iOS 13.0, *)
+internal struct AppcuesAllStylesModifier: ViewModifier {
+    let style: AppcuesStyle
+
+    func body(content: Content) -> some View {
         // Using `AnyView` here drastically improves memory and CPU usage
         AnyView(
-            self
-                .applyForegroundStyle(style)
-                .applyInternalLayout(style)
-                .applyBorderStyle(style)
-                .applyBackgroundStyle(style)
-                .applyCornerRadius(style) // needs to be after border and background
-                .applyShadow(style)
-                .applyExternalLayout(style)
+            content
+                .modifier(AppcuesForegroundStyleModifier(style: style))
+                .modifier(AppcuesInternalLayoutModifier(style: style))
+                .modifier(AppcuesBorderStyleModifier(style: style))
+                .modifier(AppcuesBackgroundStyleModifier(style: style))
+                .modifier(AppcuesCornerRadiusModifier(style: style)) // needs to be after border and background
+                .modifier(AppcuesShadowModifier(style: style))
+                .modifier(AppcuesExternalLayoutModifier(style: style))
         )
     }
 }

@@ -30,20 +30,20 @@ internal struct AppcuesImage: View {
             // allocate space for any border that will be applied below
             .padding(style.borderInset)
             .setupActions(on: viewModel, for: model)
-            .applyForegroundStyle(style)
+            .modifier(AppcuesForegroundStyleModifier(style: style))
             // set the aspect ratio before applying frame sizing
             .ifLet(ContentMode(string: model.contentMode)) { view, val in
                 view.aspectRatio(model.intrinsicSize?.aspectRatio, contentMode: val)
             }
-            .applyInternalLayout(style)
+            .modifier(AppcuesInternalLayoutModifier(style: style))
 
             // clip before adding shadows
             .clipped()
-            .applyBorderStyle(style)
-            .applyBackgroundStyle(style)
-            .applyCornerRadius(style)
-            .applyShadow(style)
-            .applyExternalLayout(style)
+            .modifier(AppcuesBorderStyleModifier(style: style))
+            .modifier(AppcuesBackgroundStyleModifier(style: style))
+            .modifier(AppcuesCornerRadiusModifier(style: style))
+            .modifier(AppcuesShadowModifier(style: style))
+            .modifier(AppcuesExternalLayoutModifier(style: style))
     }
 
     internal init(model: ExperienceComponent.ImageModel) {
