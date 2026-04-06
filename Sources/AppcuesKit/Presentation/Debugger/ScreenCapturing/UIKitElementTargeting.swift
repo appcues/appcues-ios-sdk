@@ -196,7 +196,8 @@ internal extension UIView {
                 // discard hidden views and subviews within
                 guard !subview.isHidden else { return nil }
                 var childTabIndex: Int?
-                if subview.displayType == "UITabBarButton" {
+                // iOS 26.1+ uses duplicated _UITabButton in the same coordinates, so we filter down to one
+                if subview.displayType == "UITabBarButton" || (subview.displayType == "_UITabButton" && self.displayType != "SelectedContentView") {
                     tabCount += 1
                     childTabIndex = tabCount - 1
                 }
