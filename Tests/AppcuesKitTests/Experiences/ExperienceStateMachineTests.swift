@@ -511,7 +511,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
     func test_stateIsIdling_whenStartExperienceWithNoSteps_noTransition() throws {
         // Arrange
-        let experience = Experience(id: UUID(), name: "Empty experience", type: "mobile", publishedAt: 1632142800000, context: nil, traits: [], steps: [], redirectURL: nil, nextContentID: nil, renderContext: .modal)
+        let experience = Experience(id: UUID(), name: "Empty experience", type: "mobile", publishedAt: 1632142800000, context: nil, campaignId: nil, tacticId: nil, traits: [], steps: [], redirectURL: nil, nextContentID: nil, renderContext: .modal)
         let initialState: State = .idling
         let action: Action = .startExperience(ExperienceData(experience, trigger: .showCall))
         let stateMachine = givenState(is: initialState)
@@ -525,7 +525,7 @@ class ExperienceStateMachineTests: XCTestCase {
 
     func test_stateIsIdling_whenStartFailedExperience_noTransition() throws {
         // Arrange
-        let failedExperience = FailedExperience(id: UUID(), name: "Invalid experience", type: "mobile", publishedAt: 1632142800000, context: nil, error: "could not decode")
+        let failedExperience = FailedExperience(id: UUID(), name: "Invalid experience", type: "mobile", publishedAt: 1632142800000, context: nil, campaignId: nil, tacticId: nil, error: "could not decode")
         let initialState: State = .idling
         let experienceData = ExperienceData(failedExperience.skeletonExperience, trigger: .showCall, error: failedExperience.error)
         let action: Action = .startExperience(experienceData)

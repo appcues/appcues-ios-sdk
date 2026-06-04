@@ -40,6 +40,8 @@ class TraitComposerTests: XCTestCase {
             type: "mobile",
             publishedAt: 1632142800000,
             context: nil,
+            campaignId: nil,
+            tacticId: nil,
             traits: [
                 Experience.Trait(
                     type: "@test/presenting",
@@ -197,6 +199,8 @@ class TraitComposerTests: XCTestCase {
             type: "mobile",
             publishedAt: 1632142800000,
             context: nil,
+            campaignId: nil,
+            tacticId: nil,
             traits: [
                 Experience.Trait(
                     type: "@test/presenting",
@@ -301,6 +305,8 @@ class TraitComposerTests: XCTestCase {
             type: "mobile",
             publishedAt: 1632142800000,
             context: nil,
+            campaignId: nil,
+            tacticId: nil,
             traits: [
                 Experience.Trait(
                     type: "@test/presenting",
@@ -342,6 +348,8 @@ class TraitComposerTests: XCTestCase {
             type: "mobile",
             publishedAt: 1632142800000,
             context: nil,
+            campaignId: nil,
+            tacticId: nil,
             traits: [],
             steps: [
                 .group(Experience.Step.Group(
@@ -449,6 +457,8 @@ class TraitComposerTests: XCTestCase {
             type: "mobile",
             publishedAt: 1632142800000,
             context: nil,
+            campaignId: nil,
+            tacticId: nil,
             traits: [],
             steps: [
                 .group(Experience.Step.Group(

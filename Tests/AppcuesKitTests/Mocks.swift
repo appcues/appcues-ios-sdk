@@ -60,6 +60,8 @@ extension Experience {
                 workflowId: nil,
                 workflowTaskId: nil
             ),
+            campaignId: nil,
+            tacticId: nil,
             traits: [],
             steps: [
                 Experience.Step(
@@ -91,6 +93,36 @@ extension Experience {
                 workflowId: "c2e376fb-f7ba-4d0c-bf87-1c7cfd1f5a94",
                 workflowTaskId: "b16d3d86-9299-4bcd-9a04-e2a18d9c9a33"
             ),
+            campaignId: nil,
+            tacticId: nil,
+            traits: [],
+            steps: [
+                Experience.Step(
+                    fixedID: "fb529214-3c78-4d6d-ba93-b55d22497ca1",
+                    children: [
+                        Step.Child(fixedID: "e03ae132-91b7-4cb0-9474-7d4a0e308a07"),
+                    ]
+                )
+            ],
+            redirectURL: nil,
+            nextContentID: nil,
+            renderContext: .modal)
+    }
+
+    static var mockFromCampaign: Experience {
+        Experience(
+            id: UUID(uuidString: "54b7ec71-cdaf-4697-affa-f3abd672b3cf")!,
+            name: "Single step experience",
+            type: "mobile",
+            publishedAt: 1632142800000,
+            context: Context(
+                localeId: "en",
+                localeName: "English",
+                workflowId: nil,
+                workflowTaskId: nil
+            ),
+            campaignId: "campaign-123",
+            tacticId: "tactic-456",
             traits: [],
             steps: [
                 Experience.Step(
@@ -112,6 +144,8 @@ extension Experience {
             type: "mobile",
             publishedAt: 1632142800000,
             context: nil,
+            campaignId: nil,
+            tacticId: nil,
             traits: [],
             steps: [
                 Experience.Step(
@@ -133,6 +167,8 @@ extension Experience {
             type: "mobile",
             publishedAt: 1632142800000,
             context: nil,
+            campaignId: nil,
+            tacticId: nil,
             traits: [],
             steps: [
                 Experience.Step(
@@ -154,6 +190,8 @@ extension Experience {
             type: "mobile",
             publishedAt: 1632142800000,
             context: nil,
+            campaignId: nil,
+            tacticId: nil,
             traits: [],
             steps: [
                 Experience.Step(

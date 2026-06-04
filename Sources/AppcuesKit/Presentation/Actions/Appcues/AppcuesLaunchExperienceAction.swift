@@ -27,11 +27,14 @@ internal class AppcuesLaunchExperienceAction: AppcuesExperienceAction {
         guard let config = configuration.decode(Config.self) else { return nil }
         self.experienceID = config.experienceID
 
-        // Trigger is the current experienceID
         let renderContext = configuration.renderContext
         let experienceRendering = appcues?.container.resolve(ExperienceRendering.self)
-        let currentExperienceID = experienceRendering?.experienceData(forContext: renderContext)?.id
-        self.trigger = .launchExperienceAction(fromExperienceID: currentExperienceID)
+        let currentExperience = experienceRendering?.experienceData(forContext: renderContext)
+        self.trigger = .launchExperienceAction(
+            fromExperienceID: currentExperience?.id,
+            campaignId: currentExperience?.campaignId,
+            tacticId: currentExperience?.tacticId
+        )
     }
 
     init(appcues: Appcues?, experienceID: String, trigger: ExperienceTrigger) {

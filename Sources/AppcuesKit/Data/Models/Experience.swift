@@ -35,6 +35,8 @@ internal struct FailedExperience: Decodable {
     let type: String?
     let publishedAt: Int?
     let context: Experience.Context?
+    let campaignId: String?
+    let tacticId: String?
     var error: String?
 
     // This is a synthetically generated Experience from the known values of the FailedExperience that
@@ -47,6 +49,8 @@ internal struct FailedExperience: Decodable {
             type: type ?? "",
             publishedAt: publishedAt,
             context: context,
+            campaignId: campaignId,
+            tacticId: tacticId,
             traits: [],
             steps: [],
             redirectURL: nil,
@@ -146,6 +150,8 @@ internal struct Experience {
     // a millisecond timestamp
     let publishedAt: Int?
     let context: Context?
+    let campaignId: String?
+    let tacticId: String?
     // tags, theme, actions
     // TODO: Handle experience-level actions
     let traits: [Trait]
@@ -168,6 +174,8 @@ extension Experience: Decodable {
         case type
         case publishedAt
         case context
+        case campaignId
+        case tacticId
         case traits
         case steps
         case redirectURL = "redirectUrl"
@@ -181,6 +189,8 @@ extension Experience: Decodable {
         type = try container.decode(String.self, forKey: .type)
         publishedAt = try? container.decode(Int.self, forKey: .publishedAt)
         context = try? container.decodeIfPresent(Context.self, forKey: .context)
+        campaignId = try? container.decodeIfPresent(String.self, forKey: .campaignId)
+        tacticId = try? container.decodeIfPresent(String.self, forKey: .tacticId)
         traits = try container.decode(TraitCollection.self, forKey: .traits).traits
         steps = try container.decode([Step].self, forKey: .steps)
         redirectURL = try? container.decode(URL.self, forKey: .redirectURL)
@@ -194,30 +204,6 @@ extension Experience: Decodable {
             renderContext = .embed(frameID: config.frameID)
         } else {
             renderContext = .modal
-        }
-    }
-}
-
-extension Experience {
-    /// Returns a function that creates the post experience actions given an ``Appcues`` instance.
-    @available(iOS 13.0, *)
-    var postExperienceActionFactory: ((Appcues?) -> [AppcuesExperienceAction]) {
-        return { appcues in
-            var actions: [AppcuesExperienceAction] = []
-
-            if let redirectURL = redirectURL {
-                actions.append(AppcuesLinkAction(appcues: appcues, url: redirectURL))
-            }
-
-            if let nextContentID = nextContentID {
-                actions.append(AppcuesLaunchExperienceAction(
-                    appcues: appcues,
-                    experienceID: nextContentID,
-                    trigger: .experienceCompletionAction(fromExperienceID: self.id)
-                ))
-            }
-
-            return actions
         }
     }
 }
