@@ -28,8 +28,8 @@ extension Dictionary where Key == String, Value == Any {
         }
 
         switch experience.trigger {
-        case let .launchExperienceAction(experienceID),
-            let .experienceCompletionAction(experienceID):
+        case .launchExperienceAction(let experienceID, _, _),
+             .experienceCompletionAction(let experienceID, _, _):
             properties["fromExperienceId"] = experienceID?.appcuesFormatted
         case let .pushNotification(notificationID):
             properties["pushNotificationId"] = notificationID
@@ -51,6 +51,14 @@ extension Dictionary where Key == String, Value == Any {
 
         if let workflowTaskId = experience.context?.workflowTaskId {
             properties["workflowTaskId"] = workflowTaskId
+        }
+
+        if let campaignId = experience.campaignId {
+            properties["campaignId"] = campaignId
+        }
+
+        if let tacticId = experience.tacticId {
+            properties["tacticId"] = tacticId
         }
 
         // frameID is added primarily for use by the debugger

@@ -127,6 +127,78 @@ class ExperienceStateMachine_AnalyticsObserverTests: XCTestCase {
         ].verifyPropertiesMatch(lastUpdate.properties)
     }
 
+    func testEvaluateRenderingFirstStepStateFromCampaign() throws {
+        // Act
+        let experience = ExperienceData(.mockFromCampaign, trigger: .showCall)
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, experience.package(), isFirst: true)))
+
+        // Assert
+        XCTAssertFalse(isCompleted)
+        XCTAssertEqual(updates.count, 2)
+        let lastUpdate = try XCTUnwrap(updates.last)
+        XCTAssertEqual(lastUpdate.type, .event(name: "appcues:v2:step_seen", interactive: false))
+        [
+            "experienceName": "Single step experience",
+            "experienceId": "54b7ec71-cdaf-4697-affa-f3abd672b3cf",
+            "experienceInstanceId": experience.instanceID.appcuesFormatted,
+            "version": 1632142800000,
+            "experienceType": "mobile",
+            "trigger": "show_call",
+            "localeName": "English",
+            "localeId": "en",
+            "campaignId": "campaign-123",
+            "tacticId": "tactic-456",
+            "stepType": "modal",
+            "stepId": "e03ae132-91b7-4cb0-9474-7d4a0e308a07",
+            "stepIndex": "0,0"
+        ].verifyPropertiesMatch(lastUpdate.properties)
+    }
+
+    func testEvaluateRenderingFirstStepStatePropagatesCampaignFromParent() throws {
+        // A child experience triggered by a parent should inherit the parent's campaign/tactic IDs,
+        // ignoring any values from the child's own API response.
+        let experience = ExperienceData(
+            .mock,
+            trigger: .launchExperienceAction(
+                fromExperienceID: UUID(),
+                campaignId: "parent-campaign",
+                tacticId: "parent-tactic"
+            )
+        )
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, experience.package(), isFirst: true)))
+
+        // Assert
+        XCTAssertFalse(isCompleted)
+        XCTAssertEqual(updates.count, 2)
+        let lastUpdate = try XCTUnwrap(updates.last)
+
+        // Campaign IDs from the trigger (parent) should be used
+        XCTAssertEqual(lastUpdate.properties?["campaignId"] as? String, "parent-campaign")
+        XCTAssertEqual(lastUpdate.properties?["tacticId"] as? String, "parent-tactic")
+    }
+
+    func testEvaluateRenderingFirstStepStateNoCampaignWhenParentHasNone() throws {
+        // When the parent has no campaign IDs, the child should not report any either,
+        // even if the child's API response included them.
+        let experience = ExperienceData(
+            .mockFromCampaign, // has campaignId/tacticId on the model
+            trigger: .launchExperienceAction(
+                fromExperienceID: UUID(),
+                campaignId: nil,
+                tacticId: nil
+            )
+        )
+        let isCompleted = observer.evaluateIfSatisfied(result: .success(.renderingStep(experience, .initial, experience.package(), isFirst: true)))
+
+        // Assert
+        XCTAssertFalse(isCompleted)
+        let lastUpdate = try XCTUnwrap(updates.last)
+
+        // Campaign IDs should be absent (parent had none)
+        XCTAssertNil(lastUpdate.properties?["campaignId"])
+        XCTAssertNil(lastUpdate.properties?["tacticId"])
+    }
+
     func testEvaluateRenderingStepState() throws {
         // Act
         let experience = ExperienceData.mock

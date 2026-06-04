@@ -255,6 +255,8 @@ extension Experience {
             type: "mobile",
             publishedAt: 1632142800000,
             context: nil,
+            campaignId: nil,
+            tacticId: nil,
             traits: [],
             steps: [
                 Experience.Step(

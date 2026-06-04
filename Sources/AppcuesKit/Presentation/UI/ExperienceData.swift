@@ -75,6 +75,57 @@ internal class ExperienceData {
         )
     }
 
+    var campaignId: String? {
+        switch trigger {
+        case .launchExperienceAction(_, let campaignId, _),
+             .experienceCompletionAction(_, let campaignId, _):
+            return campaignId
+        default:
+            return model.campaignId
+        }
+    }
+
+    var tacticId: String? {
+        switch trigger {
+        case .launchExperienceAction(_, _, let tacticId),
+             .experienceCompletionAction(_, _, let tacticId):
+            return tacticId
+        default:
+            return model.tacticId
+        }
+    }
+
+    @available(iOS 13.0, *)
+    var postExperienceActionFactory: ((Appcues?) -> [AppcuesExperienceAction]) {
+        let effectiveCampaignId = campaignId
+        let effectiveTacticId = tacticId
+        let experienceId = model.id
+        let redirectURL = model.redirectURL
+        let nextContentID = model.nextContentID
+
+        return { appcues in
+            var actions: [AppcuesExperienceAction] = []
+
+            if let redirectURL = redirectURL {
+                actions.append(AppcuesLinkAction(appcues: appcues, url: redirectURL))
+            }
+
+            if let nextContentID = nextContentID {
+                actions.append(AppcuesLaunchExperienceAction(
+                    appcues: appcues,
+                    experienceID: nextContentID,
+                    trigger: .experienceCompletionAction(
+                        fromExperienceID: experienceId,
+                        campaignId: effectiveCampaignId,
+                        tacticId: effectiveTacticId
+                    )
+                ))
+            }
+
+            return actions
+        }
+    }
+
     subscript<T>(dynamicMember keyPath: KeyPath<Experience, T>) -> T {
         return model[keyPath: keyPath]
     }

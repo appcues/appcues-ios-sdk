@@ -10,8 +10,8 @@ import Foundation
 
 internal enum ExperienceTrigger: Equatable {
     case qualification(reason: QualifyResponse.QualificationReason?)
-    case experienceCompletionAction(fromExperienceID: UUID?)
-    case launchExperienceAction(fromExperienceID: UUID?)
+    case experienceCompletionAction(fromExperienceID: UUID?, campaignId: String? = nil, tacticId: String? = nil)
+    case launchExperienceAction(fromExperienceID: UUID?, campaignId: String? = nil, tacticId: String? = nil)
     case pushNotification(notificationID: String)
     case showCall
     case deepLink
