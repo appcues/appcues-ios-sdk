@@ -97,6 +97,7 @@ internal enum SendCaptureUI {
         }
 
         @ViewBuilder var bottomButtons: some View {
+            let backgroundOpacity = screenName.isEmpty ? 0.5 : 1.0
             HStack {
                 Button {
                     completion(.failure(SendCaptureError.canceled))
@@ -122,7 +123,7 @@ internal enum SendCaptureUI {
                         startPoint: .leading,
                         endPoint: .trailing
                     )
-                    .opacity(screenName.isEmpty ? 0.5 : 1.0)
+                    .opacity(backgroundOpacity)
                 )
                 .cornerRadius(6.0)
                 .disabled(screenName.isEmpty)
