@@ -37,7 +37,8 @@ internal struct EmbedWebView: UIViewRepresentable {
         // https://stackoverflow.com/a/46000849
         // swiftlint:disable:next line_length
         let headerString = "<head><meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no'></head>"
-        webView.loadHTMLString(headerString + embed, baseURL: nil)
+        let referrerHost = (Bundle.main.bundleIdentifier ?? "localhost").lowercased()
+        webView.loadHTMLString(headerString + embed, baseURL: URL(string: "https://\(referrerHost)"))
 
         return webView
     }
